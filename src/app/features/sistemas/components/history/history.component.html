@@ -1,0 +1,286 @@
+<div class="table-responsive">
+  <table id="example" class="table table-striped table-bordered" style="width:100%">
+    <thead>
+      <tr>
+        <th>Propiedad 1</th>
+        <th>Propiedad 2</th>
+        <th>Propiedad 3</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Las filas serán generadas dinámicamente por DataTables con los datos proporcionados -->
+    </tbody>
+  </table>
+</div>
+
+<!--<div class="container">
+  <table id="example" class="display" >
+    <thead>
+      <tr class="selected">
+        <th>Tag Subestación</th>
+        <th>OT</th>
+        <th>Fecha</th>
+        <th>Tipo Metodo</th>
+        <th>PAT01</th>
+        <th>PAT02</th>
+        <th>PAT03</th>
+        <th>PAT04</th>
+        <th>Lider</th>
+        <th>Supervisor</th>
+        <th>Tendencia</th>
+        <th>Documentos</th>
+        <th>Herramientas</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let spt2 of spt2list">
+        <td>{{ spt2.tag_subestacion }}</td>
+        <td>{{ spt2.ot }}</td>
+        <td>{{ invertirFormatoFecha(spt2.fecha) }}</td>
+        <td>
+          <select [(ngModel)]="spt2.selectedOption" (change)="onChange($event, spt2)">
+            <option value="SIN PICAS">SIN PICAS</option>
+            <ng-container *ngFor="let mc of MetodoCaidaData">
+              <option *ngIf="mc !== '0'" [value]="'METODO CAIDA'">METODO CAIDA</option>
+            </ng-container>
+            <ng-container *ngFor="let ms of MetodoSelectioData">
+              <option *ngIf="ms !== '0'" [value]="'METODO SELECTIVO'">METODO SELECTIVO</option>
+            </ng-container>
+          </select>
+        </td>
+        <td>
+          <ng-container *ngIf="spt2.pat1 !== null && spt2.pat1 !== '' && spt2.pat1 !== '0'; else elseBlock1">
+            <ng-container *ngIf="esNumeroValido(spt2.pat1)">
+              <i class="pi pi-times-circle text-color-primary"></i>
+            </ng-container>
+            <ng-container *ngIf="!esNumeroValido(spt2.pat1)">
+              <i class="pi pi-check-circle text-color-secondary"></i>
+            </ng-container>
+            {{spt2.pat1.replace('bueno', '').replace('malo', '')}}
+          </ng-container>
+        </td>
+        <td>
+          <ng-container *ngIf="spt2.pat2 !== null && spt2.pat2 !== '' && spt2.pat2 !== '0'; else elseBlock2">
+            <ng-container *ngIf="esNumeroValido(spt2.pat2)">
+              <i class="pi pi-times-circle text-color-primary"></i>
+            </ng-container>
+            <ng-container *ngIf="!esNumeroValido(spt2.pat2)">
+              <i class="pi pi-check-circle text-color-secondary"></i>
+            </ng-container>
+            {{spt2.pat2.replace('bueno', '').replace('malo', '')}}
+          </ng-container>
+        </td>
+        <td>
+          <ng-container *ngIf="spt2.pat3 !== null && spt2.pat3 !== '' && spt2.pat3 !== '0'; else elseBlock3">
+            <ng-container *ngIf="esNumeroValido(spt2.pat3)">
+              <i class="pi pi-times-circle text-color-primary"></i>
+            </ng-container>
+            <ng-container *ngIf="!esNumeroValido(spt2.pat3)">
+              <i class="pi pi-check-circle text-color-secondary"></i>
+            </ng-container>
+            {{spt2.pat3.replace('bueno', '').replace('malo', '')}}
+          </ng-container>
+        </td>
+        <td>
+          <ng-container *ngIf="spt2.pat4 !== null && spt2.pat4 !== '' && spt2.pat4 !== '0'; else elseBlock4">
+            <ng-container *ngIf="esNumeroValido(spt2.pat4)">
+              <i class="pi pi-times-circle text-color-primary"></i>
+            </ng-container>
+            <ng-container *ngIf="!esNumeroValido(spt2.pat4)">
+              <i class="pi pi-check-circle text-color-secondary"></i>
+            </ng-container>
+            {{spt2.pat4.replace('bueno', '').replace('malo', '')}}
+          </ng-container>
+        </td>
+        <td>{{ spt2.lider }}</td>
+        <td>{{ spt2.supervisor }}</td>
+        <td (click)="abrirDashboardSpt2(spt2)">
+          <i class="mb-3 pi pi-chart-line text-2xl"></i>
+        </td>
+        <td (click)="onGenerarPdfButtonClick(spt2)">
+          <i class="pi pi-file-pdf text-2xl" [ngClass]="{'color-verde': spt2.firma === true, 'color-anaranjado': spt2.firma === false}"></i>
+        </td>
+        <td *ngIf="eliminado === 'SUPERVISOR'">
+          <a (click)="eliminarRegistro(spt2)">
+            <i class="mb-3 pi pi-trash text-2xl"></i>
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>-->
+
+
+
+
+
+
+<!--<div>
+<p-table
+  [value]="spt2list"
+
+  [paginator]="true"
+  [rows]="30"
+  [tableStyle]="{ 'min-width': '50rem' }"
+  [loading]="loading"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  [globalFilterFields]="['tag_subestacion', 'ot', 'fecha', 'tipo_metodo', 'pat1', 'pat2', 'pat3', 'pat4', 'lider', 'supervisor']"
+  styleClass="custom-table small-table"
+>
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+      <th style="min-width: 15rem">
+        Tag Subestación
+        <p-columnFilter type="text" field="tag_subestacion"></p-columnFilter>
+      </th>
+      <th style="min-width: 15rem">
+        OT
+        <p-columnFilter type="text" field="ot"></p-columnFilter>
+      </th>
+      <th style="min-width: 15rem">
+        Fecha
+        <p-columnFilter type="text" field="fecha" [matchMode]="'contains'"></p-columnFilter>
+      </th>
+      <th style="min-width: 15rem">
+        Tipo Metodo
+        <p-columnFilter type="text" field="tipo_metodo" [matchMode]="'contains'" ></p-columnFilter>
+      </th>
+      <th style="min-width: 15rem">
+          PAT01
+          <p-columnFilter type="text" field="pat1" [matchMode]="'contains'" ></p-columnFilter>
+        </th>
+
+      <th style="min-width: 15rem">
+        PAT02
+        <p-columnFilter type="text"  field="pat2" [matchMode]="'contains'"  ></p-columnFilter>
+      </th>
+      <th style="min-width: 15rem">
+        PAT03
+        <p-columnFilter type="text"  field="pat3" [matchMode]="'contains'"  ></p-columnFilter>
+      </th>
+      <th style="min-width: 15rem">
+        PAT04
+        <p-columnFilter type="text"  field="pat4" [matchMode]="'contains'" ></p-columnFilter>
+      </th>
+      <th style="min-width: 15rem">
+        Lider
+        <p-columnFilter type="text" field="lider" ></p-columnFilter>
+      </th>
+      <th style="min-width: 15rem">
+        Supervisor
+        <p-columnFilter type="text" field="supervisor"></p-columnFilter>
+      </th>
+      <th >
+        Tendencia
+      </th>
+      <th>
+        Documentos
+      </th>
+      <th>
+        Herramientas
+      </th>
+
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-spt2>
+    <tr (click)="onRowSelect(spt2.idSpt2)">
+      <td>{{ spt2.tag_subestacion }}</td>
+      <td>{{ spt2.ot }}</td>
+      <td>{{ invertirFormatoFecha(spt2.fecha) }}</td>
+
+
+      <td>
+        <select [(ngModel)]="spt2.selectedOption" (change)="onChange($event, spt2)">
+            <option value="SIN PICAS">SIN PICAS</option>
+            <ng-container *ngFor="let mc of MetodoCaidaData">
+                <option *ngIf="mc !== '0'" [value]="'METODO CAIDA'">METODO CAIDA</option>
+            </ng-container>
+            <ng-container *ngFor="let ms of MetodoSelectioData">
+                <option *ngIf="ms !== '0'" [value]="'METODO SELECTIVO'">METODO SELECTIVO</option>
+            </ng-container>
+        </select>
+    </td>
+      <td>
+          <ng-container *ngIf="spt2.pat1 !== null && spt2.pat1 !== '' && spt2.pat1 !== '0'; else elseBlock1">
+              <ng-container *ngIf="esNumeroValido(spt2.pat1)">
+                  <i class="pi pi-times-circle text-color-primary"></i>
+              </ng-container>
+              <ng-container *ngIf="!esNumeroValido(spt2.pat1)">
+                  <i class="pi pi-check-circle text-color-secondary"></i>
+              </ng-container>
+              {{spt2.pat1.replace('bueno', '').replace('malo', '')}}
+          </ng-container>
+      </td>
+      <td>
+          <ng-container *ngIf="spt2.pat2 !== null && spt2.pat2 !== '' && spt2.pat2 !== '0'; else elseBlock2">
+              <ng-container *ngIf="esNumeroValido(spt2.pat2)">
+                  <i class="pi pi-times-circle text-color-primary"></i>
+              </ng-container>
+              <ng-container *ngIf="!esNumeroValido(spt2.pat2)">
+                  <i class="pi pi-check-circle text-color-secondary"></i>
+              </ng-container>
+              {{spt2.pat2.replace('bueno', '').replace('malo', '')}}
+          </ng-container>
+      </td>
+      <td>
+          <ng-container *ngIf="spt2.pat3 !== null && spt2.pat3 !== '' && spt2.pat3 !== '0'; else elseBlock3">
+              <ng-container *ngIf="esNumeroValido(spt2.pat3)">
+                  <i class="pi pi-times-circle text-color-primary"></i>
+              </ng-container>
+              <ng-container *ngIf="!esNumeroValido(spt2.pat3)">
+                  <i class="pi pi-check-circle text-color-secondary"></i>
+              </ng-container>
+              {{spt2.pat3.replace('bueno', '').replace('malo', '')}}
+          </ng-container>
+      </td>
+
+      <td>
+          <ng-container *ngIf="spt2.pat4 !== null && spt2.pat4 !== '' && spt2.pat4 !== '0'; else elseBlock4">
+              <ng-container *ngIf="esNumeroValido(spt2.pat4)">
+                 <i class="pi pi-times-circle text-color-primary"></i>
+              </ng-container>
+              <ng-container *ngIf="!esNumeroValido(spt2.pat4)">
+                  <i class="pi pi-check-circle text-color-secondary"></i>
+              </ng-container>
+              {{spt2.pat4.replace('bueno', '').replace('malo', '')}}
+          </ng-container>
+      </td>
+
+      <td>{{ spt2.lider }}</td>
+      <td>{{ spt2.supervisor }}</td>
+      <td (click)="abrirDashboardSpt2(spt2)">
+          <i class="mb-3 pi pi-chart-line text-2xl"></i>
+        </td>
+
+        <td (click)="onGenerarPdfButtonClick(spt2)">
+
+          <i class="pi pi-file-pdf text-2xl" [ngClass]="{'color-verde': spt2.firma === true, 'color-anaranjado': spt2.firma === false}"></i>
+        </td>
+
+        <td *ngIf="eliminado === 'SUPERVISOR'">
+          <a (click)="eliminarRegistro(spt2)">
+              <i class="mb-3 pi pi-trash text-2xl"></i>
+          </a>
+      </td>
+
+
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+      <tr>
+          <td colspan="4" class="empty-message">No customers found.</td>
+      </tr>
+  </ng-template>
+
+</p-table>
+</div>
+
+<div *ngFor="let caida of dataCaida; let i = index">
+
+  <div *ngIf="i % 4 === 0">{{ caida.valormc }}</div>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>-->

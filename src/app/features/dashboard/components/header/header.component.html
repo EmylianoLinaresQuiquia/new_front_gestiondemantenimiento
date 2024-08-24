@@ -1,0 +1,157 @@
+
+    <nz-header *ngIf="drawerInfo.content.header"
+      [ngClass]="{'dark': siteStyle == 'dark', 'fixed': navigationInfo.header, 'collapsed': isCollapsed}">
+      <i nz-icon nzType="menu-fold" nzTheme="outline" class="v"
+      (click)="isCollapsed = !isCollapsed"
+      nz-tooltip nzTooltipTitle="Expandir/Colapsar Sidebar"></i>
+
+      <div style="flex: 1 1 0%;"></div>
+
+      <div class="header-right">
+
+
+
+
+        <div class="header-action header-bell" nz-dropdown [nzDropdownMenu]="menuBell" [nzTrigger]="'click'"
+          [nzPlacement]="'bottomRight'" [nzOverlayClassName]="'dropdownBell'" nz-tooltip nzTooltipTitle="Notificacion" nzTooltipPlacement="bottom">
+
+
+
+          <i nz-icon nzType="bell" nzTheme="outline"></i>
+          <nz-badge [nzCount]="bellInfo.total"></nz-badge>
+          <nz-dropdown-menu #menuBell="nzDropdownMenu">
+            <div class="bell-container">
+              <nz-tabset [nzSelectedIndex]="0">
+                <nz-tab [nzTitle]="'Notificación' + (bellInfo.notice ? '(' + bellInfo.notice + ')' : '')">
+                  <nz-list nzItemLayout="horizontal">
+                    <nz-list-item *ngFor="let item of noticeList" [class.read]="item.read" (click)="read(item)">
+                      <nz-list-item-meta>
+                        <nz-list-item-meta-avatar>
+                          <ng-container [ngSwitch]="item?.type">
+                            <nz-avatar *ngSwitchCase="1" nzIcon="mail"
+                              nzSrc="https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png">
+                            </nz-avatar>
+                            <nz-avatar *ngSwitchCase="2" nzIcon="mail"
+                              nzSrc="https://gw.alipayobjects.com/zos/rmsportal/OKJXDXrmkNshAMvwtvhu.png">
+                            </nz-avatar>
+                            <nz-avatar *ngSwitchCase="3" nzIcon="mail"
+                              nzSrc="https://gw.alipayobjects.com/zos/rmsportal/kISTdvpyTAhtGxpovNWd.png">
+                            </nz-avatar>
+                            <nz-avatar *ngSwitchCase="4" nzIcon="mail"
+                              nzSrc="https://gw.alipayobjects.com/zos/rmsportal/GvqBnKhFgObvnSGkDsje.png">
+                            </nz-avatar>
+                            <nz-avatar *ngSwitchDefault nzIcon="mail"
+                              nzSrc="https://gw.alipayobjects.com/zos/rmsportal/ThXAXghbEsBCCSDihZxY.png">
+                            </nz-avatar>
+                          </ng-container>
+                        </nz-list-item-meta-avatar>
+                        <nz-list-item-meta-title>
+                          {{item.title}}
+                        </nz-list-item-meta-title>
+                        <nz-list-item-meta-description>
+                          {{item.time}}
+                        </nz-list-item-meta-description>
+                      </nz-list-item-meta>
+                    </nz-list-item>
+                    <nz-list-empty *ngIf="noticeList.length === 0" [nzNoResult]="noNoticeTpl"></nz-list-empty>
+                  </nz-list>
+                  <div class="list-bottomBar" *ngIf="noticeList.length > 0">
+                    <div >Marcar todas como leídas</div>
+                    <div >Ver más</div>
+                  </div>
+                </nz-tab>
+                <nz-tab [nzTitle]="'Mensaje' + (bellInfo.message ? '(' + bellInfo.message + ')' : '')">
+                  <nz-list nzItemLayout="horizontal">
+                    <nz-list-item *ngFor="let item of messageList" [class.read]="item.read" (click)="read(item)">
+                      <nz-list-item-meta>
+                        <nz-list-item-meta-avatar>
+                          <nz-avatar nzIcon="user" [nzSrc]="item?.avatar">
+                          </nz-avatar>
+                        </nz-list-item-meta-avatar>
+                        <nz-list-item-meta-title>
+                          {{item.title}}
+                        </nz-list-item-meta-title>
+                        <nz-list-item-meta-description>
+                          <div>{{item.desc}}</div>
+                          <div>{{item.time}}</div>
+                        </nz-list-item-meta-description>
+                      </nz-list-item-meta>
+                    </nz-list-item>
+                    <nz-list-empty *ngIf="messageList.length === 0" [nzNoResult]="noMessageTpl"></nz-list-empty>
+                  </nz-list>
+                  <div class="list-bottomBar" *ngIf="messageList.length > 0">
+                    <div (click)="readAll('message')">Marcar todos como leídos</div>
+                    <div (click)="readMore('message')">Ver más</div>
+                  </div>
+                </nz-tab>
+                <nz-tab [nzTitle]="'Tareas' + (bellInfo.task ? '(' + bellInfo.task + ')' : '')">
+                  <nz-list nzItemLayout="horizontal">
+                    <nz-list-item *ngFor="let item of taskList" [class.read]="item.read" (click)="read(item)">
+                      <nz-list-item-meta>
+                        <nz-list-item-meta-title>
+                          <div class="flex">
+                            <div class="flex-1">{{item.title}}</div>
+                            <ng-container [ngSwitch]="item.type">
+                              <nz-tag *ngSwitchCase="1">No iniciado</nz-tag>
+                              <nz-tag *ngSwitchCase="2" [nzColor]="'red'">A punto de vencer</nz-tag>
+                              <nz-tag *ngSwitchCase="3" [nzColor]="'gold'">Duración de 8 días</nz-tag>
+                              <nz-tag *ngSwitchCase="4" [nzColor]="'blue'">En progreso</nz-tag>
+                            </ng-container>
+                          </div>
+                        </nz-list-item-meta-title>
+                        <nz-list-item-meta-description>
+                          {{item?.desc}}
+                        </nz-list-item-meta-description>
+                      </nz-list-item-meta>
+                    </nz-list-item>
+                    <nz-list-empty *ngIf="taskList.length === 0" [nzNoResult]="noTaskTpl"></nz-list-empty>
+                  </nz-list>
+                  <div class="list-bottomBar" *ngIf="taskList.length > 0">
+                    <div>Marcar todas como completadas</div>
+                    <div >Ver más</div>
+                  </div>
+                </nz-tab>
+              </nz-tabset>
+            </div>
+          </nz-dropdown-menu>
+        </div>
+        <ng-template #noNoticeTpl>
+          <ng-container *ngTemplateOutlet="noResultTpl; context: {type: 'Has revisado todas las notificaciones'}"></ng-container>
+        </ng-template>
+        <ng-template #noMessageTpl>
+          <ng-container *ngTemplateOutlet="noResultTpl; context: {type: 'Has revisado todos los mensajes'}"></ng-container>
+        </ng-template>
+        <ng-template #noTaskTpl>
+          <ng-container *ngTemplateOutlet="noResultTpl; context: {type: 'Has revisado todas las tareas'}"></ng-container>
+        </ng-template>
+        <ng-template #noResultTpl let-type="type">
+          <nz-empty [nzNotFoundImage]="'https://gw.alipayobjects.com/zos/rmsportal/sAuJeJzSKbUmHfBQRzmZ.svg'"
+            [nzNotFoundContent]="type"></nz-empty>
+        </ng-template>
+        <div class="header-action" nz-dropdown [nzDropdownMenu]="menuUser">
+          <nz-avatar nzIcon="user" [nzSize]="24"
+            nzSrc="https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png">
+          </nz-avatar>
+          <span class="pl5">Serati Ma</span>
+          <nz-dropdown-menu #menuUser="nzDropdownMenu">
+            <ul nz-menu>
+              <li nz-menu-item (click)="goUrl('/account/center')">
+                <i nz-icon nzType="user" nzTheme="outline"></i>
+                <span>Centro Personal</span>
+              </li>
+              <li nz-menu-item (click)="goUrl('/account/settings')">
+                <i nz-icon nzType="setting" nzTheme="outline"></i>
+                <span>Configuración Personal</span>
+              </li>
+              <li nz-menu-divider></li>
+              <li nz-menu-item >
+                <i nz-icon nzType="logout" nzTheme="outline"></i>
+                <span>Cerrar Sesión</span>
+              </li>
+            </ul>
+          </nz-dropdown-menu>
+        </div>
+
+
+      </div>
+    </nz-header>

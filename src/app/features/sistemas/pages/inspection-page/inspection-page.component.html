@@ -1,0 +1,40 @@
+<div class="container d-flex justify-content-center align-items-center vh-100">
+  <nz-card class="w-100" nzBordered  nzBordered [nzBodyStyle]="{ padding: '24px' }">
+    <div class="text-center mb-3">
+      <h2>Subestación</h2>
+      <div class="search">
+        <div class="search-box">
+          <div class="search-field">
+            <select id="subestacion-select" [(ngModel)]="tagSubestacion" aria-label="Lista de Subestaciones" (change)="buscarSubestacion()" class="form-control">
+              <option value="" disabled selected hidden>Seleccione una subestación</option>
+              <option *ngFor="let tag of tagsSubestaciones" [value]="tag">{{tag}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-menu d-flex justify-content-around mt-4">
+      <div>
+        <label for="spt1-select" class="visually-hidden">Seleccionar opción para spt1</label>
+        <select id="spt1-select" (change)="seleccionarOpcion('spt1', $event)" aria-label="Seleccionar opción para spt1" class="form-control">
+          <option value="" disabled selected hidden>SPT1</option>
+          <option value="Protocolo">Protocolo Inspección</option>
+          <option value="Historico">HISTORIAL</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="spt2-select" class="visually-hidden">Seleccionar opción para spt2</label>
+        <select id="spt2-select" (change)="seleccionarOpcion('spt2', $event)" aria-label="Seleccionar opción para spt2" class="form-control">
+          <option value="" disabled selected hidden>SPT2</option>
+          <option value="Protocolo">Protocolo Medición</option>
+          <option value="Historico">HISTORIAL</option>
+        </select>
+      </div>
+    </div>
+  </nz-card>
+</div>
+
+
+<button (click)="abrirspt1()">spt1</button>

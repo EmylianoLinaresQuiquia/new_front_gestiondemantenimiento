@@ -1,0 +1,53 @@
+<!--<div>
+  <input type="file" (change)="loadExcelFile($event)" />
+</div>
+
+<div *ngIf="sheetData.length > 0">
+  <table>
+    <thead>
+      <tr>
+        <th *ngFor="let header of sheetData[0]"> {{ header }} </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of sheetData.slice(1); let rowIndex = index">
+        <td *ngFor="let cell of row; let cellIndex = index" style="position: relative;">
+
+
+          <ng-container *ngIf="getImageForCell(rowIndex + 1, cellIndex + 1) as imageBase64">
+            <img [src]="imageBase64"
+                 style="width: 100%; height: auto;"
+                 (load)="onImageLoad()"
+                 (error)="onImageError()">
+          </ng-container>
+
+          <ng-template #cellContent>
+            <span *ngIf="cell; else emptyCell">{{ cell }}</span>
+            <ng-template #emptyCell>
+              <span>Celda vacía</span>
+            </ng-template>
+          </ng-template>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+<div *ngIf="images.length > 0">
+  <img [src]="images[0].base64" alt="Primera Imagen" style="width: 100px; height: 100px;" />
+</div>
+-->
+<!-- Contenedor principal -->
+<div id="fileUploader">
+  <input type="file" (change)="onFileChange($event)" />
+</div>
+<!-- Contenedor para la tabla que renderizará los datos de Excel -->
+<div id="tableContainer">
+  <table id="excelTable">
+    <!-- Las filas y celdas de Excel se renderizarán aquí dinámicamente -->
+  </table>
+</div>
+

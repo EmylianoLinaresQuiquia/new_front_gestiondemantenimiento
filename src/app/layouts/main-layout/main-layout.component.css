@@ -1,0 +1,50 @@
+/* styles.css (o el archivo de estilos global que estés utilizando) */
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5; /* Color de fondo general */
+}
+
+/* Estilo del encabezado */
+app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px; /* Ajusta según el tamaño de tu encabezado */
+  background-color: #001529; /* Color de fondo del encabezado */
+  color: #fff;
+  z-index: 1000; /* Asegúrate de que el encabezado esté por encima del contenido */
+}
+
+/* Estilo del sidebar */
+app-sidebar {
+  position: fixed;
+  top: 64px; /* Ajusta para que comience justo debajo del encabezado */
+  left: 0;
+  width: 208px; /* Ancho del sidebar */
+  height: calc(100vh - 64px); /* Altura del sidebar */
+  background-color: #ffffff; /* Color de fondo del sidebar */
+  color: #000000;
+  overflow-y: auto; /* Para permitir desplazamiento si el contenido es largo */
+  z-index: 999; /* Asegúrate de que el sidebar esté debajo del encabezado pero sobre el contenido */
+}
+
+/* Contenido principal */
+.main-content {
+  margin-left: 208px; /* Ancho del sidebar */
+  margin-top: 64px; /* Altura del encabezado */
+  padding: 16px; /* Espaciado interno del contenido principal */
+  height: calc(100vh - 64px); /* Altura del contenido principal */
+  overflow-y: auto; /* Para permitir desplazamiento si el contenido es largo */
+}
+
+/* Opcional: estilos adicionales para el estado colapsado del sidebar */
+.sidebar-collapsed {
+  width: 80px; /* Ancho del sidebar colapsado */
+}
+
+.sidebar-collapsed .logo h1 {
+  display: none; /* Oculta el texto en el estado colapsado */
+}

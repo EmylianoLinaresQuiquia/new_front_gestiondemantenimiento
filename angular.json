@@ -21,15 +21,38 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
+              "src/assets",
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "output": "/assets/"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+                "output": "/assets/"
               }
             ],
             "styles": [
+
+              "node_modules/datatables.net-dt/css/dataTables.dataTables.min.css",
+              "node_modules/datatables.net-buttons-dt/css/buttons.dataTables.css",
+              "node_modules/datatables.net-fixedcolumns-dt/css/fixedColumns.dataTables.css",
+              "src/theme.less",
+
               "src/styles.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "node_modules/jquery/dist/jquery.js",
+              "node_modules/datatables.net/js/dataTables.min.js",
+              "node_modules/datatables.net-buttons/js/dataTables.buttons.js",
+              "node_modules/datatables.net-buttons/js/buttons.html5.js",
+              "node_modules/datatables.net-buttons/js/buttons.print.js",
+              "node_modules/datatables.net-fixedcolumns-dt/js/fixedColumns.dataTables.js",
+              "node_modules/jszip/dist/jszip.js",
+              "node_modules/pdfmake/build/pdfmake.js",
+              "node_modules/pdfmake/build/vfs_fonts.js"
+            ],
             "server": "src/main.server.ts",
             "prerender": true,
             "ssr": {
@@ -41,13 +64,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                   "maximumWarning": "5mb",
+                    "maximumError": "10mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kB",
-                  "maximumError": "4kB"
+                  "maximumWarning": "3kB",
+                  "maximumError": "5kB"
                 }
               ],
               "outputHashing": "all"
@@ -84,9 +107,11 @@
             ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
+              "src/assets",
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "output": "/assets/"
               }
             ],
             "styles": [
@@ -97,5 +122,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "afbbb1e4-659b-4e03-9d12-2442681c7bf6"
   }
 }

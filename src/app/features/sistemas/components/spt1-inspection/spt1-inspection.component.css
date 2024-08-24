@@ -1,0 +1,63 @@
+/* Estilo general para la tabla */
+#tableContainer {
+  margin-top: 20px;
+  overflow-x: auto; /* Para manejar tablas grandes */
+}
+
+#excelTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 18px;
+  text-align: left;
+}
+
+/* Estilo para las filas de la tabla */
+#excelTable tr {
+  border-bottom: 1px solid #dddddd;
+  background-color: #f9f9f9;
+}
+
+/* Alternar colores para las filas */
+#excelTable tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+/* Estilo para las celdas de la tabla */
+#excelTable th, #excelTable td {
+  padding: 12px 15px;
+}
+
+/* Estilo para los checkboxes */
+#excelTable input[type="checkbox"] {
+  transform: scale(1.2); /* Hace que los checkboxes sean más grandes */
+  margin: 0;
+}
+
+/* Estilo para las listas desplegables */
+#excelTable select {
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #222222;
+  border-radius: 4px;
+  background-color: #910000;
+}
+
+/* Estilo para las imágenes renderizadas */
+#excelTable img {
+  max-width: 100px;
+  height: auto;
+  margin: 10px;
+}
+
+/* Añadir un borde a las imágenes */
+#excelTable img {
+  border: 1px solid #dddddd;
+  padding: 5px;
+  background-color: #ffffff;
+}
+select {
+  background-color: red;
+  display: block !important;
+  width: 100%;
+}
