@@ -27,7 +27,7 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 
 
 import { NzInputModule } from 'ng-zorro-antd/input';
-// Handsontable for Angular
+
 import { HotTableModule } from '@handsontable/angular';
 // import { registerAllModules } from 'handsontable/registry'; // Uncomment if needed
 
@@ -59,7 +59,7 @@ import { HotTableModule } from '@handsontable/angular';
     NzDividerModule, // Agregado por si necesitas divisores
     NzCardModule,
 
-    // Handsontable module
+
     HotTableModule,
   ],
   exports: [
@@ -90,7 +90,7 @@ import { HotTableModule } from '@handsontable/angular';
     NzCardModule,
 
 
-    // Handsontable module
+
     HotTableModule,
   ],
   providers: [

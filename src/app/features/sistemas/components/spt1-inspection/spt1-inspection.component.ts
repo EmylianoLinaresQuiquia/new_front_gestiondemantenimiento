@@ -9,7 +9,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { Workbook } from 'exceljs';
 import * as fs from 'file-saver';
 import { isPlatformBrowser } from '@angular/common';
-import Handsontable from 'handsontable';
+
 
 /*interface Cell {
   v: string; // o el tipo adecuado según tus datos
