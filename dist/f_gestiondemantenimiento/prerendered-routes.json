@@ -1,0 +1,12 @@
+{
+  "routes": [
+    "/",
+    "/auth",
+    "/auth/forgot-password",
+    "/auth/login",
+    "/dashboard",
+    "/sistemas",
+    "/sistemas/historial",
+    "/sistemas/spt1"
+  ]
+}

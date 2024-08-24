@@ -4,12 +4,14 @@
   "scripts": {
     "ng": "ng",
     "start": "node server.js",
-    "build": "ng build",
-    "heroku-postbuild": "ng build --configuration production",
+    "clean:cache": "rimraf .angular/cache",
+    "build": "npm run clean:cache && ng build",
+
     "preinstall": "npm install -g @angular/cli @angular/compiler-cli typescript",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:f_gestiondemantenimiento": "node dist/f_gestiondemantenimiento/server/server.mjs"
+    "serve:ssr:f_gestiondemantenimiento": "node dist/f_gestiondemantenimiento/server/server.mjs",
+    "heroku-postbuild": "ng build --configuration production"
   },
   "private": true,
   "dependencies": {
