@@ -1,15 +1,18 @@
 const express = require('express');
 const path = require('path');
+
 const app = express();
 
-// Servir los archivos estáticos desde dist/f-gestiondemantenimiento
-app.use(express.static(path.join(__dirname, 'dist/f-gestiondemantenimiento')));
+// Define la ruta estática al directorio 'browser'
+app.use(express.static(path.join(__dirname, 'dist/f-gestiondemantenimiento/browser')));
 
+// Cualquier otra ruta debe devolver el archivo index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/f-gestiondemantenimiento/index.html'));
+    res.sendFile(path.join(__dirname, 'dist/f-gestiondemantenimiento/browser/index.html'));
 });
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+// Configura el puerto
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
