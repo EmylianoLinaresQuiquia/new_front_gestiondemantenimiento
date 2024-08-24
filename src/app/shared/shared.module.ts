@@ -28,7 +28,7 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 
 import { NzInputModule } from 'ng-zorro-antd/input';
 
-import { HotTableModule } from '@handsontable/angular';
+
 // import { registerAllModules } from 'handsontable/registry'; // Uncomment if needed
 
 @NgModule({
@@ -60,7 +60,7 @@ import { HotTableModule } from '@handsontable/angular';
     NzCardModule,
 
 
-    HotTableModule,
+
   ],
   exports: [
     CommonModule,
@@ -91,7 +91,7 @@ import { HotTableModule } from '@handsontable/angular';
 
 
 
-    HotTableModule,
+
   ],
   providers: [
     // Ng-Zorro Ant Design services
