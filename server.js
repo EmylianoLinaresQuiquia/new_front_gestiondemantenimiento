@@ -3,16 +3,15 @@ const path = require('path');
 
 const app = express();
 
-// Define la ruta estática al directorio 'browser'
-app.use(express.static(path.join(__dirname, 'dist/f-gestiondemantenimiento/browser')));
+// Configura la ruta para servir archivos estáticos
+app.use(express.static(__dirname + '/dist/f-gestiondemantenimiento/browser/browser'));
 
-// Cualquier otra ruta debe devolver el archivo index.html
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist/f-gestiondemantenimiento/browser/index.html'));
+// Ruta para manejar todas las solicitudes y devolver el archivo index.html
+app.get('/*', function(req, res) {
+  res.sendFile(path.join(__dirname + '/dist/f-gestiondemantenimiento/browser/browser/index.html'));
 });
 
-// Configura el puerto
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });

@@ -5,13 +5,15 @@
     "ng": "ng",
     "start": "node server.js",
     "clean:cache": "rimraf .angular/cache",
-    "build": "ng build --prod",
+    "build": "ng build --configuration production",
 
     "preinstall": "npm install -g @angular/cli @angular/compiler-cli typescript",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:f_gestiondemantenimiento": "node dist/f_gestiondemantenimiento/server/server.mjs",
-    "heroku-postbuild": "ng build --configuration production"
+   "heroku-postbuild": "ng build --configuration production && tsc server.ts"
+
+
   },
   "private": true,
   "dependencies": {
