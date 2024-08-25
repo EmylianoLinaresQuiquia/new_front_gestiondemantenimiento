@@ -15,12 +15,6 @@
           "options": {
             "allowedCommonJsDependencies": ["exceljs"],
             "outputPath": "dist/f-gestiondemantenimiento",
-            "fileReplacements": [
-              {
-                "replace": "src/environments/environment.ts",
-                "with": "src/environments/environment.prod.ts"
-              }
-            ],
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -56,6 +50,12 @@
               "node_modules/jszip/dist/jszip.js",
               "node_modules/pdfmake/build/pdfmake.js",
               "node_modules/pdfmake/build/vfs_fonts.js"
+            ],
+            "fileReplacements": [
+              {
+                "replace": "src/environments/environment.ts",
+                "with": "src/environments/environment.prod.ts"
+              }
             ]
           },
           "configurations": {
@@ -83,7 +83,6 @@
             },
             "development": {
               "optimization": false,
-              "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true,
               "aot": false,

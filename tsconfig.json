@@ -1,42 +1,25 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "outDir": "./dist/out-tsc",
-    "strict": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
-    "declaration": false,
-    "experimentalDecorators": true,
+    "target": "ES2022", // Asegúrate de usar una versión compatible
+    "module": "ESNext",
     "moduleResolution": "node",
-    "importHelpers": true,
-    "target": "es2022",
-    "module": "es2022",
-    "lib": [
-      "es2022",
-      "dom"
-    ]
+    "outDir": "./dist/out-tsc",
+    "baseUrl": "./",
+    "types": ["node", "jquery"], // Incluye tipos para Node.js y jQuery
+    "esModuleInterop": true, // Permite la importación por defecto de módulos CommonJS
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strict": true, // Activa las opciones de modo estricto
+    "skipLibCheck": true
   },
-  "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": false,
-    "strictInjectionParameters": true,
-    "strictInputAccessModifiers": true,
-    "strictTemplates": true
-  },
+  "include": [
+    "src/**/*.ts"
+  ],
   "exclude": [
-    "src/test.ts",
-    "**/*.spec.ts",
-    "src/main.server.ts",
-    "server.ts",
-    "src/app/app.config.server.ts",  // Excluir archivos no utilizados
-    "src/app/core/**/*.ts",
-    "src/app/features/**/*.ts"
+    "node_modules",
+    "src/**/*.spec.ts",
+    "src/**/*.mock.ts",
+    "src/**/*.test.ts",
+    "src/**/*.e2e-spec.ts"
   ]
 }
