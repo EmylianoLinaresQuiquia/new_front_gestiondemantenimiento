@@ -2,16 +2,15 @@
   "name": "f-gestiondemantenimiento",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "heroku-postbuild": "ng build --prod",
-    "start": "node server.js",
-    "clean:cache": "rimraf .angular/cache",
-    "build": "ng build --configuration production",
-    "postinstall": "ng build --configuration production",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+  "ng": "ng",
+  "heroku-postbuild": "ng build --configuration production",
+  "start": "node server.js",
+  "clean:cache": "rimraf .angular/cache",
+  "build": "ng build --configuration production",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test"
+},
 
-  },
   "private": true,
   "dependencies": {
     "@angular/animations": "^18.1.0",
