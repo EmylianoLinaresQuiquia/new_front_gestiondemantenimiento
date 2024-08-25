@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "f_gestiondemantenimiento": {
+    "f-gestiondemantenimiento": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -11,17 +11,16 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "allowedCommonJsDependencies": ["exceljs"],
-            "outputPath": "dist/f_gestiondemantenimiento",
+            "outputPath": "dist/f-gestiondemantenimiento",
             "index": "src/index.html",
-            "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
+              "src/favicon.ico",
               "src/assets",
               {
                 "glob": "**/*",
@@ -35,12 +34,10 @@
               }
             ],
             "styles": [
-
               "node_modules/datatables.net-dt/css/dataTables.dataTables.min.css",
               "node_modules/datatables.net-buttons-dt/css/buttons.dataTables.css",
               "node_modules/datatables.net-fixedcolumns-dt/css/fixedColumns.dataTables.css",
               "src/theme.less",
-
               "src/styles.css"
             ],
             "scripts": [
@@ -53,20 +50,15 @@
               "node_modules/jszip/dist/jszip.js",
               "node_modules/pdfmake/build/pdfmake.js",
               "node_modules/pdfmake/build/vfs_fonts.js"
-            ],
-            "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "server.ts"
-            }
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "5mb",
+                  "maximumError": "10mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -74,12 +66,23 @@
                   "maximumError": "10mb"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "optimization": true,
+              "sourceMap": false,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "namedChunks": true,
+              "aot": false,
+              "vendorChunk": true,
+              "buildOptimizer": false
             }
           },
           "defaultConfiguration": "production"
@@ -88,10 +91,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "f_gestiondemantenimiento:build:production"
+              "buildTarget": "f-gestiondemantenimiento:build:production"
             },
             "development": {
-              "buildTarget": "f_gestiondemantenimiento:build:development"
+              "buildTarget": "f-gestiondemantenimiento:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -102,10 +105,7 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               "src/assets",

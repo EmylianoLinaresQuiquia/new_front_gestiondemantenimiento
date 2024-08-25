@@ -8,7 +8,6 @@ import bootstrap from './src/main.server';
 export function app(): express.Express {
   const server = express();
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-  // Actualizamos el directorio donde se buscan los archivos estáticos
   const browserDistFolder = resolve(serverDistFolder, '../dist/f-gestiondemantenimiento');
   const indexHtml = join(browserDistFolder, 'index.html');
 

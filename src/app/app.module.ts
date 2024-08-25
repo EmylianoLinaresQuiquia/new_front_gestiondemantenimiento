@@ -39,12 +39,7 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 
 
 @NgModule({
-  declarations: [
-    AppComponent,            // Componente raíz de la aplicación
 
-
-
-  ],
   imports: [
     BrowserModule,         // Módulo que incluye características necesarias para aplicaciones Angular en navegadores
     RouterModule.forRoot(routes),    // Módulo de enrutamiento para gestionar las rutas de la aplicación
@@ -63,7 +58,6 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
     NzGridModule,
     NzDropDownModule,
     NzIconModule,
-    NzMessageService,
     NzLayoutModule,
     NzToolTipModule,
     NzBadgeModule,
@@ -74,6 +68,6 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
     NzMenuModule,
   ],
   providers: [{ provide: NZ_ICONS, useValue: [UserOutline, LockOutline] },NzMessageService],
-  bootstrap: [AppComponent]  // Componente raíz que Angular inyecta en el index.html
+  bootstrap: []  // Componente raíz que Angular inyecta en el index.html
 })
 export class AppModule { }
