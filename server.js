@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const path = require('path');
 const { CommonEngine } = require('@angular/ssr');
 const { APP_BASE_HREF } = require('@angular/common');
