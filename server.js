@@ -7,7 +7,6 @@ var node_path_1 = require("node:path");
 var common_1 = require("@angular/common");
 var ssr_1 = require("@angular/ssr");
 var main_server_1 = require("./src/main.server");
-// Asegúrate de que TypeScript maneje `import.meta`
 var __dirname = (0, node_path_1.dirname)((0, node_url_1.fileURLToPath)(import.meta.url));
 function app() {
     var server = (0, express_1.default)();
@@ -16,7 +15,7 @@ function app() {
     var commonEngine = new ssr_1.CommonEngine();
     server.set('view engine', 'html');
     server.set('views', browserDistFolder);
-    // Serve static files from /browser
+    // Serve static files from the root of the dist directory
     server.get('**', express_1.default.static(browserDistFolder, {
         maxAge: '1y',
         index: 'index.html',
@@ -39,7 +38,6 @@ function app() {
 }
 function run() {
     var port = process.env['PORT'] || 4000;
-    // Start up the Node server
     var server = app();
     server.listen(port, function () {
         console.log("Node Express server listening on http://localhost:".concat(port));
