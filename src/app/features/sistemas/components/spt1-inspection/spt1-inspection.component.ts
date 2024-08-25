@@ -1,6 +1,6 @@
 import { Component,OnInit ,Inject, PLATFORM_ID } from '@angular/core';
-
-import * as ExcelJS from 'exceljs';
+import { SharedModule } from '../../../../shared/shared.module';
+/*import * as ExcelJS from 'exceljs';
 import { HttpClient } from '@angular/common/http';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx';
 import { SharedModule } from '../../../../shared/shared.module';
 import { Workbook } from 'exceljs';
 import * as fs from 'file-saver';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';*/
 
 
 /*interface Cell {
@@ -26,7 +26,7 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrl: './spt1-inspection.component.css'
 })
 export class Spt1InspectionComponent  {
-  async onFileChange(event: any): Promise<void> {
+  /*async onFileChange(event: any): Promise<void> {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -169,7 +169,35 @@ getDropdownOptions(cell: any): string[] {
       default:
         return 'png'; // Default to PNG if unrecognized
     }
-  }
+  }*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   /*sheetData: (string | number)[][] = [];
 
   constructor(private http: HttpClient) {}

@@ -1,23 +1,24 @@
 import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr';
 import * as express from 'express';
-import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'path';  // Cambiar 'node:path' a 'path'
 import bootstrap from './src/main.server';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(new URL(import.meta.url, import.meta.url)));  // Utiliza URL para obtener __dirname
 
 export function app(): express.Express {
   const server = express();
-  const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-  const browserDistFolder = resolve(serverDistFolder, '../dist/f_gestiondemantenimiento/browser');
-  const indexHtml = join(browserDistFolder, 'index.html');
+  const serverDistFolder = resolve(__dirname, '../dist/f_gestiondemantenimiento/browser');  // Ajusta la ruta
+  const indexHtml = join(serverDistFolder, 'index.html');
 
   const commonEngine = new CommonEngine();
 
   server.set('view engine', 'html');
-  server.set('views', browserDistFolder);
+  server.set('views', serverDistFolder);
 
   // Servir archivos estáticos desde la nueva ubicación
-  server.get('*.*', express.static(browserDistFolder, {
+  server.get('*.*', express.static(serverDistFolder, {
     maxAge: '1y',
     index: false,
   }));
@@ -31,7 +32,7 @@ export function app(): express.Express {
         bootstrap,
         documentFilePath: indexHtml,
         url: `${protocol}://${headers.host}${originalUrl}`,
-        publicPath: browserDistFolder,
+        publicPath: serverDistFolder,
         providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
       })
       .then((html) => res.send(html))
