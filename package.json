@@ -9,6 +9,7 @@
     "postinstall": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
+
   },
   "private": true,
   "dependencies": {
@@ -58,8 +59,11 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.5.2"
   },
+
   "engines": {
     "node": "20.16.0",
     "npm": "10.8.1"
-  }
+  },
+  "type": "module"
+
 }
