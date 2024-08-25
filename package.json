@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "node server.ts",
+    "start": "node server.js",
     "clean:cache": "rimraf .angular/cache",
     "build": "ng build --configuration production",
     "serve:ssr": "node server.ts",
