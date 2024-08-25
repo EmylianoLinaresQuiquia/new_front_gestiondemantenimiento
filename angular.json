@@ -13,9 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/f-gestiondemantenimiento/browser",
-            "allowedCommonJsDependencies": ["exceljs"],
-            "baseHref": "/",
+            "outputPath": "dist/f_gestiondemantenimiento",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -25,12 +23,12 @@
             "assets": [
               "src/assets",
               {
-                "glob": "*/",
+                "glob": "**/*",
                 "input": "public",
                 "output": "/assets/"
               },
               {
-                "glob": "*/",
+                "glob": "**/*",
                 "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
                 "output": "/assets/"
               }
@@ -66,13 +64,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                   "maximumWarning": "5mb",
-                    "maximumError": "10mb"
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "3kB",
-                  "maximumError": "5kB"
+                  "maximumWarning": "2kB",
+                  "maximumError": "4kB"
                 }
               ],
               "outputHashing": "all"
@@ -111,7 +109,7 @@
             "assets": [
               "src/assets",
               {
-                "glob": "*/",
+                "glob": "**/*",
                 "input": "public",
                 "output": "/assets/"
               }

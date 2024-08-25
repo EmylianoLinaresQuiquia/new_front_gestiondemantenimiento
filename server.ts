@@ -8,8 +8,8 @@ import bootstrap from './src/main.server';
 export function app(): express.Express {
   const server = express();
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-  // Cambiamos el directorio donde se buscan los archivos estáticos
-  const browserDistFolder = resolve(serverDistFolder, '../browser/browser');
+  // Actualizamos el directorio donde se buscan los archivos estáticos
+  const browserDistFolder = resolve(serverDistFolder, '../dist/f-gestiondemantenimiento');
   const indexHtml = join(browserDistFolder, 'index.html');
 
   const commonEngine = new CommonEngine();
@@ -18,9 +18,9 @@ export function app(): express.Express {
   server.set('views', browserDistFolder);
 
   // Servir archivos estáticos desde la nueva ubicación
-  server.get('**', express.static(browserDistFolder, {
+  server.get('*.*', express.static(browserDistFolder, {
     maxAge: '1y',
-    index: 'index.html',
+    index: false,
   }));
 
   // Todas las rutas regulares usan el motor Angular

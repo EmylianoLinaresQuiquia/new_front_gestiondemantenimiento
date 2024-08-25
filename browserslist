@@ -1,9 +1,0 @@
-# This file is used by the build system to adjust CSS and JS output to support the specified browsers below.
-
-# For example, "last 1 version" is browser’s latest version and ">= 1%" is browsers with more than 1% usage globally
-
-> 0.5%
-last 2 versions
-not dead
-not op_mini all
-not kaios 2.5
