@@ -8,7 +8,7 @@ import bootstrap from './src/main.server';
 export function app(): express.Express {
   const server = express();
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-  const browserDistFolder = resolve(serverDistFolder, '../dist/f-gestiondemantenimiento');
+  const browserDistFolder = resolve(serverDistFolder, '../dist/f_gestiondemantenimiento/browser');
   const indexHtml = join(browserDistFolder, 'index.html');
 
   const commonEngine = new CommonEngine();
