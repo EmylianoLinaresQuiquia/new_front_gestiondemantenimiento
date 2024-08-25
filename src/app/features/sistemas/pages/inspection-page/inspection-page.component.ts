@@ -1,7 +1,7 @@
 import { Component,OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subestacion } from '../../interface/subestacion';
-import { SubestacionService } from '../../services/subestacion.service';
+//import { Subestacion } from '../../interface/subestacion';
+//import { SubestacionService } from '../../services/subestacion.service';
 import { Subscription } from 'rxjs';
 
 
@@ -21,11 +21,11 @@ type Opcion = 'Protocolo' | 'Historico';
 })
 export class InspectionPageComponent {
   tagSubestacion: string = '';
-    subestaciones: Subestacion[] = [];
+    //subestaciones: Subestacion[] = [];
     tagsSubestaciones: string[] = [];
 
 
-    private subscriptions = new Subscription();
+    /*private subscriptions = new Subscription();
 
     constructor(private router: Router,
       private subestacionService: SubestacionService) {
@@ -105,6 +105,6 @@ export class InspectionPageComponent {
 
     abrirspt1(){
       this.router.navigate(['/spt1'])
-    }
+    }*/
 
   }

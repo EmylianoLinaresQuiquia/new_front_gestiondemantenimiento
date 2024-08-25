@@ -68,6 +68,6 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
     NzMenuModule,
   ],
   providers: [{ provide: NZ_ICONS, useValue: [UserOutline, LockOutline] },NzMessageService],
-  bootstrap: []  // Componente raíz que Angular inyecta en el index.html
+   // Componente raíz que Angular inyecta en el index.html
 })
 export class AppModule { }

@@ -33,6 +33,9 @@
     "src/test.ts",
     "**/*.spec.ts",
     "src/main.server.ts",
-    "server.ts"
+    "server.ts",
+    "src/app/app.config.server.ts",  // Excluir archivos no utilizados
+    "src/app/core/**/*.ts",
+    "src/app/features/**/*.ts"
   ]
 }

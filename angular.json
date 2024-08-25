@@ -15,6 +15,12 @@
           "options": {
             "allowedCommonJsDependencies": ["exceljs"],
             "outputPath": "dist/f-gestiondemantenimiento",
+            "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",

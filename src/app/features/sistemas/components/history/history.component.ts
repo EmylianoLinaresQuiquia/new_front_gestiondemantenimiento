@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { Spt2 } from '../../interface/spt2';
+/*import { Spt2 } from '../../interface/spt2';
 import { Spt2Service } from '../../services/spt2.service';
 import { DashSpt2Service } from '../../services/dash-spt2.service';
 import { MetodoCaida } from '../../interface/metodo-caida';
@@ -12,7 +12,7 @@ import { SubestacionService } from '../../services/subestacion.service';
 //import { PdfGeneratorServiceService } from '../../services/pdf-generator-service.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { AuthServiceService } from '../../services/auth-service.service';
-
+*/
 
 @Component({
   selector: 'app-history',

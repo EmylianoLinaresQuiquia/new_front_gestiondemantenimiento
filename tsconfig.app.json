@@ -1,5 +1,3 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
@@ -15,6 +13,12 @@
   ],
   "include": [
     "src/**/*.d.ts",
-    "src/**/*.ts"
+
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.mock.ts",
+    "src/**/*.test.ts",
+    "src/**/*.e2e-spec.ts"
   ]
 }
