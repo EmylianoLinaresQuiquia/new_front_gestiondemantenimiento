@@ -1,1 +1,426 @@
-<p>transformer-inspection works!</p>
+<div class="panela">
+  <!-- begin panel-body -->
+  <div class="panel-body">
+    <div nz-row nzAlign="middle">
+      <div nz-col>
+        <img src="assets/icons/fa-transformer-bolt-dark.ico" alt="Icono" style="width: 35px; height: 35px;">
+      </div>
+      <div nz-col>
+        <h4>{{ transformador }}</h4>
+      </div>
+    </div>
+
+    <div id="search">
+      <!--begin panel-information -->
+      <div nz-row nzGutter="16">
+        <nz-collapse>
+          <nz-collapse-panel
+            [nzShowArrow]="false"
+            [nzHeader]="panelHeaderTemplate"
+            [nzActive]="true"
+            nzClass="custom-panel"
+          >
+            <ng-template #panelHeaderTemplate>
+              <div nz-row nzAlign="middle">
+                <div nz-col>
+                  <img src="assets/icons/fa-transformer-bolt.ico" alt="Icono" style="width: 25px; height: 25px;">
+                </div>
+                <div nz-col>
+                  <span class="panel-title" style="margin-left: 10px;">Datos del Transformador</span>
+                </div>
+              </div>
+            </ng-template>
+
+            <div nz-row nzGutter="16">
+              <!--begin col 2 -->
+              <div nz-col nzSpan="4">
+                <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
+                  <nz-card-meta nzTitle="TAG" nzDescription="{{ transformador }}"></nz-card-meta>
+                </nz-card>
+              </div>
+              <!--end col 2 -->
+
+              <!--begin col 2 -->
+              <div nz-col nzSpan="4">
+                <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
+                  <nz-card-meta nzTitle="Voltaje" nzDescription="{{ voltage }}"></nz-card-meta>
+                </nz-card>
+              </div>
+              <!--end col 2 -->
+
+              <!--begin col 2 -->
+              <div nz-col nzSpan="4">
+                <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
+                  <nz-card-meta nzTitle="Potencia" nzDescription="{{ potencia }}"></nz-card-meta>
+                </nz-card>
+              </div>
+              <!--end col 2 -->
+
+              <!--begin col 2 -->
+              <div nz-col nzSpan="4">
+                <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
+                  <nz-card-meta nzTitle="Fabricación - Edad" nzDescription="1998 - 26 años"></nz-card-meta>
+                </nz-card>
+              </div>
+              <!--end col 2 -->
+
+              <!--begin col 2 -->
+              <div nz-col nzSpan="4">
+                <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
+                  <nz-card-meta nzTitle="Índice de Salud" nzDescription="100%"></nz-card-meta>
+                </nz-card>
+              </div>
+              <!--end col 2 -->
+
+              <!--begin col 2 -->
+              <div nz-col nzSpan="4">
+                <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
+                  <nz-card-meta
+                    nzTitle="Estado"
+                    nzDescription="Muy Bueno <i nz-icon nzType='check-circle' nzTheme='outline' nzTwotoneColor='#52c41a'></i>"
+                  ></nz-card-meta>
+                </nz-card>
+              </div>
+              <!--end col 2 -->
+            </div>
+          </nz-collapse-panel>
+        </nz-collapse>
+      </div>
+      <!--end panel-head -->
+    </div>
+  </div>
+  <!-- end panel-body -->
+</div>
+
+
+
+<nz-tabset nzType="card" class="tabview-custom">
+  <nz-tab nzTitle="Resumen">
+    <div class="panela">
+      <nz-row [nzGutter]="16">
+        <nz-col [nzSpan]="12">
+          <nz-card class="custom-panel">
+            <nz-collapse>
+              <nz-collapse-panel
+                [nzActive]="true"
+                [nzShowArrow]="false"
+                nzHeader="<i class='fa-solid fa-syringe'></i> PM1"
+                nzClass="panel-heading-a"
+                (click)="abrirDashboard()"
+              >
+              <span>a</span>
+              <div class="container">
+                <table id="example" class="display" style="table-layout: fixed; width: 100%;">
+                  <thead>
+
+
+                  </thead>
+                </table>
+              </div>
+              </nz-collapse-panel>
+            </nz-collapse>
+          </nz-card>
+        </nz-col>
+
+        <nz-col [nzSpan]="12">
+          <nz-card class="custom-panel">
+            <nz-collapse>
+              <nz-collapse-panel
+                [nzActive]="true"
+                [nzShowArrow]="false"
+                nzHeader="<i class='fa fa-bong'></i> PM2"
+                nzClass="panel-heading-a"
+              >
+                <div class="container">
+                  <p>Contenido específico para PM2.</p>
+                  <p>Más detalles e información relevante aquí.</p>
+                </div>
+              </nz-collapse-panel>
+            </nz-collapse>
+          </nz-card>
+        </nz-col>
+
+        <nz-col [nzSpan]="12">
+          <nz-card class="custom-panel">
+            <nz-collapse>
+              <nz-collapse-panel
+                [nzActive]="true"
+                [nzShowArrow]="false"
+                nzHeader="<i class='fa-solid fa-hourglass'></i> Timer 1"
+                nzClass="panel-heading-a"
+              >
+                <div class="container">
+                  <p>Información relacionada con Timer 1.</p>
+                </div>
+              </nz-collapse-panel>
+            </nz-collapse>
+          </nz-card>
+        </nz-col>
+
+        <nz-col [nzSpan]="12">
+          <nz-card class="custom-panel">
+            <nz-collapse>
+              <nz-collapse-panel
+                [nzActive]="true"
+                [nzShowArrow]="false"
+                nzHeader="<i class='fa-solid fa-hourglass'></i> Timer 2"
+                nzClass="panel-heading-a"
+              >
+                <div class="container">
+                  <p>Información relacionada con Timer 2.</p>
+                </div>
+              </nz-collapse-panel>
+            </nz-collapse>
+          </nz-card>
+        </nz-col>
+      </nz-row>
+
+
+
+
+    </div>
+  </nz-tab>
+
+  <nz-tab nzTitle="PM1">
+    <div class="flex align-items-center gap-2">
+      <li class="nav-item ps-1">
+        <a class="nav-link active text-"><i class="fa-solid fa-syringe"></i> PM1</a>
+      </li>
+    </div>
+  </nz-tab>
+
+  <nz-tab nzTitle="PM2">
+    <div class="flex align-items-center gap-2">
+      <li class="nav-item">
+        <a href="/physical_management/transformer/6/physicals" class="nav-link">
+          <i class="fa fa-bong"></i> PM2
+        </a>
+      </li>
+    </div>
+  </nz-tab>
+
+  <nz-tab nzTitle="Pruebas Eléctricas">
+    <div class="flex align-items-center gap-2">
+      <li class="nav-item">
+        <a href="/electrical_management/transformer/6/electricals" class="nav-link">
+          <i class="fa-solid fa-bolt"></i> Pruebas Eléctricas
+        </a>
+      </li>
+    </div>
+  </nz-tab>
+</nz-tabset>
+
+
+
+
+
+
+
+
+
+<!---
+  <p-tabView styleClass="tabview-custom">
+
+    <p-tabPanel>
+        <ng-template pTemplate="header">
+            <div class="flex align-items-center gap-2">
+              <li class="nav-item ps-1">
+                <a class="nav-link active text- " style="color: black !important;"><i class="fa-solid fa-circle-info"></i> Resumen </a>
+              </li>
+            </div>
+        </ng-template>
+               <div class="panela">
+
+          <div class="row">
+
+            <div class="col-xl-6 table-responsive ui-sortable">
+              <div class="card flex justify-content-center">
+                <p-panel [toggleable]="true" class="custom-panel">
+                  <ng-template pTemplate="header">
+                    <a class="panel-heading-a" title="Ir a Tendencias" (click)="abrirDashboard()" style="color: white !important;">
+                      <i class="fa-solid fa-syringe"></i> PM1
+                    </a>
+                  </ng-template>
+                  <div class="container">
+                    <table id="example" class="display" style="table-layout: fixed; width: 100%;">
+                      <thead>
+
+
+                      </thead>
+                    </table>
+                  </div>
+                </p-panel>
+              </div>
+
+
+
+
+
+
+
+
+
+
+
+          </div>
+
+            <div class="col-xl-6 table-responsive ui-sortable">
+              <div class="card flex justify-content-center">
+              <p-panel [toggleable]="true" class="custom-panel">
+                <ng-template pTemplate="header">
+                  <a  class="panel-heading-a" title="Ir a Tendencias" style="color: white !important;">
+                    <i class="fa fa-bong"></i> PM2
+                  </a>
+                </ng-template>
+                <div class="container">
+
+                </div>
+              </p-panel>
+            </div>
+            </div>
+
+            <div class="col-xl-6 table-responsive ui-sortable">
+
+              <div class="card flex justify-content-center">
+                <p-panel [toggleable]="true" class="custom-panel">
+                  <ng-template pTemplate="header">
+                    <a  class="panel-heading-a" title="Ir a Tendencias" style="color: white !important;">
+                      <i class="fa-solid fa-hourglass"></i>
+                    </a>
+                  </ng-template>
+                  <div class="container">
+
+                  </div>
+                </p-panel>
+              </div>
+            </div>
+            <div class="col-xl-6 table-responsive ui-sortable">
+              <div class="card flex justify-content-center">
+                <p-panel [toggleable]="true" class="custom-panel">
+                  <ng-template pTemplate="header">
+                    <a  class="panel-heading-a" title="Ir a Tendencias" style="color: white !important;">
+                      <i class="fa-solid fa-hourglass"></i>
+                    </a>
+                  </ng-template>
+                  <div class="container">
+
+                  </div>
+                </p-panel>
+              </div>
+            </div>
+
+          </div>
+
+
+              </div>
+        </p-tabPanel>
+
+
+        <p-tabPanel>
+          <ng-template pTemplate="header">
+              <div class="flex align-items-center gap-2">
+                <li class="nav-item ps1">
+                  <a  class="nav-link active text-"   >
+                        <i class="fa-solid fa-syringe"></i>PM1 </a>
+                </li>
+              </div>
+          </ng-template>
+
+          </p-tabPanel>
+
+          <p-tabPanel>
+            <ng-template pTemplate="header">
+                <div class="flex align-items-center gap-2">
+                  <li class="nav-item">
+                    <a href="/physical_management/transformer/6/physicals" class="nav-link">
+                          <i class="fa fa-bong"></i> PM2</a>
+                  </li>
+                </div>
+            </ng-template>
+
+            </p-tabPanel>
+
+
+            <p-tabPanel>
+              <ng-template pTemplate="header">
+                  <div class="flex align-items-center gap-2">
+                    <li class="nav-item">
+                      <a href="/electrical_management/transformer/6/electricals" class="nav-link ">
+                            <i class="fa-solid fa-bolt"></i> Pruebas Eléctricas</a>
+                    </li>
+                  </div>
+              </ng-template>
+
+              </p-tabPanel>
+
+
+</p-tabView>
+
+
+
+
+
+    </div>-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

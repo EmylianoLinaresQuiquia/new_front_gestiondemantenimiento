@@ -1,4 +1,4 @@
-<div class="container d-flex justify-content-center align-items-center vh-100">
+<!--<div class="container d-flex justify-content-center align-items-center vh-100">
   <nz-card class="w-100" nzBordered [nzBodyStyle]="{ padding: '24px' }">
     <div class="text-center mb-3">
       <h2>Subestación</h2>
@@ -53,4 +53,84 @@
     </nz-row>
   </nz-card>
 
+</div>-->
+
+
+
+
+
+
+
+
+
+
+<div class="text-center mb-3">
+  <div class="d-flex">
+      <h4>Subestación</h4>
+    <div *ngIf="selectedTransformador">
+      <p>{{ selectedTransformador.ubicacion }}</p>
+    </div>
+  </div>
+  <div class="search">
+    <div class="search-box">
+      <div class="search-field">
+        <ng-container>
+          <nz-select
+            nzShowSearch
+            nzPlaceHolder="Seleccionar Subestación"
+            [(ngModel)]="selectedTransformador"
+            (ngModelChange)="onTransformadorChange()"
+            nzAllowClear
+          >
+            <nz-option
+              *ngFor="let transformador of transformadores"
+              [nzValue]="transformador.value"
+              [nzLabel]="transformador.label"
+            >
+            </nz-option>
+          </nz-select>
+        </ng-container>
+      </div>
+      <div *ngIf="selectedTransformador">
+        <p>{{ selectedTransformador.ubicacion }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="transformadoresFiltrados.length > 0">
+    <div class="search">
+      <div class="search-box">
+        <div class="search-field">
+          <ng-container>
+            <nz-select
+              nzShowSearch
+              nzPlaceHolder="Seleccionar Transformador Filtrado"
+              [(ngModel)]="selectedFiltradoTransformador"
+              (ngModelChange)="onFiltradoTransformadorChange()"
+              nzAllowClear
+            >
+              <nz-option
+                *ngFor="let transformador of transformadoresFiltrados"
+                [nzValue]="transformador"
+                [nzLabel]="transformador.transformador"
+              >
+              </nz-option>
+            </nz-select>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="error">
+    <p style="color: red;">{{ error }}</p>
+  </div>
+
+  <br>
+  <div class="content-menu d-flex align-items-center " style="display: flex;justify-content: space-evenly;">
+    <button nz-button (click)="abrirtabla()">Historial</button>
+    <button nz-button (click)="buscarTransformador()">PM1</button>
+    <button nz-button>PM2</button>
+    <button nz-button>Pruebas</button>
+  </div>
 </div>

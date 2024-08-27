@@ -97,13 +97,14 @@
         <div class="stl_01 stl_07" style="left:39.0002em;top:8.1852em;"><span class="stl_14 stl_09 stl_27">Lider: &nbsp;</span></div>
         <div class="stl_01 stl_07" style="left:37.909em;top:9.8932em;"><span class="stl_14 stl_09 stl_28">Supervisor: &nbsp;</span></div>
         <div class="stl_01 stl_07" style="left:61.5809em;top:8.1852em;"><span class="stl_14 stl_09 stl_29">Inicio: &nbsp;</span>
-                      <input type="time" style="position: absolute;width:215%;top: -0.44em;left:3.66em;height: 180%;font-size: 150px;" [(ngModel)]="inicio"/>
+                      <!--<input type="time" style="position: absolute;width:215%;top: -0.44em;left:3.66em;height: 180%;font-size: 150px;" [(ngModel)]="inicio"/>-->
+                      <nz-time-picker [(ngModel)]="inicio" nzFormat="HH:mm"></nz-time-picker>
                   </div>
         <div class="stl_01 stl_07" style="left:62.0446em;top:9.8932em;"><span class="stl_14 stl_09 stl_30">Fin: &nbsp;</span>
                       <input type="time" style="position: absolute;width:316%;left:3.23em;height: 180%;font-size: 150px;top: -0.43em;" [(ngModel)]="fin"/>
                   </div>
         <div class="stl_01 stl_07" style="left:26.5763em;top:9.8932em;"><span class="stl_14 stl_09 stl_31">Fecha: &nbsp;</span>
-                      <input type="date" style="line-height: normal;line-height: normal;width: 7.2em;height: 245px;position: absolute;left: 4.7em;top: -65px;font-size: 9rem;" [(ngModel)]="fecha">
+                      <input type="date" style="line-height: normal;line-height: normal;width: 6.3em;height: 245px;position: absolute;left: 4.1em;top: -65px;font-size: 9rem;" [(ngModel)]="fecha">
                   </div>
                   <div *ngIf="cantidad_spt != null && cantidad_spt >= 1" class="stl_01 stl_07" style="left:7.5763em;top:37.8932em;width: 20%;height: 115%;">
                     <img src="assets/pdf/spt1/img_pozo.svg" style="width: 100%;height: 100%;">

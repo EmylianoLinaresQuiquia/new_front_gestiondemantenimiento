@@ -27,8 +27,8 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 
 import { NzInputModule } from 'ng-zorro-antd/input';
-
-
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
+import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 // import { registerAllModules } from 'handsontable/registry'; // Uncomment if needed
 
 @NgModule({
@@ -58,8 +58,9 @@ import { NzInputModule } from 'ng-zorro-antd/input';
     NzTableModule, // Agregado para trabajar con tablas
     NzDividerModule, // Agregado por si necesitas divisores
     NzCardModule,
-    NzSelectModule
-
+    NzSelectModule,
+    NzCollapseModule,
+    NzTimePickerModule
 
 
   ],
@@ -89,8 +90,9 @@ import { NzInputModule } from 'ng-zorro-antd/input';
     NzTableModule, // Agregado para trabajar con tablas
     NzDividerModule, // Agregado por si necesitas divisores
     NzCardModule,
-    NzSelectModule
-
+    NzSelectModule,
+    NzCollapseModule,
+    NzTimePickerModule
 
 
 

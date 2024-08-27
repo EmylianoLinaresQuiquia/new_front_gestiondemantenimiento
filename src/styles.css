@@ -401,3 +401,50 @@
     color: #52c41a;
   }
 }
+
+
+
+/***********  TABLAS       ***************/
+/* Estilo para alinear elementos a la derecha */
+.float-right {
+  float: right !important;
+}
+
+/* Estilo para los campos de entrada en el pie de la tabla */
+#example tfoot input {
+  display: table-header-group;
+}
+
+/* Estilo para el encabezado de las tablas */
+#example thead {
+  background-color: #4d4d4d;
+  color: white !important;
+}
+
+
+/* Estilo para las filas al pasar el ratón */
+#example tbody tr:hover {
+  background-color: #d4edda; /* Verde claro */
+}
+
+/* Estilo para los inputs y textareas dentro de las tablas */
+#example input[type="text"],
+#example textarea {
+  border: 1px solid #343a40; /* Borde gris oscuro */
+  border-radius: 4px; /* Bordes redondeados */
+
+  color: #333333; /* Color del texto */
+  font-size: 16px; /* Tamaño del texto */
+  width: 100% !important; /* Ancho completo del contenedor */
+  box-sizing: border-box !important; /* Incluir padding y borde en el ancho total */
+}
+
+/* Estilo para los inputs y textareas cuando están enfocados */
+#example input[type="text"]:focus,
+#example textarea:focus {
+  border-color: #967bb6; /* Borde púrpura más claro al enfocar */
+  box-shadow: 0 0 5px #343a40; /* Sombra gris oscuro */
+  outline: none; /* Eliminar borde de enfoque predeterminado */
+}
+
+

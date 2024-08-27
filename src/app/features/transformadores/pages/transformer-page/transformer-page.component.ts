@@ -13,8 +13,8 @@ import { NzCardModule } from 'ng-zorro-antd/card'
 import { SharedModule } from 'src/app/shared/shared.module';
 
 
-type Tipo = 'spt1' | 'spt2';
-type Opcion = 'Protocolo' | 'Historico';
+import { TransformadorPM1 } from 'src/app/features/sistemas/interface/transformador-pm1';
+import { TransformadorPM1Service } from 'src/app/features/sistemas/services/transformador-pm1.service';
 @Component({
   selector: 'app-transformer-page',
   standalone: true,
@@ -23,76 +23,93 @@ type Opcion = 'Protocolo' | 'Historico';
   styleUrl: './transformer-page.component.css'
 })
 export class TransformerPageComponent {
-  tagSubestacion: string = '';
-  subestaciones: Subestacion[] = [];
-  tagsSubestaciones: string[] = [];
-  selectedoption!: Opcion;
+  transformadores: { label: string, value: TransformadorPM1 }[] = [];
+  selectedTransformador: TransformadorPM1 | null = null;
   private subscriptions = new Subscription();
+  selectedSubestacion: string = '';
+  error: string | null = null;
+  transformadoresFiltrados: TransformadorPM1[] = [];
+  selectedFiltradoTransformador: TransformadorPM1 | null = null;
 
   constructor(
     private router: Router,
-    private subestacionService: SubestacionService
+    private transformadorService: TransformadorPM1Service
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.subscriptions.add(
-      this.subestacionService.MostrarSubestaciones().subscribe(
-        (data: Subestacion[]) => {
-          this.subestaciones = data;
-          this.tagsSubestaciones = data.map(subestacion => subestacion.tag_subestacion);
-        },
-        error => {
-          console.error('Error al obtener subestaciones', error);
-        }
-      )
+      this.transformadorService.getTransformadores().subscribe((data: TransformadorPM1[]) => {
+        // Crear un Set para almacenar valores únicos de subestación
+        const subestacionesUnicas = new Set<string>();
+
+        this.transformadores = data
+          .filter(transformador => {
+            if (!subestacionesUnicas.has(transformador.subestacion)) {
+              subestacionesUnicas.add(transformador.subestacion);
+              return true;
+            }
+            return false;
+          })
+          .map(transformador => ({
+            label: transformador.subestacion,
+            value: transformador
+          }));
+      })
     );
   }
 
-  ngOnDestroy() {
+
+  ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
-  buscarSubestacion(): void {
-    console.log('Subestación seleccionada:', this.tagSubestacion);
+  onTransformadorChange() {
+    if (this.selectedTransformador) {
+      this.selectedSubestacion = this.selectedTransformador.subestacion;
+      console.log("selectedTransformador", this.selectedTransformador.subestacion);
+      this.buscarTransformadoresPorSubestacion(this.selectedSubestacion);
+    } else {
+      console.log("selectedTransformador is null");
+    }
   }
 
-  seleccionarOpcion(tipo: Tipo, opcion: Opcion): void {
-    console.log('Opción seleccionada:', opcion);
-
-    const rutas: Record<Tipo, Record<Opcion, string>> = {
-      spt1: {
-        Protocolo: '/sistemas/spt1',
-        Historico: '/sistemas/tabla-historial-spt1',
+  buscarTransformadoresPorSubestacion(subestacion: string) {
+    this.subscriptions.add(this.transformadorService.buscarTransformadoresporsubestacion(subestacion).subscribe({
+      next: (data) => {
+        this.transformadoresFiltrados = data;
       },
-      spt2: {
-        Protocolo: '/sistemas/spt2',
-        Historico: '/sistemas/tabla-historial-spt2',
-      },
-    };
+      error: (err) => {
+        this.error = 'Error al buscar transformadores';
+        console.error(err);
+      }
+    }));
+  }
 
-    const rutaSeleccionada = rutas[tipo][opcion];
-    console.log('Ruta seleccionada:', rutaSeleccionada);
-
-    if (!rutaSeleccionada) {
-      console.error('Ruta no encontrada para la opción:', opcion);
-      return;
+  buscarTransformador() {
+    if (this.selectedFiltradoTransformador) {
+      console.log("Enviando transformador filtrado:", this.selectedFiltradoTransformador);
+      this.router.navigate(['transformadores/pm1'], { queryParams: { subestacion: this.selectedFiltradoTransformador.subestacion, transformador:
+        this.selectedFiltradoTransformador.transformador,ubicacion:this.selectedFiltradoTransformador.ubicacion } });
     }
+  }
 
-    const subestacionSeleccionada = this.subestaciones.find(s => s.tag_subestacion === this.tagSubestacion);
-    console.log('Subestación encontrada:', subestacionSeleccionada);
+  abrirtransformador() {
+    this.router.navigate(['transformadores/transformador']);
+  }
 
-    if (subestacionSeleccionada) {
-      console.log('Navegando a:', rutaSeleccionada);
-      this.router.navigate([rutaSeleccionada], {
-        queryParams: {
-          tag: subestacionSeleccionada.tag_subestacion,
-          ubicacion: subestacionSeleccionada.ubicacion,
-          plano: subestacionSeleccionada.plano,
-          cantidad_spt: subestacionSeleccionada.cantidad_spt,
-        },
-      });
+  abrirpruebas() {
+    this.router.navigate(['transformadores/pruebas-pm1']);
+  }
+
+  abrirtabla() {
+    this.router.navigate(['transformadores/historial-pm1']);
+  }
+
+  onFiltradoTransformadorChange() {
+    if (this.selectedFiltradoTransformador) {
+      console.log("selectedFiltradoTransformador", this.selectedFiltradoTransformador);
     } else {
-      console.error('Subestación no encontrada para redirigir.');
+      console.log("selectedFiltradoTransformador is null");
     }
   }
 }

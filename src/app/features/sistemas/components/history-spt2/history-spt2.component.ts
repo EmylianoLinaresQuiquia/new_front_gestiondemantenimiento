@@ -102,24 +102,24 @@ export class HistorySpt2Component implements OnInit{
             }
           }
         ],
-        initComplete: function (this: any) {
-          const api = this.api(); // `this` refers to the DataTable instance
-          api.columns().every(function (this: any) { // Explicitly type `this` again inside this function
-            const column = this;
-            const header = $(column.header());
+        initComplete: function (settings, json) {
+          const api = (this as any).api();
+          api.columns().every(function (this: any) {
+              const column = this;
+              const header = $(column.header());
 
-            if (column.index() !== api.columns().nodes().length - 1) {
-              const input = $('<input type="text" placeholder="Buscar..." />')
-                .appendTo(header)
-                .on('keyup change', function () {
-                  if (column.search() !== (this as HTMLInputElement).value) {
-                    column.search((this as HTMLInputElement).value).draw();
-                  }
-                });
-            }
+              // Agregar campo de búsqueda solo si la columna no es "Resumen"
+              if (column.index() !== api.columns().nodes().length - 1) {
+                  const input = $('<input type="text" placeholder="" />')
+                      .appendTo(header)
+                      .on('keyup change', function () {
+                          if (column.search() !== (this as HTMLInputElement).value) {
+                              column.search((this as HTMLInputElement).value).draw();
+                          }
+                      });
+              }
           });
-        }.bind(this) // Ensure `this` refers to the Angular component
-         // `bind(this)` asegura que `this` sea el componente Angular
+      }
       });
       // Evento para el botón "ver"
       $('#example').on('click', '.ver-btn', (event) => {

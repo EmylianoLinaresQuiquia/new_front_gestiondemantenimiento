@@ -13,7 +13,7 @@ app-header {
   left: 0;
   width: 100%;
   height: 64px; /* Ajusta según el tamaño de tu encabezado */
-  background-color: #001529; /* Color de fondo del encabezado */
+
   color: #fff;
   z-index: 1000; /* Asegúrate de que el encabezado esté por encima del contenido */
 }
