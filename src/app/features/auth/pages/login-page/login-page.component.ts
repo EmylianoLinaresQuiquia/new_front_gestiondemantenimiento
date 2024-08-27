@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -14,6 +14,12 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 
+import { Subscription } from 'rxjs';
+import { AuthServiceService } from 'src/app/features/sistemas/services/auth-service.service';
+import { UsuarioService } from 'src/app/features/sistemas/services/usuario.service';
+import { EventEmitter, Output } from '@angular/core';
+import { ValidacionCodigoDTO } from 'src/app/features/sistemas/interface/validacion-codigo-dto';
+
 @Component({
   selector: 'app-login-page',
   standalone: true,
@@ -26,110 +32,186 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
   styleUrls: ['./login-page.component.css']  // Corregido 'styleUrl' a 'styleUrls'
 })
 export class LoginPageComponent {
-  validateForm: FormGroup;
-  isSpinning = false;
-  loginError = false;
-  selectedIndex = 0;
-  mobileLoginError = false;
+  validateForm!: FormGroup;
+  loading = false;
+  tiempoDeEspera = 0;
+  intentosFallidos = 0;
+  tiempoInicialDeEspera = 60000; // Ejemplo de 1 minuto en milisegundos
+  userId!: number;
+  subscription = new Subscription();
+  correo!: string;
+  codigoReset!: string;
+  nuevaContrasena!: string;
+  reset = false;
   passwordVisible = false;
+  selectedIndex = 0;
+  loginError = false;
+
+  isSpinning = false;
+  mobileLoginError = false;
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private message: NzMessageService
-  ) {
+    private usuarioService: UsuarioService,
+    private authService: AuthServiceService,
+    private messageService: NzMessageService
+  ) {}
+
+  ngOnInit(): void {
     this.validateForm = this.fb.group({
-      username: ['', [Validators.required]],
-      password: ['', [Validators.required]],
-      mobile: ['', [Validators.required, this.matchMobile]],
-      mail: ['', [Validators.required]],
-      remember: [true]
+      usuario: ['', [Validators.required]],
+      contrasena: ['', [Validators.required]]
     });
   }
 
-  ngOnInit() {}
-
-  matchMobile = (control: AbstractControl): { [key: string]: boolean } | null => {
-    if (control.value && !control.value.match(/^1(3[0-9]|4[5,7]|5[0,1,2,3,5,6,7,8,9]|6[2,5,6,7]|7[0,1,7,8]|8[0-9]|9[1,8,9])\d{8}$/)) {
-      return { matchMobile: true };
-    }
-    return null;
-  }
   togglePasswordVisibility(): void {
     this.passwordVisible = !this.passwordVisible;
   }
 
-  selectedChange($event: number) {
-    if ($event === 0) {
-      const username = this.validateForm.controls['username'].value;
-      const password = this.validateForm.controls['password'].value;
-      this.validateForm.controls['username'].reset(username);
-      this.validateForm.controls['password'].reset(password);
+  selectedChange(index: number): void {
+    this.selectedIndex = index;
+  }
+
+  login(): void {
+    if (this.loading) return;
+
+    if (this.tiempoDeEspera > Date.now()) {
+      this.mostrarTiempoDeEspera();
+      return;
+    }
+
+    this.loading = true;
+    this.intentarLogin();
+  }
+
+  intentarLogin(): void {
+    const loginData = {
+      usuario: this.validateForm.get('usuario')?.value,
+      contrasena: this.validateForm.get('contrasena')?.value
+    };
+    console.log('Payload enviado:', loginData);
+    const loginSubscription = this.usuarioService.login(loginData.usuario, loginData.contrasena).subscribe({
+      next: (response) => this.procesarLoginExitoso(response.idUsuario),
+      error: (error) => {
+        console.error('Error al iniciar sesión:', error);
+        this.procesarErrorLogin();
+      }
+    });
+
+    this.subscription.add(loginSubscription);
+  }
+
+  private procesarLoginExitoso(idUsuario: number): void {
+    this.intentosFallidos = 0;
+    this.tiempoDeEspera = 0;
+    this.userId = idUsuario;
+    this.authService.setUserEmail(this.validateForm.get('usuario')?.value, idUsuario);
+    this.loading = false;
+    this.abrirHome();
+  }
+
+  private procesarErrorLogin(): void {
+    this.intentosFallidos++;
+    this.loading = false;
+
+    if (this.intentosFallidos >= 3) {
+      this.actualizarTiempoDeEspera();
     } else {
-      const mobile = this.validateForm.controls['mobile'].value;
-      const mail = this.validateForm.controls['mail'].value;
-      this.validateForm.controls['mobile'].reset(mobile);
-      this.validateForm.controls['mail'].reset(mail);
+      this.mostrarConfirmacion();
     }
   }
 
-  submitForm() {
-    this.isSpinning = true;
-    this.loginError = false;
-    for (const i of ['username', 'password']) {
-      if (i) {
-        this.validateForm.controls[i].markAsDirty();
-        this.validateForm.controls[i].updateValueAndValidity();
-      }
-    }
-    if (this.validateForm.controls['username'].invalid || this.validateForm.controls['password'].invalid) {
-      this.isSpinning = false;
-      return;
-    }
-
-    setTimeout(() => {
-      const username = this.validateForm.controls['username'].value;
-      const password = this.validateForm.controls['password'].value;
-
-      if (['admin', 'user'].indexOf(username) !== -1 && 'ng.antd.admin' === password) {
-        this.router.navigate(['/']);
-        this.message.success('登录成功');
-      } else {
-        this.loginError = true;
-        this.isSpinning = false;
-      }
-    }, 1000);
+  private mostrarTiempoDeEspera(): void {
+    const tiempoRestante = ((this.tiempoDeEspera - Date.now()) / 1000).toFixed(0);
+    alert(`Por favor, espera ${tiempoRestante} segundos antes de intentar de nuevo.`);
   }
 
-  submitFormMobile() {
-    this.isSpinning = true;
-    this.mobileLoginError = false;
-    for (const i of ['mobile', 'mail']) {
-      if (i) {
-        this.validateForm.controls[i].markAsDirty();
-        this.validateForm.controls[i].updateValueAndValidity();
-      }
-    }
-    if (this.validateForm.controls['mobile'].invalid || this.validateForm.controls['mail'].invalid) {
-      this.isSpinning = false;
-      return;
-    }
-
-    this.login();
+  private actualizarTiempoDeEspera(): void {
+    this.tiempoDeEspera = Date.now() + this.tiempoInicialDeEspera * this.intentosFallidos;
+    const tiempoEnMinutos = ((this.tiempoInicialDeEspera * this.intentosFallidos) / 60000).toFixed(0);
+    alert(`Has superado el número máximo de intentos. Espera ${tiempoEnMinutos} minutos antes de intentar de nuevo.`);
   }
 
-  login() {
-    setTimeout(() => {
-      const mail = this.validateForm.controls['mail'].value;
-      if (mail === '123456') {
-        this.router.navigate(['/']);
-        this.message.success('登录成功');
-      } else {
-        this.mobileLoginError = true;
-        this.isSpinning = false;
-      }
-    }, 1000);
+  mostrarConfirmacion(): void {
+    this.messageService.warning('Ocurrió un error durante el inicio de sesión. ¿Quieres intentarlo de nuevo?');
   }
-  goRegister() {
-    this.router.navigate(['/user/register']);
+
+  enviarCorreo(): void {
+    this.usuarioService.enviarCorreo(this.correo, 'Este es un mensaje de prueba con un número aleatorio.').subscribe({
+      next: () => {
+        this.messageService.success('Código enviado a su correo');
+      },
+      error: () => {
+        this.messageService.error('Error al enviar el correo');
+      }
+    });
+  }
+
+  validarCodigoUsuario(): void {
+    const validacionDto: ValidacionCodigoDTO = {
+      correo: this.correo,
+      codigo: Number(this.codigoReset) // Convertir a número
+    };
+
+    this.usuarioService.validarCodigo(validacionDto).subscribe({
+      next: () => {
+        this.messageService.info('Código validado con éxito. Procediendo a restablecer contraseña.');
+        this.restablecerContrasena();
+      },
+      error: () => {
+        this.messageService.error('Error en la validación del código');
+      }
+    });
+  }
+
+  restablecerContrasena(): void {
+    this.usuarioService.restablecerContrasena({ correo: this.correo, nuevaContrasena: this.nuevaContrasena }).subscribe({
+      next: () => {
+        this.messageService.success('La contraseña ha sido actualizada con éxito');
+      },
+      error: () => {
+        this.messageService.error('Error al restablecer la contraseña');
+      }
+    });
+  }
+
+  abrirHome(): void {
+    this.router.navigate(['/dashboard'], {
+      queryParams: { userEmail: this.validateForm.get('usuario')?.value, userId: this.userId }
+    });
+  }
+
+  buscarCorreoPorUsuario(usuario: string): void {
+    this.usuarioService.buscarCorreoPorUsuario(usuario).subscribe({
+      next: (data) => {
+        this.correo = data;
+      },
+      error: (error) => {
+        console.error('Error al buscar el correo:', error);
+      }
+    });
+  }
+
+  onForgotPassword(): void {
+    this.selectedIndex = 1;
+    //this.buscarCorreoPorUsuario(this.validateForm.get('usuario')?.value);
+    //this.reset = true;
+  }
+  goBack(): void {
+    this.selectedIndex = 0; // Regresa a la pestaña de inicio de sesión
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }
+
+
+
+
+
+
+
+
+
+

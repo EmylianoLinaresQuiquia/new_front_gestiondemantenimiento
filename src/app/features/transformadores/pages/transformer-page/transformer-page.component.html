@@ -1,0 +1,56 @@
+<div class="container d-flex justify-content-center align-items-center vh-100">
+  <nz-card class="w-100" nzBordered [nzBodyStyle]="{ padding: '24px' }">
+    <div class="text-center mb-3">
+      <h2>Subestación</h2>
+    </div>
+
+    <nz-row justify="center" gutter="16">
+      <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
+        <nz-form-item>
+          <nz-form-control [nzErrorTip]="'Por favor, seleccione una subestación'">
+            <nz-select
+              id="subestacion-select"
+              [(ngModel)]="tagSubestacion"
+              nzPlaceHolder="Seleccione una subestación"
+              (ngModelChange)="buscarSubestacion()"
+            >
+              <nz-option
+                *ngFor="let tag of tagsSubestaciones"
+                [nzLabel]="tag"
+                [nzValue]="tag"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </nz-row>
+
+    <nz-row justify="center" gutter="16">
+      <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
+        <nz-form-item>
+          <button type="button" nz-button [nzSize]="'large'" class="w50">HISTORIAL</button>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
+        <nz-form-item>
+          <button type="button" nz-button [nzSize]="'large'" class="w50">PM1</button>
+        </nz-form-item>
+      </div>
+      <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
+        <nz-form-item>
+          <button type="button" nz-button [nzSize]="'large'" class="w50">PM2</button>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
+        <nz-form-item>
+          <button type="button" nz-button [nzSize]="'large'" class="w50">PRUEBAS</button>
+        </nz-form-item>
+      </div>
+
+
+    </nz-row>
+  </nz-card>
+
+</div>

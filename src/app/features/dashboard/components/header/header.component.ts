@@ -1,7 +1,7 @@
 import { Component,Input  } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
-
-
+import { AuthServiceService } from 'src/app/features/sistemas/services/auth-service.service';
+import { Router } from '@angular/router';
 interface NotificationItem {
   type: string;
   time: string;
@@ -22,6 +22,12 @@ interface NotificationItem {
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
+  constructor(
+    private authService:AuthServiceService,
+    private router :Router
+  ){
+
+  }
   drawerInfo = {
     content: {
       header: true // Puedes ajustar esto según tu lógica
@@ -35,14 +41,6 @@ export class HeaderComponent {
       desc: 'You have a new notice',
       read: false,
       title: 'New Notice'
-    },
-    {
-      type: 'notice',
-      time: '1 day ago',
-      avatar: 'path/to/avatar2.png',
-      desc: 'Your notice has been updated',
-      read: true,
-      title: 'Updated Notice'
     }
   ];
 
@@ -100,6 +98,10 @@ export class HeaderComponent {
 
   goUrl(url: string) {
     // Implementa tu lógica aquí
+  }
+  logout() {
+    this.authService.logout(); // Asegúrate de que AuthService tenga un método logout
+    this.router.navigate(['']); // Redirige al usuario a la página de inicio de sesión
   }
 
   // Ejemplo de menú de lenguaje (ng-zorro dropdown)

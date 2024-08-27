@@ -1,0 +1,6 @@
+.ant-row {
+  display: flex;
+  flex-flow: row wrap;
+  min-width: 0;
+  justify-content: space-around !important;
+}

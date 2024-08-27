@@ -1,3 +1,159 @@
+<div class="container">
+  <div class="content">
+    <div class="top">
+      <div class="header">
+      </div>
+    </div>
+
+    <div class="main">
+      <nz-tabset [(nzSelectedIndex)]="selectedIndex" (nzSelectedIndexChange)="selectedChange($event)">
+        <!-- Pestaña de Inicio de sesión -->
+        <nz-tab *ngIf="selectedIndex === 0" nzTitle="Inicio de sesión">
+          <form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="login()">
+            <nz-alert *ngIf="loginError" nzType="error" nzMessage="Cuenta o contraseña incorrecta" nzShowIcon style="margin-bottom: 24px;"></nz-alert>
+
+            <nz-form-item>
+              <nz-form-control nzErrorTip="¡Por favor, ingrese el nombre de usuario!">
+                <nz-input-group [nzPrefix]="userTpl" [nzSize]="'large'">
+                  <input type="text" nz-input formControlName="usuario" placeholder="Usuario" />
+                </nz-input-group>
+                <ng-template #userTpl>
+                  <i nz-icon nzType="user" nzTheme="outline" style="color: #1890ff;"></i>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-control nzErrorTip="¡Por favor, ingrese la contraseña!">
+                <nz-input-group [nzPrefix]="lockTpl" [nzSuffix]="suffixTpl" [nzSize]="'large'">
+                  <input [type]="passwordVisible ? 'text' : 'password'" nz-input formControlName="contrasena" placeholder="Clave" />
+                </nz-input-group>
+                <ng-template #lockTpl>
+                  <i nz-icon nzType="lock" nzTheme="outline" style="color: #1890ff;"></i>
+                </ng-template>
+                <ng-template #suffixTpl>
+                  <i nz-icon [nzType]="passwordVisible ? 'eye-invisible' : 'eye'" (click)="togglePasswordVisibility()" nzTheme="outline"></i>
+                </ng-template>
+              </nz-form-control>
+            </nz-form-item>
+
+            <div nz-row>
+              <div nz-col [nzSpan]="12">
+                <nz-form-item>
+                  <nz-form-control>
+                    <button nz-button class="login" [nzType]="'primary'" [nzSize]="'large'" [disabled]="loading" [nzLoading]="loading">Iniciar sesión</button>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col [nzSpan]="12" class="text-right"style="    padding-top: 18px;">
+                <a (click)="onForgotPassword()">¿Olvidaste tu contraseña?</a>
+              </div>
+            </div>
+          </form>
+        </nz-tab>
+
+        <!-- Pestaña de Recuperar Clave -->
+        <nz-tab *ngIf="selectedIndex === 1" nzTitle="Recuperar Clave">
+          <form nz-form [formGroup]="validateForm" class="login-form">
+            <nz-alert *ngIf="mobileLoginError" nzType="error" nzMessage="Código de verificación incorrecto (123456)" nzShowIcon style="margin-bottom: 24px;"></nz-alert>
+
+            <ng-template #mobileTpl>
+              <i nz-icon nzType="mobile" nzTheme="outline" style="color: #1890ff;"></i>
+            </ng-template>
+            <ng-template #mailTpl>
+              <i nz-icon nzType="lock" nzTheme="outline" style="color: #1890ff;"></i>
+            </ng-template>
+
+            <nz-form-item>
+              <nz-form-control [nzErrorTip]="mobileError">
+                <nz-input-group [nzPrefix]="mobileTpl" [nzSize]="'large'">
+                  <input type="tel" nz-input  placeholder="Ingrese el código que fue enviado a su correo" />
+                </nz-input-group>
+              </nz-form-control>
+              <ng-template #mobileError let-control>
+                <ng-container *ngIf="control.hasError('required')">
+                  ¡Por favor, ingrese el código enviado a su correo!
+                </ng-container>
+                <ng-container *ngIf="control.hasError('matchMobile')">
+                  ¡Formato de código incorrecto!
+                </ng-container>
+              </ng-template>
+
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-control nzErrorTip="¡Por favor, ingrese el código de verificación!">
+                <div nz-row [nzGutter]="8">
+                  <div nz-col nzSpan="14">
+                    <nz-input-group [nzPrefix]="mailTpl" [nzSize]="'large'">
+                      <input nz-input  placeholder="Nueva clave" />
+                    </nz-input-group>
+                  </div>
+                  <div nz-col nzSpan="10">
+                    <button type="button" nz-button [nzSize]="'large'" class="w100">Generar código</button>
+                  </div>
+                </div>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-control>
+                <div nz-row [nzGutter]="8">
+                  <div nz-col nzSpan="14">
+                    <button nz-button class="login" [nzType]="'primary'" [nzSize]="'large'" [nzLoading]="isSpinning">Recuperar clave</button>
+                  </div>
+                  <div nz-col nzSpan="10" style="    padding-top: 18px;">
+                    <a  (click)="goBack()"><i nz-icon nzType="left"  nzTheme="outline" style="font-size: 16px; color: #1890ff;"></i> Regresar</a>
+                  </div>
+                </div>
+              </nz-form-control>
+
+
+
+
+
+
+              <!-- Icono de regresar -->
+
+            </nz-form-item>
+          </form>
+        </nz-tab>
+      </nz-tabset>
+    </div>
+
+
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <!--<div class="container">
   <div class="lang">
@@ -18,10 +174,8 @@
   <div class="content">
     <div class="top">
       <div class="header">
-        <img src="./assets/images/logo.svg" alt="" class="logo">
-        <span class="title">Ng Antd Admin</span>
+
       </div>
-      <div class="desc">Ingreso al Sistema</div>
     </div>
     <div class="main">
       <nz-tabset [(nzSelectedIndex)]="selectedIndex" (nzSelectedIndexChange)="selectedChange($event)">
@@ -56,18 +210,18 @@
 
             <div nz-row>
               <div nz-col [nzSpan]="12">
-
+                <nz-form-item>
+                  <nz-form-control>
+                    <button nz-button class="login" [nzType]="'primary'" [nzSize]="'large'"
+                      [nzLoading]="isSpinning">Iniciar sesión</button>
+                  </nz-form-control>
+                </nz-form-item>
               </div>
               <div nz-col [nzSpan]="12" class="text-right">
                 <a>¿Olvidaste tu contraseña?</a>
               </div>
             </div>
-            <nz-form-item>
-              <nz-form-control>
-                <button nz-button class="login" [nzType]="'primary'" [nzSize]="'large'"
-                  [nzLoading]="isSpinning">Iniciar sesión</button>
-              </nz-form-control>
-            </nz-form-item>
+
             <div class="login-other">
               <div class="flex-1">
                 Otras formas de inicio de sesión
@@ -165,64 +319,3 @@
     </div>
   </div>
 </div>-->
-
-
-
-
-
-
-
-
-
-  <form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="submitForm()">
-    <nz-alert *ngIf="loginError" nzType="error" nzMessage="Cuenta o contraseña incorrecta (admin/ng.antd.admin)" nzShowIcon
-      style="margin-bottom: 24px;">
-    </nz-alert>
-    <ng-template #userTpl>
-      <i nz-icon nzType="user" nzTheme="outline" style="color: #1890ff;"></i>
-    </ng-template>
-    <ng-template #lockTpl>
-      <i nz-icon nzType="lock" nzTheme="outline" style="color: #1890ff;"></i>
-    </ng-template>
-    <nz-form-item>
-      <nz-form-control nzErrorTip="¡Por favor, ingrese el nombre de usuario!">
-        <nz-input-group [nzPrefix]="userTpl" [nzSize]="'large'">
-          <input type="text" nz-input formControlName="username" placeholder="Usuario" />
-        </nz-input-group>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control nzErrorTip="¡Por favor, ingrese la contraseña!">
-        <nz-input-group [nzPrefix]="lockTpl" [nzSuffix]="suffixTpl" [nzSize]="'large'">
-          <input [type]="passwordVisible ? 'text' : 'password'" nz-input formControlName="password" placeholder="Clave" />
-        </nz-input-group>
-        <ng-template #suffixTpl>
-          <i nz-icon [nzType]="passwordVisible ? 'eye-invisible' : 'eye'" (click)="togglePasswordVisibility()" nzTheme="outline"></i>
-        </ng-template>
-      </nz-form-control>
-    </nz-form-item>
-
-    <div nz-row>
-      <div nz-col [nzSpan]="12">
-
-      </div>
-      <div nz-col [nzSpan]="12" class="text-right">
-        <a>¿Olvidaste tu contraseña?</a>
-      </div>
-    </div>
-    <nz-form-item>
-      <nz-form-control>
-        <button nz-button class="login" [nzType]="'primary'" [nzSize]="'large'"
-          [nzLoading]="isSpinning">Iniciar sesión</button>
-      </nz-form-control>
-    </nz-form-item>
-    <!--<div class="login-other">
-      <div class="flex-1">
-        Otras formas de inicio de sesión
-        <i nz-icon nzType="alipay-circle" nzTheme="outline"></i>
-        <i nz-icon nzType="taobao-circle" nzTheme="outline"></i>
-        <i nz-icon nzType="weibo-circle" nzTheme="outline"></i>
-      </div>
-      <a (click)="goRegister()">Registrar cuenta</a>
-    </div>-->
-  </form>

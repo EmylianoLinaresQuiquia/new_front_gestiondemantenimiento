@@ -24,7 +24,7 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzTableModule } from 'ng-zorro-antd/table';  // Importación del módulo de tablas
 import { NzDividerModule } from 'ng-zorro-antd/divider'; // Para divisores si se necesita
 import { NzCardModule } from 'ng-zorro-antd/card';
-
+import { NzSelectModule } from 'ng-zorro-antd/select';
 
 import { NzInputModule } from 'ng-zorro-antd/input';
 
@@ -58,6 +58,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
     NzTableModule, // Agregado para trabajar con tablas
     NzDividerModule, // Agregado por si necesitas divisores
     NzCardModule,
+    NzSelectModule
 
 
 
@@ -88,6 +89,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
     NzTableModule, // Agregado para trabajar con tablas
     NzDividerModule, // Agregado por si necesitas divisores
     NzCardModule,
+    NzSelectModule
 
 
 

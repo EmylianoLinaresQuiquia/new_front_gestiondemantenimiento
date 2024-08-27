@@ -51,3 +51,673 @@
   </table>
 </div>-->
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<body>
+  <div class="stl_ stl_02">
+    <div class="stl_03">
+      <object data="assets/pdf/spt1/img_15.svg" type="image/svg+xml" class="stl_04" style="position:absolute; width:74.5833em; height:105.8333em;">
+        <embed src="assets/pdf/spt1/img_15.svg" type="image/svg+xml" />
+      </object>
+    </div>
+    <div class="stl_view">
+      <div class="stl_05 stl_06">
+        <div class="stl_01 stl_07" style="left:21.1679em;top:0.9587em;"><span class="stl_08 stl_09 stl_10" style="word-spacing:0.0009em;">MANTENIMIENTO PROGRAMADO SISTEMA DE PUESTA A TIERRA &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:32.2347em;top:2.3792em;"><span class="stl_08 stl_09 stl_11" style="word-spacing:0.0067em;">INSPECCIÓN SPT01 &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:14.188em;top:4.3796em;"><span class="stl_12 stl_09 stl_13" style="word-spacing:-0.0028em;">Área: </span><span class="stl_14 stl_09 stl_15" style="word-spacing:-0.0068em;">Electricidad y Potencia &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:14.402em;top:5.6989em;"><span class="stl_12 stl_09 stl_16" style="word-spacing:0.4383em;">Fecha: </span><span class="stl_14 stl_09 stl_17">02-10-2023 &nbsp;</span></div>
+                  <div class="stl_01" style="left:28.9607em;top:9.6258em;"><span class="stl_13 stl_08 stl_32">{{fechaplano}}</span></div>
+        <div class="stl_01 stl_07" style="left:43.4092em;top:4.3796em;"><span class="stl_12 stl_09 stl_18" style="word-spacing:0.2197em;">Versión: </span><span class="stl_14 stl_09 stl_19">002 &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:25.0054em;top:5.6989em;"><span class="stl_12 stl_09 stl_20" style="word-spacing:0.218em;">Documento: </span><span class="stl_14 stl_09 stl_21">MJ-EP-MPSPT.SPT01 &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:43.4078em;top:5.6989em;"><span class="stl_12 stl_09 stl_22" style="word-spacing:0.2146em;">Página: </span><span class="stl_14 stl_09 stl_23" style="word-spacing:0.0075em;">1 de 1 &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:3.8526em;top:8.1344em;"><span class="stl_14 stl_09 stl_24" style="word-spacing:0.0019em;">Tag de la sub estación: &nbsp;</span></div>
+                  <div class="stl_01" style="left:15.8535em;top:8.5261em;"><span class="stl_13 stl_08 stl_23">{{ tagSubestacion }}</span></div>
+        <div class="stl_01" style="left:43.2684em;top:8.5261em;"><span class="stl_13 stl_08 stl_24">{{correoSeleccionado}}</span></div>
+        <div class="stl_01" style="left:43.2684em;top:10.1796em;"><span class="stl_13 stl_08 stl_24">{{correoSeleccionado1}}</span></div>
+        <div class="stl_01 stl_07" style="left:3.6745em;top:9.8932em;"><span class="stl_14 stl_09 stl_25">Ubicación: &nbsp;</span></div>
+                  <div class="stl_01" style="left:9.2535em;top:10.2796em;"><span class="stl_13 stl_08 stl_29" style="word-spacing:-0.0031em;font-size: 0.8em;">{{ubicacion}}</span></div>
+        <div class="stl_01 stl_07" style="left:27.1835em;top:8.1852em;"><span class="stl_14 stl_09 stl_26">OT: &nbsp;</span></div>
+                  <input type="text" style="position: absolute;left: 41.3%; top: 72.8%; width: 7.6em;height: 235px;font-size: 120px;" [(ngModel)]="ot">
+        <div class="stl_01 stl_07" style="left:39.0002em;top:8.1852em;"><span class="stl_14 stl_09 stl_27">Lider: &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:37.909em;top:9.8932em;"><span class="stl_14 stl_09 stl_28">Supervisor: &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:61.5809em;top:8.1852em;"><span class="stl_14 stl_09 stl_29">Inicio: &nbsp;</span>
+                      <input type="time" style="position: absolute;width:215%;top: -0.44em;left:3.66em;height: 180%;font-size: 150px;" [(ngModel)]="inicio"/>
+                  </div>
+        <div class="stl_01 stl_07" style="left:62.0446em;top:9.8932em;"><span class="stl_14 stl_09 stl_30">Fin: &nbsp;</span>
+                      <input type="time" style="position: absolute;width:316%;left:3.23em;height: 180%;font-size: 150px;top: -0.43em;" [(ngModel)]="fin"/>
+                  </div>
+        <div class="stl_01 stl_07" style="left:26.5763em;top:9.8932em;"><span class="stl_14 stl_09 stl_31">Fecha: &nbsp;</span>
+                      <input type="date" style="line-height: normal;line-height: normal;width: 7.2em;height: 245px;position: absolute;left: 4.7em;top: -65px;font-size: 9rem;" [(ngModel)]="fecha">
+                  </div>
+                  <div *ngIf="cantidad_spt >= 1" class="stl_01 stl_07" style="left:7.5763em;top:37.8932em;width: 20%;height: 115%;">
+                      <img src="assets/pdf/spt1/img_pozo.svg" style="width: 100%;height: 100%;">
+                  </div>
+                  <div *ngIf="cantidad_spt >= 2" class="stl_01 stl_07" style="left:23.5763em;top:37.8932em;width: 20%;height: 115%;">
+                      <img src="assets/pdf/spt1/img_pozo.svg" style="width: 100%;height: 100%;">
+                  </div>
+                  <div *ngIf="cantidad_spt >= 3" class="stl_01 stl_07" style="left:39.5763em;top:37.8932em;width: 20%;height: 115%;">
+                      <img src="assets/pdf/spt1/img_pozo.svg" style="width: 100%;height: 100%;">
+                  </div>
+                  <div *ngIf="cantidad_spt >= 4" class="stl_01 stl_07" style="left:55.5763em;top:37.8932em;width: 20%;height: 115%;">
+                      <img src="assets/pdf/spt1/img_pozo.svg" style="width: 100%;height: 100%;">
+                  </div>
+        <div class="stl_01 stl_07" style="left:30.9309em;top:12.2783em;"><span class="stl_14 stl_09 stl_32" style="word-spacing:-0.0072em;">INSTRUCCIONES DE SEGURIDAD: &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:5.976em;top:13.9863em;"><span class="stl_14 stl_09 stl_33">PELIGRO &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:20.774em;top:13.9863em;"><span class="stl_14 stl_09 stl_34">RIESGO &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:49.9769em;top:13.9863em;"><span class="stl_14 stl_09 stl_21">CONTROL &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:16.4375em;top:15.4455em;"><span class="stl_35 stl_09 stl_36" style="word-spacing:0.0085em;">Volcadura, choque, tropiezos, golpes &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:18.1329em;top:16.4943em;"><span class="stl_35 stl_09 stl_37" style="word-spacing:0.0099em;">Golpes, cortes, lumbalgias &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:3.4424em;top:15.4624em;"><span class="stl_35 stl_09 stl_38" style="word-spacing:0.0026em;">Traslado al el área de trab. &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:5.5309em;top:16.4943em;"><span class="stl_35 stl_09 stl_39">Herramientas &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:30.9498em;top:15.4624em;"><span class="stl_35 stl_09 stl_38" style="word-spacing:0.0035em;">Manejo defensivo, uso de vías peatonales, uso de 3 puntos de apoyo &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:30.9499em;top:16.5112em;"><span class="stl_35 stl_09 stl_40" style="word-spacing:0.0054em;">EPP adecuado, inspección, entrenamiento, orden y limpieza &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:30.9499em;top:17.5598em;"><span class="stl_35 stl_09 stl_39" style="word-spacing:0.0135em;">Lototo, medición de energía cero y/o residual, uso epp dieléctrico y/o ignígugo &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:30.95em;top:18.6085em;"><span class="stl_35 stl_09 stl_41" style="word-spacing:0.0069em;">Delimitación de áreas, comunicación, autorizaciones. &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:15.7235em;top:17.5429em;"><span class="stl_35 stl_09 stl_42" style="word-spacing:0.0144em;">Contacto directo, indirecto, arco eléctrico &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:19.4162em;top:18.5916em;"><span class="stl_35 stl_09 stl_43" style="word-spacing:0.0095em;">Atropellos, golpes &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:5.049em;top:17.5598em;"><span class="stl_35 stl_09 stl_44" style="word-spacing:0.0193em;">Energía eléctrica &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:6.4235em;top:18.5916em;"><span class="stl_35 stl_09 stl_45">Equipos &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:17.2051em;top:20.3126em;"><span class="stl_14 stl_09 stl_46">SEGURIDAD &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:54.5656em;top:20.3126em;"><span class="stl_14 stl_09 stl_47">OBSERVACIONES &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:38.1067em;top:20.0457em;"><span class="stl_14 stl_09 stl_48">"</span><span class="stl_49 stl_50 stl_33" style="word-spacing:-0.0328em;">✔ </span><span class="stl_14 stl_09 stl_51" style="word-spacing:-0.002em;">" "NA" &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:2.7104em;top:21.7883em;"><span class="stl_35 stl_09 stl_52" style="word-spacing:0.0097em;">Completar los permisos de trabajo según la actividad adjuntados a la OT (ATS y/o PETAR) &nbsp;</span>
+                      <input type="checkbox" style="position: absolute;width: 100px;height: 100px;left:41.72em;top: -10px;" [(ngModel)]="check1"><input type="checkbox" style="position: absolute;width: 100px;height: 140px;left:44.75em;top: -20px;" [(ngModel)]="check2"><input type="text" style="position: absolute;width: 100%;height: 140px;left:37.5em;font-size: 150px;    top: -15px;" [(ngModel)]="observacion1">
+                  </div>
+        <div class="stl_01 stl_07" style="left:2.7105em;top:22.837em;"><span class="stl_35 stl_09 stl_32" style="word-spacing:0.0078em;">Inspección de herramientas y evitar exceso de carga (&gt;25 kg) &nbsp;</span>
+                      <input type="checkbox" style="position: absolute;width: 100px;height: 100px;left:41.72em;" [(ngModel)]="check3"><input type="checkbox" style="position: absolute;width: 100px;height: 140px;left:44.75em;top: -25px;" [(ngModel)]="check4"><input type="text" style="position: absolute;width: 100%;height: 140px;left:37.5em;font-size: 150px;    top: -15px;" [(ngModel)]="observacion2">
+                  </div>
+        <div class="stl_01 stl_07" style="left:2.7105em;top:23.8857em;"><span class="stl_35 stl_09 stl_53" style="word-spacing:0.0012em;">Usar implementos de seguridad</span><span class="stl_35 stl_09 stl_33" style="word-spacing:0.2457em;">&nbsp;</span><span class="stl_35 stl_09 stl_54" style="word-spacing:0.0011em;">personal de acuerdo al tipo de trabajo (EPP´s). &nbsp;</span>
+                      <input type="checkbox" style="position: absolute;width: 100px;height: 100px;left:41.72em;" [(ngModel)]="check5"><input type="checkbox" style="position: absolute;width: 100px;height: 140px;left:44.75em;top: -25px;" [(ngModel)]="check6"><input type="text" style="position: absolute;width: 100%;height: 140px;left:37.5em;font-size: 150px;    top: -15px;" [(ngModel)]="observacion3">
+                  </div>
+        <div class="stl_01 stl_07" style="left:2.7105em;top:24.9343em;"><span class="stl_35 stl_09 stl_43" style="word-spacing:0.0059em;">Realizar el aislamiento, bloqueo y etiquetado de la sub estación eléctrica, evaluar necesidad. &nbsp;</span>
+                      <input type="checkbox" style="position: absolute;width: 100px;height: 100px;left:41.72em;" [(ngModel)]="check7"><input type="checkbox" style="position: absolute;width: 100px;height: 140px;left:44.75em;top: -25px;" [(ngModel)]="check8"><input type="text" style="position: absolute;width: 100%;height: 140px;left:37.5em;font-size: 150px;    top: -15px;" [(ngModel)]="observacion4">
+                  </div>
+        <div class="stl_01 stl_07" style="left:2.7103em;top:25.983em;"><span class="stl_35 stl_09 stl_41" style="word-spacing:0.0058em;">Confirmación de energía "0" (cero) en tablero, coordinación con Centro de Control de Energía. &nbsp;</span>
+                      <input type="checkbox" style="position: absolute;width: 100px;height: 100px;left:41.72em;top: -15px;" [(ngModel)]="check9"><input type="checkbox" style="position: absolute;width: 100px;height: 140px;left:44.75em;top: -25px;" [(ngModel)]="check10"><input type="text" style="position: absolute;width: 100%;height: 140px;left:37.5em;font-size: 150px;    top: -19px;" [(ngModel)]="observacion5">
+                  </div>
+        <div class="stl_01 stl_07" style="left:26.9872em;top:27.6871em;"><span class="stl_14 stl_09 stl_55" style="word-spacing:-0.0031em;">CARACTERÍSTICAS DEL SISTEMA DE PUESTA A TIERRA &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:3.2629em;top:30.0882em;"><span class="stl_12 stl_09 stl_56" style="word-spacing:-0.011em;">Tipo de SPT: &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:9.6905em;top:30.0882em;"><span class="stl_14 stl_09 stl_57">Aislado &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:19.8665em;top:30.0882em;"><span class="stl_14 stl_09 stl_58">Contrapeso &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:32.0746em;top:30.0888em;"><span class="stl_14 stl_09 stl_17">Horizontal &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:44.4792em;top:30.0888em;"><span class="stl_14 stl_09 stl_20">Vertical &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:56.1869em;top:30.0888em;"><span class="stl_14 stl_09 stl_59">Delta &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:65.6294em;top:30.0888em;"><span class="stl_14 stl_09 stl_60">Malla &nbsp;</span></div>
+                  <div class="stl_01 caracteristicassistema" style="left:13.4535em;top:30.1em;border: 5px solid black;"><input type="checkbox" [(ngModel)]="aislado" style="width: 100px;height: 100px;border: solid black;"></div>
+        <div class="stl_01 caracteristicassistema" style="left:25.1458em;top:30.1em;border: 5px solid black;"><input type="checkbox" [(ngModel)]="contrapeso" style="width: 100px;height: 100px;"></div>
+        <div class="stl_01 caracteristicassistema" style="left:37.8842em;top:30.1em;border: 5px solid black;"><input type="checkbox"  [(ngModel)]="horizontal" style="width: 100px;height: 100px;"></div>
+        <div class="stl_01 caracteristicassistema" style="left:49.0381em;top:30.1em;border: 5px solid black;"><input type="checkbox"  [(ngModel)]="vertical" style="width: 100px;height: 100px;"></div>
+        <div class="stl_01 caracteristicassistema" style="left:60.1em;top:30.1em;border: 5px solid black;"><input type="checkbox" [(ngModel)]="delta" style="width: 100px;height: 100px;"></div>
+        <div class="stl_01 caracteristicassistema" style="left:70.1304em;top:30.1em;border: 5px solid black;"><input type="checkbox"  [(ngModel)]="malla" style="width: 100px;height: 100px;"></div>
+        <div class="stl_01 stl_07" style="left:7.0129em;top:32.305em;"><span class="stl_12 stl_09 stl_61" style="word-spacing:-0.004em;">Cant. Pozos a Tierra: &nbsp;</span></div>
+                  <div class="stl_01" style="left:20.2227em;top:32.7em;"><span class="stl_13 stl_08 stl_42">{{cantidad_spt}}</span></div>
+        <div class="stl_01 stl_07" style="left:30.1632em;top:32.305em;"><span class="stl_12 stl_09 stl_52" style="word-spacing:-0.0066em;">N° Plano As Built: &nbsp;</span></div>
+                  <div class="stl_01" style="left:43.992em;top:32.7em;"><span class="stl_13 stl_08 stl_58">{{plano}}</span></div>
+        <div class="stl_01 stl_07" style="left:31.539em;top:34.9771em;"><span class="stl_14 stl_09 stl_62" style="word-spacing:-0.008em;">ACTIVIDADES DE INSPECCIÓN &nbsp;</span></div>
+                  <div class="stl_01" style="left:8.2em;top:37em;display: flex;width: 66.5%;gap: 29%;">
+                      <div *ngFor="let index of getRange()" >
+                        <label class="stl_68 stl_08 stl_28" for="input{{ index + 1 }}">PAT{{ index + 1 }}</label>
+                        <!--<select (change)="onSelectChange(index, $event)" style="width: 100%;margin-left: 32%;height: 200px;font-size: 120px;">
+                          <option value=""></option>
+                          <option value="bueno" style="font-size: 20px">✓</option>
+                          <option value="malo" style="font-size: 20px">X</option>
+                        </select>-->
+                      </div>
+                  </div>
+                  <!---POZOS A TIERRA 1-->
+                  <div *ngIf="cantidad_spt >= 1">
+                          <div class="stl_01 stl_73" style="left:11.2em;top:44.4em;">
+                              <select [ngClass]="getSelectClass(getOption('selectedOption').selected)" [(ngModel)]="getOption('selectedOption').selected">
+                                  <option>Buen Estado</option>
+                                  <option value="Oxidado">Oxidado</option>
+                                  <option value="Sulfatado">Sulfatado</option>
+                                  <option value="Corroido">Corroido</option>
+                                  <option>Roto</option>
+                              </select>
+                           </div>
+                           <div class="stl_01" style="left:3.6em;top:38.43em;">
+                              <select [ngClass]="getSelectClass(getOption('selectedOption1').selected)" [(ngModel)]="getOption('selectedOption1').selected">
+                                  <option>Buen Estado</option>
+                                  <option value="Corroido">Corroido</option>
+                                  <option value="Oxidado">Oxidado</option>
+                                  <option value="Desoldado">Desoldado</option>
+                                  <option>Fisurado</option>
+                              </select>
+                          </div>
+                          <div class="stl_01 stl_59" style="left:11.2em;top:37em;">
+                              <select [ngClass]="getSelectClass(getOption('selectedOption2').selected)" [(ngModel)]="getOption('selectedOption2').selected">
+                                  <option>Buen Estado</option>
+                                  <option>Oxidado</option>
+                                  <option>Sulfatado</option>
+                                  <option>Corroido</option>
+                                  <option>Roto</option>
+                              </select>
+                          </div>
+                          <div class="stl_01" style="left:17.7092em;top:40em;">
+                              <select [ngClass]="getSelectClass(getOption('selectedOption3').selected)" [(ngModel)]="getOption('selectedOption3').selected">
+                                  <option>Buen Estado</option>
+                                  <option>Suelto</option>
+                                  <option>Flojo</option>
+                                  <option>Roto</option>
+                                  <option>Oxidado</option>
+                              </select>
+                          </div>
+                          <div class="stl_01 stl_62" style="left:18.1em;top:41.9em;">
+                              <select [ngClass]="getSelectClass(getOption('selectedOption4').selected)" [(ngModel)]="getOption('selectedOption4').selected">
+                                  <option>Buen Estado</option>
+                                  <option>Concreto Roto</option>
+                                  <option>Pvc Roto</option>
+                              </select>
+                          </div>
+                          <div class="stl_01 stl_71" style="left:12.2638em;top:49em;">
+                              <select [ngClass]="getSelectClass(getOption('selectedOption5').selected)" [(ngModel)]="getOption('selectedOption5').selected">
+                                  <option>Buen Estado</option>
+                                  <option>No tiene</option>
+                                  <option>Despintado</option>
+                              </select>
+                          </div>
+                   </div>
+                  <!---------------------------->
+                   <!---POZOS A TIERRA 2-->
+              <div *ngIf="cantidad_spt >= 2">
+                  <div class="stl_01 stl_73" style="left:27.2em;top:44.4em;">
+                      <select [ngClass]="getSelectClass(getOption('selectedOption6').selected)" [(ngModel)]="getOption('selectedOption6').selected">
+                          <option>Buen Estado</option>
+                          <option>Oxidado</option>
+                          <option value="Oxidado">Sulfatado</option>
+                          <option value="Desoldado">Corroido</option>
+                          <option>Roto</option>
+                      </select>
+                  </div>
+                  <div class="stl_01" style="left:19.6em;top:38.43em;">
+                      <select [ngClass]="getSelectClass(getOption('selectedOption7').selected)" [(ngModel)]="getOption('selectedOption7').selected">
+                          <option>Buen Estado</option>
+                          <option>Corroido</option>
+                          <option value="Oxidado">Oxidado</option>
+                          <option value="Desoldado">Desoldado</option>
+                          <option>Fisurado</option>
+                      </select>
+                  </div>
+                  <div class="stl_01 stl_59" style="left:27.2em;top:37em;">
+                      <select [ngClass]="getSelectClass(getOption('selectedOption8').selected)" [(ngModel)]="getOption('selectedOption8').selected">
+                          <option>Buen Estado</option>
+                          <option>Oxidado</option>
+                          <option>Sulfatado</option>
+                          <option>Corroido</option>
+                          <option>Roto</option>
+                      </select>
+                  </div>
+                  <div class="stl_01" style="left:33.7092em;top:40em;">
+                      <select [ngClass]="getSelectClass(getOption('selectedOption9').selected)" [(ngModel)]="getOption('selectedOption9').selected">
+                          <option>Buen Estado</option>
+                          <option>Suelto</option>
+                          <option>Flojo</option>
+                          <option>Roto</option>
+                          <option>Oxidado</option>
+                      </select>
+                  </div>
+                  <div class="stl_01 stl_62" style="left:34.1em;top:41.9em;">
+                      <select [ngClass]="getSelectClass(getOption('selectedOption10').selected)" [(ngModel)]="getOption('selectedOption10').selected">
+                          <option>Buen Estado</option>
+                          <option>Concreto Roto</option>
+                          <option>Pvc Roto</option>
+                      </select>
+                  </div>
+                  <div class="stl_01 stl_71" style="left:28.2638em;top:49em;">
+                      <select [ngClass]="getSelectClass(getOption('selectedOption11').selected)" [(ngModel)]="getOption('selectedOption11').selected">
+                          <option>Buen Estado</option>
+                          <option>No tiene</option>
+                          <option>Despintado</option>
+                      </select>
+                  </div>
+              </div>
+          <!---------------------------->
+           <!---POZOS A TIERRA 3-->
+      <div *ngIf="cantidad_spt >= 3">
+          <div class="stl_01 stl_73" style="left:43.2em;top:44.4em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption12').selected)" [(ngModel)]="getOption('selectedOption12').selected">
+                  <option>Buen Estado</option>
+                  <option>Oxidado</option>
+                  <option value="Oxidado">Sulfatado</option>
+                  <option value="Desoldado">Corroido</option>
+                  <option>Roto</option>
+              </select>
+          </div>
+          <div class="stl_01" style="left:35.6em;top:38.43em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption13').selected)" [(ngModel)]="getOption('selectedOption13').selected">
+                  <option>Buen Estado</option>
+                  <option>Corroido</option>
+                  <option value="Oxidado">Oxidado</option>
+                  <option value="Desoldado">Desoldado</option>
+                  <option>Fisurado</option>
+              </select>
+          </div>
+          <div class="stl_01 stl_59" style="left:43.2em;top:37em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption14').selected)" [(ngModel)]="getOption('selectedOption14').selected">
+                  <option>Buen Estado</option>
+                  <option>Oxidado</option>
+                  <option>Sulfatado</option>
+                  <option>Corroido</option>
+                  <option>Roto</option>
+              </select>
+          </div>
+          <div class="stl_01" style="left:49.7092em;top:40em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption15').selected)" [(ngModel)]="getOption('selectedOption15').selected">
+                  <option>Buen Estado</option>
+                  <option>Suelto</option>
+                  <option>Flojo</option>
+                  <option>Roto</option>
+                  <option>Oxidado</option>
+              </select>
+          </div>
+          <div class="stl_01 stl_62" style="left:50.1em;top:41.9em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption16').selected)" [(ngModel)]="getOption('selectedOption16').selected">
+                  <option>Buen Estado</option>
+                  <option>Concreto Roto</option>
+                  <option>Pvc Roto</option>
+              </select>
+          </div>
+          <div class="stl_01 stl_71" style="left:44.2638em;top:49em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption17').selected)" [(ngModel)]="getOption('selectedOption17').selected">
+                  <option>Buen Estado</option>
+                  <option>No tiene</option>
+                  <option>Despintado</option>
+              </select>
+          </div>
+      </div>
+  <!---------------------------->
+          <!---POZOS A TIERRA 4-->
+      <div *ngIf="cantidad_spt >= 4">
+          <div class="stl_01 stl_73" style="left:59.2em;top:44.4em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption18').selected)" [(ngModel)]="getOption('selectedOption18').selected">
+                  <option>Buen Estado</option>
+                  <option>Oxidado</option>
+                  <option value="Oxidado">Sulfatado</option>
+                  <option value="Desoldado">Corroido</option>
+                  <option>Roto</option>
+              </select>
+          </div>
+          <div class="stl_01" style="left:51.6em;top:38.43em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption19').selected)" [(ngModel)]="getOption('selectedOption19').selected">
+                  <option>Buen Estado</option>
+                  <option>Corroido</option>
+                  <option value="Oxidado">Oxidado</option>
+                  <option value="Desoldado">Desoldado</option>
+                  <option>Fisurado</option>
+              </select>
+          </div>
+          <div class="stl_01 stl_59" style="left:59.2em;top:37em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption20').selected)" [(ngModel)]="getOption('selectedOption20').selected">
+                  <option>Buen Estado</option>
+                  <option>Oxidado</option>
+                  <option>Sulfatado</option>
+                  <option>Corroido</option>
+                  <option>Roto</option>
+              </select>
+          </div>
+          <div class="stl_01" style="left:65.7092em;top:40em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption21').selected)" [(ngModel)]="getOption('selectedOption21').selected">
+                  <option>Buen Estado</option>
+                  <option>Suelto</option>
+                  <option>Flojo</option>
+                  <option>Roto</option>
+                  <option>Oxidado</option>
+              </select>
+          </div>
+          <div class="stl_01 stl_62" style="left:66.1em;top:41.9em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption22').selected)" [(ngModel)]="getOption('selectedOption22').selected">
+                  <option>Buen Estado</option>
+                  <option>Concreto Roto</option>
+                  <option>Pvc Roto</option>
+              </select>
+          </div>
+          <div class="stl_01 stl_71" style="left:60.2638em;top:49em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption23').selected)" [(ngModel)]="getOption('selectedOption23').selected">
+                  <option>Buen Estado</option>
+                  <option>No tiene</option>
+                  <option>Despintado</option>
+              </select>
+          </div>
+      </div>
+      <!---------------------------->
+         <!----BARRAS EQUIPOTENCIALES--->
+         <div class="stl_01 stl_79" style="left:9.6363em;top:58em;">
+          <select [ngClass]="getSelectClass(getOption('selectedOption24').selected)" [(ngModel)]="getOption('selectedOption24').selected" >
+              <option>Buen Estado</option>
+            <option >Oxidado</option>
+            <option >Sulfatado</option>
+            <option >Suelto</option>
+            <option>Despintado</option>
+          </select></div>
+          <div class="stl_01 stl_79" style="left:15.409em;top:53.3027em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption25').selected)" [(ngModel)]="getOption('selectedOption25').selected">
+                <option>Buen Estado</option>
+                <option>Faltante</option>
+                <option>Oxidado</option>
+                <option>Suelto</option>
+                <option>Corroido</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:24.5909em;top:53.3027em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption26').selected)" [(ngModel)]="getOption('selectedOption26').selected">
+                <option>Buen Estado</option>
+                <option>Oxidado</option>
+                <option>Sulfatado</option>
+                <option>Corroido</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+              </select>
+            </div>
+            <div class="stl_01 stl_81" style="left:14.0454em;top:64.4754em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption27').selected)" [(ngModel)]="getOption('selectedOption27').selected">
+                <option>No Tiene</option>
+                <option>Despintado</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:27.3363em;top:64.4391em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption28').selected)" [(ngModel)]="getOption('selectedOption28').selected">
+                <option>Roto</option>
+                <option>Faltante</option>
+                <option>Oxidado</option>
+                <option>Suelto</option>
+                <option>Corroido</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:59.582em;top:60.9239em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption29').selected)" [(ngModel)]="getOption('selectedOption29').selected">
+                <option>Buen Estado</option>
+                <option>Roto</option>
+                <option>Faltante</option>
+                <option>Oxidado</option>
+                <option>Suelto</option>
+                <option>Corroido</option>
+              </select>
+            </div>
+            <div class="stl_01 stl_79" style="left:31.9364em;top:53.4845em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption30').selected)" [(ngModel)]="getOption('selectedOption30').selected">
+                <option>Buen Estado</option>
+                <option>Con Polucion</option>
+                <option>Faltante</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+                <option>Descolorido</option>
+              </select>
+            </div>
+            <div class="stl_01 stl_77" style="left:50.4456em;top:53.2784em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption31').selected)" [(ngModel)]="getOption('selectedOption31').selected">
+                <option>Buen Estado</option>
+                <option>Oxidado</option>
+                <option>Sulfatado</option>
+                <option>Corroido</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:44.8818em;top:56.1209em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption32').selected)" [(ngModel)]="getOption('selectedOption32').selected">
+                <option>Buen Estado</option>
+                <option>Flojo</option>
+                <option>Suelto</option>
+                <option>Fisurado</option>
+                <option>Roto</option>
+              </select>
+            </div>
+            <div class="stl_01 stl_80" style="left:51.1728em;top:63.9422em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption33').selected)" [(ngModel)]="getOption('selectedOption33').selected">
+                <option>Buen Estado</option>
+                <option>Faltante</option>
+                <option>Oxidado</option>
+                <option>Suelto</option>
+                <option>Corroido</option>
+              </select>
+            </div>
+            <div class="stl_01 stl_80" style="left:45.3183em;top:63.5695em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption34').selected)" [(ngModel)]="getOption('selectedOption34').selected">
+                <option>Buen Estado</option>
+                <option>Oxidado</option>
+                <option>Sulfatado</option>
+                <option>Corroido</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+                <option>Despintado</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:59.6911em;top:52.9966em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption35').selected)" [(ngModel)]="getOption('selectedOption35').selected">
+                <option>Buen Estado</option>
+                <option>Con Polucion</option>
+                <option>Faltante</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+                <option>Descolorido</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:57.482em;top:65.1239em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption36').selected)" [(ngModel)]="getOption('selectedOption36').selected">
+                <option>Buen Estado</option>
+                <option>No Tiene</option>
+                <option>Despintado</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+              </select>
+            </div>
+    <!---------------------------->
+          <!--CERCO PERIMETRICO-->
+          <div class="stl_01" style="left:28.5546em;top:68.7059em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption37').selected)" [(ngModel)]="getOption('selectedOption37').selected">
+                <option>Buen Estado</option>
+                <option>Faltante</option>
+                <option>Oxidado</option>
+                <option>Suelto</option>
+                <option>Corroido</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:15.0636em;top:69.2149em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption38').selected)" [(ngModel)]="getOption('selectedOption38').selected">
+                <option>Buen Estado</option>
+                <option>Roto</option>
+                <option>Faltante</option>
+                <option>Oxidado</option>
+                <option>Suelto</option>
+                <option>Corroido</option>
+              </select>
+            </div>
+            <div class="stl_01 stl_81" style="left:13.9363em;top:75.4513em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption39').selected)" [(ngModel)]="getOption('selectedOption39').selected">
+                <option>Buen Estado</option>
+                <option>No Tiene</option>
+                <option>Despintado</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:59.4819em;top:68.9664em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption40').selected)" [(ngModel)]="getOption('selectedOption40').selected">
+                <option>Buen Estado</option>
+                <option>Suelto</option>
+                <option>Flojo</option>
+                <option>Roto</option>
+                <option>Oxidado</option>
+              </select>
+            </div>
+            <div class="stl_01 stl_82" style="left:60.3em;top:72.1422em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption41').selected)" [(ngModel)]="getOption('selectedOption41').selected">
+                <option>Buen Estado</option>
+                <option>Oxidado</option>
+                <option>Sulfatado</option>
+                <option>Corroido</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:38.2455em;top:69.4876em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption42').selected)" [(ngModel)]="getOption('selectedOption42').selected">
+                <option>Buen Estado</option>
+                <option>Con Polucion</option>
+                <option>Faltante</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+                <option>Descolorido</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:38.5455em;top:77.4846em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption43').selected)" [(ngModel)]="getOption('selectedOption43').selected">
+                <option>Buen Estado</option>
+                <option>Suelto</option>
+                <option>Flojo</option>
+                <option>Roto</option>
+                <option>Oxidado</option>
+              </select>
+            </div>
+            <!-- Repite para los elementos select adicionales, siguiendo el mismo patrón -->
+            <div class="stl_01" style="left:37.7364em;top:82.5877em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption44').selected)" [(ngModel)]="getOption('selectedOption44').selected">
+                <option>Buen Estado</option>
+                <option>Con Polucion</option>
+                <option>Faltante</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+                <option>Descolorido</option>
+              </select>
+            </div>
+            <div class="stl_01" style="left:15.5908em;top:82.5483em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption45').selected)" [(ngModel)]="getOption('selectedOption45').selected">
+                <option>Buen Estado</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+                <option>Oxidado</option>
+                <option>Sulfatado</option>
+              </select>
+            </div>
+            <div class="stl_01 stl_84" style="left:16.9182em;top:87.1422em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption46').selected)" [(ngModel)]="getOption('selectedOption46').selected">
+                <option>Buen Estado</option>
+                <option>Oxidado</option>
+                <option>Sulfatado</option>
+                <option>Corroido</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+              </select>
+            </div>
+            <div class="stl_01 stl_81" style="left:14.0454em;top:89.9877em;">
+              <select [ngClass]="getSelectClass(getOption('selectedOption47').selected)" [(ngModel)]="getOption('selectedOption47').selected">
+                <option>Buen Estado</option>
+                <option>No Tiene</option>
+                <option>Despintado</option>
+                <option>Roto</option>
+                <option>Suelto</option>
+              </select>
+            </div>
+          <!--TRANSFORMADOR-->
+        <div class="stl_01 stl_07" style="left:18.901em;top:50.8339em;"><span class="stl_65 stl_09 stl_66" style="word-spacing:0.0003em;">Barras No Aisladas &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:52.6025em;top:50.8338em;"><span class="stl_65 stl_09 stl_66" style="word-spacing:-0.0051em;">Barras Aisladas &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:2.6918em;top:93.0428em;"><span class="stl_14 stl_09 stl_42" style="word-spacing:0.002em;">RECOMENDACIONES - OBSERVACIONES &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:64.8835em;top:93.0428em;"><span class="stl_14 stl_09 stl_67" style="word-spacing:-0.0049em;"># AVISO &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:6.0843em;top:95.1498em;"><span class="stl_68 stl_69 stl_37" style="word-spacing:0.5498em;">1.- ................................................................................................................................................................................................................................ &nbsp;</span>
+                      <input type="text" style="position:absolute;width: 95%;left:1.7em;top:-1em;height: 1.7em;" [(ngModel)]="observacion6" >
+                      <input type="text" style="position:absolute;width: 13%;left:66.6em;top:-1em;height: 1.7em;" [(ngModel)]="aviso6">
+                  </div>
+        <div class="stl_01 stl_07" style="left:6.0843em;top:96.5535em;"><span class="stl_68 stl_69 stl_37" style="word-spacing:0.5498em;">2.- ................................................................................................................................................................................................................................ &nbsp;</span>
+                      <input type="text" style="position:absolute;width: 95%;height: 1.7em;left:1.7em;top:-0.95em;" [(ngModel)]="observacion7">
+                      <input type="text" style="position:absolute;width: 13%;left:66.6em;top:-0.95em;height: 1.7em;" [(ngModel)]="aviso7" >
+                  </div>
+        <div class="stl_01 stl_07" style="left:6.0843em;top:97.9575em;"><span class="stl_68 stl_69 stl_37" style="word-spacing:0.5498em;">3.- ................................................................................................................................................................................................................................ &nbsp;</span>
+                      <input type="text" style="position:absolute;width: 95%;height: 1.6em;left:1.7em;top:-0.9em;" [(ngModel)]="observacion8">
+                    <input type="text" style="position:absolute;width: 13%;left:66.6em;top:-0.95em;height: 1.7em;" [(ngModel)]="aviso8" >
+                  </div>
+        <div class="stl_01 stl_07" style="left:63.2428em;top:95.1498em;"><span class="stl_68 stl_69 stl_13">.............................. &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:63.2428em;top:96.5535em;"><span class="stl_68 stl_69 stl_13">.............................. &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:63.2429em;top:97.9575em;"><span class="stl_68 stl_69 stl_13">.............................. &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:6.4355em;top:100.1085em;"><span class="stl_70 stl_09 stl_11" style="word-spacing:-0.0099em;">TÉCNICO LIDER: &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:7.236em;top:101.4279em;"><span class="stl_70 stl_09 stl_27">FOTOCHECK: &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:13.7601em;top:100.062em;"><span class="stl_14 stl_09 stl_33">__ &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:30.9678em;top:100.1424em;"><span class="stl_70 stl_09 stl_31">SUPERVISOR: &nbsp;</span></div>
+                  <div class="stl_01" style="left:13.6227em;top:100.5414em;"><span class="stl_13 stl_08 stl_24">{{correoSeleccionado}}</span></div>
+                  <div class="stl_01" style="left:37.235em;top:100.5722em;"><span class="stl_13 stl_08 stl_24">{{correoSeleccionado1}}</span></div>
+                  <div class="stl_01" style="left:13.6227em;top:101.5414em;">
+                      <span class="stl_13 stl_08 stl_24">
+                        <input type="text" [(ngModel)]="fotocheckSeleccionado" (change)="seleccionarParticipante($event, 'TECNICO')" style="height: 100px;font-size: 120px;">
+                      </span>
+                    </div>
+                    <div class="stl_01" style="left:37.235em;top:101.5414em;">
+                      <span class="stl_13 stl_08 stl_24">
+                        <input type="text" [(ngModel)]="fotocheckSeleccionado1" (change)="seleccionarParticipante($event, 'SUPERVISOR')" style="height: 100px;font-size: 120px;">
+                      </span>
+                    </div>
+        <div class="stl_01 stl_07" style="left:30.9678em;top:101.4617em;"><span class="stl_70 stl_09 stl_27">FOTOCHECK: &nbsp;</span></div>
+        <div class="stl_01 stl_07" style="left:9.0177em;top:103.6605em;"><span class="stl_70 stl_09 stl_41">FIRMA: &nbsp;</span> </div>
+                  <div class="stl_01 stl_07" style="left:12.9177em;top:102.6605em;"><img [src]="rutaFirmaSeleccionada" alt="" width="800px" height="400px"></div>
+        <div class="stl_01 stl_07" style="left:33.2857em;top:103.7112em;"><span class="stl_70 stl_09 stl_37">FIRMA: &nbsp;</span>  </div>
+      </div>
+    </div>
+  </div>
+  <!--<p-toast key="error"></p-toast>
+  <p-toast key="evaluacion"></p-toast>
+  <p-toast key="success"></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+</body>
+  <p-toast></p-toast>-->
+
+
+
+
+
+
+
+<div style="left: 90.4682em; top: 7.331em;position: absolute;">
+  <h6>GUARDAR</h6>
+  <a (click)="guardarDatos()" style="cursor: pointer;">
+    <span nz-icon nzType="save" nzTheme="outline" style="font-size: 24px;"></span>
+  </a>
+
+  </div>
+
+
+
+  <div style="  left: 90.4682em;top: 14.331em;position: absolute;">
+    <h6>PLANO</h6>
+    <a  style="cursor: pointer;">
+      <span nz-icon nzType="file-pdf" nzTheme="outline" style="font-size: 24px;"></span>
+    </a>
+
+</div>
+<!---
+<p-toast key="PdfGeneratorPlanoServiceerror"></p-toast>-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,1 +1,860 @@
-<p>spt2-inspection works!</p>
+<!--<img src="assets/pdf/spt2/header.png" alt="" class="header">
+
+
+<div class="linea1">
+    <p-inputGroup class="area">
+        <p-inputGroupAddon>
+            <span>Area</span>
+        </p-inputGroupAddon>
+        <input pInputText value="Mantenimiento E&P"/>
+    </p-inputGroup>
+    <p-inputGroup class="ot">
+        <p-inputGroupAddon>
+            <span>Ot</span>
+        </p-inputGroupAddon>
+        <input pInputText [(ngModel)]="ot" />
+    </p-inputGroup>
+    <p-inputGroup class="fecha">
+        <p-inputGroupAddon>
+            <span>Fecha</span>
+        </p-inputGroupAddon>
+        <input pInputText [(ngModel)]="fecha"/>
+    </p-inputGroup>
+    <p-inputGroup class="lider">
+        <p-inputGroupAddon>
+            <span>Lider</span>
+        </p-inputGroupAddon>
+        <input pInputText value="{{correoSeleccionado}}"/>
+    </p-inputGroup>
+</div>
+
+<div class="linea2">
+    <p-inputGroup class="subestacion">
+        <p-inputGroupAddon>
+            <span>Subestacion</span>
+        </p-inputGroupAddon>
+        <input pInputText value="{{ tagSubestacion }}"/>
+    </p-inputGroup>
+    <p-inputGroup class="ubicacion">
+        <p-inputGroupAddon>
+            <span>Ubicacion</span>
+        </p-inputGroupAddon>
+        <input pInputText value="{{ ubicacion }}"/>
+    </p-inputGroup>
+    <p-inputGroup class="supervisor">
+        <p-inputGroupAddon>
+            <span>Supervisor</span>
+        </p-inputGroupAddon>
+        <input pInputText value="{{correoSeleccionado1}}"/>
+    </p-inputGroup>
+</div>
+
+<div class="linea3">
+    <p-inputGroup class="plano">
+        <p-inputGroupAddon>
+            <span>Plano As Buil</span>
+        </p-inputGroupAddon>
+        <input pInputText value="{{plano}}"/>00
+    </p-inputGroup>
+    <p-inputGroup class="fecha-plano">
+        <p-inputGroupAddon>
+            <span>Fecha de actualización del plano</span>
+        </p-inputGroupAddon>
+        <input pInputText value="{{fecha_plano}}"/>
+    </p-inputGroup>
+    <p-inputGroup class="version">
+        <p-inputGroupAddon>
+            <span>Version</span>
+        </p-inputGroupAddon>
+        <input pInputText value="{{versio}}"/>
+    </p-inputGroup>
+</div>
+
+<div class="linea4">
+    <div>
+        EQUIPO DE MEDICIÓN - TELURÓMETRO
+    </div>
+
+    <p-inputGroup class="fecha-calibracion">
+        <p-inputGroupAddon>
+            <span>Fecha de Calibracion</span>
+        </p-inputGroupAddon>
+        <input pInputText value="21/02/2023"/>
+    </p-inputGroup>
+</div>
+
+<div class="linea5">
+    <p-inputGroup class="marca">
+        <p-inputGroupAddon>
+            <span>Marca:</span>
+        </p-inputGroupAddon>
+        <input pInputText [(ngModel)]="marca"/>
+    </p-inputGroup>
+    <p-inputGroup class="nserie">
+        <p-inputGroupAddon>
+            <span>N° Serie:</span>
+        </p-inputGroupAddon>
+        <input pInputText [(ngModel)]="nserie" />
+    </p-inputGroup>
+    <p-inputGroup class="modelo">
+        <p-inputGroupAddon>
+            <span>Modelo:</span>
+        </p-inputGroupAddon>
+        <input pInputText [(ngModel)]="modelo"/>
+    </p-inputGroup>
+    <p-inputGroup class="frecuencia">
+        <p-inputGroupAddon>
+            <span>Frecuencia:</span>
+        </p-inputGroupAddon>
+        <input pInputText [(ngModel)]="frecuencia"/>
+    </p-inputGroup>
+    <p-inputGroup class="presicion">
+        <p-inputGroupAddon>
+            <span>Presicion:</span>
+        </p-inputGroupAddon>
+        <input pInputText [(ngModel)]="precision"/>
+    </p-inputGroup>
+</div>
+
+<div class="linea6">
+    NORMA DE REFERENCIA PARA RESULTADOS : CÓDIGO NACIONAL DE ELECTRICIDAD - UTILIZACIÓN / SECCIÓN 060 - 712 Resistencia de Electrodos (25 Ω)
+</div>
+<div class="linea7">
+    MÉTODOS DE MEDICIÓN <input type="checkbox"  [(ngModel)]="checkcaida"> <span>Caida Potencial</span>
+    <input type="checkbox"  [(ngModel)]="checkpotencial"> <span>Selectivo</span>
+    <input type="checkbox"  [(ngModel)]="checksinpicas"> <span>Sin picas</span>
+</div>
+
+<div style="    display: grid;
+grid-template-columns: 45% 50%;margin-top: 1%;">
+    <div class="linea8">
+        <div>IEEE Std 81 - 2012 Método Caída de Potencial</div>
+        <div>
+            <span>MEDICION</span>
+            <span>Ec(m)</span>
+            <span>Ep(m)</span>
+            <div style="    display: grid;
+            grid-template-columns: 25% 25% 25.5% 24.5%;">
+                <div *ngFor="let index of getRangeCaida()" style="border-right: 1px solid;display: flex;flex-direction: column;align-items: center;
+            ">
+                    <label >R(Ohm)</label>
+                    <label for="inputCaida{{ index + 1 }}">PAT{{ index + 1 }}</label>
+
+                </div>
+            </div>
+        </div>
+
+     <div>
+        <div>
+            <div style="    display: grid;
+            grid-template-columns: 21.5% 21% 28% 29.5%;">
+                <span>1</span>
+                <span>72%</span>
+                <span>50</span>
+                <span>36.0</span>
+
+            </div>
+            <div style="    display: grid;
+            grid-template-columns: 21.5% 21% 28% 29.5%;">
+                <span>2</span>
+                <span>62%</span>
+                <span>50</span>
+                <span>31.0</span>
+
+            </div>
+            <div style="    display: grid;
+            grid-template-columns: 21.5% 21% 28% 29.5%;">
+                <span>3</span>
+                <span>52%</span>
+                <span>50</span>
+                <span>26.0</span>
+
+            </div>
+        </div>
+
+        <div style="    display: grid;
+        grid-template-columns: 25% 25% 25% 25%;" >
+            <div *ngFor="let index of getRangeCaida()" >
+
+              <div *ngFor="let subIndex of [0, 1, 2]">
+                <input  type="number" style="width: 100%;"
+                       id="inputCaida{{ index * 3 + subIndex + 1 }}"
+                       [ngModel]="getCaidaValue(index, subIndex)"
+                       (ngModelChange)="updateCaidaValue(index, subIndex, $event)"
+                       [disabled]="!checkcaida">
+              </div>
+            </div>
+          </div>
+     </div>
+
+        <div>
+            <div style="font-size: 10px;
+            padding-top: 10%;
+            padding-bottom: 7%;">Resistencia al 62% de la longitud máxima de Ec</div>
+            <div>
+                <span>Ec(m)</span>
+                <span>50.0</span>
+            </div>
+            <div>
+                <span>Ep(m)</span>
+                <span>31.0</span>
+            </div>
+            <div>
+                <span>R(Ohm)</span>
+                <span>0.00</span>
+            </div>
+        </div>
+
+
+       <div>
+            <div style="    font-size: 12px;
+            border-right: 1px solid;
+            padding-top: 10%;
+        ">Valor de resistencia</div>
+            <div style="    display: flex;
+            flex-direction: column;justify-content: space-between;">
+                <span style="    padding: 16%;
+                border-bottom: 1px solid;
+                border-right: 1px solid;">Ohm</span>
+                <span  >0</span>
+            </div>
+            <div  >
+                <div style="    padding: 5%;
+                display: grid;
+                grid-template-columns: 50% 50%;"><span >Cumple</span>
+                    <span style="font-size: 0.9rem;    border-left: 1px solid;">No Cumple</span></div>
+                <div style="border: 1px solid;">0</div>
+            </div>
+            <div style="    display: flex;
+            flex-direction: column;justify-content: space-between;">
+                <span style="padding: 8.5%;border-left: 1px solid;
+                border-bottom: 1px solid;">Valor Max</span>
+                <span >25 Ω</span>
+            </div>
+       </div>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+        <div *ngFor="let index of getRangeCaida()">
+          <div>{{ calcularPromedioCaida(index) || '' }}</div>
+
+        </div>
+
+
+      <div class="stl_01 stl_112" style="left: 1.8716em; top: 43.1303em; width: 95%;"><input class="stl_105 stl_08 stl_106" style="width: 100%;" [(ngModel)]="conclucioncaida" [disabled]="!checkcaida"></div>
+
+
+
+
+    <div style="width: 100%;    display: flex;
+    flex-direction: column;
+    gap: 15px;">
+        <div style="display: flex;justify-content: space-evenly;">
+            <span>Condiciones</span>
+        <div style="    border: 1px solid;
+        padding: 0.5%;">Sistema de puesta a tierra aislado ( aislamiento de electrodo )</div>
+        </div>
+            <div style="display: grid;grid-template-columns: 50% 40%;justify-content: space-evenly;">
+
+                <div id="caida-chart" style=" height: 220px;border: 1px solid;"></div>
+
+
+            <div>
+                <img src="/assets/pdf/spt2/img_04.png" alt="" style="width: 60%;height: 200px;">
+                <p>Esquema de conexión</p>
+            </div>
+            </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<div>
+
+
+
+
+
+
+    <div style="display: flex;">
+            <div class="parent">
+                <div class="div1">MEDICION </div>
+                <div class="div2">Ec(m) </div>
+                <div class="div3">Ep(m) </div>
+
+                    </div>
+                    <div style="    width: 28%;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr 1fr;"><div *ngFor="let index of getRangeCaida()" style="border-right: 1px solid;display: flex;flex-direction: column;align-items: center;
+                    border-top: 1px solid;
+                        ">
+                                <label >R (Ohm)</label>
+                                <label for="inputCaida{{ index + 1 }}">PAT{{ index + 1 }}</label>
+
+                            </div></div>
+        </div>
+        <div style="display: flex;">
+                <div class="parent2">
+                    <div class="div1"> <span>1</span></div>
+                    <div class="div2"> <span>2</span></div>
+                    <div class="div3"> <span>3</span></div>
+                    <div class="div4"><span>72%</span> </div>
+                    <div class="div5"> <span>62%</span></div>
+                    <div class="div6"><span>52%</span> </div>
+                    <div class="div7">50 </div>
+                    <div class="div8"> 50</div>
+                    <div class="div9"> 50</div>
+                    <div class="div10"> 36.0</div>
+                    <div class="div11"> 31.0</div>
+                    <div class="div12"> 26.0</div>
+                    </div>
+                <div style="width: 28%;display: grid;
+                grid-template-columns: 25% 25% 25% 25%;">
+                    <div *ngFor="let index of getRangeCaida()" >
+
+                        <div *ngFor="let subIndex of [0, 1, 2]">
+                          <input  type="number" style="width: 100%;"
+                                 id="inputCaida{{ index * 3 + subIndex + 1 }}"
+                                 [ngModel]="getCaidaValue(index, subIndex)"
+                                 (ngModelChange)="updateCaidaValue(index, subIndex, $event)"
+                                 [disabled]="!checkcaida">
+                        </div>
+                      </div>
+                </div>
+        </div>
+
+
+                    <div class="parent3">
+                        <div class="div1"> <span>Resistencia al 62% de la
+                            longitud máxima de Ec</span></div>
+                        <div class="div2">Ec (m) </div>
+                        <div class="div3"> 50.0</div>
+                        <div class="div4"> Ep (m)</div>
+                        <div class="div5">31.0 </div>
+                        <div class="div6">R (Ohm)</div>
+                        <div class="div7">0.00 </div>
+                        </div>
+
+                        <div class="parent4">
+                            <div class="div1"><span>Valor de la
+                                resistencia</span> </div>
+
+
+                            <div class="div2">
+                                <div style="    position: absolute;
+                                left: 25%;
+                                height: 135px;
+                                display: grid;
+                           grid-template-rows: 24% 24% 24% 24%;align-items: center;border: none;">
+                                <div *ngFor="let index of getRangeCaida()" style="border: none;">
+                                    <div style="border: none;">{{ calcularPromedioCaida(index) || '' }}</div>
+
+                                  </div>
+                            </div>
+                            </div>
+                            <div class="div3"> </div>
+                            <div class="div4"> </div>
+                            <div class="div5"> </div>
+                            <div class="div6"> <span>Ohm</span></div>
+                            <div class="div7">
+
+                                <div style=" position: absolute;
+                            left: 17%;
+                            height: 135px;
+                            display: grid;
+                           grid-template-rows: 24% 24% 24% 24%;align-items: center;border: none;"><div *ngFor="let index of getRangeCaida()" style="border:none;display: flex;flex-direction: column;align-items: center;
+                    border:none;
+                        ">
+                                <label for="inputCaida{{ index + 1 }}">PAT{{ index + 1 }}</label>
+
+                            </div></div>
+                            </div>
+
+                            <div class="div8"> </div>
+                            <div class="div9"> </div>
+                            <div class="div10"> </div>
+                            <div class="div11">Cumple </div>
+                            <div class="div12">No Cumple </div>
+                            <div class="div13">
+                                <div style=" position: absolute;
+                                left: 32%;
+                                height: 135px;
+                                display: grid;
+                           grid-template-rows: 24% 24% 24% 24%;align-items: center;border: none;">
+                                    <div *ngFor="let index of getRangeCaida()" style="border: none;">
+                                      <span [style.color]="getResultadoCaida(index).color">
+                                        {{ getResultadoCaida(index).mensaje }}
+                                      </span>
+                                    </div>
+                                  </div>
+                            </div>
+                            <div class="div14"> </div>
+                            <div class="div15"> </div>
+                            <div class="div16"> </div>
+                            <div class="div17"><span>Valor Máx</span></div>
+                            <div class="div18" style="    align-items: center;
+                            display: flex;
+                            justify-content: center;"> <span>25 Ω</span></div>
+                            </div>
+
+
+
+</div>
+-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<body  style="height: 0px;">
+  <div class="stl_ stl_02">
+      <div class="stl_03">
+          <object data="assets/pdf/spt2/img_06.svg" type="image/svg+xml" class="stl_04" style="position:absolute; width:74.5833em; height:105.9167em;">
+              <embed src="assets/pdf/spt2/img_06.svg" type="image/svg+xml" />
+          </object>
+      </div>
+      <div class="stl_view">
+          <div class="stl_05 stl_06">
+              <div class="stl_01" style="left:23.5055em;top:2.1806em;"><span class="stl_07 stl_08 stl_09" style="word-spacing:-0.0051em;">REGISTRO DE MEDICIÓN DE SISTEMA PUESTA A TIERRA - SPT02 &nbsp;</span></div>
+              <div class="stl_01" style="left:12.1163em;top:4.5906em;"><span class="stl_10 stl_08 stl_11" style="word-spacing:-0.009em;">Área: </span><span class="stl_12 stl_08 stl_13" style="word-spacing:-0.0015em;">Electricidad y Potencia &nbsp;</span></div>
+              <div class="stl_01" style="left:12.1163em;top:6.1832em;"><span class="stl_10 stl_08 stl_14" style="word-spacing:-0.0198em;">Fecha: </span><span class="stl_12 stl_08 stl_15">09/11/2021 &nbsp;</span></div>
+              <div class="stl_01" style="left:53.3756em;top:4.5906em;"><span class="stl_10 stl_08 stl_16" style="word-spacing:-0.0131em;">Versión: </span><span class="stl_12 stl_08 stl_17">002 &nbsp;</span></div>
+              <div class="stl_01" style="left:53.3756em;top:6.1832em;"><span class="stl_10 stl_08 stl_18" style="word-spacing:-0.0051em;">Pagina: </span><span class="stl_12 stl_08 stl_19" style="word-spacing:-0.0215em;">1 de 1 &nbsp;</span></div>
+              <div class="stl_01" style="left:22.7644em;top:6.1831em;"><span class="stl_10 stl_08 stl_20" style="word-spacing:0.2079em;">Documento: </span><span class="stl_12 stl_08 stl_21">MJ-EP-RMSPT.SPT02 &nbsp;</span></div>
+              <div class="stl_01" style="left:22.3941em;top:8.6241em;"><span class="stl_22 stl_08 stl_23">OT: &nbsp;</span></div>
+    <div class="stl_01 stl_32" style="left: 30.8931em; top: 8.4241em;width: 19.1%;"><input class="stl_33 stl_34 stl_35" style="width: 100%;height: 190px;" [(ngModel)]="ot"></div>
+    <div class="stl_01" style="left:45.3941em;top:8.6241em;"><span class="stl_22 stl_08 stl_23">Fecha: &nbsp;</span></div>
+    <div class="stl_01" style="left: 52.9em; top: 8.6241em; width: 6.4%;"><input type="date"  style="width: 100%;font-size: 0.8em;line-height: normal;" [(ngModel)]="fecha"></div>
+    <div class="stl_01" style="left:58.3941em;top:8.6241em;"><span class="stl_22 stl_08 stl_23">Lider: &nbsp;</span></div>
+
+    <div class="stl_01" style="left: 61em; top: 8.6241em; width: 6.4%;"><span class="stl_21 stl_08 stl_40" style="word-spacing:0.001em;    font-size: 0.7em;">{{correoSeleccionado}}</span></div>
+    <div class="stl_01" style="left:57.687em;top:10.217em;"><span class="stl_21 stl_08 stl_40" style="word-spacing:0.001em;    font-size: 0.7em;">{{correoSeleccionado1}}</span></div>
+
+              <div class="stl_01" style="left:11.0426em;top:8.587em;"><span class="stl_24 stl_08 stl_23" style="word-spacing:-0.0068em;">Mantenimiento E&amp;P &nbsp;</span></div>
+    <div class="stl_01" style="left:11.8438em;top:10em;"><span class="stl_21 stl_08 stl_23">{{ tagSubestacion }} &nbsp;</span></div>
+              <div class="stl_01" style="left:3.3018em;top:8.6241em;"><span class="stl_22 stl_08 stl_25">Área: &nbsp;</span></div>
+              <div class="stl_01" style="left:4.765em;top:10.18em;"><span class="stl_22 stl_08 stl_26" style="word-spacing:-0.002em;">Sub estación: &nbsp;</span></div>
+              <div class="stl_01" style="left:5.0773em;top:11.7722em;"><span class="stl_22 stl_08 stl_27" style="word-spacing:-0.01em;">Plano As Built: &nbsp;</span></div>
+    <div class="stl_01 stl_44" style="left:15.0773em;top:14.7722em;"><span class="stl_46 stl_34 stl_35">{{plano}} &nbsp;</span></div>
+              <div class="stl_01" style="left:18.487em;top:10.217em;"><span class="stl_22 stl_08 stl_28">Ubicación: &nbsp;</span></div>
+    <div class="stl_01 stl_41" style="left:23.0131em;top:10.517em;"><span class="stl_42 stl_34 stl_35">{{ ubicacion }} &nbsp;</span></div>
+    <div class="stl_01" style="left:52.487em;top:10.217em;"><span class="stl_22 stl_08 stl_28">Supervisor: &nbsp;</span></div>
+              <div class="stl_01" style="left:46.2648em;top:11.7722em;"><span class="stl_22 stl_08 stl_29" style="word-spacing:-0.0043em;">Fecha de actualización del plano: &nbsp;</span></div>
+    <div class="stl_01 stl_47" style="left:57.826em;top:12.2722em;"><span class="stl_42 stl_34 stl_35">{{fecha_plano}}&nbsp;</span></div>
+              <div class="stl_01" style="left:64.9129em;top:11.7722em;"><span class="stl_22 stl_08 stl_30">Versión: &nbsp;</span></div>
+    <div class="stl_01 stl_44" style="left:84.9129em;top:14.7722em;"><span class="stl_45 stl_34 stl_35">{{versio}} &nbsp;</span></div>
+              <div class="stl_01" style="left:20.3741em;top:14.4759em;"><span class="stl_22 stl_08 stl_16" style="word-spacing:-0.0048em;">EQUIPO DE MEDICIÓN - TELURÓMETRO &nbsp;</span></div>
+              <div class="stl_01" style="left:53.6167em;top:14.4759em;"><span class="stl_22 stl_08 stl_31" style="word-spacing:-0.0064em;">Fecha de Calibración: &nbsp;</span></div>
+              <div class="stl_01" style="left:52.3199em;top:16.1425em;"><span class="stl_22 stl_08 stl_32" style="word-spacing:3.5016em;">Frecuencia: </span><span class="stl_24 stl_08 stl_33" style="word-spacing:-0.0108em;">111,128 Hz &nbsp;</span></div>
+              <div class="stl_01" style="left:66.5613em;top:14.4759em;"><span class="stl_24 stl_08 stl_34">02/21/23 &nbsp;</span></div>
+              <div class="stl_01" style="left:64.7095em;top:16.1425em;"><span class="stl_22 stl_08 stl_35">Precisión: &nbsp;</span></div>
+              <div class="stl_01" style="left:69.487em;top:16.1796em;"><span class="stl_36 stl_08 stl_37" style="word-spacing:-0.0639em;">. </span><span class="stl_24 stl_08 stl_27" style="word-spacing:-0.0274em;">+/- 5% </span><span class="stl_36 stl_08 stl_27" style="word-spacing:-0.0274em;">. &nbsp;</span></div>
+              <div class="stl_01" style="left:26.2641em;top:16.1427em;"><span class="stl_24 stl_08 stl_17" style="word-spacing:-0.0103em;">ST181415734 B4 &nbsp;</span></div>
+              <div class="stl_01" style="left:3.0612em;top:16.1802em;"><span class="stl_22 stl_08 stl_38">Marca: &nbsp;</span></div>
+              <div class="stl_01" style="left:8.0426em;top:16.1796em;"><span class="stl_24 stl_08 stl_39">Fluke &nbsp;</span></div>
+              <div class="stl_01" style="left:13.4685em;top:16.1796em;"><span class="stl_22 stl_08 stl_40" style="word-spacing:-0.0129em;">N° Serie: &nbsp;</span></div>
+              <div class="stl_01" style="left:41.0055em;top:16.1796em;"><span class="stl_22 stl_08 stl_41">Modelo: &nbsp;</span></div>
+              <div class="stl_01" style="left:46.6722em;top:16.1796em;"><span class="stl_24 stl_08 stl_42">1625-2 &nbsp;</span></div>
+              <div class="stl_01" style="left:2.3572em;top:18.3869em;"><span class="stl_10 stl_08 stl_43" style="word-spacing:-0.0018em;">NORMA DE REFERENCIA PARA RESULTADOS </span><span class="stl_44 stl_08 stl_45" style="word-spacing:-0.0019em;">: CÓDIGO NACIONAL DE ELECTRICIDAD - UTILIZACIÓN / SECCIÓN 060 - 712 Resistencia de Electrodos (25 Ω) &nbsp;</span></div>
+              <div class="stl_01" style="left:32.5981em;top:20.5209em;"><span class="stl_46 stl_08 stl_47" style="word-spacing:-0.0088em;">MÉTODOS DE MEDICIÓN &nbsp;</span><input type="checkbox"  [(ngModel)]="checkcaida" style="width: 5%;height: 100px;"> <span>Caida Potencial</span> <input type="checkbox"  [(ngModel)]="checkpotencial" style="width: 5%;height: 100px;"> <span>Selectivo</span> <input type="checkbox"  [(ngModel)]="checksinpicas" style="width: 5%;height: 100px;"> <span>Sin picas</span></div>
+              <div class="stl_01" style="left:51.1738em;top:23.2893em;"><span class="stl_48 stl_49 stl_38" style="word-spacing:-0.0029em;">Sistema de puesta</span><span class="stl_48 stl_49 stl_37" style="word-spacing:0.2656em;">&nbsp;</span><span class="stl_48 stl_49 stl_50" style="word-spacing:0.2707em;">a tierra</span><span class="stl_48 stl_49 stl_37" style="word-spacing:-0.0012em;">&nbsp;</span><span class="stl_48 stl_49 stl_14" style="word-spacing:-0.0086em;">aislado ( aislamiento de electrodo ) &nbsp;</span></div>
+              <div class="stl_01" style="left:11.8389em;top:23.132em;"><span class="stl_46 stl_08 stl_51" style="word-spacing:0.0004em;">IEEE Std 81 - 2012</span><span class="stl_46 stl_08 stl_37" style="word-spacing:0.6525em;">&nbsp;</span><span class="stl_46 stl_08 stl_52" style="word-spacing:-0.0049em;">Método Caída de Potencial &nbsp;</span></div>
+              <div class="stl_01" style="left:45.6352em;top:23.2202em;"><span class="stl_10 stl_08 stl_39">Condiciones: &nbsp;</span></div>
+              <div class="stl_01" style="left:23.5981em;top:25.1796em;"><span class="stl_53 stl_08 stl_54" style="word-spacing:-0.0159em;">R (Ω) &nbsp;</span></div>
+              <div class="stl_01" style="left:27.3944em;top:25.1796em;"><span class="stl_22 stl_08 stl_52" style="word-spacing:-0.0096em;">R (Ohm) &nbsp;</span></div>
+              <div class="stl_01" style="left:31.6907em;top:25.1796em;"><span class="stl_22 stl_08 stl_52" style="word-spacing:-0.0096em;">R (Ohm) &nbsp;</span></div>
+              <div class="stl_01" style="left:35.987em;top:25.1796em;"><span class="stl_22 stl_08 stl_52" style="word-spacing:-0.0096em;">R (Ohm) &nbsp;</span></div>
+
+
+              <div class="stl_01" style="left:5.1908em;top:25.6423em;"><span class="stl_22 stl_08 stl_55">MEDICIÓN &nbsp;</span></div>
+              <div class="stl_01" style="left:8.2648em;top:27.6796em;"><span class="stl_56 stl_08 stl_57">72% &nbsp;</span></div>
+              <div class="stl_01" style="left:13.8574em;top:25.6796em;"><span class="stl_22 stl_08 stl_58" style="word-spacing:-0.0083em;">Ec (m) &nbsp;</span></div>
+              <div class="stl_01" style="left:19.0611em;top:25.6796em;"><span class="stl_22 stl_08 stl_27" style="word-spacing:-0.0048em;">Ep (m) &nbsp;</span></div>
+              <div class="stl_01" style="left:47.0592em;top:25.9579em;"><span class="stl_59 stl_08 stl_60" style="word-spacing:-0.0104em;">Caida de Potencial Regla del 62%</span></div>
+
+              <div class="stl_01" style="left:3.9685em;top:27.6796em;"><span class="stl_56 stl_08 stl_37">1</span></div>
+              <div class="stl_01" style="left:3.9685em;top:28.6426em;"><span class="stl_56 stl_08 stl_37">2</span></div>
+              <div class="stl_01" style="left:3.9685em;top:29.6055em;"><span class="stl_56 stl_08 stl_37">3</span></div>
+              <div class="stl_01" style="left:14.45em;top:27.6796em;"><span class="stl_56 stl_08 stl_57">50 &nbsp;</span></div>
+              <div class="stl_01" style="left:14.45em;top:28.6426em;"><span class="stl_56 stl_08 stl_57">50 &nbsp;</span></div>
+              <div class="stl_01" style="left:14.45em;top:29.6056em;"><span class="stl_56 stl_08 stl_57">50 &nbsp;</span></div>
+              <div class="stl_01" style="left:19.487em;top:27.6796em;"><span class="stl_56 stl_08 stl_35">36.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:19.487em;top:28.6426em;"><span class="stl_56 stl_08 stl_35">31.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:19.487em;top:29.6056em;"><span class="stl_56 stl_08 stl_35">26.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:8.2648em;top:28.6426em;"><span class="stl_56 stl_08 stl_57">62% &nbsp;</span></div>
+              <div class="stl_01" style="left:8.2648em;top:29.6056em;"><span class="stl_56 stl_08 stl_57">52% &nbsp;</span></div>
+              <div class="stl_01" style="left:3.2092em;top:30.9944em;"><span class="stl_56 stl_08 stl_62" style="word-spacing:-0.009em;">Resistencia al 62% de la &nbsp;</span></div>
+              <div class="stl_01" style="left:3.3389em;top:31.9944em;"><span class="stl_56 stl_08 stl_63" style="word-spacing:-0.0084em;">longitud máxima de Ec &nbsp;</span></div>
+              <div class="stl_01" style="left:13.8759em;top:31.05em;"><span class="stl_56 stl_08 stl_64" style="word-spacing:-0.0117em;">Ec (m) &nbsp;</span></div>
+              <div class="stl_01" style="left:14.1537em;top:32.013em;"><span class="stl_22 stl_08 stl_65">50.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:19.1537em;top:31.05em;"><span class="stl_56 stl_08 stl_64" style="word-spacing:0.0078em;">Ep (m) &nbsp;</span></div>
+              <div class="stl_01" style="left:19.4685em;top:32.013em;"><span class="stl_22 stl_08 stl_65">31.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:23.1537em;top:31.05em;"><span class="stl_56 stl_08 stl_31" style="word-spacing:-0.0148em;">R (Ohm) &nbsp;</span></div>
+              <div class="stl_01" style="left:23.6537em;top:32.013em;"><span class="stl_22 stl_08 stl_65">0.00 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.4902em;top:31.157em;"><span class="stl_66 stl_08 stl_67">30 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.4902em;top:32.3097em;"><span class="stl_66 stl_08 stl_67">25 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.4902em;top:33.4623em;"><span class="stl_66 stl_08 stl_67">20 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.4902em;top:34.615em;"><span class="stl_66 stl_08 stl_67">15 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.4902em;top:35.7677em;"><span class="stl_66 stl_08 stl_67">10 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.8282em;top:36.9203em;"><span class="stl_66 stl_08 stl_37">5</span></div>
+              <div class="stl_01" style="left:2.2278em;top:33.4204em;"><span class="stl_22 stl_08 stl_68" style="word-spacing:0.0084em;">Valor de la &nbsp;</span></div>
+
+              <div class="stl_01" style="left:8.1537em;top:33.9018em;"><span class="stl_22 stl_08 stl_69">Ohm &nbsp;</span></div>
+              <div class="stl_01" style="left:13.6352em;top:33.9018em;"><span class="stl_70 stl_08 stl_38">Cumple &nbsp;</span></div>
+              <div class="stl_01" style="left:18.4129em;top:33.9018em;"><span class="stl_71 stl_08 stl_72" style="word-spacing:-0.0069em;">No Cumple</span><span class="stl_71 stl_08 stl_37" style="word-spacing:0.9774em;">&nbsp;</span><span class="stl_22 stl_08 stl_73" style="word-spacing:0.0084em;">Valor Máx &nbsp;</span></div>
+              <div class="stl_01" style="left:2.2278em;top:34.4204em;"><span class="stl_22 stl_08 stl_74">resistencia &nbsp;</span></div>
+              <div class="stl_01" style="left:63.9129em;top:36.0085em;"><span class="stl_75 stl_08 stl_76" style="word-spacing:-0.0097em;">Esquema de conexión &nbsp;</span></div>
+              <div class="stl_01" style="left:40.8282em;top:38.073em;"><span class="stl_66 stl_08 stl_37">0</span></div>
+              <div class="stl_01" style="left:23.7829em;top:38.0685em;"><span class="stl_77 stl_08 stl_57" style="word-spacing:-0.0122em;">25 Ω &nbsp;</span></div>
+              <div class="stl_01" style="left:41.7969em;top:38.939em;"><span class="stl_66 stl_08 stl_55">24.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:44.4102em;top:38.939em;"><span class="stl_66 stl_08 stl_55">26.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:47.0235em;top:38.939em;"><span class="stl_66 stl_08 stl_55">28.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:49.6368em;top:38.939em;"><span class="stl_66 stl_08 stl_55">30.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:52.2502em;top:38.939em;"><span class="stl_66 stl_08 stl_55">32.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:54.8635em;top:38.939em;"><span class="stl_66 stl_08 stl_55">34.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:57.4768em;top:38.939em;"><span class="stl_66 stl_08 stl_55">36.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:60.0902em;top:38.939em;"><span class="stl_66 stl_08 stl_55">38.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:2.2278em;top:42.2758em;"><span class="stl_10 stl_08 stl_45">Conclusiones: &nbsp;</span></div>
+              <div class="stl_01" style="left:51.1739em;top:47.0299em;"><span class="stl_48 stl_49 stl_23" style="word-spacing:-0.0063em;">Sistema de puesta tierra conectado a los sistemas de sitio &nbsp;</span></div>
+              <div class="stl_01" style="left:13.6537em;top:46.8727em;"><span class="stl_46 stl_08 stl_51" style="word-spacing:0.0004em;">IEEE Std 81 - 2012</span><span class="stl_46 stl_08 stl_37" style="word-spacing:0.6525em;">&nbsp;</span><span class="stl_46 stl_08 stl_74" style="word-spacing:-0.0024em;">Método Selectivo &nbsp;</span></div>
+              <div class="stl_01" style="left:45.6352em;top:46.9609em;"><span class="stl_10 stl_08 stl_39">Condiciones: &nbsp;</span></div>
+              <div class="stl_01" style="left:23.0981em;top:48.8463em;"><span class="stl_22 stl_08 stl_52" style="word-spacing:-0.0096em;">R (Ohm) &nbsp;</span></div>
+              <div class="stl_01" style="left:27.3944em;top:48.8463em;"><span class="stl_22 stl_08 stl_52" style="word-spacing:-0.0096em;">R (Ohm) &nbsp;</span></div>
+              <div class="stl_01" style="left:31.6907em;top:48.8463em;"><span class="stl_22 stl_08 stl_52" style="word-spacing:-0.0096em;">R (Ohm) &nbsp;</span></div>
+              <div class="stl_01" style="left:35.987em;top:48.8463em;"><span class="stl_22 stl_08 stl_52" style="word-spacing:-0.0096em;">R (Ohm) &nbsp;</span></div>
+
+
+
+              <div class="stl_01" style="left:5.191em;top:49.3093em;"><span class="stl_22 stl_08 stl_55">MEDICIÓN &nbsp;</span></div>
+              <div class="stl_01" style="left:13.8574em;top:49.3463em;"><span class="stl_22 stl_08 stl_58" style="word-spacing:-0.0083em;">Ec (m) &nbsp;</span></div>
+              <div class="stl_01" style="left:19.0611em;top:49.3463em;"><span class="stl_22 stl_08 stl_27" style="word-spacing:-0.0048em;">Ep (m) &nbsp;</span></div>
+
+
+              <div class="stl_01" style="left:3.9685em;top:51.3463em;"><span class="stl_56 stl_08 stl_37">1</span></div>
+              <div class="stl_01" style="left:3.9685em;top:52.4574em;"><span class="stl_56 stl_08 stl_37">2</span></div>
+              <div class="stl_01" style="left:3.9685em;top:53.5682em;"><span class="stl_56 stl_08 stl_37">3</span></div>
+              <div class="stl_01" style="left:8.2648em;top:51.3463em;"><span class="stl_56 stl_08 stl_57">72% &nbsp;</span></div>
+              <div class="stl_01" style="left:8.2651em;top:52.4574em;"><span class="stl_56 stl_08 stl_57">62% &nbsp;</span></div>
+              <div class="stl_01" style="left:8.2651em;top:53.5682em;"><span class="stl_56 stl_08 stl_57">52% &nbsp;</span></div>
+              <div class="stl_01" style="left:14.45em;top:51.3463em;"><span class="stl_56 stl_08 stl_57">50 &nbsp;</span></div>
+              <div class="stl_01" style="left:14.4501em;top:52.4574em;"><span class="stl_56 stl_08 stl_57">50 &nbsp;</span></div>
+              <div class="stl_01" style="left:14.4501em;top:53.5682em;"><span class="stl_56 stl_08 stl_57">50 &nbsp;</span></div>
+              <div class="stl_01" style="left:19.487em;top:51.3463em;"><span class="stl_56 stl_08 stl_35">36.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:19.487em;top:52.4574em;"><span class="stl_56 stl_08 stl_35">31.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:19.487em;top:53.5682em;"><span class="stl_56 stl_08 stl_35">26.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.6418em;top:54.2529em;"><span class="stl_66 stl_08 stl_67">30 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.6418em;top:55.6156em;"><span class="stl_66 stl_08 stl_67">25 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.6418em;top:56.9782em;"><span class="stl_66 stl_08 stl_67">20 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.6418em;top:58.3409em;"><span class="stl_66 stl_08 stl_67">15 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.6418em;top:59.7036em;"><span class="stl_66 stl_08 stl_67">10 &nbsp;</span></div>
+              <div class="stl_01" style="left:40.9798em;top:61.0662em;"><span class="stl_66 stl_08 stl_37">5</span></div>
+              <div class="stl_01" style="left:13.8759em;top:55.1611em;"><span class="stl_56 stl_08 stl_64" style="word-spacing:-0.0117em;">Ec (m) &nbsp;</span></div>
+              <div class="stl_01" style="left:14.1537em;top:56.2722em;"><span class="stl_22 stl_08 stl_65">50.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:19.1537em;top:55.1611em;"><span class="stl_56 stl_08 stl_64" style="word-spacing:0.0078em;">Ep (m) &nbsp;</span></div>
+              <div class="stl_01" style="left:19.4685em;top:56.2722em;"><span class="stl_22 stl_08 stl_65">31.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:23.1537em;top:55.1611em;"><span class="stl_56 stl_08 stl_31" style="word-spacing:-0.0148em;">R (Ohm) &nbsp;</span></div>
+              <div class="stl_01" style="left:23.6535em;top:56.2722em;"><span class="stl_22 stl_08 stl_65">0.00 &nbsp;</span></div>
+              <div class="stl_01" style="left:3.2093em;top:55.1799em;"><span class="stl_56 stl_08 stl_62" style="word-spacing:-0.009em;">Resistencia al 62% de la &nbsp;</span></div>
+              <div class="stl_01" style="left:3.3389em;top:56.1796em;"><span class="stl_56 stl_08 stl_63" style="word-spacing:-0.0084em;">longitud máxima de Ec &nbsp;</span></div>
+              <div class="stl_01" style="left:2.2278em;top:57.8463em;"><span class="stl_22 stl_08 stl_78" style="word-spacing:0.0092em;">Valor de &nbsp;</span></div>
+
+
+              <div class="stl_01" style="left:8.1537em;top:58.3463em;"><span class="stl_22 stl_08 stl_69">Ohm &nbsp;</span></div>
+              <div class="stl_01" style="left:13.6352em;top:58.3463em;"><span class="stl_70 stl_08 stl_38">Cumple &nbsp;</span></div>
+              <div class="stl_01" style="left:18.4129em;top:58.3463em;"><span class="stl_71 stl_08 stl_72" style="word-spacing:-0.0069em;">No Cumple</span><span class="stl_71 stl_08 stl_37" style="word-spacing:0.9774em;">&nbsp;</span><span class="stl_22 stl_08 stl_73" style="word-spacing:0.0084em;">Valor Máx &nbsp;</span></div>
+              <div class="stl_01" style="left:2.2278em;top:58.8463em;"><span class="stl_22 stl_08 stl_74">resistencia &nbsp;</span></div>
+              <div class="stl_01" style="left:63.9129em;top:60.5459em;"><span class="stl_75 stl_08 stl_76" style="word-spacing:-0.0097em;">Esquema de conexión &nbsp;</span></div>
+              <div class="stl_01" style="left:40.9798em;top:62.4289em;"><span class="stl_66 stl_08 stl_37">0</span></div>
+              <div class="stl_01" style="left:23.7092em;top:62.6055em;"><span class="stl_77 stl_08 stl_57" style="word-spacing:-0.0112em;">25 Ω &nbsp;</span></div>
+              <div class="stl_01" style="left:41.9484em;top:63.2969em;"><span class="stl_66 stl_08 stl_55">24.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:44.3885em;top:63.2969em;"><span class="stl_66 stl_08 stl_55">26.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:46.8285em;top:63.2969em;"><span class="stl_66 stl_08 stl_55">28.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:49.2685em;top:63.2969em;"><span class="stl_66 stl_08 stl_55">30.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:51.7085em;top:63.2969em;"><span class="stl_66 stl_08 stl_55">32.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:54.1485em;top:63.2969em;"><span class="stl_66 stl_08 stl_55">34.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:56.5885em;top:63.2969em;"><span class="stl_66 stl_08 stl_55">36.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:59.0285em;top:63.2969em;"><span class="stl_66 stl_08 stl_55">38.0 &nbsp;</span></div>
+              <div class="stl_01" style="left:2.2278em;top:66.8869em;"><span class="stl_10 stl_08 stl_45">Conclusiones: &nbsp;</span></div>
+    <div class="stl_01" style="left:17.3018em;top:71.4977em;"><span class="stl_10 stl_08 stl_23" style="word-spacing:-0.0045em;">IEEE Std 81 - 2012   Método Sujeción sin picas&nbsp;</span></div>
+              <div class="stl_01" style="left:57.3018em;top:71.4977em;"><span class="stl_10 stl_08 stl_23" style="word-spacing:-0.0045em;">Condiciones para prueba &nbsp;</span></div>
+              <div class="stl_01" style="left:50.5426em;top:72.7678em;"><span class="stl_75 stl_08 stl_37">*</span></div>
+              <div class="stl_01" style="left:27.0796em;top:73.5685em;"><span class="stl_22 stl_08 stl_73" style="word-spacing:0.0084em;">Valor Máx &nbsp;</span></div>
+              <div class="stl_01" style="left:26.8204em;top:74.5685em;"><span class="stl_22 stl_08 stl_79">CNE-U/060- &nbsp;</span></div>
+              <div class="stl_01" style="left:28.1167em;top:75.5685em;"><span class="stl_22 stl_08 stl_57">712 &nbsp;</span></div>
+              <div class="stl_01" style="left:20.5796em;top:73.9795em;"><span class="stl_10 stl_08 stl_39">Resultado &nbsp;</span></div>
+              <div class="stl_01" style="left:11.9129em;top:74.0685em;"><span class="stl_22 stl_08 stl_27" style="word-spacing:0.0038em;">Valor de Medición &nbsp;</span></div>
+              <div class="stl_01" style="left:7.95em;top:74.535em;"><span class="stl_10 stl_08 stl_80" style="word-spacing:-0.0079em;"># PAT &nbsp;</span></div>
+
+
+
+      <div class="stl_01 stl_112" style="left:22.3em; top:26.78em;display: flex; width: 23%;">
+        <div *ngFor="let index of getRangeCaida()" style="width: 25%;">
+          <div style="height: 33%;"><label for="inputCaida{{ index + 1 }}">PAT{{ index + 1 }}</label></div>
+
+          <div *ngFor="let subIndex of [0, 1, 2]">
+            <input style=" height:130px; width: 100%;" type="number"
+                   id="inputCaida{{ index * 3 + subIndex + 1 }}"
+                   [ngModel]="getCaidaValue(index, subIndex)"
+                   (ngModelChange)="updateCaidaValue(index, subIndex, $event)"
+                   [disabled]="!checkcaida">
+          </div>
+        </div>
+      </div>
+
+      <div class="stl_01 stl_112" style="width: 25%; left:2.7em; top:36.135em; display: flex; gap: 220px; flex-direction: column;">
+        <div *ngFor="let index of getRangeCaida()" style="width: 25%;">
+          <div style="height: 33%;"><label for="inputCaida{{ index + 1 }}">PAT{{ index + 1 }}</label></div>
+        </div>
+      </div>
+
+      <div class="stl_01 stl_112" style="width: 25%; left:15.3em; top:36.135em; display: flex; gap: 220px; flex-direction: column;">
+        <div *ngFor="let index of getRangeCaida()">
+          <span [style.color]="getResultadoCaida(index).color">
+            {{ getResultadoCaida(index).mensaje }}
+          </span>
+        </div>
+      </div>
+
+      <div class="stl_01 stl_112" style="width: 25%; left:7.3em; top:36.135em; display: flex; gap: 220px; flex-direction: column;">
+        <div *ngFor="let index of getRangeCaida()">
+          <div>{{ calcularPromedioCaida(index) || '' }}</div>
+
+        </div>
+      </div>
+
+      <div class="stl_01 stl_112" style="left: 1.8716em; top: 43.3303em; width: 95%;"><input class="stl_105 stl_08 stl_106" style="width: 100%;" [(ngModel)]="conclucioncaida" [disabled]="!checkcaida"></div>
+
+
+
+
+    <div class="stl_01 stl_112" style="left:22.3em; top:50.335em;display: flex;    width: 23%;">
+      <div *ngFor="let index of getRangeSelectivo()" style="width: 25%;">
+          <div style="height: 30%;"><label for="inputSelectivo{{ index + 1 }}">PAT{{ index + 1 }}</label></div>
+
+        <div *ngFor="let subIndex of [0, 1, 2]" >
+          <input style="height: 150px;width: 100%;" type="number"
+                 id="inputSelectivo{{ index * 3 + subIndex + 1 }}"
+                 [ngModel]="getSelectivoValue(index, subIndex)"
+                 (ngModelChange)="updateSelectivoValue(index, subIndex, $event)"
+                 [disabled]="!checkpotencial">
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="stl_01 stl_112" style="width: 25%;left:2.7em; top:60.735em;display: flex;gap: 235px;flex-direction: column;">
+      <div *ngFor="let index of getRangeSelectivo()" style="width: 25%;">
+        <div style="height: 33%;"><label for="inputSelectivo{{ index + 1 }}">PAT{{ index + 1 }}</label></div>
+      </div>
+    </div>
+
+
+    <div class="stl_01 stl_112" style="width: 25%;left:15.3em; top:60.735em;display: flex;gap: 235px;flex-direction: column;">
+
+      <div  *ngFor="let index of getRangeSelectivo()" >
+        <span  [style.color]="getResultadoSelectivo(index).color">
+          {{ getResultadoSelectivo(index).mensaje }}
+        </span>
+    </div>
+    </div>
+    <div class="stl_01 stl_112" style="width: 25%;left:7.3em; top:60.735em;display: flex;gap: 235px;flex-direction: column;">
+      <div  *ngFor="let index of getRangeSelectivo()"  >
+        <div>{{ calcularPromedioSelectivo(index) || ''  }}</div>
+      </div>
+    </div>
+
+
+    <div class="stl_01" style="left:1.8716em;top:67.7303em;width: 95%;"><input class="stl_105 stl_08 stl_106" style="width: 100%;" [(ngModel)]="conclucionselectivo" [disabled]="!checkpotencial"></div>
+
+
+
+
+    <div class="stl_01 stl_112"  style="left:7.95em;top:76.735em;display: flex;flex-direction: column;">
+      <div  *ngFor="let index of getRange()" style="    display: flex;justify-content: flex-start;align-items: center;gap: 11%;">
+        <label for="input{{ index + 1 }}">PAT{{ index + 1 }}</label>
+        <input  type="number"
+        id="input{{ index + 1 }}"
+        [ngModel]="getInputValue(index)"
+        (ngModelChange)="inputValues[index] = $event" style="width: 52.1%;height: 213px;" [disabled]="!checksinpicas">
+      </div>
+    </div>
+    <div class="stl_01" style="left:18.7581em;top:76.934em"><span class="stl_111 stl_08 stl_59" [style.color]="getResultadoInput(0).color">{{ getResultadoInput(0).mensaje }}</span></div>
+    <div class="stl_01" style="left:18.7554em;top:78.461em;"><span class="stl_111 stl_08 stl_59" [style.color]="getResultadoInput(1).color">{{ getResultadoInput(1).mensaje }}</span></div>
+    <div class="stl_01" style="left:18.7558em;top:79.981em;"><span class="stl_111 stl_08 stl_59" [style.color]="getResultadoInput(2).color">{{ getResultadoInput(2).mensaje }}</span></div>
+    <div class="stl_01" style="left:18.7558em;top:81.481em;"><span class="stl_111 stl_08 stl_59" style="width: 100%;height: 220px;display: flex;" [style.color]="getResultadoInput(3).color">{{ getResultadoInput(3).mensaje }}</span></div>
+
+    <div class="stl_01" style="left:1.8716em;top:84.4288em;width: 95%;"><input class="stl_105 stl_08 stl_106" style="width: 100%;" [(ngModel)]="conclusionespat" [disabled]="!checksinpicas"></div>
+
+              <div class="stl_01" style="left:13.487em;top:75.0685em;"><span class="stl_53 stl_08 stl_14" style="word-spacing:-0.011em;">Ohm - Ω &nbsp;</span></div>
+              <div class="stl_01" style="left:18.95em;top:75.7167em;"><span class="stl_70 stl_08 stl_38">Cumple &nbsp;</span></div>
+              <div class="stl_01" style="left:22.6907em;top:75.7167em;"><span class="stl_71 stl_08 stl_72" style="word-spacing:-0.0069em;">No Cumple &nbsp;</span></div>
+              <div class="stl_01" style="left:35.2648em;top:75.8047em;"><span class="stl_75 stl_08 stl_16" style="word-spacing:-0.0046em;">* Lazo de aterramiento cerrado &nbsp;</span></div>
+              <div class="stl_01" style="left:35.2648em;top:77.0456em;"><span class="stl_75 stl_08 stl_81" style="word-spacing:0.0061em;">* Limitación</span><span class="stl_75 stl_08 stl_37" style="word-spacing:0.2236em;">&nbsp;</span><span class="stl_75 stl_08 stl_21" style="word-spacing:-0.0048em;">para tendido y colocación</span><span class="stl_75 stl_08 stl_37" style="word-spacing:0.2217em;">&nbsp;</span><span class="stl_75 stl_08 stl_82" style="word-spacing:0.0046em;">de picas &nbsp;</span></div>
+              <div class="stl_01" style="left:35.2648em;top:78.1567em;"><span class="stl_75 stl_08 stl_23" style="word-spacing:-0.004em;">* No aplica en sistemas de electrodos a conexiones múltiples &nbsp;</span></div>
+              <div class="stl_01" style="left:35.2648em;top:79.0456em;z-index:850;"><span class="stl_75 stl_08 stl_63" style="word-spacing:-0.0069em;">y/o red de tierras &nbsp;</span></div>
+              <div class="stl_01" style="left:35.2648em;top:79.6937em;"><span class="stl_75 stl_08 stl_23" style="word-spacing:-0.0031em;">* Distancia entre pinzas no menor a 10 cm y mantener</span><span class="stl_75 stl_08 stl_37" style="word-spacing:0.897em;">&nbsp;</span><span class="stl_75 stl_08 stl_52" style="word-spacing:-0.0064em;">el mismo sentido de &nbsp;</span></div>
+              <div class="stl_01" style="left:35.2648em;top:80.5826em;"><span class="stl_75 stl_08 stl_32">flujo &nbsp;</span></div>
+              <div class="stl_01" style="left:28.0792em;top:79.3092em;"><span class="stl_77 stl_08 stl_57" style="word-spacing:-0.0122em;">25 Ω &nbsp;</span></div>
+              <div class="stl_01" style="left:35.2648em;top:81.6567em;"><span class="stl_75 stl_08 stl_83" style="word-spacing:-0.0056em;">*Empalmes o conexiones corroídos pueden afectar el resultado &nbsp;</span></div>
+              <div class="stl_01" style="left:57.3741em;top:83.3em;"><span class="stl_75 stl_08 stl_84">Es</span><span class="stl_75 stl_08 stl_15" style="word-spacing:-0.0087em;">quema de conexión &nbsp;</span></div>
+              <div class="stl_01" style="left:2.2278em;top:83.3869em;"><span class="stl_10 stl_08 stl_45">Conclusiones: &nbsp;</span></div>
+              <div class="stl_01" style="left:1.8015em;top:87.2943em;"><span class="stl_12 stl_08 stl_85" style="word-spacing:-0.0163em;">Reporte Fotográfico &nbsp;</span></div>
+              <div class="stl_01" style="left:2.9685em;top:99.8869em;"><span class="stl_10 stl_08 stl_45" style="word-spacing:-0.0051em;">Respons. del servicio: &nbsp;</span></div>
+              <div class="stl_01" style="left:2.8385em;top:102.7202em;"><span class="stl_10 stl_08 stl_45" style="word-spacing:-0.0002em;">Supervisor de mantto: &nbsp;</span></div>
+    <div class="stl_01" style="left:12.6314em;top:99.6777em;"><span class="stl_21 stl_08 stl_62" style="word-spacing:-0.0072em;">{{correoSeleccionado}}</span></div>
+          <div class="stl_01" style="left:12.6314em;top:102.5146em;"><span class="stl_21 stl_08 stl_40" style="word-spacing:0.001em;">{{correoSeleccionado1}}</span></div>
+
+          <div class="stl_01" style="left:10.6314em;top:102.5146em;"><span class="stl_21 stl_08 stl_40" style="word-spacing:0.001em;">{{idUsuarioSeleccionado}}</span></div>
+
+              <div class="stl_01" style="left:40.1346em;top:99.9239em;"><span class="stl_10 stl_08 stl_86">Fotochek: &nbsp;</span></div>
+    <div class="stl_01" style="left:45.2346em;top:99.1em;"><input class="stl_124 stl_08 stl_17" style="width: 78%;height: 370px;" type="number" [(ngModel)]="fotocheckSeleccionado" (change)="seleccionarUsuario($event)"></div>
+              <div class="stl_01" style="left:40.1346em;top:102.7572em;"><span class="stl_10 stl_08 stl_86">Fotochek: &nbsp;</span></div>
+    <div class="stl_01" style="left:45.2346em;top:101.9372em;"><input class="stl_124 stl_08 stl_17" style="width: 78%;height: 370px;" [(ngModel)]="fotocheckSeleccionado1" (change)="seleccionarSupervisor($event)"></div>
+              <div class="stl_01" style="left:53.5605em;top:99.9239em;"><span class="stl_10 stl_08 stl_85">Firma: &nbsp;</span></div>
+              <div class="stl_01" style="left:53.5605em;top:102.7572em;"><span class="stl_10 stl_08 stl_85">Firma: &nbsp;</span></div>
+    <div class="stl_01" style="left:62.600em;top:99em;"><img class="stl_124 stl_08 stl_125" [src]="rutaFirmaSeleccionada" width="900px" height="390px"></div>
+
+          </div>
+      </div>
+  </div>
+
+  <div  style="left:1.4331em;top:-18.5rem;width: 1060px;position: relative;display: flex;">
+      <div class="custom-dropzone" ngx-dropzone [accept]="'image/*'" (change)="onSelect($event)" style="width:95%;height: 160px !important;">
+        <ngx-dropzone-label>Visualiza la imagen</ngx-dropzone-label>
+        <ngx-dropzone-image-preview ngProjectAs="ngx-dropzone-preview" *ngFor="let f of files" [file]="f" [removable]="true" (removed)="onRemove({ file: f })">
+        </ngx-dropzone-image-preview>
+      </div>
+      </div>
+
+
+
+      <div id="my-dropzone" class="dropzone"></div>
+
+
+
+          <!--<p-toast key="error"></p-toast>
+          <p-toast key="evaluacion"></p-toast>
+          <p-toast key="success"></p-toast>
+          <p-confirmDialog></p-confirmDialog>-->
+
+      <div class="stl_01" style="left: 40.5em;
+      top: -92em;
+      position: relative;
+      width: 295px !important;
+      height: 225px;background-color: white;">
+          <div id="caida-chart" style="width: 300px; height: 270px;"></div>
+
+      </div>
+
+      <div class="stl_01" style="    left: 40.65em;
+      top: -84.2em;
+      width: 279px !important;
+      height: 235px;
+      background-color: white;
+      position: relative;">
+          <div id="selectivo-chart" style="width: 280px; height: 280px;"></div>
+
+      </div>
+  </body>
+
+  <div style="  left: 90.4682em;top: 7.331em;position: absolute;">
+    <h6>GUARDAR</h6>
+    <a (click)="guardarDatos()" style="cursor: pointer;">
+      <span nz-icon nzType="save" nzTheme="outline" style="font-size: 24px;"></span>
+    </a>
+
+  </div>
+
+  <div style="  left: 90.4682em;top: 14.331em;position: absolute;">
+    <h6>PLANO</h6>
+    <a  style="cursor: pointer;">
+      <span nz-icon nzType="file-pdf" nzTheme="outline" style="font-size: 24px;"></span>
+    </a>
+
+</div>
+
+ <!--- <div style="  left: 90.4682em;top: 14.331em;position: absolute;">
+      <h6>PLANO</h6>
+      <a (click)="onGenerarPdfButtonClick()" style="cursor: pointer;">
+          <i class="mb-3 pi pi-file-pdf  text-color-secondary" style="font-size: 2.5em;"></i>
+      </a>
+
+  </div>
+
+  <p-toast key="PdfGeneratorPlanoServiceerror"></p-toast>-->
+
+
+
+
+
+  <!-- my-dialog.component.html -->
+
+
+
+
+
+<!--- <div id="metodo_caida" class="stl_01" style="left:40.1608em;top:30em;">
+<apx-chart
+[series]="chartOptions.series"
+[chart]="chartOptions.chart"
+[xaxis]="chartOptions.xaxis"
+[yaxis]="chartOptions.yaxis"
+[dataLabels]="chartOptions.dataLabels"
+[markers]="chartOptions.markers ?? {}">
+</apx-chart>
+
+</div>
+
+
+<div id="metodo_selectivo" class="stl_01" style="left:40.31em;top:54em;">
+<apx-chart
+[series]="chartOptions2.series"
+[chart]="chartOptions2.chart"
+[xaxis]="chartOptions2.xaxis"
+[yaxis]="chartOptions2.yaxis"
+[dataLabels]="chartOptions2.dataLabels"
+[legend]="chartOptions2.legend"
+[markers]="chartOptions2.markers ?? {}">
+</apx-chart>
+</div>-->
+<!-- Asegúrate de agregar el siguiente import en tu módulo: -->
+<!-- import { ChartsModule } from 'ng2-charts'; -->
+
+
+
+
+
+

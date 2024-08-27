@@ -1,0 +1,50 @@
+:root {
+  --dark-color: #343a40;
+  --bs-gray-900-rgb: 34, 34, 34;
+}
+
+tfoot input {
+  display: table-header-group;
+}
+thead{
+background-color: #515151;
+color:white !important;
+}
+
+
+
+table#example.dataTable tbody tr:hover {
+background-color: yellow;
+}
+
+table#example.dataTable tbody tr:hover > .sorting_1 {
+background-color: yellow;
+}
+
+/* Estilo para las filas al pasar el ratón */
+#example tbody tr:hover {
+background-color: #d4edda; /* Verde claro */
+}
+
+
+
+
+
+
+input[type="text"],
+textarea {
+  border: 1px solid var(--dark-color); /* Borde color oscuro */
+  border-radius: 4px; /* Bordes redondeados */
+  padding: 10px; /* Espaciado interno */
+  color: #333333; /* Color del texto */
+  font-size: 16px; /* Tamaño del texto */
+  width: 100% !important; /* Ancho completo del contenedor */
+  box-sizing: border-box !important; /* Para incluir el padding y borde en el ancho total */
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  border-color: #967bb6; /* Borde púrpura más claro al enfocar */
+  box-shadow: 0 0 5px var(--dark-color); /* Sombra color oscuro */
+  outline: none; /* Eliminar borde de enfoque predeterminado */
+}

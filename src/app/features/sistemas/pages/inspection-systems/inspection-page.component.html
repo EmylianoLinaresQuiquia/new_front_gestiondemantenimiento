@@ -1,0 +1,64 @@
+<div class="container d-flex justify-content-center align-items-center vh-100">
+  <nz-card class="w-100" nzBordered [nzBodyStyle]="{ padding: '24px' }">
+    <div class="text-center mb-3">
+      <h2>Subestación</h2>
+    </div>
+
+    <nz-row justify="center" gutter="16">
+      <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
+        <nz-form-item>
+          <nz-form-control [nzErrorTip]="'Por favor, seleccione una subestación'">
+            <nz-select
+              id="subestacion-select"
+              [(ngModel)]="tagSubestacion"
+              nzPlaceHolder="Seleccione una subestación"
+              (ngModelChange)="buscarSubestacion()"
+            >
+              <nz-option
+                *ngFor="let tag of tagsSubestaciones"
+                [nzLabel]="tag"
+                [nzValue]="tag"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </nz-row>
+
+    <nz-row justify="center" gutter="16">
+      <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
+        <nz-form-item>
+          <nz-form-label nzFor="spt1-select">SPT1</nz-form-label>
+          <nz-form-control [nzErrorTip]="'Por favor, seleccione una opción'">
+            <nz-select
+            id="spt1-select"
+            (ngModelChange)="seleccionarOpcion('spt1', $event)"
+            nzPlaceHolder="SPT1"
+            [(ngModel)]="selectedOption">
+            <nz-option nzValue="Protocolo" nzLabel="Protocolo Inspección"></nz-option>
+            <nz-option nzValue="Historico" nzLabel="HISTORIAL"></nz-option>
+          </nz-select>
+
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
+        <nz-form-item>
+          <nz-form-label nzFor="spt2-select">SPT2</nz-form-label>
+          <nz-form-control [nzErrorTip]="'Por favor, seleccione una opción'">
+            <nz-select
+              id="spt2-select"
+              (ngModelChange)="seleccionarOpcion('spt2', $event)"
+              nzPlaceHolder="SPT2" [(ngModel)]="selectedOption"
+            >
+              <nz-option nzValue="Protocolo" nzLabel="Protocolo Medición"></nz-option>
+              <nz-option nzValue="Historico" nzLabel="HISTORIAL"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </nz-row>
+  </nz-card>
+
+</div>

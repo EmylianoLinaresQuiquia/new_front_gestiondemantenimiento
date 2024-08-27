@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   apiUrl: 'https://apigestiondemantenimiento2024-ba317c3bc05b.herokuapp.com/api'
-  //https://localhost:7242/api/
+  //https://localhost:7242/api
   //https://apigestiondemantenimiento2024-ba317c3bc05b.herokuapp.com/api
 };
 

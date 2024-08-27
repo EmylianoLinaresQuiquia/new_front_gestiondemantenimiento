@@ -137,3 +137,6 @@
     font-size: 14px;
   }
 }
+::ng-deep .ant-tabs-nav-wrap {
+  justify-content: center;
+}
