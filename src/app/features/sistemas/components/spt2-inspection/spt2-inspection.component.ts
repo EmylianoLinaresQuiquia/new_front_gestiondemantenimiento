@@ -38,12 +38,13 @@ import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 import * as am4plugins_forceDirected from "@amcharts/amcharts4/plugins/forceDirected";
 import  html2canvas from 'html2canvas';
 import { NgxDropzoneChangeEvent } from 'ngx-dropzone';
+import { NgxDropzoneModule } from 'ngx-dropzone';
 import { ActivatedRoute } from '@angular/router';
 declare var $: any;
 @Component({
   selector: 'app-spt2-inspection',
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule,NgxDropzoneModule],
   providers: [
     NzModalService, // Ensure the service is provided here
   ],

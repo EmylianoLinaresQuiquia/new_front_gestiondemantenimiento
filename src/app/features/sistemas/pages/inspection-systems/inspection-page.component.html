@@ -34,7 +34,7 @@
             id="spt1-select"
             (ngModelChange)="seleccionarOpcion('spt1', $event)"
             nzPlaceHolder="SPT1"
-            [(ngModel)]="selectedOption">
+            [(ngModel)]="selectedoption">
             <nz-option nzValue="Protocolo" nzLabel="Protocolo Inspección"></nz-option>
             <nz-option nzValue="Historico" nzLabel="HISTORIAL"></nz-option>
           </nz-select>
@@ -50,7 +50,7 @@
             <nz-select
               id="spt2-select"
               (ngModelChange)="seleccionarOpcion('spt2', $event)"
-              nzPlaceHolder="SPT2" [(ngModel)]="selectedOption"
+              nzPlaceHolder="SPT2" [(ngModel)]="selectedoption"
             >
               <nz-option nzValue="Protocolo" nzLabel="Protocolo Medición"></nz-option>
               <nz-option nzValue="Historico" nzLabel="HISTORIAL"></nz-option>

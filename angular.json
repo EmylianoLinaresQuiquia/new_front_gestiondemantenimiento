@@ -13,7 +13,24 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "allowedCommonJsDependencies": ["exceljs"],
+            "allowedCommonJsDependencies": [
+            "@babel/runtime/regenerator",
+            "exceljs",
+            "pako",
+            "html2canvas",
+            "jquery",
+            "datatables.net",
+            "datatables.net-buttons",
+            "core-js",
+            "jszip",
+            "amcharts4",
+            "ngx-dropzone",
+            "raf",
+            "rgbcolor",
+            "pdfmake",
+            "pdfmake/build/vfs_fonts.js"
+          ],
+
             "outputPath": "dist/f-gestiondemantenimiento",
             "index": "src/index.html",
             "main": "src/main.ts",
