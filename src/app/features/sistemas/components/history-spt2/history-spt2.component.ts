@@ -1,8 +1,10 @@
+import { DashSpt2Service } from './../../services/dash-spt2.service';
+import { Spt2Service } from './../../services/spt2.service';
+import { PdfGeneratorServiceService } from '../../services/pdf-generator-service.service';
 import { Component ,OnInit} from '@angular/core';
 import { Spt2 } from '../../interface/spt2';
-import { Spt2Service } from '../../services/spt2.service';
-import { Router } from '@angular/router';
 
+import { Router } from '@angular/router';
 import 'datatables.net';
 import 'datatables.net-buttons';
 import 'datatables.net-buttons/js/buttons.html5.js';
@@ -22,7 +24,11 @@ import 'pdfmake/build/vfs_fonts.js';
 export class HistorySpt2Component implements OnInit{
   spt2List: Spt2[] = [];
 
-  constructor(private spt2Service: Spt2Service, private router: Router) {}
+  constructor(private spt2Service: Spt2Service, private router: Router,
+    private pdfGeneratorService:PdfGeneratorServiceService,
+    private Spt2Service:Spt2Service,
+    private DashSpt2Service:DashSpt2Service
+  ) {}
 
   ngOnInit(): void {
     this.spt2Service.mostrarListaSpt2().subscribe(
@@ -37,15 +43,25 @@ export class HistorySpt2Component implements OnInit{
     );
   }
 
-  abrirDetalle(idSpt2: number) {
-    this.router.navigate(['ruta/detalle-spt2'], {
-      queryParams: {
-        idSpt2: idSpt2
-      }
-    });
-    console.log("Navegando a los detalles de SPT2 con ID:", idSpt2);
+  verDocumentos(idSpt2:any){
+    const { tag_subestacion, ot } = idSpt2;
+            this.pdfGeneratorService.generarPDF(tag_subestacion, ot);
   }
+  verTendencia(idSpt2:any){
+    const { tag_subestacion, ot, fecha, pat01, pat02, pat03, pat04, lider, supervisor } = idSpt2;
 
+            this.Spt2Service.buscarPorSubestacion(tag_subestacion).subscribe(
+            (resultados) => {
+                this.DashSpt2Service.actualizarResultadosBúsqueda(resultados);
+                this.router.navigate(['sistemas/grafico-spt2']);
+            },
+            (error) => {
+                console.error('Error al buscar por subestación con tag:', error);
+                // Lógica para manejar errores
+            }
+            );
+  }
+  
   initDataTable() {
     $(document).ready(() => {
       // Incluir el CSS para el hover
@@ -56,7 +72,7 @@ export class HistorySpt2Component implements OnInit{
                   background-color: #dfdfdf !important;
           `)
           .appendTo('head');
-
+  
       const table = $('#example').DataTable({
         dom: 'Brtipl',
         buttons: [
@@ -79,23 +95,58 @@ export class HistorySpt2Component implements OnInit{
         data: this.spt2List,
         columns: [
           { data: 'tag_subestacion', title: 'Subestación' },
+          { data: 'ot', title: 'Ot' },
           { data: 'fecha', title: 'Fecha' },
           { data: 'lider', title: 'Líder' },
           { data: 'supervisor', title: 'Supervisor' },
-          { data: null, title: 'Resumen' }
+          { data: null, title: 'Tendencia' },  // Nueva columna "Tendencia"
+          { data: null, title: 'Documentos' }, // Nueva columna "Documentos"
+          { data: null, title: 'Herramientas' } // Nueva columna "Herramientas"
         ],
         columnDefs: [
           {
-            targets: -1,
+            targets: -3,  // Columna "Tendencia"
             orderable: false,
             render: (data, type, full, meta) => {
               return `
                 <div class="btn-group">
-                  <button class="btn btn-xs btn-default ver-btn"
+                  <button class="btn btn-xs btn-default tendencia-btn"
                       type="button"
-                      title="Ver"
+                      title="Ver Tendencia"
                       data-idspt2="${full.idSpt2}">
-                      <i class="fa fa-eye"></i>
+                      <i class="fa fa-chart-line"></i>
+                  </button>
+                </div>
+              `;
+            }
+          },
+          {
+            targets: -2,  // Columna "Documentos"
+            orderable: false,
+            render: (data, type, full, meta) => {
+              return `
+                <div class="btn-group">
+                  <button class="btn btn-xs btn-default documentos-btn"
+                      type="button"
+                      title="Ver Documentos"
+                      data-idspt2="${full.idSpt2}">
+                      <i class="fa fa-file-pdf"></i>
+                  </button>
+                </div>
+              `;
+            }
+          },
+          {
+            targets: -1,  // Columna "Herramientas"
+            orderable: false,
+            render: (data, type, full, meta) => {
+              return `
+                <div class="btn-group">
+                  <button class="btn btn-xs btn-default eliminar-btn"
+                      type="button"
+                      title="Eliminar"
+                      data-idspt2="${full.idSpt2}">
+                      <i class="fa fa-trash"></i>
                   </button>
                 </div>
               `;
@@ -105,27 +156,45 @@ export class HistorySpt2Component implements OnInit{
         initComplete: function (settings, json) {
           const api = (this as any).api();
           api.columns().every(function (this: any) {
-              const column = this;
-              const header = $(column.header());
-
-              // Agregar campo de búsqueda solo si la columna no es "Resumen"
-              if (column.index() !== api.columns().nodes().length - 1) {
-                  const input = $('<input type="text" placeholder="" />')
-                      .appendTo(header)
-                      .on('keyup change', function () {
-                          if (column.search() !== (this as HTMLInputElement).value) {
-                              column.search((this as HTMLInputElement).value).draw();
-                          }
-                      });
-              }
+            const column = this;
+            const header = $(column.header());
+  
+            // Agregar campo de búsqueda solo si la columna no es "Tendencia", "Documentos" o "Herramientas"
+            if (column.index() < api.columns().nodes().length - 3) {
+              const input = $('<input type="text" placeholder="" />')
+                  .appendTo(header)
+                  .on('keyup change', function () {
+                      if (column.search() !== (this as HTMLInputElement).value) {
+                          column.search((this as HTMLInputElement).value).draw();
+                      }
+                  });
+            }
           });
-      }
+        }
       });
-      // Evento para el botón "ver"
+  
+      // Eventos para los botones de "ver", "tendencia", "documentos", y "eliminar"
       $('#example').on('click', '.ver-btn', (event) => {
         const idSpt2 = $(event.currentTarget).data('idspt2');
-        this.abrirDetalle(idSpt2);
+       // this.abrirDetalle(idSpt2);
+      });
+  
+      $('#example').on('click', '.tendencia-btn', (event) => {
+        const idSpt2 = $(event.currentTarget).data('idspt2');
+        this.verTendencia(idSpt2);  // Función para manejar la visualización de la tendencia
+      });
+  
+      $('#example').on('click', '.documentos-btn', (event) => {
+        const idSpt2 = $(event.currentTarget).data('idspt2');
+        this.verDocumentos(idSpt2);  // Función para manejar la visualización de los documentos
+      });
+  
+      $('#example').on('click', '.eliminar-btn', (event) => {
+        const idSpt2 = $(event.currentTarget).data('idspt2');
+        //this.eliminarRegistro(idSpt2);  // Función para manejar la eliminación del registro
       });
     });
   }
+  
+  
 }

@@ -1,33 +1,33 @@
 export interface Spt1 {
-  id_spt1?:number;
-  tagSubestacion: string;
+  id_spt1: number;
+  tag_subestacion: string;
   ot: string;
-  ubicacion: string;
-  fecha: string;
+  fecha: Date;
+  pat1: string;
+  pat2: string;
+  pat3: string;
+  pat4: string;
   lider: string;
   supervisor: string;
-  inicio: string;
-  fin: string;
-  firma:boolean;
-  Pat1Spt1Id: number;
-  Pat2Spt1Id: number;
-  Pat3Spt1Id: number;
-  Pat4Spt1Id: number;
-
-
-  lote_id:number;
-
-  barra_e_noAi_lote_id :number;
-  barra_e_Ai_lote_id :number;
-  cerco_p_noAi_lote_id :number;
-  cerco_p_Ai_lote_id :number;
-  transformador_noAi_lote_id :number;
-  id_tipostp:number;
-  recomendacion_lote_id:number;
-
-  pat1Spt1Id?:number;
-  pat2Spt1Id?:number;
-  pat3Spt1Id?:number;
-  pat4Spt1Id?:number;
-
 }
+
+export interface Spt1DTO {
+  ot: string;
+  fecha: string;
+  hora_inicio: string;
+  hora_fin: string;
+  id_subestacion: number;
+  id_usuario: number;
+  id_usuario_2: number;
+  seguridad_observaciones: string;
+  tipo_spt1: string;
+  barras_equipotenciales: string;
+  pozos_a_tierra: string;
+  cerco_perimetrico: string;
+  transformadores: string;
+  observacion_aviso: string;
+  aviso: string;
+  bueno: string;
+  na: string;
+}
+

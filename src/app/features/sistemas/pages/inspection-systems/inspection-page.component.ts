@@ -87,6 +87,7 @@ export class InspectionPageComponent {
           ubicacion: subestacionSeleccionada.ubicacion,
           plano: subestacionSeleccionada.plano,
           cantidad_spt: subestacionSeleccionada.cantidad_spt,
+          id_subestacion :subestacionSeleccionada.id_subestacion
         },
       });
     } else {

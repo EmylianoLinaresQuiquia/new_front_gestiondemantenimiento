@@ -1,4 +1,4 @@
-import { Component,OnInit ,Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnChanges } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 /*import * as ExcelJS from 'exceljs';
 import { HttpClient } from '@angular/common/http';
@@ -24,7 +24,7 @@ import { Usuario } from '../../interface/usuario';
 
 
 import { Subestacion } from '../../interface/subestacion';
-import { Spt1 } from '../../interface/spt1';
+
 import { Seguridadobservacion } from '../../interface/seguridadobservacion';
 import { BarraequiAi } from '../../interface/barraequi-ai';
 import { BarraequiNoAi } from '../../interface/barraequi-no-ai';
@@ -56,9 +56,10 @@ import { Pat1spt1Service } from '../../services/pat1spt1.service';
 import { Pat2spt1Service } from '../../services/pat2spt1.service';
 import { Pat3spt1Service } from '../../services/pat3spt1.service';
 import { Pat4spt1Service } from '../../services/pat4spt1.service';
+import { Spt1DTO } from '../../interface/spt1';
 //import { PdfGeneratorPlanoService } from '../../services/pdf-generator-plano.service';
 
-//import { PdfViewerDialogComponent } from '../../transformadores/pm1/pdf-viewer-dialog/pdf-viewer-dialog.component';
+import { PdfViewerComponent } from 'src/app/shared/components/pdf-viewer/pdf-viewer.component';
 //import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AlertService } from '../../services/alert.service';
 import { ActivatedRoute } from '@angular/router';
@@ -80,7 +81,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 })
 export class Spt1InspectionComponent  {
 
-  seguridad_observacion: number = 0;
+
     pozo_t_noAi: number = 0;
     pozo_t_Ai: number = 0;
     barra_e_noAi: number = 0;
@@ -95,6 +96,7 @@ export class Spt1InspectionComponent  {
     pat3_spt1: number = 0;
     pat4_spt1: number = 0;
     id_spt1: number = 0;
+    id_subestacion: number;
     userId?: number;
     images: File[] = [];
     subestacion: Subestacion | null = null;
@@ -188,6 +190,10 @@ export class Spt1InspectionComponent  {
       private modal: NzModalService
     ) {
       this.initializeOptions(48);
+
+      this.id_subestacion = 0; // Ejemplo de valor predeterminado
+      this.tecnicoIdUsuario = 0;
+      this.supervisorIdUsuario = 0;
     }
 
     ngOnInit(): void {
@@ -204,15 +210,17 @@ export class Spt1InspectionComponent  {
         this.ubicacion = params['ubicacion'] || '';
         this.plano = params['plano'] || '';
         this.cantidad_spt = params['cantidad_spt'] ? +params['cantidad_spt'] : null;
+        this.id_subestacion = params['id_subestacion'] ? +params['id_subestacion'] : 0;
       });
 
       this.subestacionService.getSubestacionData().subscribe((data) => {
+        console.log("data subestacion",data)
         if (data) {
           this.tagSubestacion = data.tag_subestacion || '';
           this.ubicacion = data.ubicacion || '';
           this.plano = data.plano || '';
           this.fechaplano = data.fecha || '';
-          this.versio = data.versio || '';
+          this.versio = data.version || '';
           this.cantidad_spt = data.cantidad_spt || null;
           this.files = [];
         }
@@ -241,31 +249,66 @@ export class Spt1InspectionComponent  {
 
     onSelectChange(index: number, event: Event): void {
       const select = event.target as HTMLSelectElement;
-      this.patValues[index] = select.value;
-      console.log(`Valor seleccionado para pat${index + 1}:`, select.value);
+      this.selectedOptions[index] = select.value;  // Asegúrate de actualizar el array correcto
+      console.log(`Valor seleccionado para option${index}:`, select.value);
     }
 
+    barras_equipotencial: { [key: string]: string } = {};
+
+    get_barras_equipotencial(optionKey: string, value: string) {
+      this.barras_equipotencial[optionKey] = value;
+    }
+
+    cerco_perimetrico : { [key: string]: string } = {};
+    get_cerco_perimetrico(optionKey: string, value: string){
+      this.cerco_perimetrico[optionKey] = value;
+    }
+
+    transformador : { [key: string]: string } = {};
+    get_transformador(optionKey: string, value: string){
+      this.transformador[optionKey] = value;
+    }
+
+
+
+    tipo_spt1: string[] = [];
+
+    updateTipoSPT1(value: string, isChecked: boolean) {
+      if (isChecked) {
+        this.tipo_spt1.push(value);
+      } else {
+        const index = this.tipo_spt1.indexOf(value);
+        if (index > -1) {
+          this.tipo_spt1.splice(index, 1);
+        }
+      }
+    }
+
+
     idusuario = 0;
+    tecnicoIdUsuario: number | null = null;
+    supervisorIdUsuario: number | null = null;
+
     seleccionarParticipante(event: any, tipoCargo: string): void {
       const fotocheckSeleccionado = parseInt(event.target.value, 10);
       const usuarioSeleccionado = this.usuarios.find(usuario => usuario.fotocheck === fotocheckSeleccionado);
 
       if (usuarioSeleccionado) {
         console.log('Usuario seleccionado:', usuarioSeleccionado);
-        this.idusuario = usuarioSeleccionado.idUsuario;
-      }
 
-      if (usuarioSeleccionado) {
         if (tipoCargo === 'TECNICO' && usuarioSeleccionado.cargo === 'TECNICO') {
+          this.tecnicoIdUsuario = usuarioSeleccionado.idUsuario;
           this.rutaFirmaSeleccionada = usuarioSeleccionado.firma || '';
           this.correoSeleccionado = usuarioSeleccionado.usuario || '';
         } else if (tipoCargo === 'SUPERVISOR' && usuarioSeleccionado.cargo === 'SUPERVISOR') {
+          this.supervisorIdUsuario = usuarioSeleccionado.idUsuario;
           this.correoSeleccionado1 = usuarioSeleccionado.usuario || '';
         } else {
           console.error(`Error: Operación válida solo para ${tipoCargo.toLowerCase()}s, cargo actual: ${usuarioSeleccionado.cargo}`);
         }
       }
     }
+
 
     selectedOptions: string[] = ['', '', ''];
     colorSeleccionadoClasses: string[] = ['', '', ''];
@@ -276,25 +319,45 @@ export class Spt1InspectionComponent  {
     options: { [key: string]: { selected: string, colorClass: string } } = {};
 
     initializeOptions(count: number): void {
-      this.options['selectedOption'] = { selected: '', colorClass: '' };
+      this.options = {};  // Asegúrate de que options esté inicializado
 
-      for (let i = 1; i < count; i++) {
+      // Inicializa las opciones desde 0 hasta count - 1
+      for (let i = 0; i < count; i++) {
         this.options[`selectedOption${i}`] = { selected: '', colorClass: '' };
       }
+
+      // Agrega una opción predeterminada si es necesario
+      this.options['pozos_a_tierra'] = { selected: '', colorClass: '' };
     }
 
     getOption(key: string): { selected: string, colorClass: string } {
       return this.options[key] || { selected: '', colorClass: '' };
     }
 
-    /*onGenerarPdfButtonClick(): void {
+    getSelectedOptions(): string[] {
+      // Filtra y devuelve solo las opciones seleccionadas que no están vacías
+      return Object.keys(this.options)
+        .filter(key => this.options[key].selected && this.options[key].selected !== '')
+        .map(key => this.options[key].selected);
+    }
+
+
+
+    onGenerarPdfButtonClick(): void {
       this.subestacionService.getPdfBySubestacion(this.tagSubestacion).subscribe(
         (pdfBlob: Blob) => {
           const blobUrl = URL.createObjectURL(pdfBlob);
-          this.dialog.open(PdfViewerDialogComponent, {
-            data: { pdfSrc: blobUrl },
-            width: '80%',
-            height: '90%'
+          this.modal.create({
+            nzContent: PdfViewerComponent,
+
+            nzData: {
+              pdfSrc: blobUrl // Pasas el PDF como parámetro al componente
+            },
+            nzWidth: '95%',
+            nzBodyStyle: {
+              height: '1%',
+              overflow: 'hidden'
+            }
           });
         },
         error => {
@@ -302,14 +365,98 @@ export class Spt1InspectionComponent  {
           this.alertservice.showAlert('No se encontró el Plano.', 'error');
         }
       );
-    }*/
+    }
 
 
 
 
 
-      guardarDatos(): void {
-        this.modal.confirm({
+
+
+
+    seguridad_observacion: { checks: boolean[]; observacion: string }[] = [];
+
+  observacion_avisos: { observacion: string; aviso: string }[] = [];
+  pozos_a_tierra: string[] = [];
+
+  guardarDatos(): void {
+    this.modal.confirm({
+      nzTitle: 'Confirmación',
+      nzContent: '¿Estás seguro de que quieres guardar los datos?',
+      nzOnOk: async () => {
+        const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
+
+        try {
+          const seguridad_observacione = [
+            { checks: [this.check1, this.check2], observacion: this.observacion1 },
+            { checks: [this.check3, this.check4], observacion: this.observacion2 },
+            { checks: [this.check5, this.check6], observacion: this.observacion3 },
+            { checks: [this.check7, this.check8], observacion: this.observacion4 },
+            { checks: [this.check9, this.check10], observacion: this.observacion5 },
+          ];
+          this.seguridad_observacion = seguridad_observacione;
+
+          const observacion_avisos = [
+            { observacion: this.observacion6, aviso: this.aviso6 },
+            { observacion: this.observacion7, aviso: this.aviso7 },
+            { observacion: this.observacion8, aviso: this.aviso8 },
+          ];
+          this.observacion_avisos = observacion_avisos;
+
+          const spt1: Spt1DTO = {
+            ot: this.ot || "",
+            fecha: this.fecha || "",
+            hora_inicio: this.inicio || "",
+            hora_fin: this.fin || "",
+            id_subestacion: this.id_subestacion ?? 0,
+            id_usuario: this.tecnicoIdUsuario ?? 0,
+            id_usuario_2: this.supervisorIdUsuario ?? 0,
+            tipo_spt1: this.tipo_spt1?.join(",") || "",
+            observacion_aviso: this.observacion_avisos.map(oa => oa.observacion).join(",") || "",
+            aviso: this.observacion_avisos.map(oa => oa.aviso).join(",") || "",
+            seguridad_observaciones: this.seguridad_observacion.map(so => so.observacion).join(",") || "",
+            bueno: this.seguridad_observacion.map(so => so.checks[0] ? "TRUE" : "FALSE").join(",") || "",
+            na: this.seguridad_observacion.map(so => so.checks[1] ? "TRUE" : "FALSE").join(",") || "",
+            barras_equipotenciales: Object.values(this.barras_equipotencial).join(",") || "",
+            pozos_a_tierra: this.getSelectedOptions().join(",") || "",
+            cerco_perimetrico: Object.values(this.cerco_perimetrico).join(",") || "",
+            transformadores: Object.values(this.transformador).join(",") || ""
+          };
+
+          this.Spt1Service.insertarSpt1(spt1).subscribe({
+            next: (response) => {
+              this.messageService.remove(loadingMessageId);
+              this.notificationService.success('Datos Guardados', 'Los datos se han guardado con éxito.');
+              console.log('Registro creado exitosamente', response);
+            },
+            error: (errorResponse) => {
+              this.messageService.remove(loadingMessageId);
+              if (errorResponse.status === 400) {
+                console.error('Errores de validación del servidor:', errorResponse.error.errors);
+                this.notificationService.error('Errores de Validación', 'Hubo errores en los datos enviados.');
+                for (const [key, value] of Object.entries(errorResponse.error.errors)) {
+                  console.error(`Error en el campo ${key}: ${value}`);
+                }
+              } else {
+                this.notificationService.error('Error Inesperado', 'Ha ocurrido un error al guardar los datos.');
+                console.error('Error inesperado:', errorResponse);
+              }
+            }
+          });
+        } catch (error) {
+          this.messageService.remove(loadingMessageId);
+          this.notificationService.error('Error al Guardar', 'Ha ocurrido un error inesperado al guardar los datos.');
+          console.error('Error en el proceso de guardado:', error);
+        }
+      }
+    });
+
+
+
+
+
+
+        /*this.modal.confirm({
           nzTitle: 'Confirmación',
           nzContent: '¿Estás seguro de que quieres guardar los datos?',
           nzOnOk: async () => {
@@ -456,8 +603,8 @@ export class Spt1InspectionComponent  {
                                                                 ];
 
                                                                 this.Pat4spt1Service.insertarPat4Spt1(pat4spt1).subscribe(responsepat4spt1 => {
-
-                                                                    const spt1Data: Spt1 = {
+                                                                        */
+                                                                    /*const spt1Data: Spt1 = {
                                                                         tagSubestacion: this.tagSubestacion,
                                                                         ot: this.ot,
                                                                         ubicacion: this.ubicacion,
@@ -479,7 +626,24 @@ export class Spt1InspectionComponent  {
                                                                         transformador_noAi_lote_id: this.transformador_noAi,
                                                                         id_tipostp: this.id_tipostp,
                                                                         recomendacion_lote_id: this.recomendacion_lote_id
-                                                                    };
+                                                                    };*/
+                                                                    /*const spt1Data: spt1dto = {
+                                                                      ot: this.ot,
+                                                                      fecha: this.fecha,
+                                                                      hora_inicio: this.inicio,
+                                                                      hora_fin: this.fin,
+                                                                      id_subestacion: this.id_subestacion,
+                                                                      id_usuario: this.tecnicoIdUsuario,
+                                                                      id_usuario_2: this.supervisorIdUsuario,
+                                                                      seguridad_observaciones: string,
+                                                                      tipo_spt1: string,
+                                                                      barras_equipotenciales: string,
+                                                                      pozos_a_tierra: string[],  // Array de strings para múltiples pozos a tierra
+                                                                      cerco_perimetrico: string,
+                                                                      transformadores: string,
+                                                                      observacion_aviso: string,
+
+                                                                  };
 
                                                                     this.Spt1Service.insertarSpt1(spt1Data).subscribe(responsespt1 => {
                                                                         this.id_spt1 = responsespt1.id;
@@ -516,7 +680,7 @@ export class Spt1InspectionComponent  {
                     );
                 }
             }
-        });
+        });*/
     }
 
 

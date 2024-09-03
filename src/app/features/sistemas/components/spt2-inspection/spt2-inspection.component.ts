@@ -34,6 +34,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 //import * as echarts from 'echarts';
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
+import * as echarts from 'echarts';
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 import * as am4plugins_forceDirected from "@amcharts/amcharts4/plugins/forceDirected";
 import  html2canvas from 'html2canvas';
@@ -52,7 +53,7 @@ declare var $: any;
   styleUrl: './spt2-inspection.component.css'
 })
 export class Spt2InspectionComponent {
-
+  private chart: am4charts.XYChart = {} as am4charts.XYChart;
   @ViewChild('container', { read: ViewContainerRef }) container: ViewContainerRef | null = null;
 
     userEmail?: string;
@@ -196,74 +197,96 @@ export class Spt2InspectionComponent {
         this.caidagrafico();
   }
 
-  private caidagrafico(): void {
-    const chartElement = document.getElementById('caida-chart');
-    if (!chartElement) return; // Asegúrate de que el elemento del DOM existe
+  caidagrafico(): void {
+    // Debug: Start of the method
+    console.log('Starting caidagrafico()');
 
-    // Crea un nuevo chart con amCharts
-    let chart = am4core.create(chartElement, am4charts.XYChart);
+    // Ensure that the chart is disposed only if it exists and has a dispose method
+    if (this.chart && typeof this.chart.dispose === 'function') {
+        console.log('Disposing of existing chart');
+        this.chart.dispose();
+    } else {
+        console.log('No chart to dispose or dispose is not a function');
+    }
 
-    // Define las categorías del eje X
-    chart.data = [
-        { category: 'PAT1', values: this.caidaValues.slice(0, 3) },
-        { category: 'PAT2', values: this.caidaValues.slice(3, 6) },
-        { category: 'PAT3', values: this.caidaValues.slice(6, 9) },
-        { category: 'PAT4', values: this.caidaValues.slice(9, 12) },
+    // Apply a theme
+    console.log('Applying theme');
+    am4core.useTheme(am4themes_animated);
+
+    // Create the chart instance
+    console.log('Creating chart instance');
+    const chartElement = am4core.create('caida-chart', am4charts.XYChart);
+
+    // Debug: Log the initial data
+    console.log('Chart data:', [
+        { category: 'PAT1', value: this.caidaValues[0] },
+        { category: 'PAT2', value: this.caidaValues[1] },
+        { category: 'PAT3', value: this.caidaValues[2] },
+        { category: 'PAT4', value: this.caidaValues[3] },
+    ]);
+
+    // Configure the chart data
+    chartElement.data = [
+        { category: 'PAT1', value: this.caidaValues[0] },
+        { category: 'PAT2', value: this.caidaValues[1] },
+        { category: 'PAT3', value: this.caidaValues[2] },
+        { category: 'PAT4', value: this.caidaValues[3] },
     ];
 
-    // Configura el eje X
-    let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+    // Debug: Check if data was assigned correctly
+    if (chartElement.data && chartElement.data.length > 0) {
+        console.log('Chart data assigned successfully');
+    } else {
+        console.error('Chart data is empty or invalid');
+    }
+
+    // Create X and Y axes
+    console.log('Creating axes');
+    const categoryAxis = chartElement.xAxes.push(new am4charts.CategoryAxis());
     categoryAxis.dataFields.category = 'category';
-    categoryAxis.title.text = 'PAT';
 
-    // Configura el eje Y
-    let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-    valueAxis.min = 0;
+    const valueAxis = chartElement.yAxes.push(new am4charts.ValueAxis());
     valueAxis.max = 60;
-    valueAxis.title.text = 'Caida de Potencial';
 
-    // Colores para cada PAT
-    const patColors = ['blue', 'orange', 'green', 'yellow'];
+    // Debug: Axes created
+    console.log('Axes created successfully');
 
-    // Crea las series para cada PAT
-    chart.data.forEach((item, index) => {
-        let series = chart.series.push(new am4charts.LineSeries());
-        series.dataFields.valueY = 'value';
-        series.dataFields.categoryX = 'category';
-        series.name = `PAT${index + 1}`;
-        series.stroke = am4core.color(patColors[index]);
+    // Create a series
+    console.log('Creating series');
+    const series = chartElement.series.push(new am4charts.LineSeries());
+    series.dataFields.valueY = 'value';
+    series.dataFields.categoryX = 'category';
+    series.strokeWidth = 2;
 
-        // Añade los datos a la serie
-        series.data = item.values.map((value: number) => ({ category: item.category, value: value }));
+    // Optionally, add some customization like a tooltip
+    series.tooltipText = '{categoryX}: {valueY}';
+    series.stroke = am4core.color('blue'); // Example color for PAT1
 
-        // Agrega etiquetas de datos
-        const labelBullet = series.bullets.push(new am4charts.LabelBullet());
-        if (labelBullet && labelBullet.label) {
-            labelBullet.label.text = '{value}';
-            labelBullet.label.dy = -10;
-            labelBullet.label.fontSize = 11;
-        }
-    });
+    // Debug: Series created
+    console.log('Series created successfully');
 
-    // Agrega una línea en Y=25
-    let range = valueAxis.axisRanges.create();
-    range.value = 25;
-    range.grid.stroke = am4core.color('red');
-    range.grid.strokeWidth = 2;
-    range.label.text = 'Línea en Y=25';
-    range.label.inside = true;
-    range.label.fill = am4core.color('red');
-    range.label.align = 'right';
+    // Add a cursor
+    console.log('Adding cursor');
+    chartElement.cursor = new am4charts.XYCursor();
 
-    // Título del gráfico
-    let title = chart.titles.create();
-    title.text = 'Caida de Potencial Regla del 62%';
-    title.fontSize = 18;
-    title.marginBottom = 20;
+    // Debug: Cursor added
+    console.log('Cursor added successfully');
 
-    // Asegúrate de ajustar el tamaño del gráfico
-    chart.responsive.enabled = true;
+    // Assign the new chart instance to this.chart
+    this.chart = chartElement;
+
+    // Debug: End of the method
+    console.log('caidagrafico() completed');
 }
+
+
+ngOnDestroy(): void {
+    // Ensure that the chart is disposed only if it exists and has a dispose method
+    if (this.chart && typeof this.chart.dispose === 'function') {
+        this.chart.dispose();
+    }
+}
+
 
 
   mostrarpromedioselectivo(): void {

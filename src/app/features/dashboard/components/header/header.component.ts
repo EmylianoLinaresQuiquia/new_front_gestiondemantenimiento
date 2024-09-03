@@ -55,7 +55,7 @@ export class HeaderComponent {
     }
   ];
 
-  taskList: NotificationItem[] = [
+  /*taskList: NotificationItem[] = [
     {
       type: 'task',
       time: '5 hours ago',
@@ -64,7 +64,7 @@ export class HeaderComponent {
       read: false,
       title: 'New Task'
     }
-  ];
+  ];*/
 
   navigationInfo = {
     header: true // o false dependiendo de tu lógica

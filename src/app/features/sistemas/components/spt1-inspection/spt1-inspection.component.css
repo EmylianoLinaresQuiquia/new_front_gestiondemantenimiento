@@ -555,6 +555,16 @@ select {
 
 /*************************MY CSS*/
 
+.text-green {
+  color: green;
+}
+
+.text-red {
+  color: red;
+}
+
+
+
 
 
   .color-rojo {

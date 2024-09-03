@@ -1,19 +1,32 @@
-<span>spt1</span>
-<div class="table-responsive">
-  <table id="example" class="table table-striped table-bordered" style="width:100%">
+<div>
+  <table id="example" class="display">
     <thead>
-      <tr>
-        <th>Propiedad 1</th>
-        <th>Propiedad 2</th>
-        <th>Propiedad 3</th>
-        <th>Acciones</th>
+      <tr class="selected">
+        <td class="sorting_1"></td>
       </tr>
     </thead>
+    <tfoot>
+
+    </tfoot>
     <tbody>
-      <!-- Las filas serán generadas dinámicamente por DataTables con los datos proporcionados -->
+
     </tbody>
   </table>
 </div>
+
+<!-- Template para el modal de detalles de PAT -->
+<ng-template #patDetailsTemplate>
+  <!-- Contenido del modal -->
+  <div *ngFor="let data of selectedPatData">{{ data }}</div>
+</ng-template>
+
+
+
+<ng-template #pdfModal>
+  <iframe [src]="pdfUrl" width="100%" height="600px"></iframe>
+</ng-template>
+
+
 
 <!--<div class="container">
   <table id="example" class="display" >

@@ -1,4 +1,4 @@
-/*import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { SubestacionService } from './subestacion.service';
 import { Spt2Service } from './spt2.service';
 import { Subestacion } from '../interface/subestacion';
@@ -47,7 +47,7 @@ export class PdfGeneratorServiceService {
         ] = await Promise.all([
           this.subestacionService.getSubestacionPorTag(tagParam).toPromise(),
           this.spt2Service.buscarPorSubestacionyot(tagParam, otParam).toPromise(),
-          fetch('assets/pdf/spt2.pdf').then(res => res.arrayBuffer())
+          fetch('assets/spt2.pdf').then(res => res.arrayBuffer())
         ]);
 
         console.log('Resultado de subestacionService.getSubestacionPorTag:', subestacion);
@@ -115,10 +115,13 @@ export class PdfGeneratorServiceService {
         });
 
         drawText(tagParam, 240, height - 215);
-        drawText(subestacion.ubicacion, 385, height - 215);
-        drawText(subestacion.plano, 240, height - 232);
-        drawText(subestacion.fecha_plano, 795, height - 232);
-        drawText(subestacion.versio.toString(), 935, height - 235);
+        if (subestacion) {
+          drawText(subestacion.ubicacion, 385, height - 215);
+          drawText(subestacion.plano, 240, height - 232);
+          drawText(subestacion.fecha_plano, 795, height - 232);
+          drawText(subestacion.versio.toString(), 935, height - 235);
+        }
+        
         drawText(resultados.ot, 520, height - 195);
         drawText(resultados.fecha, 740, height - 195);
         drawText(resultados.lider, 835, height - 195);
@@ -149,95 +152,103 @@ export class PdfGeneratorServiceService {
           await drawImageOrText(metodoMedicion.sinPicas, 789, height - 340);
         }
 
-        if (subestacion.cantidad_spt) {
-          for (let i = 0; i < subestacion.cantidad_spt; i++) {
-            drawText(`PAT ${i + 1}`, 195, height - (1015 + i * 18));
-
-            // METODO CAIDA
-            drawText(`PAT ${i + 1}`, 380 + i * 45, height - (405 + i * 0));
-            drawText(`PAT ${i + 1}`, 135, height - (520 + i * 18));
-
-            // METODO SELECTIVO
-            drawText(`PAT ${i + 1}`, 380 + i * 45, height - (690 + i * 0));
-            drawText(`PAT ${i + 1}`, 135, height - (815 + i * 18));
+        if (subestacion) {
+          if (subestacion.cantidad_spt) {
+            for (let i = 0; i < subestacion.cantidad_spt; i++) {
+              drawText(`PAT ${i + 1}`, 195, height - (1015 + i * 18));
+        
+              // METODO CAIDA
+              drawText(`PAT ${i + 1}`, 380 + i * 45, height - (405 + i * 0));
+              drawText(`PAT ${i + 1}`, 135, height - (520 + i * 18));
+        
+              // METODO SELECTIVO
+              drawText(`PAT ${i + 1}`, 380 + i * 45, height - (690 + i * 0));
+              drawText(`PAT ${i + 1}`, 135, height - (815 + i * 18));
+            }
           }
         }
+        if (metodoCaidaArray) {
+          metodoCaidaArray.forEach((metodoCaida, index) => {
+            const yPos = height - (615 + index * 0);
+            const yPoss = height - (615 + index * 20);
+            const xPos = 380 + index * 50;
+            drawText(metodoCaida.r1mc?.toString(), xPos, yPos + 190);
+            drawText(metodoCaida.r2mc?.toString(), xPos, yPos + 180);
+            drawText(metodoCaida.r3mc?.toString(), xPos, yPos + 170);
+            if (+metodoCaida.valormc !== 0) drawText(metodoCaida.valormc?.toString(), 200, yPoss + 93);
+            drawText(metodoCaida.resultadomc, 290, yPoss + 93);
+            drawText(metodoCaida.conclusionesmc, 125, yPoss + 60);
+          });
+        }
+        
+        if (metodoSelectivoArray) {
+          metodoSelectivoArray.forEach((metodoSelectivo, index) => {
+            const yPos = height - (900 + index * 0);
+            const yPoss = height - (900 + index * 20);
+            const xPos = 380 + index * 50;
+            drawText(metodoSelectivo.r1ms?.toString(), xPos, yPos + 195);
+            drawText(metodoSelectivo.r2ms?.toString(), xPos, yPos + 180);
+            drawText(metodoSelectivo.r3ms?.toString(), xPos, yPos + 165);
+            if (+metodoSelectivo.valorms !== 0) drawText(metodoSelectivo.valorms?.toString(), 200, yPoss + 85);
+            drawText(metodoSelectivo.resultadoms, 290, yPoss + 85);
+            drawText(metodoSelectivo.conclusionesms, 125, yPoss + 50);
+          });
+        }
 
-        metodoCaidaArray.forEach((metodoCaida, index) => {
-          const yPos = height - (615 + index * 0);
-          const yPoss = height - (615 + index * 20);
-          const xPos = 380 + index * 50;
-
-          drawText(metodoCaida.r1mc.toString(), xPos, yPos + 190);
-          drawText(metodoCaida.r2mc.toString(), xPos, yPos + 180);
-          drawText(metodoCaida.r3mc.toString(), xPos, yPos + 170);
-          if (+metodoCaida.valormc !== 0) drawText(metodoCaida.valormc.toString(), 200, yPoss + 93);
-          drawText(metodoCaida.resultadomc, 290, yPoss + 93);
-          drawText(metodoCaida.conclusionesmc, 125, yPoss + 60);
-        });
-
-        metodoSelectivoArray.forEach((metodoSelectivo, index) => {
-          const yPos = height - (900 + index * 0);
-          const yPoss = height - (900 + index * 20);
-          const xPos = 380 + index * 50;
-
-          drawText(metodoSelectivo.r1ms.toString(), xPos, yPos + 195);
-          drawText(metodoSelectivo.r2ms.toString(), xPos, yPos + 180);
-          drawText(metodoSelectivo.r3ms.toString(), xPos, yPos + 165);
-          if (+metodoSelectivo.valorms !== 0) drawText(metodoSelectivo.valorms.toString(), 200, yPoss + 85);
-          drawText(metodoSelectivo.resultadoms, 290, yPoss + 85);
-          drawText(metodoSelectivo.conclusionesms, 125, yPoss + 50);
-        });
-
-        const embedGrafica = async (graficaData, x, y, w, h) => {
+        const embedGrafica = async (graficaData: string, x: number, y: number, w: number, h: number) => {
           if (!graficaData) return;
           const match = graficaData.match(/^data:(image\/[a-z]+);base64,(.*)$/);
           if (!match) throw new Error("Formato de imagen no reconocido.");
           const [, imageFormat, base64Data] = match;
           const graficaBytes = this.base64ToArrayBuffer(base64Data);
-
+        
           let graficaImage;
           if (imageFormat === 'image/jpeg') graficaImage = await pdfDoc.embedJpg(graficaBytes);
           else if (imageFormat === 'image/png') graficaImage = await pdfDoc.embedPng(graficaBytes);
           else throw new Error(`Formato de imagen no soportado: ${imageFormat}`);
-
+        
           newPage.drawImage(graficaImage, { x, y, width: w, height: h });
         };
 
-        if (metodoCaidagrafica.length > 0) {
+        if (metodoCaidagrafica && metodoCaidagrafica.length > 0) {
           await embedGrafica(metodoCaidagrafica[0].grafica, 583, 860, 250, 170);
         }
-
-        if (metodoselectivografica.length > 0) {
+        
+        if (metodoselectivografica && metodoselectivografica.length > 0) {
           await embedGrafica(metodoselectivografica[0].grafica, 583, 580, 240, 170);
         }
 
-        const embedFirma = async (firmaData, x, y, w, h) => {
+        const embedFirma = async (firmaData: string, x: number, y: number, w: number, h: number) => {
           if (!firmaData) return;
           const match = firmaData.match(/^data:(image\/[a-z]+);base64,(.*)$/);
           if (!match) throw new Error("Formato de firma no reconocido.");
           const [, imageFormat, base64Data] = match;
           const firmaBytes = this.base64ToArrayBuffer(base64Data);
-
+        
           let firmaImage;
           if (imageFormat === 'image/jpeg') firmaImage = await pdfDoc.embedJpg(firmaBytes);
           else if (imageFormat === 'image/png') firmaImage = await pdfDoc.embedPng(firmaBytes);
           else throw new Error(`Formato de imagen no soportado: ${imageFormat}`);
-
+        
           newPage.drawImage(firmaImage, { x, y, width: w, height: h });
         };
 
-        if (UsuarioService.firma) {
-          drawText(UsuarioService.usuario, 262, height - 1290);
-          drawText(UsuarioService.fotocheck.toString(), 640, height - 1290);
-          await embedFirma(UsuarioService.firma, 810, 165, 80, 30);
+        if (UsuarioService) {
+          if (UsuarioService.firma) {
+            drawText(UsuarioService.usuario, 262, height - 1290);
+            drawText(UsuarioService.fotocheck.toString(), 640, height - 1290);
+            await embedFirma(UsuarioService.firma, 810, 165, 80, 30);
+          }
         }
-
-        if (UsuarioService1.firma) {
-          drawText(UsuarioService1.usuario, 262, height - 1323); // 1323
-          drawText(UsuarioService1.fotocheck.toString(), 640, height - 1323);
-          if (resultados.firma === true) await embedFirma(UsuarioService1.firma, 810, 129, 80, 30);
+        
+        if (UsuarioService1) {
+          if (UsuarioService1.firma) {
+            drawText(UsuarioService1.usuario, 262, height - 1323);
+            drawText(UsuarioService1.fotocheck.toString(), 640, height - 1323);
+            if (resultados.firma === true) await embedFirma(UsuarioService1.firma, 810, 129, 80, 30);
+          }
         }
+        
 
         const modifiedPdfBytes = await pdfDoc.save();
         const modifiedPdfBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
@@ -262,4 +273,4 @@ export class PdfGeneratorServiceService {
     }
 
 }
-*/
+

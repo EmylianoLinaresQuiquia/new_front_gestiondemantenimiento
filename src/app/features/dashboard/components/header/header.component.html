@@ -59,8 +59,11 @@
                         <nz-list-item-meta-description>
                           <div>{{item.desc}}</div>
                           <div>{{item.time}}</div>
+                          <nz-tag *ngSwitchCase="2" [nzColor]="'red'">马上到期</nz-tag>
                         </nz-list-item-meta-description>
+                        <nz-tag *ngSwitchCase="2" [nzColor]="'red'">马上到期</nz-tag>
                       </nz-list-item-meta>
+
                     </nz-list-item>
                     <nz-list-empty *ngIf="messageList.length === 0" [nzNoResult]="noMessageTpl"></nz-list-empty>
                   </nz-list>
