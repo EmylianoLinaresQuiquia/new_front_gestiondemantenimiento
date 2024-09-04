@@ -4,6 +4,7 @@
       <h2>Subestación</h2>
     </div>
 
+    <!-- Selección de Subestación -->
     <nz-row justify="center" gutter="16">
       <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
         <nz-form-item>
@@ -25,20 +26,21 @@
       </div>
     </nz-row>
 
+    <!-- Selección de SPT1 y SPT2 -->
     <nz-row justify="center" gutter="16">
       <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">
         <nz-form-item>
           <nz-form-label nzFor="spt1-select">SPT1</nz-form-label>
           <nz-form-control [nzErrorTip]="'Por favor, seleccione una opción'">
             <nz-select
-            id="spt1-select"
-            (ngModelChange)="seleccionarOpcion('spt1', $event)"
-            nzPlaceHolder="SPT1"
-            [(ngModel)]="selectedoption">
-            <nz-option nzValue="Protocolo" nzLabel="Protocolo Inspección"></nz-option>
-            <nz-option nzValue="Historico" nzLabel="HISTORIAL"></nz-option>
-          </nz-select>
-
+              id="spt1-select"
+              [(ngModel)]="selectedOptionSpt1"
+              (ngModelChange)="seleccionarOpcion('spt1', $event)"
+              nzPlaceHolder="SPT1"
+            >
+              <nz-option nzValue="Protocolo" nzLabel="Protocolo Inspección"></nz-option>
+              <nz-option nzValue="Historico" nzLabel="HISTORIAL"></nz-option>
+            </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
@@ -49,8 +51,9 @@
           <nz-form-control [nzErrorTip]="'Por favor, seleccione una opción'">
             <nz-select
               id="spt2-select"
+              [(ngModel)]="selectedOptionSpt2"
               (ngModelChange)="seleccionarOpcion('spt2', $event)"
-              nzPlaceHolder="SPT2" [(ngModel)]="selectedoption"
+              nzPlaceHolder="SPT2"
             >
               <nz-option nzValue="Protocolo" nzLabel="Protocolo Medición"></nz-option>
               <nz-option nzValue="Historico" nzLabel="HISTORIAL"></nz-option>
@@ -60,5 +63,4 @@
       </div>
     </nz-row>
   </nz-card>
-
 </div>

@@ -1,9 +1,12 @@
 import { DashSpt2Service } from './../../services/dash-spt2.service';
 import { Spt2Service } from './../../services/spt2.service';
 import { PdfGeneratorServiceService } from '../../services/pdf-generator-service.service';
-import { Component ,OnInit} from '@angular/core';
+import { Component ,OnInit,ViewChild,TemplateRef} from '@angular/core';
 import { Spt2 } from '../../interface/spt2';
-
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalRef } from 'ng-zorro-antd/modal/modal-ref';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import 'datatables.net';
 import 'datatables.net-buttons';
@@ -13,21 +16,28 @@ import 'datatables.net-buttons/js/buttons.print.js';
 import 'jszip';
 import 'pdfmake';
 import 'pdfmake/build/vfs_fonts.js';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-history-spt2',
   standalone: true,
-  imports: [],
+  imports: [SharedModule,NzModalModule],
   templateUrl: './history-spt2.component.html',
   styleUrl: './history-spt2.component.css'
 })
 export class HistorySpt2Component implements OnInit{
   spt2List: Spt2[] = [];
+  modalRef: NzModalRef | null = null;
+
+  @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
+  pdfUrl: SafeResourceUrl | null = null;
 
   constructor(private spt2Service: Spt2Service, private router: Router,
     private pdfGeneratorService:PdfGeneratorServiceService,
     private Spt2Service:Spt2Service,
-    private DashSpt2Service:DashSpt2Service
+    private DashSpt2Service:DashSpt2Service,
+    private sanitizer: DomSanitizer,
+    private modal: NzModalService
   ) {}
 
   ngOnInit(): void {
@@ -43,25 +53,32 @@ export class HistorySpt2Component implements OnInit{
     );
   }
 
-  verDocumentos(idSpt2:any){
-    const { tag_subestacion, ot } = idSpt2;
-            this.pdfGeneratorService.generarPDF(tag_subestacion, ot);
-  }
-  verTendencia(idSpt2:any){
-    const { tag_subestacion, ot, fecha, pat01, pat02, pat03, pat04, lider, supervisor } = idSpt2;
 
-            this.Spt2Service.buscarPorSubestacion(tag_subestacion).subscribe(
-            (resultados) => {
-                this.DashSpt2Service.actualizarResultadosBúsqueda(resultados);
-                this.router.navigate(['sistemas/grafico-spt2']);
-            },
-            (error) => {
-                console.error('Error al buscar por subestación con tag:', error);
-                // Lógica para manejar errores
-            }
-            );
+
+
+
+
+
+  verTendencia(spt2: any) {
+    const { tag_subestacion, ot, fecha, lider, supervisor, pat01, pat02, pat03, pat04 } = spt2;
+
+    console.log("Datos pasados al servicio verTendencia:", {
+      tag_subestacion, ot, fecha, lider, supervisor, pat01, pat02, pat03, pat04
+    });
+
+    this.Spt2Service.buscarPorSubestacion(tag_subestacion).subscribe(
+      (resultados) => {
+        this.DashSpt2Service.actualizarResultadosBúsqueda(resultados);
+        this.router.navigate(['sistemas/grafico-spt2']);
+      },
+      (error) => {
+        console.error('Error al buscar por subestación con tag:', error);
+        // Lógica para manejar errores
+      }
+    );
   }
-  
+
+
   initDataTable() {
     $(document).ready(() => {
       // Incluir el CSS para el hover
@@ -72,7 +89,7 @@ export class HistorySpt2Component implements OnInit{
                   background-color: #dfdfdf !important;
           `)
           .appendTo('head');
-  
+
       const table = $('#example').DataTable({
         dom: 'Brtipl',
         buttons: [
@@ -110,13 +127,21 @@ export class HistorySpt2Component implements OnInit{
             render: (data, type, full, meta) => {
               return `
                 <div class="btn-group">
-                  <button class="btn btn-xs btn-default tendencia-btn"
-                      type="button"
-                      title="Ver Tendencia"
-                      data-idspt2="${full.idSpt2}">
-                      <i class="fa fa-chart-line"></i>
-                  </button>
-                </div>
+                <button class="btn btn-xs btn-default tendencia-btn"
+                    type="button"
+                    title="Ver Tendencia"
+                    data-tag-subestacion="${full.tag_subestacion}"
+                    data-ot="${full.ot}"
+                    data-fecha="${full.fecha}"
+                    data-lider="${full.lider}"
+                    data-supervisor="${full.supervisor}"
+                    data-pat01="${full.pat01}"
+                    data-pat02="${full.pat02}"
+                    data-pat03="${full.pat03}"
+                    data-pat04="${full.pat04}">
+                    <i class="fa fa-chart-line"></i>
+                </button>
+              </div>
               `;
             }
           },
@@ -126,13 +151,14 @@ export class HistorySpt2Component implements OnInit{
             render: (data, type, full, meta) => {
               return `
                 <div class="btn-group">
-                  <button class="btn btn-xs btn-default documentos-btn"
-                      type="button"
-                      title="Ver Documentos"
-                      data-idspt2="${full.idSpt2}">
-                      <i class="fa fa-file-pdf"></i>
-                  </button>
-                </div>
+                <button class="btn btn-xs btn-default documentos-btn"
+                    type="button"
+                    title="Ver Documentos"
+                    data-tag-subestacion="${full.tag_subestacion}"
+                    data-ot="${full.ot}">
+                    <i class="fa fa-file-pdf"></i>
+                </button>
+              </div>
               `;
             }
           },
@@ -158,7 +184,7 @@ export class HistorySpt2Component implements OnInit{
           api.columns().every(function (this: any) {
             const column = this;
             const header = $(column.header());
-  
+
             // Agregar campo de búsqueda solo si la columna no es "Tendencia", "Documentos" o "Herramientas"
             if (column.index() < api.columns().nodes().length - 3) {
               const input = $('<input type="text" placeholder="" />')
@@ -172,29 +198,81 @@ export class HistorySpt2Component implements OnInit{
           });
         }
       });
-  
+
       // Eventos para los botones de "ver", "tendencia", "documentos", y "eliminar"
       $('#example').on('click', '.ver-btn', (event) => {
         const idSpt2 = $(event.currentTarget).data('idspt2');
        // this.abrirDetalle(idSpt2);
       });
-  
+
       $('#example').on('click', '.tendencia-btn', (event) => {
-        const idSpt2 = $(event.currentTarget).data('idspt2');
-        this.verTendencia(idSpt2);  // Función para manejar la visualización de la tendencia
+        const target = $(event.currentTarget);
+
+        const tag_subestacion = target.data('tag-subestacion');
+        const ot = target.data('ot');
+        const fecha = target.data('fecha');
+        const lider = target.data('lider');
+        const supervisor = target.data('supervisor');
+        const pat01 = target.data('pat01');
+        const pat02 = target.data('pat02');
+        const pat03 = target.data('pat03');
+        const pat04 = target.data('pat04');
+
+        // Pasar todos los datos al método verTendencia
+        this.verTendencia({
+          tag_subestacion,
+          ot,
+          fecha,
+          lider,
+          supervisor,
+          pat01,
+          pat02,
+          pat03,
+          pat04
+        });
       });
-  
+
+
       $('#example').on('click', '.documentos-btn', (event) => {
-        const idSpt2 = $(event.currentTarget).data('idspt2');
-        this.verDocumentos(idSpt2);  // Función para manejar la visualización de los documentos
+        const tag_subestacion = $(event.currentTarget).data('tag-subestacion');
+        const ot = $(event.currentTarget).data('ot');
+        this.verDocumentos(tag_subestacion, ot);  // Pasa los parámetros correctos
       });
-  
+
+
+
       $('#example').on('click', '.eliminar-btn', (event) => {
         const idSpt2 = $(event.currentTarget).data('idspt2');
         //this.eliminarRegistro(idSpt2);  // Función para manejar la eliminación del registro
       });
     });
   }
-  
-  
+
+  verDocumentos(tag_subestacion: string, ot: string): void {
+    console.log(tag_subestacion, ot);
+
+    this.pdfGeneratorService.generarPDF(tag_subestacion, ot).then((pdfBlob: Blob) => {
+      const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        URL.createObjectURL(pdfBlob)+ '#toolbar=0'
+      );
+
+      this.pdfUrl = pdfUrl;  // Asegúrate de que esta variable esté bien escrita
+      console.log('PDF URL:', pdfUrl);  // Debugging
+
+      this.modal.create({
+        nzTitle: 'PDF Document',
+        nzContent: this.pdfModal,  // Verifica que pdfModal esté bien referenciado
+        nzFooter: null,
+        nzWidth: 1200
+      });
+      console.log('Modal abierto con éxito');  // Debugging
+    }).catch(error => {
+      console.error('Error opening PDF:', error);
+    });
+  }
+
+
+
+
+
 }

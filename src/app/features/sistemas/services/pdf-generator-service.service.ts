@@ -38,7 +38,7 @@ export class PdfGeneratorServiceService {
 
 
 
-    async generarPDF(tagParam: string, otParam: string): Promise<void> {
+    async generarPDF(tagParam: string, otParam: string): Promise<Blob> {
       try {
         const [
           subestacion,
@@ -54,10 +54,10 @@ export class PdfGeneratorServiceService {
         console.log('Resultado de spt2Service.buscarPorSubestacionyot:', resultadosArray);
         if (!resultadosArray || resultadosArray.length === 0) {
           console.error('No se encontraron resultados para el tag:', tagParam);
-          return;
+          throw new Error('No se encontraron resultados para el tag proporcionado'); // Lanzar un error
         }
 
-        const resultados = resultadosArray[0];
+       const resultados = resultadosArray[0];
         const [
           metodoCaidagrafica,
           metodoselectivografica,
@@ -121,7 +121,7 @@ export class PdfGeneratorServiceService {
           drawText(subestacion.fecha_plano, 795, height - 232);
           drawText(subestacion.versio.toString(), 935, height - 235);
         }
-        
+
         drawText(resultados.ot, 520, height - 195);
         drawText(resultados.fecha, 740, height - 195);
         drawText(resultados.lider, 835, height - 195);
@@ -156,11 +156,11 @@ export class PdfGeneratorServiceService {
           if (subestacion.cantidad_spt) {
             for (let i = 0; i < subestacion.cantidad_spt; i++) {
               drawText(`PAT ${i + 1}`, 195, height - (1015 + i * 18));
-        
+
               // METODO CAIDA
               drawText(`PAT ${i + 1}`, 380 + i * 45, height - (405 + i * 0));
               drawText(`PAT ${i + 1}`, 135, height - (520 + i * 18));
-        
+
               // METODO SELECTIVO
               drawText(`PAT ${i + 1}`, 380 + i * 45, height - (690 + i * 0));
               drawText(`PAT ${i + 1}`, 135, height - (815 + i * 18));
@@ -180,7 +180,7 @@ export class PdfGeneratorServiceService {
             drawText(metodoCaida.conclusionesmc, 125, yPoss + 60);
           });
         }
-        
+
         if (metodoSelectivoArray) {
           metodoSelectivoArray.forEach((metodoSelectivo, index) => {
             const yPos = height - (900 + index * 0);
@@ -201,19 +201,19 @@ export class PdfGeneratorServiceService {
           if (!match) throw new Error("Formato de imagen no reconocido.");
           const [, imageFormat, base64Data] = match;
           const graficaBytes = this.base64ToArrayBuffer(base64Data);
-        
+
           let graficaImage;
           if (imageFormat === 'image/jpeg') graficaImage = await pdfDoc.embedJpg(graficaBytes);
           else if (imageFormat === 'image/png') graficaImage = await pdfDoc.embedPng(graficaBytes);
           else throw new Error(`Formato de imagen no soportado: ${imageFormat}`);
-        
+
           newPage.drawImage(graficaImage, { x, y, width: w, height: h });
         };
 
         if (metodoCaidagrafica && metodoCaidagrafica.length > 0) {
           await embedGrafica(metodoCaidagrafica[0].grafica, 583, 860, 250, 170);
         }
-        
+
         if (metodoselectivografica && metodoselectivografica.length > 0) {
           await embedGrafica(metodoselectivografica[0].grafica, 583, 580, 240, 170);
         }
@@ -224,12 +224,12 @@ export class PdfGeneratorServiceService {
           if (!match) throw new Error("Formato de firma no reconocido.");
           const [, imageFormat, base64Data] = match;
           const firmaBytes = this.base64ToArrayBuffer(base64Data);
-        
+
           let firmaImage;
           if (imageFormat === 'image/jpeg') firmaImage = await pdfDoc.embedJpg(firmaBytes);
           else if (imageFormat === 'image/png') firmaImage = await pdfDoc.embedPng(firmaBytes);
           else throw new Error(`Formato de imagen no soportado: ${imageFormat}`);
-        
+
           newPage.drawImage(firmaImage, { x, y, width: w, height: h });
         };
 
@@ -240,7 +240,7 @@ export class PdfGeneratorServiceService {
             await embedFirma(UsuarioService.firma, 810, 165, 80, 30);
           }
         }
-        
+
         if (UsuarioService1) {
           if (UsuarioService1.firma) {
             drawText(UsuarioService1.usuario, 262, height - 1323);
@@ -248,20 +248,21 @@ export class PdfGeneratorServiceService {
             if (resultados.firma === true) await embedFirma(UsuarioService1.firma, 810, 129, 80, 30);
           }
         }
-        
 
-        const modifiedPdfBytes = await pdfDoc.save();
-        const modifiedPdfBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(modifiedPdfBlob);
-        const a = document.createElement('a');
-        const modifiedPdfUrl = URL.createObjectURL(modifiedPdfBlob);
-        window.open(modifiedPdfUrl, '_blank');
-      } catch (error) {
-        console.error('Error al generar el PDF:', error);
+
+          const modifiedPdfBytes = await pdfDoc.save();
+          const modifiedPdfBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+
+          // Mensaje de éxito en la consola
+          console.log('El PDF se generó de manera correcta.');
+
+          return modifiedPdfBlob;
+
+        } catch (error) {
+          console.error('Error al generar el PDF:', error);
+          throw error;
+        }
       }
-    }
-
-
     private base64ToArrayBuffer(base64: string): Uint8Array {
       const binaryString = atob(base64);
       const len = binaryString.length;

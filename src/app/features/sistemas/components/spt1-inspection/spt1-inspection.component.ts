@@ -380,9 +380,12 @@ export class Spt1InspectionComponent  {
   pozos_a_tierra: string[] = [];
 
   guardarDatos(): void {
+    console.log("supervisor",this.supervisorIdUsuario ?? 0,"tecnico",this.tecnicoIdUsuario ?? 0,)
     this.modal.confirm({
       nzTitle: 'Confirmación',
       nzContent: '¿Estás seguro de que quieres guardar los datos?',
+      nzOkText: 'Aceptar',
+    nzCancelText: 'Cancelar',
       nzOnOk: async () => {
         const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
 

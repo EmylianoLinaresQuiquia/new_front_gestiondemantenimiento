@@ -1,11 +1,16 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule,registerLocaleData } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // Ng-Zorro Ant Design modules
 import { NzFormModule } from 'ng-zorro-antd/form';
 
+
+
+import es from '@angular/common/locales/es'; // Localización en español para Angular
+
+import { NZ_I18N, es_ES } from 'ng-zorro-antd/i18n'; // Localización en español para Ng-Zorro
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -99,8 +104,12 @@ import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 
   ],
   providers: [
-    // Ng-Zorro Ant Design services
     NzMessageService,
+    { provide: NZ_I18N, useValue: es_ES }, // Configuración de idioma de Ng-Zorro en español
   ]
 })
-export class SharedModule { }
+export class SharedModule {
+  constructor() {
+    registerLocaleData(es); // Registro de localización de Angular
+  }
+ }

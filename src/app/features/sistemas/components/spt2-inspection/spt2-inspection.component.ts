@@ -717,11 +717,9 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
       nzTitle: 'Confirmación',
       nzContent: '¿Estás seguro de que quieres guardar los datos?',
       nzOnOk: async () => {
-        this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 });
-
+        const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
             try {
-                // Pausar brevemente para asegurar que el mensaje de evaluación se muestre
-                await new Promise(resolve => setTimeout(resolve, 500));
+
 
                 // Primero, crear y enviar los datos para MetodoCaida
                 const metodoCaida1: MetodoCaida = {
@@ -869,18 +867,17 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
 
 
 
-                // Mostrar mensaje de éxito
-                this.messageService.remove('evaluacion');
-                  this.notificationService.success(
-                 'Datos Guardados',
-                 'Los datos se han guardado correctamente.'
-                 );
+                this.messageService.remove(loadingMessageId);
+                this.notificationService.success(
+                    'Datos Guardados',
+                    'Los datos se han guardado correctamente.'
+                );
             } catch (error) {
-              this.messageService.remove('evaluacion');
-              this.notificationService.error(
-                  'Error al Guardar',
-                  'Ha ocurrido un error al guardar los datos.'
-              );
+              this.messageService.remove(loadingMessageId);
+                this.notificationService.error(
+                    'Error al Guardar',
+                    'Ha ocurrido un error al guardar los datos.'
+                );
             }
         }
     });

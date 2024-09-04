@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 // Importaciones de Ng-Zorro-Antd
+import { NZ_I18N, es_ES } from 'ng-zorro-antd/i18n';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -35,7 +36,11 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 
 
+// Importaciones necesarias para la localización de Angular
+import { registerLocaleData } from '@angular/common';
+import es from '@angular/common/locales/es'; // Importación de localización en español para Angular
 
+registerLocaleData(es); // Registro de localización de Angular
 
 
 @NgModule({
@@ -67,7 +72,10 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
     NzEmptyModule,
     NzMenuModule,
   ],
-  providers: [{ provide: NZ_ICONS, useValue: [UserOutline, LockOutline] },NzMessageService],
-   // Componente raíz que Angular inyecta en el index.html
+  providers: [
+    { provide: NZ_ICONS, useValue: [UserOutline, LockOutline] },
+    NzMessageService,
+    { provide: NZ_I18N, useValue: es_ES }, // Configuración de idioma de Ng-Zorro en español
+  ],
 })
 export class AppModule { }

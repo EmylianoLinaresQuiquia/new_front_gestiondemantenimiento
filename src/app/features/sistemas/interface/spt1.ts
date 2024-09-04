@@ -31,3 +31,11 @@ export interface Spt1DTO {
   na: string;
 }
 
+export interface Spt1ResultDTO {
+  electrodo: string | null;
+  soldadura: string | null;
+  conductor: string | null;
+  conector: string | null;
+  identificacion: string | null;
+  cajaDeRegistro: string | null;
+}

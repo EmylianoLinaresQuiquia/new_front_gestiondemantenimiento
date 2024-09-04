@@ -12,10 +12,11 @@ import { NzCardModule } from 'ng-zorro-antd/card'
 import { SharedModule } from 'src/app/shared/shared.module';
 type Tipo = 'spt1' | 'spt2';
 type Opcion = 'Protocolo' | 'Historico';
+
 @Component({
   selector: 'app-inspection-page',
   standalone: true,
-  imports: [CommonModule,FormsModule,ReactiveFormsModule ,NzCardModule,NzSelectModule,SharedModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, NzCardModule, NzSelectModule, SharedModule],
   templateUrl: './inspection-page.component.html',
   styleUrl: './inspection-page.component.css'
 })
@@ -23,7 +24,8 @@ export class InspectionPageComponent {
   tagSubestacion: string = '';
   subestaciones: Subestacion[] = [];
   tagsSubestaciones: string[] = [];
-  selectedoption!: Opcion;
+  selectedOptionSpt1!: Opcion;  // Nueva variable para SPT1
+  selectedOptionSpt2!: Opcion;  // Nueva variable para SPT2
   private subscriptions = new Subscription();
 
   constructor(
@@ -55,39 +57,56 @@ export class InspectionPageComponent {
 
   seleccionarOpcion(tipo: Tipo, opcion: Opcion): void {
     console.log('Tipo seleccionado:', tipo);
-  console.log('Opción seleccionada:', opcion);
+    console.log('Opción seleccionada:', opcion);
 
-    const rutas: Record<Tipo, Record<Opcion, string>> = {
-      spt1: {
-        Protocolo: '/sistemas/spt1',
-        Historico: '/sistemas/historial-spt1',
-      },
-      spt2: {
-        Protocolo: '/sistemas/spt2',
-        Historico: '/sistemas/historial-spt2',
-      },
-    };
-
-    const rutaSeleccionada = rutas[tipo][opcion];
-    console.log('Ruta seleccionada:', rutaSeleccionada);
-
-    if (!rutaSeleccionada) {
-      console.error('Ruta no encontrada para la opción:', opcion);
+    if (opcion === 'Historico') {
+      this.navegarAHistorial(tipo);
       return;
     }
 
+    const rutas: Record<Tipo, string> = {
+      spt1: '/sistemas/spt1',
+      spt2: '/sistemas/spt2',
+    };
+
+    const rutaSeleccionada = rutas[tipo];
+    console.log('Ruta seleccionada:', rutaSeleccionada);
+
+    if (!rutaSeleccionada) {
+      console.error('Ruta no encontrada para el tipo:', tipo);
+      return;
+    }
+
+    this.navegarARuta(rutaSeleccionada);
+  }
+
+  navegarAHistorial(tipo: Tipo): void {
+    const rutasHistorial: Record<Tipo, string> = {
+      spt1: '/sistemas/historial-spt1',
+      spt2: '/sistemas/historial-spt2',
+    };
+
+    const rutaHistorial = rutasHistorial[tipo];
+    console.log('Navegando a la ruta de historial:', rutaHistorial);
+    this.router.navigate([rutaHistorial], {
+      queryParams: {
+        tag: this.tagSubestacion
+      },
+    });
+  }
+
+  navegarARuta(ruta: string): void {
     const subestacionSeleccionada = this.subestaciones.find(s => s.tag_subestacion === this.tagSubestacion);
     console.log('Subestación encontrada:', subestacionSeleccionada);
 
     if (subestacionSeleccionada) {
-      console.log('Navegando a:', rutaSeleccionada);
-      this.router.navigate([rutaSeleccionada], {
+      this.router.navigate([ruta], {
         queryParams: {
           tag: subestacionSeleccionada.tag_subestacion,
           ubicacion: subestacionSeleccionada.ubicacion,
           plano: subestacionSeleccionada.plano,
           cantidad_spt: subestacionSeleccionada.cantidad_spt,
-          id_subestacion :subestacionSeleccionada.id_subestacion
+          id_subestacion: subestacionSeleccionada.id_subestacion
         },
       });
     } else {

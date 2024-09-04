@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Spt1,Spt1DTO } from '../interface/spt1';
+import { Spt1,Spt1DTO,Spt1ResultDTO } from '../interface/spt1';
 import { environment } from '../../../../environments/environment';
+import { map } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -13,13 +14,21 @@ export class Spt1Service {
   private apiURL = `${environment.apiUrl}/Spt1`;
 
   constructor(private http: HttpClient) {}
+
   insertarSpt1(spt1Dto: Spt1DTO): Observable<any> {
-    // Enviar spt1Dto directamente sin envolverlo en un objeto
     return this.http.post<any>(`${this.apiURL}/insert`, spt1Dto)
       .pipe(
+        map(response => {
+          if (!response.success) {
+            throw new Error(response.message || 'Error inesperado');
+          }
+          return response;
+        }),
         catchError(this.handleError)
       );
   }
+
+
 
   mostrarSpt1(): Observable<Spt1[]> {
     const url = `${this.apiURL}/mostrar`;
@@ -35,7 +44,33 @@ export class Spt1Service {
     );
   }
 
+  // Método para ejecutar el procedimiento almacenado TotalSpt1Pat1
+  ejecutarTotalSpt1Pat1(): Observable<Spt1ResultDTO[]> {
+    return this.http.get<Spt1ResultDTO[]>(`${this.apiURL}/TotalSpt1Pat1`).pipe(
+      catchError(this.handleError)
+    );
+  }
 
+  // Método para ejecutar el procedimiento almacenado TotalSpt1Pat2
+  ejecutarTotalSpt1Pat2(): Observable<Spt1ResultDTO[]> {
+    return this.http.get<Spt1ResultDTO[]>(`${this.apiURL}/TotalSpt1Pat2`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Método para ejecutar el procedimiento almacenado TotalSpt1Pat3
+  ejecutarTotalSpt1Pat3(): Observable<Spt1ResultDTO[]> {
+    return this.http.get<Spt1ResultDTO[]>(`${this.apiURL}/TotalSpt1Pat3`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Método para ejecutar el procedimiento almacenado TotalSpt1Pat4
+  ejecutarTotalSpt1Pat4(): Observable<Spt1ResultDTO[]> {
+    return this.http.get<Spt1ResultDTO[]>(`${this.apiURL}/TotalSpt1Pat4`).pipe(
+      catchError(this.handleError)
+    );
+  }
 
 
   /*insertarSpt1(spt1: spt1dto): Observable<any> {
