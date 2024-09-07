@@ -103,7 +103,7 @@ export class HistoryComponent implements OnInit {
         columns: [
           { data: 'tagSubestacion', title: 'Tag Subestacion', width: '19%' },
           { data: 'ot', title: 'OT', width: '12%' },
-          { data: 'fecha', title: 'Fecha', width: '13%' },
+          { data: 'fecha', title: 'Fecha', width: '14%' },
           {
             data: 'pat1', title: 'PAT1', width: '5%',
             render: (data, type, full, meta) => this.getPatIcon(full.pat1, 'PAT1', meta.row)
@@ -222,14 +222,30 @@ export class HistoryComponent implements OnInit {
 
   openPatDetails(patData: string, patNumber: string): void {
     console.log('openPatDetails called', { patData, patNumber });
-    this.selectedPatData = patData.split(',');
+
+    // Define los pares clave-valor para los detalles del PAT
+    const labels = [
+        'Electrodo ',
+        'Soldadura ',
+        'Conductor ',
+        'Conector ',
+        'Identificación ',
+        'Caja de registro '
+    ];
+
+    // Combina los labels con los datos de patData
+    const dataArray = patData.split(',');
+    this.selectedPatData = dataArray.map((data, index) => {
+        return `${labels[index]}: ${data}`;
+    });
 
     this.modalRef = this.modal.create({
       nzTitle: `Detalles de ${patNumber}`,
       nzContent: this.patDetailsTemplate, // Utiliza el template del modal
       nzFooter: null
     });
-  }
+}
+
 
 
   formatDataForChart(data: any[]): { category: string, value: number, labelText: string }[] {

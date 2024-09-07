@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnChanges, SimpleChanges ,ViewContainerRef } from '@angular/core';
+import { Component, OnDestroy,ViewChild, OnChanges, SimpleChanges ,ViewContainerRef } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { HttpClient } from '@angular/common/http';
 import { Usuario } from '../../interface/usuario';
@@ -52,8 +52,9 @@ declare var $: any;
   templateUrl: './spt2-inspection.component.html',
   styleUrl: './spt2-inspection.component.css'
 })
-export class Spt2InspectionComponent {
-  private chart: am4charts.XYChart = {} as am4charts.XYChart;
+export class Spt2InspectionComponent implements OnDestroy {
+  private chart: am4charts.XYChart | null = null;
+  private selectivochart: am4charts.XYChart | null = null;
   @ViewChild('container', { read: ViewContainerRef }) container: ViewContainerRef | null = null;
 
     userEmail?: string;
@@ -69,7 +70,7 @@ export class Spt2InspectionComponent {
   ubicacion = '';
   plano = '';
   fecha_plano = '';
-  versio = '';
+  versio : number | null = null;
   marca = '';
   nserie  = '';
   modelo  = '';
@@ -102,6 +103,9 @@ export class Spt2InspectionComponent {
   checkcaida : boolean =false
   checkpotencial : boolean =false
   checksinpicas : boolean =false
+
+  prevCaidaValues: number[] = []
+  prevSelectivoValues: number[] = [];
   //items: MenuItem[] | undefined;
   constructor(private subestacionService: SubestacionService,
     private usuarioService: UsuarioService,
@@ -129,22 +133,7 @@ export class Spt2InspectionComponent {
     }
 
 
-    ngAfterViewInit(): void {
-      // Initialize the jQuery UI dialog
-      $('#dialog').dialog({
-        autoOpen: false,
-        modal: true,
-        buttons: {
-          "Ok": function () {
-            $(this).dialog("close");
-          }
-        }
-      });
-    }
 
-    openDialog() {
-      $('#dialog').dialog('open');
-    }
   ngOnInit(): void {
     /*this.items = [
         {
@@ -161,6 +150,8 @@ export class Spt2InspectionComponent {
       this.ubicacion = params['ubicacion'] || '';
       this.plano = params['plano'] || '';
       this.cantidad_spt = params['cantidad_spt'] ? +params['cantidad_spt'] : null;
+      this.fecha_plano = params['fecha_plano'] || '';
+      this.versio = params['versio'] ? +params['versio'] : null;
     });
     /*this.subestacionService.getSubestacionData().subscribe((data) => {
         console.log("data spt2",data)
@@ -192,183 +183,309 @@ export class Spt2InspectionComponent {
 
 
   }
-  mostrarpromediocaida(): void {
 
-        this.caidagrafico();
-  }
 
   caidagrafico(): void {
-    // Debug: Start of the method
     console.log('Starting caidagrafico()');
 
-    // Ensure that the chart is disposed only if it exists and has a dispose method
-    if (this.chart && typeof this.chart.dispose === 'function') {
+    if (JSON.stringify(this.prevCaidaValues) === JSON.stringify(this.caidaValues)) {
+        console.log('No data changes, skipping chart update.');
+        return;
+    }
+
+    this.prevCaidaValues = [...this.caidaValues];
+
+    const chartContainer = document.getElementById('caida-chart');
+    if (!chartContainer) {
+        console.error('Chart container "caida-chart" not found in DOM.');
+        return;
+    }
+
+    if (this.chart) {
         console.log('Disposing of existing chart');
         this.chart.dispose();
-    } else {
-        console.log('No chart to dispose or dispose is not a function');
+        this.chart = null;
     }
 
-    // Apply a theme
-    console.log('Applying theme');
     am4core.useTheme(am4themes_animated);
 
-    // Create the chart instance
     console.log('Creating chart instance');
-    const chartElement = am4core.create('caida-chart', am4charts.XYChart);
+    this.chart = am4core.create('caida-chart', am4charts.XYChart);
 
-    // Debug: Log the initial data
-    console.log('Chart data:', [
-        { category: 'PAT1', value: this.caidaValues[0] },
-        { category: 'PAT2', value: this.caidaValues[1] },
-        { category: 'PAT3', value: this.caidaValues[2] },
-        { category: 'PAT4', value: this.caidaValues[3] },
-    ]);
-
-    // Configure the chart data
-    chartElement.data = [
-        { category: 'PAT1', value: this.caidaValues[0] },
-        { category: 'PAT2', value: this.caidaValues[1] },
-        { category: 'PAT3', value: this.caidaValues[2] },
-        { category: 'PAT4', value: this.caidaValues[3] },
-    ];
-
-    // Debug: Check if data was assigned correctly
-    if (chartElement.data && chartElement.data.length > 0) {
-        console.log('Chart data assigned successfully');
-    } else {
-        console.error('Chart data is empty or invalid');
+    if (!this.chart) {
+        console.error('Failed to create chart instance.');
+        return;
     }
 
-    // Create X and Y axes
-    console.log('Creating axes');
-    const categoryAxis = chartElement.xAxes.push(new am4charts.CategoryAxis());
-    categoryAxis.dataFields.category = 'category';
+    const valuesPerCategory = 3;  // Número de valores por cada PAT
+    const categories: string[] = [];
 
-    const valueAxis = chartElement.yAxes.push(new am4charts.ValueAxis());
-    valueAxis.max = 60;
-
-    // Debug: Axes created
-    console.log('Axes created successfully');
-
-    // Create a series
-    console.log('Creating series');
-    const series = chartElement.series.push(new am4charts.LineSeries());
-    series.dataFields.valueY = 'value';
-    series.dataFields.categoryX = 'category';
-    series.strokeWidth = 2;
-
-    // Optionally, add some customization like a tooltip
-    series.tooltipText = '{categoryX}: {valueY}';
-    series.stroke = am4core.color('blue'); // Example color for PAT1
-
-    // Debug: Series created
-    console.log('Series created successfully');
-
-    // Add a cursor
-    console.log('Adding cursor');
-    chartElement.cursor = new am4charts.XYCursor();
-
-    // Debug: Cursor added
-    console.log('Cursor added successfully');
-
-    // Assign the new chart instance to this.chart
-    this.chart = chartElement;
-
-    // Debug: End of the method
-    console.log('caidagrafico() completed');
-}
-
-
-ngOnDestroy(): void {
-    // Ensure that the chart is disposed only if it exists and has a dispose method
-    if (this.chart && typeof this.chart.dispose === 'function') {
-        this.chart.dispose();
+    const cantidad_spt = this.cantidad_spt ?? 0;
+    // Generar dinámicamente las categorías en función de this.cantidad_spt
+    for (let i = 1; i <= cantidad_spt; i++) {
+        categories.push(`PAT${i}`);
     }
+
+    const chartData: Array<Record<string, any>> = [];
+
+    // Reestructurar chartData para que cada entrada represente una categoría PAT
+    for (let i = 0; i < valuesPerCategory; i++) {
+        const dataPoint: Record<string, any> = { category: `Value ${i + 1}` };
+        categories.forEach((category, index) => {
+            dataPoint[category] = this.caidaValues[index * valuesPerCategory + i];
+        });
+        chartData.push(dataPoint);
+    }
+
+    console.log('Chart data:', chartData);
+    this.chart.data = chartData;
+
+    const categoryAxis = this.chart.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = 'category';  // Categorías del eje X ahora son 'Value 1', 'Value 2', etc.
+
+    // Deshabilitar etiquetas del eje X
+    categoryAxis.renderer.labels.template.disabled = true;
+
+    const valueAxis = this.chart.yAxes.push(new am4charts.ValueAxis());
+    valueAxis.min = 0;
+
+    const range = valueAxis.axisRanges.create();
+    range.value = 25;
+    range.grid.stroke = am4core.color('red');
+    range.grid.strokeWidth = 2;
+    range.grid.strokeOpacity = 1;
+
+    const patColors: { [key: string]: string } = {
+        'PAT1': 'blue',
+        'PAT2': 'green',
+        'PAT3': 'orange',
+        'PAT4': 'purple'
+    };
+
+    // Crear series dinámicamente para cada categoría (PAT)
+    if (this.chart) {
+        categories.forEach((category) => {
+            const series = this.chart!.series.push(new am4charts.LineSeries());
+            series.name = category;
+            series.dataFields.valueY = category;
+            series.dataFields.categoryX = 'category';
+            series.strokeWidth = 3;
+            series.tooltipText = `{name}: {valueY}`;
+
+            // Usar color correspondiente a la categoría PAT
+            series.stroke = am4core.color(patColors[category]);
+
+            const bullet = series.bullets.push(new am4charts.CircleBullet());
+            bullet.circle.stroke = am4core.color('#fff');
+            bullet.circle.strokeWidth = 2;
+
+            const labelBullet = series.bullets.push(new am4charts.LabelBullet());
+            labelBullet.label.text = '{valueY}';
+            labelBullet.label.dy = -10;
+            labelBullet.label.fontSize = 12;
+        });
+    }
+
+    // Agregar leyenda al gráfico
+    this.chart.legend = new am4charts.Legend();
+
+    this.chart.cursor = new am4charts.XYCursor();
+
+    console.log('Chart created successfully');
 }
 
 
 
-  mostrarpromedioselectivo(): void {
-    this.selectivografico();
+
+
+
+
+
+
+
+
+
+getRangeCaida(): number[] {
+  const cantidad = this.cantidad_spt ?? 0; // Usar 0 si this.cantidad_spt es null o undefined
+  return Array.from({ length: cantidad }, (_, index) => index);
 }
 
-private selectivografico(): void {
-  const chartElement = document.getElementById('selectivo-chart');
-  if (!chartElement) return; // Asegúrate de que el elemento del DOM existe
 
-  // Crea un nuevo chart con amCharts
-  let chart = am4core.create(chartElement, am4charts.XYChart);
+getCaidaValue(index: number, subIndex: number): any {
+  const value = this.caidaValues[index * 3 + subIndex];
+  return value !== undefined && value !== null ? value : '';
+}
 
-  // Verifica si los datos están completamente cargados
-  if (this.cantidad_spt !== null && this.cantidad_spt > 0) {
-      // Datos para cada PAT
-      const dataValues = [
-          this.selectivoValues.slice(0, 3),
-          this.selectivoValues.slice(3, 6),
-          this.selectivoValues.slice(6, 9),
-          this.selectivoValues.slice(9, 12)
-      ];
+updateCaidaValue(index: number, subIndex: number, value: number): void {
+  this.caidaValues[index * 3 + subIndex] = value;
+}
 
-      // Colores para cada PAT
-      const patColors = ['blue', 'orange', 'green', 'yellow'];
 
-      // Configura el eje X
-      chart.data = dataValues.map((values, index) => ({
-          category: `PAT${index + 1}`,
-          values: values.map(value => (value !== undefined ? Number(value.toFixed(1)) : undefined))
-      }));
+getResultadoCaida(index: number): { mensaje: string, color: string } {
+const startIndex = index * 3;
+const valores = [
+  this.caidaValues[startIndex],
+  this.caidaValues[startIndex + 1],
+  this.caidaValues[startIndex + 2]
+];
 
-      let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-      categoryAxis.dataFields.category = 'category';
-      categoryAxis.title.text = 'PAT';
+const valoresFiltrados = valores.filter(valor => valor !== null && valor !== undefined);
+const promedio = valoresFiltrados.length > 0 ? Math.floor(valoresFiltrados.reduce((acc, valor) => acc + valor, 0) / valoresFiltrados.length) : 0;
+return {
+  mensaje: promedio > 25 ? 'MALO' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'BUENO' : ''),
+  color: promedio > 25 ? 'red' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'green' : '')
+};
 
-      // Configura el eje Y
-      let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-      valueAxis.min = 0;
-      valueAxis.max = 60;
-      valueAxis.title.text = 'Selectiva';
+}
 
-      // Crea las series para cada PAT
-      dataValues.forEach((values, index) => {
-          let series = chart.series.push(new am4charts.LineSeries());
-          series.dataFields.valueY = 'value';
-          series.dataFields.categoryX = 'category';
-          series.name = `PAT${index + 1}`;
-          series.stroke = am4core.color(patColors[index]);
 
-          // Añade los datos a la serie
-          series.data = values.map((value: number) => ({ category: `PAT${index + 1}`, value: value }));
+calcularPromedioCaida(index: number): number {
+const startIndex = index * 3;
+const valores = [
+  this.caidaValues[startIndex],
+  this.caidaValues[startIndex + 1],
+  this.caidaValues[startIndex + 2]
+];
+const valoresFiltrados = valores.filter(valor => valor !== null && valor !== undefined);
 
-          // Agrega etiquetas de datos
-          const labelBullet = series.bullets.push(new am4charts.LabelBullet());
-          if (labelBullet && labelBullet.label) {
-              labelBullet.label.text = '{value}';
-              labelBullet.label.dy = -10;
-              labelBullet.label.fontSize = 11;
-          }
+// Calcula el promedio solo si hay valores
+if (valoresFiltrados.length > 0) {
+  const total = valoresFiltrados.reduce((acc, valor) => acc + valor, 0);
+  const promedio = Math.floor(total / valoresFiltrados.length);
+  //const otroIndice = 123;
+  //const promedio1 = this.calcularPromedioCaida(otroIndice); // Reemplaza "otroIndice" con el índice adecuado
+  this.caidagrafico();
+  //this.mostrarpromedioselectivo();
+     return promedio;
+} else {
+  return 0; // Retorna 0 si no hay valores para evitar divisiones por cero
+}
 
-          // Agrega la línea en Y=25
-          let range = valueAxis.axisRanges.create();
-          range.value = 25;
-          range.grid.stroke = am4core.color('red');
-          range.grid.strokeWidth = 2;
-          range.label.text = 'Línea en Y=25';
-          range.label.inside = true;
-          range.label.fill = am4core.color('red');
-          range.label.align = 'right';
+}
+
+
+
+
+selectivografico(): void {
+  console.log('Starting selectivografico()');
+
+  // Verificar si los valores han cambiado antes de actualizar el gráfico
+  if (JSON.stringify(this.prevSelectivoValues) === JSON.stringify(this.selectivoValues)) {
+      console.log('No data changes, skipping chart update.');
+      return;
+  }
+
+  // Actualizar valores previos
+  this.prevSelectivoValues = [...this.selectivoValues];
+
+  const chartContainer = document.getElementById('selectivo-chart');
+  if (!chartContainer) {
+      console.error('Chart container "selectivo-chart" not found in DOM.');
+      return;
+  }
+
+  // Eliminar el gráfico existente antes de crear uno nuevo
+  if (this.selectivochart) {
+      console.log('Disposing of existing chart');
+      this.selectivochart.dispose();
+      this.selectivochart = null;
+  }
+
+  // Crear un nuevo gráfico
+  am4core.useTheme(am4themes_animated);
+  console.log('Creating chart instance');
+  this.selectivochart = am4core.create('selectivo-chart', am4charts.XYChart);
+
+  if (!this.selectivochart) {
+      console.error('Failed to create chart instance.');
+      return;
+  }
+
+  const valuesPerCategory = 3; // Número de valores por cada PAT
+  const categories: string[] = [];
+
+  const cantidad_spt = this.cantidad_spt ?? 0;
+  // Generar dinámicamente las categorías en función de this.cantidad_spt
+  for (let i = 1; i <= cantidad_spt; i++) {
+      categories.push(`PAT${i}`);
+  }
+
+  const chartData: Array<Record<string, any>> = [];
+
+  // Reestructurar chartData para que cada entrada represente una categoría PAT
+  for (let i = 0; i < valuesPerCategory; i++) {
+      const dataPoint: Record<string, any> = { category: `Value ${i + 1}` };
+      categories.forEach((category, index) => {
+          dataPoint[category] = this.selectivoValues[index * valuesPerCategory + i];
       });
+      chartData.push(dataPoint);
+  }
 
-      // Título del gráfico
-      let title = chart.titles.create();
-      title.text = 'Selectiva Regla del 62%';
-      title.fontSize = 18;
-      title.marginBottom = 20;
+  console.log('Chart data:', chartData);
+  this.selectivochart.data = chartData;
 
-      // Asegúrate de ajustar el tamaño del gráfico
-      chart.responsive.enabled = true;
+  // Configurar ejes y series
+  const categoryAxis = this.selectivochart.xAxes.push(new am4charts.CategoryAxis());
+  categoryAxis.dataFields.category = 'category'; // Categorías del eje X ahora son 'Value 1', 'Value 2', etc.
+  categoryAxis.renderer.labels.template.disabled = true; // Deshabilitar etiquetas del eje X
+
+  const valueAxis = this.selectivochart.yAxes.push(new am4charts.ValueAxis());
+  valueAxis.min = 0;
+
+
+  // Añadir una línea horizontal en el valor Y=25
+  const range = valueAxis.axisRanges.create();
+  range.value = 25;
+  range.grid.stroke = am4core.color('red');
+  range.grid.strokeWidth = 2;
+  range.grid.strokeOpacity = 1;
+
+  const patColors: { [key: string]: string } = {
+      'PAT1': 'blue',
+        'PAT2': 'green',
+        'PAT3': 'orange',
+        'PAT4': 'purple'
+  };
+
+  // Crear series dinámicamente para cada categoría (PAT)
+  if (this.selectivochart) {
+      categories.forEach((category) => {
+          const series = this.selectivochart!.series.push(new am4charts.LineSeries());
+          series.name = category;
+          series.dataFields.valueY = category;
+          series.dataFields.categoryX = 'category';
+          series.strokeWidth = 3;
+          series.tooltipText = `{name}: {valueY}`;
+
+          // Usar color correspondiente a la categoría PAT
+          series.stroke = am4core.color(patColors[category]);
+
+          const bullet = series.bullets.push(new am4charts.CircleBullet());
+          bullet.circle.stroke = am4core.color('#fff');
+          bullet.circle.strokeWidth = 2;
+
+          const labelBullet = series.bullets.push(new am4charts.LabelBullet());
+          labelBullet.label.text = '{valueY}';
+          labelBullet.label.dy = -10;
+          labelBullet.label.fontSize = 11;
+      });
+  }
+
+  // Agregar leyenda al gráfico
+  this.selectivochart.legend = new am4charts.Legend();
+
+  this.selectivochart.cursor = new am4charts.XYCursor();
+
+  console.log('Chart created successfully');
+}
+ngOnDestroy(): void {
+  if (this.chart) {
+    console.log('Disposing chart on component destroy');
+    this.chart.dispose();
+    this.chart = null; // Asegúrate de limpiar la referencia
   }
 }
+
 
   capturarImagen(chartId: string, fileName: string): void {
     this.captureChartAsImage(chartId, fileName, (blob: Blob) => {
@@ -440,62 +557,7 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
   }
 }
 
-          getRangeCaida(): number[] {
-            const cantidad = this.cantidad_spt ?? 0; // Usar 0 si this.cantidad_spt es null o undefined
-            return Array.from({ length: cantidad }, (_, index) => index);
-          }
 
-
-        getCaidaValue(index: number, subIndex: number): any {
-            const value = this.caidaValues[index * 3 + subIndex];
-            return value !== undefined && value !== null ? value : '';
-          }
-
-        updateCaidaValue(index: number, subIndex: number, value: number): void {
-          this.caidaValues[index * 3 + subIndex] = value;
-        }
-
-        getResultadoCaida(index: number): { mensaje: string, color: string } {
-          const startIndex = index * 3;
-          const valores = [
-            this.caidaValues[startIndex],
-            this.caidaValues[startIndex + 1],
-            this.caidaValues[startIndex + 2]
-          ];
-
-          const valoresFiltrados = valores.filter(valor => valor !== null && valor !== undefined);
-          const promedio = valoresFiltrados.length > 0 ? Math.floor(valoresFiltrados.reduce((acc, valor) => acc + valor, 0) / valoresFiltrados.length) : 0;
-          return {
-            mensaje: promedio > 25 ? 'MALO' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'BUENO' : ''),
-            color: promedio > 25 ? 'red' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'green' : '')
-          };
-
-        }
-
-
-        calcularPromedioCaida(index: number): number {
-          const startIndex = index * 3;
-          const valores = [
-            this.caidaValues[startIndex],
-            this.caidaValues[startIndex + 1],
-            this.caidaValues[startIndex + 2]
-          ];
-          const valoresFiltrados = valores.filter(valor => valor !== null && valor !== undefined);
-
-          // Calcula el promedio solo si hay valores
-          if (valoresFiltrados.length > 0) {
-            const total = valoresFiltrados.reduce((acc, valor) => acc + valor, 0);
-            const promedio = Math.floor(total / valoresFiltrados.length);
-            //const otroIndice = 123;
-            //const promedio1 = this.calcularPromedioCaida(otroIndice); // Reemplaza "otroIndice" con el índice adecuado
-            this.mostrarpromediocaida();
-            //this.mostrarpromedioselectivo();
-               return promedio;
-          } else {
-            return 0; // Retorna 0 si no hay valores para evitar divisiones por cero
-          }
-
-        }
 
 
         onSelect(event: NgxDropzoneChangeEvent) {
@@ -561,7 +623,7 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
         if (valoresNumericos.length > 0) {
           const total = valoresNumericos.reduce((acc, valor) => acc + valor, 0);
           const promedio = Math.floor(total / valoresNumericos.length);
-          this.mostrarpromedioselectivo();
+          this.selectivografico();
           return promedio;
         } else {
           return 0; // Retorna 0 si no hay valores para evitar divisiones por cero
@@ -712,6 +774,7 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
       );
 
   }*/
+
   guardarDatos(): void {
     this.modal.confirm({
       nzTitle: 'Confirmación',

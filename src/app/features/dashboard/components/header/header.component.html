@@ -12,13 +12,17 @@
 
 
 
-        <div class="header-action header-bell" nz-dropdown [nzDropdownMenu]="menuBell" [nzTrigger]="'click'"
-          [nzPlacement]="'bottomRight'" [nzOverlayClassName]="'dropdownBell'" nz-tooltip nzTooltipTitle="Notificacion" nzTooltipPlacement="bottom">
+        <div *ngIf="mostrarNotificaciones" class="header-action header-bell"
+        nz-dropdown [nzDropdownMenu]="menuBell"
+        [nzTrigger]="'click'"
+        [nzPlacement]="'bottomRight'"
+        [nzOverlayClassName]="'dropdownBell'"
+        nz-tooltip
+        nzTooltipTitle="Notificacion"
+        nzTooltipPlacement="bottom">
 
-
-
-          <i nz-icon nzType="bell" nzTheme="outline"></i>
-          <nz-badge [nzCount]="bellInfo.total"></nz-badge>
+     <i nz-icon nzType="bell" nzTheme="outline"></i>
+     <nz-badge [nzCount]="bellInfo.total"></nz-badge>
           <nz-dropdown-menu #menuBell="nzDropdownMenu">
             <div class="bell-container">
               <nz-tabset [nzSelectedIndex]="0">

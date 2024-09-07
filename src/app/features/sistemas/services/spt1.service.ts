@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Spt1,Spt1DTO,Spt1ResultDTO } from '../interface/spt1';
+import { Spt1,Spt1DTO,Spt1ResultDTO ,BuscarPorId} from '../interface/spt1';
 import { environment } from '../../../../environments/environment';
 import { map } from 'rxjs/operators';
 @Injectable({
@@ -37,9 +37,9 @@ export class Spt1Service {
     );
   }
 
-  buscarSpt1PorId(id_spt1: number): Observable<Spt1DTO[]> {
+  buscarSpt1PorId(id_spt1: number): Observable<BuscarPorId[]> {
     const url = `${this.apiURL}/BuscarSpt1PorId/${id_spt1}`;
-    return this.http.get<Spt1DTO[]>(url).pipe(
+    return this.http.get<BuscarPorId[]>(url).pipe(
       catchError(this.handleError)
     );
   }

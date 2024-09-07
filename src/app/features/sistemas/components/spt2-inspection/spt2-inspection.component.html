@@ -618,7 +618,7 @@ grid-template-columns: 45% 50%;margin-top: 1%;">
               <div class="stl_01" style="left:7.95em;top:74.535em;"><span class="stl_10 stl_08 stl_80" style="word-spacing:-0.0079em;"># PAT &nbsp;</span></div>
 
 
-          -->
+
       <div class="stl_01 stl_112" style="left:22.3em; top:26.78em;display: flex; width: 23%;">
         <div *ngFor="let index of getRangeCaida()" style="width: 25%;">
           <div style="height: 33%;"><label for="inputCaida{{ index + 1 }}">PAT{{ index + 1 }}</label></div>
@@ -703,12 +703,12 @@ grid-template-columns: 45% 50%;margin-top: 1%;">
 
 
     <div class="stl_01 stl_112"  style="left:7.95em;top:76.735em;display: flex;flex-direction: column;">
-      <div  *ngFor="let index of getRange()" style="    display: flex;justify-content: flex-start;align-items: center;gap: 11%;">
+      <div  *ngFor="let index of getRange()" style="    display: flex;justify-content: flex-start;align-items: center;gap: 14%;">
         <label for="input{{ index + 1 }}">PAT{{ index + 1 }}</label>
         <input  type="number"
         id="input{{ index + 1 }}"
         [ngModel]="getInputValue(index)"
-        (ngModelChange)="inputValues[index] = $event" style="width: 52.1%;height: 213px;" [disabled]="!checksinpicas">
+        (ngModelChange)="inputValues[index] = $event" style="width: 56.1%;height: 213px;" [disabled]="!checksinpicas">
       </div>
     </div>
     <div class="stl_01" style="left:18.7581em;top:76.934em"><span class="stl_111 stl_08 stl_59" [style.color]="getResultadoInput(0).color">{{ getResultadoInput(0).mensaje }}</span></div>
@@ -740,9 +740,9 @@ grid-template-columns: 45% 50%;margin-top: 1%;">
           <div class="stl_01" style="left:10.6314em;top:102.5146em;"><span class="stl_21 stl_08 stl_40" style="word-spacing:0.001em;">{{idUsuarioSeleccionado}}</span></div>
 
               <div class="stl_01" style="left:40.1346em;top:99.9239em;"><span class="stl_10 stl_08 stl_86">Fotochek: &nbsp;</span></div>
-    <div class="stl_01" style="left:45.2346em;top:99.1em;"><input class="stl_124 stl_08 stl_17" style="width: 78%;height: 370px;" type="number" [(ngModel)]="fotocheckSeleccionado" (change)="seleccionarUsuario($event)"></div>
+    <div class="stl_01" style="left:45.2346em;top:99.1em;"><input class="stl_124 stl_08 stl_17" style="width: 84%;height: 370px;" type="number" [(ngModel)]="fotocheckSeleccionado" (change)="seleccionarUsuario($event)"></div>
               <div class="stl_01" style="left:40.1346em;top:102.7572em;"><span class="stl_10 stl_08 stl_86">Fotochek: &nbsp;</span></div>
-    <div class="stl_01" style="left:45.2346em;top:101.9372em;"><input class="stl_124 stl_08 stl_17" style="width: 78%;height: 370px;" [(ngModel)]="fotocheckSeleccionado1" (change)="seleccionarSupervisor($event)"></div>
+    <div class="stl_01" style="left:45.2346em;top:101.9372em;"><input class="stl_124 stl_08 stl_17" style="width: 84%;height: 370px;" [(ngModel)]="fotocheckSeleccionado1" (change)="seleccionarSupervisor($event)"></div>
               <div class="stl_01" style="left:53.5605em;top:99.9239em;"><span class="stl_10 stl_08 stl_85">Firma: &nbsp;</span></div>
               <div class="stl_01" style="left:53.5605em;top:102.7572em;"><span class="stl_10 stl_08 stl_85">Firma: &nbsp;</span></div>
     <div class="stl_01" style="left:62.600em;top:99em;"><img class="stl_124 stl_08 stl_125" [src]="rutaFirmaSeleccionada" width="900px" height="390px"></div>
@@ -787,7 +787,7 @@ grid-template-columns: 45% 50%;margin-top: 1%;">
       height: 235px;
       background-color: white;
       position: relative;">
-          <div id="selectivo-chart" style="width: 280px; height: 280px;"></div>
+          <div id="selectivo-chart" style="width: 300px; height: 270px;"></div>
 
       </div>
   </body>

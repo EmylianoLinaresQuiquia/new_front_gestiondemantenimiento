@@ -1,3 +1,7 @@
+import { AuthServiceService } from 'src/app/features/sistemas/services/auth-service.service';
+import { UsuarioService } from 'src/app/features/sistemas/services/usuario.service';
+import { MetodoSelectivoService } from './../../services/metodo-selectivo.service';
+import { MetodoCaidaService } from './../../services/metodo-caida.service';
 import { DashSpt2Service } from './../../services/dash-spt2.service';
 import { Spt2Service } from './../../services/spt2.service';
 import { PdfGeneratorServiceService } from '../../services/pdf-generator-service.service';
@@ -27,6 +31,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 })
 export class HistorySpt2Component implements OnInit{
   spt2List: Spt2[] = [];
+  mostrarHerramientas: boolean = false;
   modalRef: NzModalRef | null = null;
 
   @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
@@ -37,27 +42,37 @@ export class HistorySpt2Component implements OnInit{
     private Spt2Service:Spt2Service,
     private DashSpt2Service:DashSpt2Service,
     private sanitizer: DomSanitizer,
-    private modal: NzModalService
+    private modal: NzModalService,
+    private MetodoCaidaService : MetodoCaidaService,
+    private MetodoSelectivoService : MetodoSelectivoService,
+    private usuarioService : UsuarioService,
+    private AuthService : AuthServiceService
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
+    this.AuthService.userId$.subscribe((id) => {
+      this.usuarioService.buscarUsuarioPorId(id).subscribe({
+        next: (usuario) => {
+          console.log('Usuario obtenido:', usuario);
+          // Mostrar la columna "Herramientas" solo si el usuario es SUPERVISOR
+          this.mostrarHerramientas = usuario.cargo === 'SUPERVISOR';
+          this.initDataTable(); // Inicializar la tabla después de obtener la información del usuario
+        },
+        error: (error) => console.error('Error al buscar el usuario:', error),
+      });
+    });
+
+    // Obtener la lista de SPT2
     this.spt2Service.mostrarListaSpt2().subscribe(
       (data: Spt2[]) => {
         this.spt2List = data;
-        console.log("Lista de SPT2:", this.spt2List);
-        this.initDataTable();
+        console.log('Lista de SPT2:', this.spt2List);
       },
-      error => {
+      (error) => {
         console.error('Error al obtener la lista SPT2', error);
       }
-    );
+       );
   }
-
-
-
-
-
-
 
   verTendencia(spt2: any) {
     const { tag_subestacion, ot, fecha, lider, supervisor, pat01, pat02, pat03, pat04 } = spt2;
@@ -83,12 +98,33 @@ export class HistorySpt2Component implements OnInit{
     $(document).ready(() => {
       // Incluir el CSS para el hover
       $('<style>')
-          .prop('type', 'text/css')
-          .html(`
-              #example tbody tr:hover {
-                  background-color: #dfdfdf !important;
-          `)
-          .appendTo('head');
+        .prop('type', 'text/css')
+        .html(`
+          #example tbody tr:hover {
+            background-color: #dfdfdf !important;
+          }
+        `)
+        .appendTo('head');
+
+      const columnsConfig = [
+        { data: 'tag_subestacion', title: 'Subestación' },
+        { data: 'ot', title: 'Ot' },
+        { data: 'fecha', title: 'Fecha' },
+        { data: null, title: 'Tipo de Método' },
+        { data: 'pat1', title: 'Pat1' },
+        { data: 'pat2', title: 'Pat2' },
+        { data: 'pat3', title: 'Pat3' },
+        { data: 'pat4', title: 'Pat4' },
+        { data: 'lider', title: 'Líder' },
+        { data: 'supervisor', title: 'Supervisor' }, // Mantener esta columna independiente
+        { data: null, title: 'Tendencia' },
+        { data: null, title: 'Documentos' }
+      ];
+
+      // Solo agregamos la columna "Herramientas" si el usuario es SUPERVISOR
+      if (this.mostrarHerramientas) {
+        columnsConfig.push({ data: null, title: 'Herramientas' });
+      }
 
       const table = $('#example').DataTable({
         dom: 'Brtipl',
@@ -110,60 +146,83 @@ export class HistorySpt2Component implements OnInit{
           }
         ],
         data: this.spt2List,
-        columns: [
-          { data: 'tag_subestacion', title: 'Subestación' },
-          { data: 'ot', title: 'Ot' },
-          { data: 'fecha', title: 'Fecha' },
-          { data: 'lider', title: 'Líder' },
-          { data: 'supervisor', title: 'Supervisor' },
-          { data: null, title: 'Tendencia' },  // Nueva columna "Tendencia"
-          { data: null, title: 'Documentos' }, // Nueva columna "Documentos"
-          { data: null, title: 'Herramientas' } // Nueva columna "Herramientas"
-        ],
+        columns: columnsConfig,
         columnDefs: [
           {
-            targets: -3,  // Columna "Tendencia"
+            targets: [4, 5, 6, 7],
+            render: (data, type, full, meta) => {
+              if (!data) return '';
+              let icon = '';
+              if (data < 25) {
+                icon = '<i class="fas fa-check-circle" style="color: green;"></i>';
+              } else if (data >= 25) {
+                icon = '<i class="fas fa-times-circle" style="color: red;"></i>';
+              }
+              return `${data} ${icon}`;
+            }
+          },
+          {
+            targets: 3,
             orderable: false,
             render: (data, type, full, meta) => {
               return `
-                <div class="btn-group">
-                <button class="btn btn-xs btn-default tendencia-btn"
-                    type="button"
-                    title="Ver Tendencia"
-                    data-tag-subestacion="${full.tag_subestacion}"
-                    data-ot="${full.ot}"
-                    data-fecha="${full.fecha}"
-                    data-lider="${full.lider}"
-                    data-supervisor="${full.supervisor}"
-                    data-pat01="${full.pat01}"
-                    data-pat02="${full.pat02}"
-                    data-pat03="${full.pat03}"
-                    data-pat04="${full.pat04}">
-                    <i class="fa fa-chart-line"></i>
-                </button>
-              </div>
+                <select class="form-control metodo-select" data-row-index="${meta.row}">
+                  <option value="SIN PICAS">SIN PICAS</option>
+                  <option value="METODO SELECTIVO">METODO SELECTIVO</option>
+                  <option value="METODO CAIDA">METODO CAIDA</option>
+                </select>
               `;
             }
           },
           {
-            targets: -2,  // Columna "Documentos"
+            targets: 9, // Target para la columna "supervisor"
+            render: (data, type, full, meta) => {
+              return data ? data : 'Sin supervisor';
+            }
+          },
+          {
+            targets: 10,
             orderable: false,
             render: (data, type, full, meta) => {
               return `
                 <div class="btn-group">
-                <button class="btn btn-xs btn-default documentos-btn"
-                    type="button"
-                    title="Ver Documentos"
-                    data-tag-subestacion="${full.tag_subestacion}"
-                    data-ot="${full.ot}">
-                    <i class="fa fa-file-pdf"></i>
-                </button>
-              </div>
+                  <button class="btn btn-xs btn-default tendencia-btn"
+                      type="button"
+                      title="Ver Tendencia"
+                      data-tag-subestacion="${full.tag_subestacion}"
+                      data-ot="${full.ot}"
+                      data-fecha="${full.fecha}"
+                      data-lider="${full.lider}"
+                      data-supervisor="${full.supervisor}"
+                      data-pat1="${full.pat1}"
+                      data-pat2="${full.pat2}"
+                      data-pat3="${full.pat3}"
+                      data-pat4="${full.pat4}">
+                      <i class="fa fa-chart-line"></i>
+                  </button>
+                </div>
               `;
             }
           },
           {
-            targets: -1,  // Columna "Herramientas"
+            targets: 11,
+            orderable: false,
+            render: (data, type, full, meta) => {
+              return `
+                <div class="btn-group">
+                  <button class="btn btn-xs btn-default documentos-btn"
+                      type="button"
+                      title="Ver Documentos"
+                      data-tag-subestacion="${full.tag_subestacion}"
+                      data-ot="${full.ot}">
+                      <i class="fa fa-file-pdf"></i>
+                  </button>
+                </div>
+              `;
+            }
+          },
+          {
+            targets: this.mostrarHerramientas ? -1 : [], // Columna "Herramientas" solo si está presente
             orderable: false,
             render: (data, type, full, meta) => {
               return `
@@ -179,6 +238,7 @@ export class HistorySpt2Component implements OnInit{
             }
           }
         ],
+
         initComplete: function (settings, json) {
           const api = (this as any).api();
           api.columns().every(function (this: any) {
@@ -198,6 +258,46 @@ export class HistorySpt2Component implements OnInit{
           });
         }
       });
+      // Eventos de cambio para la columna "Tipo de Método"
+    $('#example').on('change', '.metodo-select', (event) => {
+      const rowIndex = $(event.currentTarget).data('row-index');
+      const selectedOption = $(event.currentTarget).val();
+      const rowData = table.row(rowIndex).data();
+
+      if (selectedOption === 'SIN PICAS') {
+        // Llamada al servicio correspondiente y actualización de la fila
+        this.Spt2Service.buscarPorSubestacionyot(rowData.tag_subestacion, rowData.ot).subscribe((data) => {
+          if (data.length > 0) {
+            rowData.pat1 = data[0].pat1;
+            rowData.pat2 = data[0].pat2;
+            rowData.pat3 = data[0].pat3;
+            rowData.pat4 = data[0].pat4;
+            table.row(rowIndex).data(rowData).draw();
+          }
+        });
+      } else if (selectedOption === 'METODO SELECTIVO') {
+        this.MetodoSelectivoService.getMetodoSelectivoById(rowData.id_mselectivo).subscribe((data) => {
+          if (data.length > 0) {
+            rowData.pat1 = data[0].valorms;
+            rowData.pat2 = data[1] ? data[1].valorms : '';
+            rowData.pat3 = data[2] ? data[2].valorms : '';
+            rowData.pat4 = data[3] ? data[3].valorms : '';
+            table.row(rowIndex).data(rowData).draw();
+          }
+        });
+      } else if (selectedOption === 'METODO CAIDA') {
+        this.MetodoCaidaService.getMetodoCaidaById(rowData.id_mcaida).subscribe((data) => {
+          if (data.length > 0) {
+            rowData.pat1 = data[0].valormc;
+            rowData.pat2 = data[1] ? data[1].valormc : '';
+            rowData.pat3 = data[2] ? data[2].valormc : '';
+            rowData.pat4 = data[3] ? data[3].valormc : '';
+            table.row(rowIndex).data(rowData).draw();
+          }
+        });
+      }
+    });
+
 
       // Eventos para los botones de "ver", "tendencia", "documentos", y "eliminar"
       $('#example').on('click', '.ver-btn', (event) => {
@@ -231,16 +331,11 @@ export class HistorySpt2Component implements OnInit{
           pat04
         });
       });
-
-
       $('#example').on('click', '.documentos-btn', (event) => {
         const tag_subestacion = $(event.currentTarget).data('tag-subestacion');
         const ot = $(event.currentTarget).data('ot');
         this.verDocumentos(tag_subestacion, ot);  // Pasa los parámetros correctos
       });
-
-
-
       $('#example').on('click', '.eliminar-btn', (event) => {
         const idSpt2 = $(event.currentTarget).data('idspt2');
         //this.eliminarRegistro(idSpt2);  // Función para manejar la eliminación del registro
