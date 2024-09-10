@@ -26,7 +26,6 @@ nz-header {
 .main-layout {
   background: #fff;
   display: flex; /* Utilizamos Flexbox para organizar el Sidebar y el Content */
-  gap: 200px;
   margin-top: 60px;
 
 }

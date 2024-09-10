@@ -58,12 +58,6 @@
     width: 208px;
     position: relative;
 
-    &.fixed {
-      overflow: hidden;
-      height: 100%;
-      position: fixed;
-      left: 0;
-    }
 
     .ant-layout-sider-children {
       display: flex;
