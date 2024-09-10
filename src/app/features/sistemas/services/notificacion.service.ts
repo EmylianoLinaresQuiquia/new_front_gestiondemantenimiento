@@ -35,11 +35,12 @@ export class NotificacionService {
   }
 
   insertarNotificacionSpt2(notificacion: Notificacion): Observable<any> {
-    const url = `${this.apiUrl}/InsertarSpt2`;
+    const url = `${this.apiUrl}/InsertarNotificacionSpt2`; // Corregir el endpoint
     return this.http.post(url, notificacion).pipe(
       catchError(this.handleError)
     );
-  }
+}
+
 
   eliminarNotificacion(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`).pipe(

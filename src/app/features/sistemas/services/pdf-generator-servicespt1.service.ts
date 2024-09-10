@@ -207,38 +207,29 @@ drawImagesForValues(buenoValues, buenoCoordinates);
 // Dibujar imágenes para los valores de 'na'
 drawImagesForValues(naValues, naCoordinates);
 
-// Supongamos que tiposArray es un objeto con las propiedades booleanas
-const tiposArray = {
-  "aislado": "True",
-  "contrapeso": "True",
-  "horizontal": "False",
-  "vertical": "False",
-  "delta": "True",
-  "malla": "False"
-};
-
-// Coordenadas para los tipos
-const tipoCoordinates = {
-  aislado: { x: 210, y: height - 445 },
-  contrapeso: { x: 240, y: height - 445 },
-  horizontal: { x: 280, y: height - 445 },
-  vertical: { x: 320, y: height - 445 },
-  delta: { x: 360, y: height - 445 },
-  malla: { x: 400, y: height - 445 }
-};
 
 // Función para dibujar imágenes si el valor es True
-const drawImagesForBooleans = (obj: any, coordinates: any) => {
-  Object.keys(obj).forEach(key => {
-    if (coordinates[key] && (obj[key] === "True" || obj[key] === "true")) {  // Verifica si el valor es True
-      const { x, y } = coordinates[key];
-      newPage.drawImage(miImagen, { x, y, width: 5, height: 5 });
-    }
-  });
-};
 
-// Dibujar imágenes para los valores de tipos filtrados
-drawImagesForBooleans(tiposArray, tipoCoordinates);
+// Convertir los valores de 'tipo_spt1_seleccionado' en un array de 0s y 1s
+const tipoSpt1Values = resultados.tipo_spt1_seleccionado.split(',').map(item => item.trim());
+
+// Definir coordenadas para los valores de 'tipo_spt1_seleccionado'
+const tipoSpt1Coordinates = [
+  { x: 180, y: height - 365 },
+  { x: 310, y: height - 365 },
+  { x: 445, y: height - 365 },
+  { x: 580, y: height - 365 },
+  { x: 710, y: height - 365 },
+  { x: 815, y: height - 365 },
+
+  // Agrega más coordenadas según la cantidad de valores que esperas en 'tipo_spt1_seleccionado'
+];
+
+// Dibujar imágenes para los valores de 'tipo_spt1_seleccionado'
+drawImagesForValues(tipoSpt1Values, tipoSpt1Coordinates);
+
+
+
 
 
 
@@ -246,78 +237,54 @@ drawImagesForBooleans(tiposArray, tipoCoordinates);
 
 
       // Dibujar pozos a tierra
-      drawValuesWithCoordinates(resultados.pozos_a_tierra.split(',').map(item => item.trim()), [
-                   { x: 150, y: height - 540 }, //ELECTRODO
-                      { x: 75, y: height - 475 }, //SOLDADURA
-                            { x: 150, y: height - 460 }, //CONDUCTOR
-                              { x: 218, y: height - 495}, //CONECTOR
-                                { x: 215, y: height - 525 }, //IDENTIFICACION
-        { x: 175, y: height - 595 }, //CAJA DE REGISTRO
+      this.drawValuesWithCoordinates(
+        resultados.pozos_a_tierra.split(',').map(item => item.trim()),
+        [
+          { x: 150, y: height - 540 }, { x: 75, y: height - 475 }, { x: 150, y: height - 460 },
+          { x: 218, y: height - 495}, { x: 215, y: height - 525 }, { x: 175, y: height - 595 },
+          { x: 330, y: height - 540 }, { x: 255, y: height - 475 }, { x: 330, y: height - 460 },
+          { x: 405, y: height - 495}, { x: 415, y: height - 525 }, { x: 345, y: height - 595 },
+          { x: 520, y: height - 540 }, { x: 430, y: height - 475 }, { x: 520, y: height - 460 },
+          { x: 585, y: height - 495}, { x: 595, y: height - 525 }, { x: 555, y: height - 595 },
+          { x: 690, y: height - 540 }, { x: 615, y: height - 475 }, { x: 690, y: height - 460 },
+          { x: 768, y: height - 495}, { x: 778, y: height - 525 }, { x: 715, y: height - 595 }
+        ],
+        newPage, font, textSize
+      );
 
-                  { x: 330, y: height - 540 }, //ELECTRODO
-                          { x: 255, y: height - 475 }, //SOLDADURA
-                              { x: 330, y: height - 460 }, //CONDUCTOR
-                                { x: 405, y: height - 495}, //CONECTOR
-                                   { x: 415, y: height - 525 }, //IDENTIFICACION
-                                      { x: 345, y: height - 595 } ,//CAJA DE REGISTRO
+      // Dibujar barras equipotenciales con colores
+      this.drawValuesWithCoordinates(
+        resultados.barras_equipotenciales.split(',').map(item => item.trim()),
+        [
+          { x: 172, y: height - 655 }, { x: 150, y: height - 700 }, { x: 180, y: height - 780 },
+          { x: 350, y: height - 785 }, { x: 290, y: height - 645 }, { x: 390, y: height - 650 },
+          { x: 550, y: height - 680 }, { x: 580, y: height - 650 }, { x: 720, y: height - 645 },
+          { x: 700, y: height - 740 }, { x: 705, y: height - 780 }, { x: 600, y: height - 775 },
+          { x: 540, y: height - 760 }
+        ],
+        newPage, font, textSize
+      );
 
+      // Dibujar cerco perimétrico con colores
+      this.drawValuesWithCoordinates(
+        resultados.cerco_perimetrico.split(',').map(item => item.trim()),
+        [
+          { x: 368, y: height - 840 }, { x: 220, y: height - 840 }, { x: 185, y: height - 910 },
+          { x: 460, y: height - 840 }, { x: 500, y: height - 935 }, { x: 700, y: height - 835 },
+          { x: 710, y: height - 875 }
+        ],
+        newPage, font, textSize
+      );
 
-
-                        { x: 520, y: height - 540 }, //ELECTRODO
-                           { x: 430, y: height - 475 }, //SOLDADURA
-                              { x: 520, y: height - 460 }, //CONDUCTOR
-                                 { x: 585, y: height - 495}, //CONECTOR
-                                  { x: 595, y: height - 525 }, //IDENTIFICACION
-                                     { x: 555, y: height - 595 } ,//CAJA DE REGISTRO
-
-                        { x: 690, y: height - 540 }, //ELECTRODO
-                          { x: 615, y: height - 475 }, //SOLDADURA
-                              { x: 690, y: height - 460 }, //CONDUCTOR
-                                  { x: 768, y: height - 495}, //CONECTOR
-                                    { x: 778, y: height - 525 }, //IDENTIFICACION
-                                       { x: 715, y: height - 595 } //CAJA DE REGISTRO
-      ]);
-
-      // Dibujar barras equipotenciales
-      drawValuesWithCoordinates(resultados.barras_equipotenciales.split(',').map(item => item.trim()), [
-        { x: 172, y: height - 655 },
-        { x: 150, y: height - 700 },
-        { x: 180, y: height - 780 },
-
-        { x: 350, y: height - 785 },
-        { x: 290, y: height - 645 },
-
-        { x: 390, y: height - 650 }, //descolorifo
-        { x: 550, y: height - 680 },  //flojo
-        { x: 580, y: height - 650 }, //sulfatado
-        { x: 720, y: height - 645 }, //faltante
-        { x:700, y: height - 740 }, //oxidado
-
-        { x: 705, y: height - 780 }, //buen estadp
-        { x: 600, y: height - 775 },//suelto
-        { x: 540, y: height - 760 },//roto
-        // Agrega más coordenadas según sea necesario
-      ]);
-
-
-      // Dibujar cerco perimétrico
-      drawValuesWithCoordinates(resultados.cerco_perimetrico.split(',').map(item => item.trim()), [
-        { x: 368, y: height - 840 },
-        { x: 220, y: height - 840 },
-        { x: 185, y: height - 910 },
-        { x: 460, y: height - 840 },
-        { x: 500, y: height - 935 },
-        { x: 700, y: height - 835 },
-        { x: 710, y: height - 875 }
-      ]);
-
-      // Dibujar transformadores
-      drawValuesWithCoordinates(resultados.transformadores.split(',').map(item => item.trim()), [
-        { x: 460, y: height - 1000 },
-        { x: 225, y: height - 1000 },
-        { x: 229, y: height - 1050 },
-        { x: 185, y: height - 1085 }
-      ]);
+      // Dibujar transformadores con colores
+      this.drawValuesWithCoordinates(
+        resultados.transformadores.split(',').map(item => item.trim()),
+        [
+          { x: 460, y: height - 1000 }, { x: 225, y: height - 1000 }, { x: 229, y: height - 1050 },
+          { x: 185, y: height - 1085 }
+        ],
+        newPage, font, textSize
+      );
 
       // Dibujar observaciones de aviso
       drawValuesWithCoordinates(resultados.observacion_aviso.split(',').map(item => item.trim()), [
@@ -351,6 +318,30 @@ drawImagesForBooleans(tiposArray, tipoCoordinates);
       console.error('Error al generar el PDF:', error);
       throw error;
     }
+  }
+   // Función para dibujar valores con coordenadas y aplicar colores basados en los valores
+   private drawValuesWithCoordinates(values: string[], coordinates: { x: number, y: number }[], page: any, font: any, textSize: number) {
+    values.forEach((value, index) => {
+      let color;
+
+      // Asignar color según el valor
+      if (value === 'Buen Estado') {
+        color = rgb(0, 1, 0); // Verde
+      } else if (value === 'No aplica') {
+        color = rgb(0, 0, 0); // Negro
+      } else {
+        color = rgb(1, 0, 0); // Rojo
+      }
+
+      // Dibuja el texto en la coordenada correspondiente con el color
+      page.drawText(value, {
+        x: coordinates[index].x,
+        y: coordinates[index].y,
+        size: textSize,
+        font: font,
+        color: color,
+      });
+    });
   }
 
 

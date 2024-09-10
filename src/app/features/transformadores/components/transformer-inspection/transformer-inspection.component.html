@@ -1,5 +1,5 @@
-<div class="panela">
-  <!-- begin panel-body -->
+<!--<div class="panela">
+
   <div class="panel-body">
     <div nz-row nzAlign="middle">
       <div nz-col>
@@ -11,7 +11,7 @@
     </div>
 
     <div id="search">
-      <!--begin panel-information -->
+
       <div nz-row nzGutter="16">
         <nz-collapse>
           <nz-collapse-panel
@@ -32,47 +32,37 @@
             </ng-template>
 
             <div nz-row nzGutter="16">
-              <!--begin col 2 -->
+
               <div nz-col nzSpan="4">
                 <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
                   <nz-card-meta nzTitle="TAG" nzDescription="{{ transformador }}"></nz-card-meta>
                 </nz-card>
               </div>
-              <!--end col 2 -->
 
-              <!--begin col 2 -->
               <div nz-col nzSpan="4">
                 <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
                   <nz-card-meta nzTitle="Voltaje" nzDescription="{{ voltage }}"></nz-card-meta>
                 </nz-card>
               </div>
-              <!--end col 2 -->
 
-              <!--begin col 2 -->
               <div nz-col nzSpan="4">
                 <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
                   <nz-card-meta nzTitle="Potencia" nzDescription="{{ potencia }}"></nz-card-meta>
                 </nz-card>
               </div>
-              <!--end col 2 -->
 
-              <!--begin col 2 -->
               <div nz-col nzSpan="4">
                 <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
                   <nz-card-meta nzTitle="Fabricación - Edad" nzDescription="1998 - 26 años"></nz-card-meta>
                 </nz-card>
               </div>
-              <!--end col 2 -->
 
-              <!--begin col 2 -->
               <div nz-col nzSpan="4">
                 <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
                   <nz-card-meta nzTitle="Índice de Salud" nzDescription="100%"></nz-card-meta>
                 </nz-card>
               </div>
-              <!--end col 2 -->
 
-              <!--begin col 2 -->
               <div nz-col nzSpan="4">
                 <nz-card nzBordered="false" nzBodyStyle="{ padding: '12px' }">
                   <nz-card-meta
@@ -81,15 +71,15 @@
                   ></nz-card-meta>
                 </nz-card>
               </div>
-              <!--end col 2 -->
+
             </div>
           </nz-collapse-panel>
         </nz-collapse>
       </div>
-      <!--end panel-head -->
+
     </div>
   </div>
-  <!-- end panel-body -->
+
 </div>
 
 
@@ -208,12 +198,179 @@
       </li>
     </div>
   </nz-tab>
-</nz-tabset>
+</nz-tabset>-->
 
 
 
 
 
+<div class="panela">
+  <!-- Panel body -->
+  <div nz-row nzGutter="16">
+    <div nz-col nzSpan="24" class="d-flex align-items-center">
+      <!--<img src="assets/icons/fa-transformer-bolt-dark.ico" alt="" style="width: 2.5%; height: 35px;">-->
+      <h4>{{ transformador }}</h4>
+    </div>
+
+    <div nz-col nzSpan="24" class="d-flex align-items-center">
+      <!-- Panel información -->
+      <nz-collapse>
+        <nz-collapse-panel [nzHeader]="headerTpl" [nzShowArrow]="false" [nzActive]="true">
+          <ng-template #headerTpl>
+           <!--- <img src="assets/icons/fa-transformer-bolt.ico" alt="" style="width: 2%; height: 25px;">-->
+            <div class="panel-title">Datos del Transformador</div>
+          </ng-template>
+          <div class="container">
+            <div class="panel-body">
+              <!--begin row inside cols -->
+              <div class="row">
+                <!--begin col 2 -->
+                <div class="col-md-2">
+                  <div class="card-panel-body card border-0 bg-light mb-2" >
+                    <div class="card-body">
+                      <h6 class="card-title text-muted">TAG</h6>
+                      <small class="card-subtitle mb-10px text-semi-bold">{{ transformador }}</small>
+                    </div>
+                  </div>
+                </div>
+                <!--end col 2 -->
+                <!--begin col 2 -->
+                <div class="col-md-2">
+                  <div class="card-panel-body card border-0 bg-light mb-2">
+                    <div class="card-body">
+                      <h6 class="card-title text-muted">Voltaje</h6>
+                      <small class="card-subtitle mb-10px text-semi-bold">{{ voltage }}</small>
+                    </div>
+                  </div>
+                </div>
+                <!--end col 2 -->
+                <!--begin col 2 -->
+                <div class="col-md-2">
+                  <div class="card-panel-body card border-0 bg-light mb-2">
+                    <div class="card-body">
+                      <h6 class="card-title text-muted">Potencia</h6>
+                      <small class="card-subtitle mb-10px text-semi-bold">{{ potencia }}</small>
+                    </div>
+                  </div>
+                </div>
+                <!--end col 2 -->
+                <!--begin col 2 -->
+                <div class="col-md-2">
+                  <div class="card-panel-body card border-0 bg-light mb-2">
+                    <div class="card-body">
+                      <h6 class="card-title text-muted">Fabricación - Edad</h6>
+                      <small class="card-subtitle mb-10px text-semi-bold">1998  - 26 años</small>
+                    </div>
+                  </div>
+                </div>
+                <!--end col 2 -->
+                <!--begin col 2 -->
+                <div class="col-md-2">
+                  <div class="card-panel-body  card border-0 bg-light mb-2">
+                    <div class="card-body">
+                      <h6 class="card-title text-muted">Índice de Salud    </h6>
+                      <small class="card-subtitle mb-10px text-semi-bold">
+                        <span data-animation="number" data-value="100  ">100  </span> %
+                        </small>
+                    </div>
+                  </div>
+                </div>
+                <!--end col 2 -->
+                <!--begin col 2 -->
+                <div class="col-md-2">
+                  <div class="card-panel-body card border-0 bg-light mb-2">
+                    <div class="card-body">
+                      <h6 class="card-title text-muted">Estado  </h6>
+                      <small class="card-subtitle mb-10px text-semi-bold">
+                        Muy Bueno
+                        <i class="fa fa-circle fa-fw text-green me-2 fs-17px text-success"></i> </small>
+                    </div>
+                  </div>
+                </div>
+                <!--end col 2 -->
+              </div>
+              <!--end row inside cols -->
+            </div>
+          </div>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <nz-tabset>
+    <nz-tab nzTitle="Resumen">
+      <div class="panela">
+        <div nz-row nzGutter="16">
+          <!-- PM1 Panel -->
+          <nz-col nzSpan="12">
+            <nz-card nzTitle="PM1" [nzExtra]="extraTpl1">
+              <ng-template #extraTpl1>
+                <a title="Ir a Tendencias" (click)="abrirDashboard()" style="color: white;">
+                  <i class="fa-solid fa-syringe"></i>
+                </a>
+              </ng-template>
+              <table id="example" class="display" style="table-layout: fixed; width: 100%;">
+                <thead></thead>
+              </table>
+            </nz-card>
+          </nz-col>
+
+          <!-- PM2 Panel -->
+          <nz-col nzSpan="12">
+            <nz-card nzTitle="PM2" [nzExtra]="extraTpl2">
+              <ng-template #extraTpl2>
+                <a title="Ir a Tendencias" style="color: white;">
+                  <i class="fa fa-bong"></i>
+                </a>
+              </ng-template>
+            </nz-card>
+          </nz-col>
+
+          <!-- Another Panel -->
+          <nz-col nzSpan="12">
+            <nz-card nzTitle="Other" [nzExtra]="extraTpl3">
+              <ng-template #extraTpl3>
+                <a title="Ir a Tendencias" style="color: white;">
+                  <i class="fa-solid fa-hourglass"></i>
+                </a>
+              </ng-template>
+            </nz-card>
+          </nz-col>
+
+          <!-- Another Panel -->
+          <nz-col nzSpan="12">
+            <nz-card nzTitle="Other" [nzExtra]="extraTpl4">
+              <ng-template #extraTpl4>
+                <a title="Ir a Tendencias" style="color: white;">
+                  <i class="fa-solid fa-hourglass"></i>
+                </a>
+              </ng-template>
+            </nz-card>
+          </nz-col>
+        </div>
+      </div>
+    </nz-tab>
+
+    <nz-tab nzTitle="PM1">
+      <a class="nav-link">
+        <i class="fa-solid fa-syringe"></i> PM1
+      </a>
+    </nz-tab>
+
+    <nz-tab nzTitle="PM2">
+      <a class="nav-link" href="/physical_management/transformer/6/physicals">
+        <i class="fa fa-bong"></i> PM2
+      </a>
+    </nz-tab>
+
+    <nz-tab nzTitle="Pruebas Eléctricas">
+      <a class="nav-link" href="/electrical_management/transformer/6/electricals">
+        <i class="fa-solid fa-bolt"></i> Pruebas Eléctricas
+      </a>
+    </nz-tab>
+  </nz-tabset>
+</div>
 
 
 

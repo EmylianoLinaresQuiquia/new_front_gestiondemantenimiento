@@ -1,50 +1,53 @@
-/* styles.css (o el archivo de estilos global que estés utilizando) */
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f0f2f5; /* Color de fondo general */
+.trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: color 0.3s;
 }
 
-/* Estilo del encabezado */
-app-header {
-  position: fixed;
-  top: 0;
-  left: 0;
+.trigger:hover {
+  color: #1890ff;
+}
+
+.logo {
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 16px;
+}
+
+nz-header {
+  background: #fff;
+  padding: 0;
+  text-align: center;
+}
+
+.main-layout {
+  background: #fff;
+  display: flex; /* Utilizamos Flexbox para organizar el Sidebar y el Content */
+  gap: 200px;
+  margin-top: 60px;
+
+}
+.main-content{
+  background: #fff;
   width: 100%;
-  height: 64px; /* Ajusta según el tamaño de tu encabezado */
-
-  color: #fff;
-  z-index: 1000; /* Asegúrate de que el encabezado esté por encima del contenido */
+  padding: 16px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
 }
 
-/* Estilo del sidebar */
-app-sidebar {
-  position: fixed;
-  top: 64px; /* Ajusta para que comience justo debajo del encabezado */
-  left: 0;
-  width: 208px; /* Ancho del sidebar */
-  height: calc(100vh - 64px); /* Altura del sidebar */
-  background-color: #ffffff; /* Color de fondo del sidebar */
-  color: #000000;
-  overflow-y: auto; /* Para permitir desplazamiento si el contenido es largo */
-  z-index: 999; /* Asegúrate de que el sidebar esté debajo del encabezado pero sobre el contenido */
+nz-sider {
+  background: #001529;
+
 }
 
-/* Contenido principal */
-.main-content {
-  margin-left: 208px; /* Ancho del sidebar */
-  margin-top: 64px; /* Altura del encabezado */
-  padding: 16px; /* Espaciado interno del contenido principal */
-  height: calc(100vh - 64px); /* Altura del contenido principal */
-  overflow-y: auto; /* Para permitir desplazamiento si el contenido es largo */
-}
 
-/* Opcional: estilos adicionales para el estado colapsado del sidebar */
-.sidebar-collapsed {
-  width: 80px; /* Ancho del sidebar colapsado */
-}
 
-.sidebar-collapsed .logo h1 {
-  display: none; /* Oculta el texto en el estado colapsado */
-}
+
+
+
+
+
+

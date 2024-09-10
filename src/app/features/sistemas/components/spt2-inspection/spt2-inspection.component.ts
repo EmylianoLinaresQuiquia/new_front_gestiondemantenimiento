@@ -41,6 +41,10 @@ import  html2canvas from 'html2canvas';
 import { NgxDropzoneChangeEvent } from 'ngx-dropzone';
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { ActivatedRoute } from '@angular/router';
+import { AlertService } from '../../services/alert.service';
+import { PdfViewerComponent } from 'src/app/shared/components/pdf-viewer/pdf-viewer.component';
+import { MedicionTelurometro } from '../../interface/medicion-telurometro';
+import { MedicionTelurometroService } from '../../services/medicion-telurometro.service';
 declare var $: any;
 @Component({
   selector: 'app-spt2-inspection',
@@ -127,7 +131,9 @@ export class Spt2InspectionComponent implements OnDestroy {
     private route: ActivatedRoute,
     private messageService:NzMessageService,
       private notificationService:NzNotificationService,
-      private modal: NzModalService
+      private modal: NzModalService,
+      private alertservice: AlertService,
+      private MedicionTelurometroService:MedicionTelurometroService
 ) {
 
     }
@@ -186,10 +192,10 @@ export class Spt2InspectionComponent implements OnDestroy {
 
 
   caidagrafico(): void {
-    console.log('Starting caidagrafico()');
+
 
     if (JSON.stringify(this.prevCaidaValues) === JSON.stringify(this.caidaValues)) {
-        console.log('No data changes, skipping chart update.');
+
         return;
     }
 
@@ -367,11 +373,11 @@ if (valoresFiltrados.length > 0) {
 
 
 selectivografico(): void {
-  console.log('Starting selectivografico()');
+
 
   // Verificar si los valores han cambiado antes de actualizar el gráfico
   if (JSON.stringify(this.prevSelectivoValues) === JSON.stringify(this.selectivoValues)) {
-      console.log('No data changes, skipping chart update.');
+
       return;
   }
 
@@ -756,24 +762,30 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
       return 'REGULAR';
     }
   }
-  /*onGenerarPdfButtonClick(): void {
+  onGenerarPdfButtonClick(): void {
+    console.log("hola")
+    this.subestacionService.getPdfBySubestacion(this.tagSubestacion).subscribe(
+      (pdfBlob: Blob) => {
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        this.modal.create({
+          nzContent: PdfViewerComponent,
 
-      this.subestacionService.getPdfBySubestacion(this.tagSubestacion).subscribe(
-        (pdfBlob: Blob) => {
-          const blobUrl = URL.createObjectURL(pdfBlob);
-          this.dialog.open(PdfViewerDialogComponent, {
-            data: { pdfSrc: blobUrl },
-            width: '80%',
-            height: '90%'
-          });
-        },
-        error => {
-          console.error('Error inesperado', error);
-          this.alertservice.showAlert('No se encontró el Plano.','error');
-        }
-      );
-
-  }*/
+          nzData: {
+            pdfSrc: blobUrl // Pasas el PDF como parámetro al componente
+          },
+          nzWidth: '95%',
+          nzBodyStyle: {
+            height: '1%',
+            overflow: 'hidden'
+          }
+        });
+      },
+      error => {
+        console.error('Error inesperado', error);
+        this.alertservice.showAlert('No se encontró el Plano.', 'error');
+      }
+    );
+  }
 
   guardarDatos(): void {
     this.modal.confirm({
@@ -889,6 +901,20 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
                 if (idMetodoMedicion === undefined || idMetodoMedicion === null) {
                     throw new Error("El idMetodoMedicion es undefined o null");
                 }
+                // Nuevo Proceso: Inserción de Medicion Telurometro
+                const medicion: MedicionTelurometro = {
+                  frecuencia: '111,128 Hz',  // Datos de ejemplo, pueden ser dinámicos
+                  fecha_calibracion: '02/21/23',
+                  precision: '+/- 5%',
+                  n_serie: 'ST181415734 B4',
+                  marca: 'Fluke',
+                  modelo: '1625-2'
+                };
+
+                const responseMedicion = await this.MedicionTelurometroService.insertarMedicion(medicion).toPromise();
+                const idMedicionTelurometro = responseMedicion!.insertedId as number;
+                console.log("medicion",medicion)
+                console.log("idMedicionTelurometro",idMedicionTelurometro)
 
                 const spt2Data: Spt2 = {
                     tag_subestacion: this.tagSubestacion,
@@ -907,9 +933,10 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
                     idreportefoto: idReporteFoto,
                     idgrafica_caida: idcaidagrafica,
                     idgrafica_selectivo: idselectivografica,
-                    id_metodomedicion:idMetodoMedicion
+                    id_metodomedicion:idMetodoMedicion,
+                    id_mtd_medicion_telurometro: idMedicionTelurometro
                 };
-
+                console.log("spt2Data",spt2Data)
                 const responseSpt2 = await this.spt2Service.insertarSpt2(spt2Data).toPromise();
                 this.id_spt2 = responseSpt2.id;
 
@@ -919,14 +946,13 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
                 }
 
                 const nuevaNotificacion: Notificacion = {
+                  id_usuario: this.idusuario,
+                  id_spt2: this.id_spt2,
+                  firmado: false // Si necesitas firmarlo, cambia a true
+              };
 
-                    id_usuario: this.idusuario,
-                    id_spt2: this.id_spt2,
-                    id_spt1: undefined,
-                    firmado: false
-                };
+              await this.notificacionService.insertarNotificacionSpt2(nuevaNotificacion).toPromise();
 
-                await this.notificacionService.insertarNotificacionSpt2(nuevaNotificacion).toPromise();
 
 
 

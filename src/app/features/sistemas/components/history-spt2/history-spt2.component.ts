@@ -50,28 +50,34 @@ export class HistorySpt2Component implements OnInit{
   ) {}
 
   ngOnInit() {
-    this.AuthService.userId$.subscribe((id) => {
-      this.usuarioService.buscarUsuarioPorId(id).subscribe({
-        next: (usuario) => {
-          console.log('Usuario obtenido:', usuario);
-          // Mostrar la columna "Herramientas" solo si el usuario es SUPERVISOR
-          this.mostrarHerramientas = usuario.cargo === 'SUPERVISOR';
-          this.initDataTable(); // Inicializar la tabla después de obtener la información del usuario
-        },
-        error: (error) => console.error('Error al buscar el usuario:', error),
-      });
-    });
+    // Recuperar el cargo del usuario desde localStorage
+    const storedCargo = localStorage.getItem('cargo');
+    if (storedCargo) {
+      console.log(`Cargo almacenado en localStorage: ${storedCargo}`);
+      this.mostrarHerramientas = storedCargo === 'SUPERVISOR';
+      console.log(
+        this.mostrarHerramientas
+          ? 'El usuario es SUPERVISOR, se mostrará la columna Herramientas'
+          : 'El usuario no es SUPERVISOR, no se mostrará la columna Herramientas'
+      );
+    } else {
+      console.log('No se encontró un cargo almacenado en localStorage');
+      this.mostrarHerramientas = false;
+    }
 
     // Obtener la lista de SPT2
     this.spt2Service.mostrarListaSpt2().subscribe(
       (data: Spt2[]) => {
         this.spt2List = data;
         console.log('Lista de SPT2:', this.spt2List);
+
+        // Inicializar la tabla solo después de recibir los datos
+        this.initDataTable();
       },
       (error) => {
         console.error('Error al obtener la lista SPT2', error);
       }
-       );
+    );
   }
 
   verTendencia(spt2: any) {

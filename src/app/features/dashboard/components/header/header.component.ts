@@ -1,3 +1,4 @@
+import { DashboardService } from './../../services/dashboard.service';
 import { NotificacionService } from './../../../sistemas/services/notificacion.service';
 import { Spt2Service } from './../../../sistemas/services/spt2.service';
 import { Spt1Service } from './../../../sistemas/services/spt1.service';
@@ -74,9 +75,13 @@ export class HeaderComponent {
     private notificacionService : NotificacionService,
     private messageService:NzMessageService,
       private notificationService:NzNotificationService,
-      private modal: NzModalService
+      private modal: NzModalService,
+      public DashboardService : DashboardService
   ){
 
+  }
+  toggleSidebar() {
+    this.DashboardService.toggleCollapse(); // Utiliza el servicio para cambiar el estado
   }
 
   ngOnInit(): void {
@@ -85,28 +90,47 @@ export class HeaderComponent {
     this.mostrarNotificaciones = storedNotificaciones ? JSON.parse(storedNotificaciones) : false;
     console.log('Mostrar notificaciones desde localStorage:', this.mostrarNotificaciones);
 
-    // Obtener el ID del usuario y determinar si es SUPERVISOR
+    // Recuperar el cargo del usuario desde localStorage
+    const storedCargo = localStorage.getItem('cargo');
+    if (storedCargo) {
+      if (storedCargo === 'SUPERVISOR') {
+        this.mostrarNotificaciones = true;
+        console.log('El usuario en localStorage es SUPERVISOR, se mostrarán notificaciones');
+      } else {
+        this.mostrarNotificaciones = false;
+        console.log('El usuario en localStorage no es SUPERVISOR, no se mostrarán notificaciones');
+      }
+    }
+
+    // Obtener el ID del usuario y determinar el cargo si no está en localStorage
     this.authService.userId$.subscribe((id) => {
       this.userId = id;
       console.log('ID de usuario obtenido:', this.userId);
 
-      this.usuarioService.buscarUsuarioPorId(this.userId).subscribe({
-        next: (usuario) => {
-          console.log('Usuario obtenido:', usuario);
-          if (usuario.cargo === 'SUPERVISOR') {
-            console.log('El usuario es SUPERVISOR, se mostrarán notificaciones');
-            this.mostrarNotificaciones = true;
-            localStorage.setItem('mostrarNotificaciones', JSON.stringify(true)); // Guardar en localStorage
-            this.actualizarConteoNotificaciones(); // Actualiza el número de notificaciones
-          } else {
-            console.log('El usuario no es SUPERVISOR, no se mostrarán notificaciones');
-            this.mostrarNotificaciones = false; // Asegurar que otros roles no vean notificaciones
-            localStorage.setItem('mostrarNotificaciones', JSON.stringify(false));
-          }
-        },
-        error: (error) => console.error('Error al buscar el usuario:', error)
-      });
+      // Solo hacer la llamada si no tenemos el cargo en localStorage
+      if (!storedCargo) {
+        this.usuarioService.buscarUsuarioPorId(this.userId).subscribe({
+          next: (usuario) => {
+            console.log('Usuario obtenido:', usuario);
+            if (usuario.cargo === 'SUPERVISOR') {
+              console.log('El usuario es SUPERVISOR, se mostrarán notificaciones');
+              this.mostrarNotificaciones = true;
+              localStorage.setItem('cargo', 'SUPERVISOR');
+              localStorage.setItem('mostrarNotificaciones', JSON.stringify(true)); // Guardar en localStorage
+              this.actualizarConteoNotificaciones(); // Actualiza el número de notificaciones
+            } else {
+              console.log('El usuario no es SUPERVISOR, no se mostrarán notificaciones');
+              this.mostrarNotificaciones = false;
+              localStorage.setItem('cargo', usuario.cargo); // Guardar el cargo en localStorage
+              localStorage.setItem('mostrarNotificaciones', JSON.stringify(false)); // Guardar en localStorage
+            }
+          },
+          error: (error) => console.error('Error al buscar el usuario:', error)
+        });
+      }
     });
+
+    // Cargar otras notificaciones
     this.cargarNotificaciones();
     this.obtenerNotificacionesFirmadas();
     this.obtenerNotificacionesPendientes();

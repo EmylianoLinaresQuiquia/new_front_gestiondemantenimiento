@@ -31,6 +31,7 @@ export class UsuarioService {
       );
   }
 
+
   buscarUsuarioPorId(id: number): Observable<Usuario> {
     return this.http.get<Usuario>(`${this.apiUrl}/buscarPorId/${id}`).pipe(
       catchError(this.handleError)

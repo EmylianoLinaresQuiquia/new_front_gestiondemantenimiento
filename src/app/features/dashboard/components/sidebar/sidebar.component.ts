@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ActivatedRoute } from '@angular/router';
 import { AuthServiceService } from 'src/app/features/sistemas/services/auth-service.service';
+import { DashboardService } from '../../services/dashboard.service';
 interface MenuItem {
   title: string;
   link: string;
@@ -17,6 +18,7 @@ interface MenuItem {
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent {
+  isCollapsed = false;
   // Información del drawer (sidebar)
   drawerInfo = {
     content: {
@@ -26,10 +28,9 @@ export class SidebarComponent {
   };
 
   // Estilo del sitio
-  siteStyle = 'dark'; // o 'light' según tu lógica
+  siteStyle = 'light'; // o 'light' según tu lógica
 
-  // Estado de colapso del sidebar
-  isCollapsed = false;
+
 
   // Información de navegación
   navigationInfo = {
@@ -41,46 +42,49 @@ export class SidebarComponent {
     {
       title: 'Mantenimiento',
       link: '/dashboard',
-      icon: 'book',  // Asegúrate de incluir el icono
+      icon: 'book',
       children: [
         {
           title: 'Sistemas',
           link: '/sistemas',
-          icon: 'book'  // Asegúrate de incluir el icono
+          icon: 'book'
         },
         {
           title: 'Transformadores',
           link: '/transformadores',
-          icon: 'book'  // Asegúrate de incluir el icono
+          icon: 'book'
         }
       ]
-    },
+    }
   ];
 
   // Variable para almacenar el correo electrónico del usuario
   userEmail?: string;
 
-
-  // Modelo para almacenar el label que se mostrará en el HTML
   model: { label: string }[] = [];
 
-  constructor(private route: ActivatedRoute, private authService: AuthServiceService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private authService: AuthServiceService,
+    public DashboardService: DashboardService
+  ) {}
 
   ngOnInit() {
-    // Suscripción a los queryParams para obtener el userEmail
-    this.route.queryParams.subscribe(params => {
+    // Revisa si el email ya está en localStorage
+    this.userEmail = localStorage.getItem('userEmail') || undefined;
 
-      this.userEmail = params['userEmail'] || this.authService.getUserEmail();
-      // Actualiza el modelo con el email o un valor por defecto
-      this.model = [
-        {
-          label: this.userEmail || 'usuario'
-        }
-      ];
-    });
-  }
+    // Verifica si el correo ya está presente en la lista de menú
+    const emailExists = this.menuList.some(item => item.title === this.userEmail);
 
-  // Método para cambiar el estado colapsado del sidebar
+    // Agrega dinámicamente el ítem del menú con el email del usuario si no existe
+    if (!emailExists && this.userEmail) {
+      this.menuList.unshift({
+        title: this.userEmail || 'usuario',
+        link: '#',
+        icon: 'user'
+      });
+    }
+   }
   changeCollapsed() {
     this.isCollapsed = !this.isCollapsed;
   }

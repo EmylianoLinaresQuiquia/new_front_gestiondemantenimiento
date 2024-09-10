@@ -34,6 +34,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
+import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 
 // import { registerAllModules } from 'handsontable/registry'; // Uncomment if needed
 
@@ -66,7 +67,8 @@ import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
     NzCardModule,
     NzSelectModule,
     NzCollapseModule,
-    NzTimePickerModule
+    NzTimePickerModule,
+    NzBreadCrumbModule
 
 
   ],
@@ -98,7 +100,8 @@ import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
     NzCardModule,
     NzSelectModule,
     NzCollapseModule,
-    NzTimePickerModule
+    NzTimePickerModule,
+    NzBreadCrumbModule
 
 
 

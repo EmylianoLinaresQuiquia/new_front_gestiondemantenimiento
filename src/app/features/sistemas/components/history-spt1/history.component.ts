@@ -22,6 +22,7 @@ am4core.useTheme(am4themes_animated);
 })
 export class HistoryComponent implements OnInit {
   spt1Data: Spt1[] = [];
+  mostrarHerramientas: boolean = false;
   selectedPatData: string[] = []; // Datos seleccionados para el modal
   modalRef: NzModalRef | null = null;
   @ViewChild('patDetailsTemplate', { static: true }) patDetailsTemplate!: TemplateRef<any>;
@@ -37,11 +38,34 @@ export class HistoryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.spt1Service.mostrarSpt1().subscribe((data: Spt1[]) => {
+    // Recuperar el cargo del usuario desde localStorage
+  const storedCargo = localStorage.getItem('cargo');
+  if (storedCargo) {
+    console.log(`Cargo almacenado en localStorage: ${storedCargo}`);
+    this.mostrarHerramientas = storedCargo === 'SUPERVISOR';
+    console.log(
+      this.mostrarHerramientas
+        ? 'El usuario es SUPERVISOR, se mostrará la columna Herramientas'
+        : 'El usuario no es SUPERVISOR, no se mostrará la columna Herramientas'
+    );
+  } else {
+    console.log('No se encontró un cargo almacenado en localStorage');
+    this.mostrarHerramientas = false;
+  }
+
+  // Obtener los datos de SPT1
+  this.spt1Service.mostrarSpt1().subscribe(
+    (data: Spt1[]) => {
       this.spt1Data = data; // Asignar los datos directamente
-      console.log('data', this.spt1Data);
+      console.log('Datos de SPT1:', this.spt1Data);
+
+      // Inicializar la tabla solo después de recibir los datos
       this.initDataTable();
-    });
+    },
+    (error) => {
+      console.error('Error al obtener la lista SPT1', error);
+    }
+  );
 
      // Ejecutar TotalSpt1Pat1 y crear gráfico
      this.spt1Service.ejecutarTotalSpt1Pat1().subscribe((data: any) => {
@@ -80,6 +104,52 @@ export class HistoryComponent implements OnInit {
         `)
         .appendTo('head');
 
+      // Definir las columnas base
+      const columns = [
+        { data: 'tagSubestacion', title: 'Tag Subestacion', width: '19%' },
+        { data: 'ot', title: 'OT', width: '12%' },
+        { data: 'fecha', title: 'Fecha', width: '14%' },
+        {
+          data: 'pat1', title: 'PAT1', width: '5%',
+          render: (data: any, type: any, full: any, meta: any) => this.getPatIcon(full.pat1, 'PAT1', meta.row)
+        },
+        {
+          data: 'pat2', title: 'PAT2', width: '5%',
+          render: (data: any, type: any, full: any, meta: any) => this.getPatIcon(full.pat2, 'PAT2', meta.row)
+        },
+        {
+          data: 'pat3', title: 'PAT3', width: '5%',
+          render: (data: any, type: any, full: any, meta: any) => this.getPatIcon(full.pat3, 'PAT3', meta.row)
+        },
+        {
+          data: 'pat4', title: 'PAT4', width: '5%',
+          render: (data: any, type: any, full: any, meta: any) => this.getPatIcon(full.pat4, 'PAT4', meta.row)
+        },
+        { data: 'lider', title: 'Líder', width: '18%' },
+        { data: 'supervisor', title: 'Supervisor', width: '18%' },
+        {
+          data: 'documento', title: 'Documento', width: '5%',
+          render: (data: any, type: any, full: any, meta: any) => {
+            return `<a class="pdf-icon" data-id="${full.idSpt1}">
+                      <i class="fas fa-file-pdf" style="color:orange;"></i>
+                    </a>`;
+          }
+        }
+      ];
+
+      // Agregar la columna "Herramientas" si el usuario es SUPERVISOR
+      if (this.mostrarHerramientas) {
+        columns.push({
+          data: 'herramientas', title: 'Herramientas', width: '50%',
+          render: (data: any, type: any, full: any, meta: any) => {
+            return `<button class="btn btn-danger btn-sm delete-btn" data-row="${meta.row}">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>`;
+          }
+        });
+      }
+
+      // Inicializar la tabla
       const table = $('#example').DataTable({
         dom: 'Brtipl',
         buttons: [
@@ -100,53 +170,16 @@ export class HistoryComponent implements OnInit {
           }
         ],
         data: this.spt1Data,
-        columns: [
-          { data: 'tagSubestacion', title: 'Tag Subestacion', width: '19%' },
-          { data: 'ot', title: 'OT', width: '12%' },
-          { data: 'fecha', title: 'Fecha', width: '14%' },
-          {
-            data: 'pat1', title: 'PAT1', width: '5%',
-            render: (data, type, full, meta) => this.getPatIcon(full.pat1, 'PAT1', meta.row)
-          },
-          {
-            data: 'pat2', title: 'PAT2', width: '5%',
-            render: (data, type, full, meta) => this.getPatIcon(full.pat2, 'PAT2', meta.row)
-          },
-          {
-            data: 'pat3', title: 'PAT3', width: '5%',
-            render: (data, type, full, meta) => this.getPatIcon(full.pat3, 'PAT3', meta.row)
-          },
-          {
-            data: 'pat4', title: 'PAT4', width: '5%',
-            render: (data, type, full, meta) => this.getPatIcon(full.pat4, 'PAT4', meta.row)
-          },
-          { data: 'lider', title: 'Líder', width: '18%' },
-          { data: 'supervisor', title: 'Supervisor', width: '18%' },
-          {
-            data: 'documento', title: 'Documento', width: '5%',
-            render: (data, type, full, meta) => {
-              return `<a class="pdf-icon" data-id="${full.idSpt1}">
-                <i class="fas fa-file-pdf" style="color:orange;"></i>
-              </a>`;
-            }
-          },
-          {
-            data: 'herramientas', title: 'Herramientas', width: '50%',
-            render: (data, type, full, meta) => {
-              return `<button class="btn btn-danger btn-sm delete-btn" data-row="${meta.row}">
-                        <i class="fas fa-trash-alt"></i>
-                      </button>`;
-            }
-          }
-        ],
+        columns: columns,
         initComplete: (settings: any, json: any) => {
           const api = new $.fn.dataTable.Api(settings);
 
+          // Añadir filtros de búsqueda
           api.columns().every((columnIdx: any) => {
             const column = api.column(columnIdx);
             const header = $(column.header());
 
-            // Excluir las columnas "Documento" y "Herramientas" del filtrado
+            // Excluir columnas 'Documento' y 'Herramientas' de los filtros
             const title = $(header).text().trim();
             if (title !== 'Documento' && title !== 'Herramientas') {
               const input = $('<input type="text" />')
@@ -159,6 +192,7 @@ export class HistoryComponent implements OnInit {
             }
           });
 
+          // Manejo de eventos para botones y acciones específicas
           $('#example').on('click', '.pat-icon', (event) => {
             const patData = $(event.currentTarget).data('pat-data');
             const patNumber = $(event.currentTarget).data('pat-number');
@@ -178,6 +212,7 @@ export class HistoryComponent implements OnInit {
       });
     });
   }
+
 
 
   openPdf(id_spt1: number): void {

@@ -1,4 +1,4 @@
-<div class="container">
+<!--<div class="container">
   <app-header></app-header>
   <div class="content">
     <app-sidebar></app-sidebar>
@@ -6,4 +6,19 @@
       <router-outlet></router-outlet>
     </div>
   </div>
-</div>
+</div>-->
+<nz-layout>
+  <!-- Header -->
+ <app-header></app-header>
+
+  <!-- Contenedor Principal con Sidebar y Content -->
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <app-sidebar></app-sidebar>
+    <!-- Content -->
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+</nz-layout>

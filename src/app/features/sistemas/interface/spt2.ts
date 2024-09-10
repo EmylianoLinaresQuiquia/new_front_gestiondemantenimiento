@@ -18,4 +18,5 @@ export interface Spt2 {
   idgrafica_selectivo:number;
   selectedOption?: string;
   id_metodomedicion:number;
+  id_mtd_medicion_telurometro:number;
 }

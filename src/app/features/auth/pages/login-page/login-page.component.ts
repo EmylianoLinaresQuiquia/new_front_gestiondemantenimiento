@@ -91,24 +91,35 @@ export class LoginPageComponent {
     };
     console.log('Payload enviado:', loginData);
     const loginSubscription = this.usuarioService.login(loginData.usuario, loginData.contrasena).subscribe({
-      next: (response) => this.procesarLoginExitoso(response.idUsuario),
+      next: (response) => this.procesarLoginExitoso(response), // Pasa toda la respuesta
       error: (error) => {
         console.error('Error al iniciar sesión:', error);
         this.procesarErrorLogin();
       }
     });
 
+
     this.subscription.add(loginSubscription);
   }
 
-  private procesarLoginExitoso(idUsuario: number): void {
+  private procesarLoginExitoso(response: any): void {
     this.intentosFallidos = 0;
     this.tiempoDeEspera = 0;
-    this.userId = idUsuario;
-    this.authService.setUserEmail(this.validateForm.get('usuario')?.value, idUsuario);
+    this.userId = response.idUsuario; // Ahora accedes a response.idUsuario
+
+    // Guardar los datos en localStorage
+    localStorage.setItem('userEmail', this.validateForm.get('usuario')?.value);
+    localStorage.setItem('userId', response.idUsuario.toString());
+    localStorage.setItem('cargo', response.cargo);
+
+    console.log('Email guardado:', localStorage.getItem('userEmail'));
+    console.log('ID de usuario guardado:', localStorage.getItem('userId'));
+    console.log('Cargo guardado:', localStorage.getItem('cargo'));
+
     this.loading = false;
     this.abrirHome();
   }
+
 
   private procesarErrorLogin(): void {
     this.intentosFallidos++;
