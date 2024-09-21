@@ -54,4 +54,12 @@ export class TransformadorPM1Service {
 
     return this.http.get(`${this.apiUrl}/GetPdf`, { params, responseType: 'blob' });
   }
+
+  MostrarPlano(subestacion: string, transformador: string): Observable<Blob> {
+    let params = new HttpParams()
+      .set('subestacion', subestacion)
+      .set('transformador', transformador);
+
+    return this.http.get(`${this.apiUrl}/MostrarPlano`, { params, responseType: 'blob' });
+  }
 }

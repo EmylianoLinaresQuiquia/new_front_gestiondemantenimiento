@@ -1,4 +1,4 @@
-import { Component,OnInit,ViewEncapsulation, ViewChild, ElementRef,AfterViewInit } from '@angular/core';
+import { Component,OnInit,ViewEncapsulation, ViewChild, ElementRef,AfterViewInit,TemplateRef } from '@angular/core';
 import { Usuario } from 'src/app/features/sistemas/interface/usuario';
 import { UsuarioService } from 'src/app/features/sistemas/services/usuario.service';
 import { TransformadorPM1Service } from 'src/app/features/sistemas/services/transformador-pm1.service';
@@ -9,16 +9,25 @@ import { AlertService } from 'src/app/features/sistemas/services/alert.service';
 import { NotificacionService } from 'src/app/features/sistemas/services/notificacion.service';
 import * as pdfjsLib from 'pdfjs-dist';
 import { Notificacion } from 'src/app/features/sistemas/interface/notificacion';
+import { PdfViewerComponent } from 'src/app/shared/components/pdf-viewer/pdf-viewer.component';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzModalRef } from 'ng-zorro-antd/modal/modal-ref';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 @Component({
   selector: 'app-pm1-inspection',
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule,NzModalModule],
+  providers: [
+    NzModalService, // Ensure the service is provided here
+  ],
   templateUrl: './pm1-inspection.component.html',
   styleUrl: './pm1-inspection.component.css'
 })
-export class Pm1InspectionComponent {
+export class Pm1InspectionComponent implements OnInit{
   private transformadorData: any;
   usuarios: Usuario[] = [];
   correoSeleccionado = '';
@@ -30,12 +39,17 @@ export class Pm1InspectionComponent {
   idusuario2 = 0;
   private ubicacion: string = '';
 
+
   private subestacion: string = '';
   private transformador: string = '';
+  private id_transformadores:string = '';
 
   @ViewChild('pdfContainer', { static: false }) pdfContainer!: ElementRef;
 
-
+  @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
+  pdfUrl: SafeResourceUrl | null = null;
+  modalRef: NzModalRef | null = null;
+  zoomLevel: number = 1;
   private annotations: any[] = [
 
   ];
@@ -47,7 +61,11 @@ export class Pm1InspectionComponent {
     private alertservice:AlertService,
     private pm1Service: PM1Service,
     private route:ActivatedRoute,
-    private NotificacionService :NotificacionService
+    private NotificacionService :NotificacionService,
+    private modal: NzModalService,
+    private sanitizer: DomSanitizer,
+    private messageService:NzMessageService,
+      private notificationService:NzNotificationService,
   ) {
     // Configura la ruta del worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -58,6 +76,7 @@ export class Pm1InspectionComponent {
     this.route.queryParams.subscribe(params => {
       this.subestacion = params['subestacion'] || '';
       this.transformador = params['transformador'] || '';
+      this.id_transformadores = params['id_transformadores'] || '';
       this.ubicacion = params['ubicacion'] || '';
 
       if (this.subestacion && this.transformador) {
@@ -303,78 +322,80 @@ export class Pm1InspectionComponent {
     }
 
     async saveData() {
-      try {
-        const formData = this.extractFormData();
-        console.log("Extracted Form Data en saveData:", formData);
-
-        if (Object.keys(formData).length === 0) {
-          console.warn("formData está vacío.");
-          return;
-        }
-
-        const seguridadObservaciones = this.buildObservaciones(formData, 'SeguridadObservacion', 4, ['bueno', 'n', 'observacion']);
-        const patioObservaciones = this.buildObservaciones(formData, 'PatioEstadoObservaciones', 4, ['bueno', 'malo', 'na', 'observacion']);
-        const observacionesAvisoSolicitud = this.buildObservaciones(formData, 'ObservacionesAvisoSolicitud', 5, ['observacion', 'si', 'no', 'solicitud']);
-        const equipos = this.buildEquipos(formData);
-
-        const pm1 = {
-          hora_inicio: typeof formData['hora_inicio'] === 'string' ? formData['hora_inicio'] : '',
-          hora_fin: typeof formData['hora_fin'] === 'string' ? formData['hora_fin'] : '',
-          orden_trabajo: typeof formData['orden_trabajo'] === 'string' ? formData['orden_trabajo'] : '',
-          fecha: typeof formData['fecha'] === 'string' ? formData['fecha'] : '',
-          seguridad_observaciones: seguridadObservaciones,
-          patio_observaciones: patioObservaciones,
-          aviso_observaciones: observacionesAvisoSolicitud,
-          id_transformadores: this.transformadorData.id_transformadores,
-          id_usuario: this.idusuario,
-          id_usuario_2: this.idusuario2,
-          potencia_actual: typeof formData['potencia_actual'] === 'string' ? formData['potencia_actual'] : '',
-          corriente_actual: typeof formData['corriente_actual'] === 'string' ? formData['corriente_actual'] : '',
-          equipos: equipos
-        };
-
-        console.log("PM1 Object:", pm1);
-
-        this.alertservice.showConfirmDialog('¿Quieres guardar el formulario?', async () => {
+      this.modal.confirm({
+        nzTitle: 'Confirmación',
+        nzContent: '¿Estás seguro de que quieres guardar los datos?',
+        nzOkText: 'Aceptar',
+        nzCancelText: 'Cancelar',
+        nzOnOk: async () => {
+          const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
           try {
-            const response = await this.pm1Service.postPM1(pm1).toPromise();
-            const idPm1 = response.id_pm1;
+            const formData = this.extractFormData();
+            console.log("Extracted Form Data en saveData:", formData);
 
-            console.log("PM1 guardado correctamente");
+            if (Object.keys(formData).length === 0) {
+              console.warn("formData está vacío.");
+              return;
+            }
 
-            const notificacion: Notificacion = {
+            const seguridadObservaciones = this.buildObservaciones(formData, 'SeguridadObservacion', 4, ['bueno', 'n', 'observacion']);
+            const patioObservaciones = this.buildObservaciones(formData, 'PatioEstadoObservaciones', 4, ['bueno', 'malo', 'na', 'observacion']);
+            const observacionesAvisoSolicitud = this.buildObservaciones(formData, 'ObservacionesAvisoSolicitud', 5, ['observacion', 'si', 'no', 'solicitud']);
+            const equipos = this.buildEquipos(formData);
+
+            const pm1 = {
+              hora_inicio: typeof formData['hora_inicio'] === 'string' ? formData['hora_inicio'] : '',
+              hora_fin: typeof formData['hora_fin'] === 'string' ? formData['hora_fin'] : '',
+              orden_trabajo: typeof formData['orden_trabajo'] === 'string' ? formData['orden_trabajo'] : '',
+              fecha: typeof formData['fecha'] === 'string' ? formData['fecha'] : '',
+              seguridad_observaciones: seguridadObservaciones,
+              patio_observaciones: patioObservaciones,
+              aviso_observaciones: observacionesAvisoSolicitud,
+              id_transformadores: parseInt(this.id_transformadores), // Verificación
               id_usuario: this.idusuario,
-              firmado: true,
-              id_pm1: idPm1
+              id_usuario_2: this.idusuario2,
+              potencia_actual: typeof formData['potencia_actual'] === 'string' ? formData['potencia_actual'] : '',
+              corriente_actual: typeof formData['corriente_actual'] === 'string' ? formData['corriente_actual'] : '',
+              equipos: equipos
             };
 
-            await this.NotificacionService.insertarNotificacionPm1(notificacion).toPromise();
-            console.log("Notificación PM1 insertada correctamente");
+            console.log("PM1 Object:", pm1);
 
-            this.alertservice.showAlert('Los datos y la notificación se han guardado correctamente.', 'success');
-          } catch (error) {
-            if (error instanceof Error) {
-              console.error("Error durante el proceso de guardado", error);
-              this.alertservice.showAlert(`Detalles del error: ${error.message}`, 'error');
-            } else {
-              console.error("Error desconocido durante el proceso de guardado", error);
-              this.alertservice.showAlert('Ocurrió un error desconocido durante el proceso de guardado.', 'error');
+            try {
+              const response = await this.pm1Service.postPM1(pm1).toPromise();
+              const idPm1 = response.id_pm1;
+
+              console.log("PM1 guardado correctamente");
+
+              const notificacion: Notificacion = {
+                id_usuario: this.idusuario,
+                firmado: true,
+                id_pm1: idPm1
+              };
+
+              await this.NotificacionService.insertarNotificacionPm1(notificacion).toPromise();
+              console.log("Notificación PM1 insertada correctamente");
+
+              this.messageService.remove(loadingMessageId);
+              this.notificationService.success('Datos Guardados', 'Los datos se han guardado con éxito.');
+            } catch (error) {
+              if (error instanceof Error) {
+                console.error("Error durante el proceso de guardado", error);
+                this.messageService.remove(loadingMessageId);
+                this.notificationService.error('Error al Guardar', 'Ha ocurrido un error inesperado al guardar los datos.');
+              } else {
+                console.error("Error desconocido durante el proceso de guardado", error);
+                this.notificationService.error('Error al Guardar', 'Ha ocurrido un error inesperado al guardar los datos.');
+              }
             }
+          } catch (error) {
+            console.error("Error al extraer los datos del formulario", error);
+            this.messageService.remove(loadingMessageId);
           }
-        }, () => {
-          console.log("Guardado cancelado por el usuario.");
-        });
-
-      } catch (error) {
-        if (error instanceof Error) {
-          console.error("Error al preparar los datos para guardar", error);
-          this.alertservice.showAlert(`Detalles del error: ${error.message}`, 'error');
-        } else {
-          console.error("Error desconocido al preparar los datos para guardar", error);
-          this.alertservice.showAlert('Ocurrió un error desconocido al preparar los datos para guardar.', 'error');
         }
-      }
+      });
     }
+
 
     toBoolean(value: any): boolean {
       return value === 'true' || value === true;
@@ -450,10 +471,6 @@ export class Pm1InspectionComponent {
   }
 
 
-
-
-
-
   populateFields() {
     this.annotations.forEach(annotation => {
       if (annotation.fieldType === 'Tx' && annotation.fieldName) {
@@ -475,5 +492,42 @@ export class Pm1InspectionComponent {
       }
     });
   }
+
+
+  VerPlano(): void {
+    this.transformadorService.MostrarPlano(this.subestacion, this.transformador).subscribe(
+      (pdfBlob: Blob) => {
+        const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+          URL.createObjectURL(pdfBlob) + '#toolbar=0'
+        );
+        this.pdfUrl = pdfUrl;
+
+        this.modal.create({
+          nzTitle: 'PDF Document',
+          nzContent: this.pdfModal,
+          nzFooter: null,
+          nzWidth: 1200
+        });
+      },
+      (error) => {
+        console.error('Error al abrir el PDF:', error);
+      }
+    );
+  }
+
+  zoomIn(): void {
+    this.zoomLevel += 0.2;  // Incrementa el zoom en 20%
+  }
+
+  zoomOut(): void {
+    if (this.zoomLevel > 0.4) {
+      this.zoomLevel -= 0.2;  // Reduce el zoom en 20%, pero no por debajo del 40% del tamaño original
+    }
+  }
+
+
+
+
+
 
 }

@@ -14,7 +14,20 @@
   <p-toast></p-toast>-->
 
 
-
+  <ng-template #pdfModal>
+    <div class="zoom-controls">
+      <button nz-button (click)="zoomIn()">+</button>
+      <button nz-button (click)="zoomOut()">-</button>
+    </div>
+    <div class="pdf-container">
+      <iframe
+        [src]="pdfUrl"
+        [style.width.%]="zoomLevel * 100"
+        [style.height.px]="600 * zoomLevel"
+        frameborder="0">
+      </iframe>
+    </div>
+  </ng-template>
 
 
 
@@ -26,3 +39,10 @@
 </a>
 
 </div>
+
+<div style="  left: 101.4682em;top: 12.331em;position: absolute;">
+	<h6>PLANO</h6>
+<a (click)="VerPlano()" style="cursor: pointer;">
+	<span nz-icon nzType="file-pdf" nzTheme="outline" style="font-size: 24px;"></span>
+</a>
+

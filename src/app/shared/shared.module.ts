@@ -37,7 +37,8 @@ import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 
 // import { registerAllModules } from 'handsontable/registry'; // Uncomment if needed
-
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzProgressModule } from 'ng-zorro-antd/progress';
 @NgModule({
   imports: [
     CommonModule,
@@ -68,7 +69,9 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
     NzSelectModule,
     NzCollapseModule,
     NzTimePickerModule,
-    NzBreadCrumbModule
+    NzBreadCrumbModule,
+    NzStatisticModule,
+    NzProgressModule
 
 
   ],
@@ -101,7 +104,9 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
     NzSelectModule,
     NzCollapseModule,
     NzTimePickerModule,
-    NzBreadCrumbModule
+    NzBreadCrumbModule,
+    NzStatisticModule,
+    NzProgressModule
 
 
 

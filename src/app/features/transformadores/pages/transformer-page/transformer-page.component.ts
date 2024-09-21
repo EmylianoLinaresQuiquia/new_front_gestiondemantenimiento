@@ -89,7 +89,7 @@ export class TransformerPageComponent {
     if (this.selectedFiltradoTransformador) {
       console.log("Enviando transformador filtrado:", this.selectedFiltradoTransformador);
       this.router.navigate(['transformadores/pm1'], { queryParams: { subestacion: this.selectedFiltradoTransformador.subestacion, transformador:
-        this.selectedFiltradoTransformador.transformador,ubicacion:this.selectedFiltradoTransformador.ubicacion } });
+        this.selectedFiltradoTransformador.transformador,id_transformadores:this.selectedFiltradoTransformador.id_transformadores,ubicacion:this.selectedFiltradoTransformador.ubicacion } });
     }
   }
 

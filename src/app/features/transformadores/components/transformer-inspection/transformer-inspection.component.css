@@ -1,14 +1,106 @@
 
-nz-collapse-panel{
-  background-color: rgba(65, 65, 65, 0.867);
-  color: white;
+/* Estilos generales para las cards */
+.card-style {
+  background-color: #f0f2f5;
+  font-size: 10px;
+  padding: 20px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  margin: 10px;
+}
+::ng-deep .ant-statistic-content{
+  font-size: 14px;
 }
 
 
+/* Estilo general de la tarjeta */
+.card-header {
+
+  margin-bottom: 24px;
+  border-radius: 8px;
+
+}
+
+/* Contenedor de los datos con animaciones */
+.data-container {
+  margin-bottom: 12px;
+  transition: all 0.5s ease;
+}
+
+/* Icono de estado verde */
+.estado-positivo .ant-statistic-content-value {
+  color: #52c41a;
+  font-weight: bold;
+}
+
+/* Barra de progreso de salud */
+.health-status .ant-statistic-content-value {
+  color: #52c41a;
+  font-weight: bold;
+}
+
+/* Contenedores de la tabla */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 8px;
+  text-align: left;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: #fff;
+}
+
+.table-striped thead th {
+  background-color: #fafafa;
+  font-weight: bold;
+}
+
+/* Espaciado entre las tarjetas de análisis */
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.ant-card {
+  margin-bottom: 16px;
+}
+
+.custom-card div div {
+  padding: 12px;
+  border-radius: 4px 4px 0px 0px;
+  background-color: #4d4d4d;
+  color: #fff;
+
+}
+::ng-deep .ant-card-head{
+  border-radius: 4px 4px 0px 0px;
+  background-color: #4d4d4d;
+  color: #fff;
+}
+::ng-deep .ant-card-body {
+  padding: 0px;
+}
+::ng-deep .ant-tabs-nav-wrap{
+  border-radius: 4px 4px 0px 0px;
+  background-color: #4d4d4d;
 
 
-
-
-
-
-
+}
+::ng-deep .ant-tabs-tab {
+  background-color: #4d4d4d !important;
+  border:none !important;
+  color: #fff;
+}
+::ng-deep .ant-tabs-tab button {
+  padding: 0px !important;
+}

@@ -1,0 +1,11 @@
+.zoom-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.pdf-container {
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+}

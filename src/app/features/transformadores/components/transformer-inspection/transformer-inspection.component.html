@@ -204,173 +204,6 @@
 
 
 
-<div class="panela">
-  <!-- Panel body -->
-  <div nz-row nzGutter="16">
-    <div nz-col nzSpan="24" class="d-flex align-items-center">
-      <!--<img src="assets/icons/fa-transformer-bolt-dark.ico" alt="" style="width: 2.5%; height: 35px;">-->
-      <h4>{{ transformador }}</h4>
-    </div>
-
-    <div nz-col nzSpan="24" class="d-flex align-items-center">
-      <!-- Panel información -->
-      <nz-collapse>
-        <nz-collapse-panel [nzHeader]="headerTpl" [nzShowArrow]="false" [nzActive]="true">
-          <ng-template #headerTpl>
-           <!--- <img src="assets/icons/fa-transformer-bolt.ico" alt="" style="width: 2%; height: 25px;">-->
-            <div class="panel-title">Datos del Transformador</div>
-          </ng-template>
-          <div class="container">
-            <div class="panel-body">
-              <!--begin row inside cols -->
-              <div class="row">
-                <!--begin col 2 -->
-                <div class="col-md-2">
-                  <div class="card-panel-body card border-0 bg-light mb-2" >
-                    <div class="card-body">
-                      <h6 class="card-title text-muted">TAG</h6>
-                      <small class="card-subtitle mb-10px text-semi-bold">{{ transformador }}</small>
-                    </div>
-                  </div>
-                </div>
-                <!--end col 2 -->
-                <!--begin col 2 -->
-                <div class="col-md-2">
-                  <div class="card-panel-body card border-0 bg-light mb-2">
-                    <div class="card-body">
-                      <h6 class="card-title text-muted">Voltaje</h6>
-                      <small class="card-subtitle mb-10px text-semi-bold">{{ voltage }}</small>
-                    </div>
-                  </div>
-                </div>
-                <!--end col 2 -->
-                <!--begin col 2 -->
-                <div class="col-md-2">
-                  <div class="card-panel-body card border-0 bg-light mb-2">
-                    <div class="card-body">
-                      <h6 class="card-title text-muted">Potencia</h6>
-                      <small class="card-subtitle mb-10px text-semi-bold">{{ potencia }}</small>
-                    </div>
-                  </div>
-                </div>
-                <!--end col 2 -->
-                <!--begin col 2 -->
-                <div class="col-md-2">
-                  <div class="card-panel-body card border-0 bg-light mb-2">
-                    <div class="card-body">
-                      <h6 class="card-title text-muted">Fabricación - Edad</h6>
-                      <small class="card-subtitle mb-10px text-semi-bold">1998  - 26 años</small>
-                    </div>
-                  </div>
-                </div>
-                <!--end col 2 -->
-                <!--begin col 2 -->
-                <div class="col-md-2">
-                  <div class="card-panel-body  card border-0 bg-light mb-2">
-                    <div class="card-body">
-                      <h6 class="card-title text-muted">Índice de Salud    </h6>
-                      <small class="card-subtitle mb-10px text-semi-bold">
-                        <span data-animation="number" data-value="100  ">100  </span> %
-                        </small>
-                    </div>
-                  </div>
-                </div>
-                <!--end col 2 -->
-                <!--begin col 2 -->
-                <div class="col-md-2">
-                  <div class="card-panel-body card border-0 bg-light mb-2">
-                    <div class="card-body">
-                      <h6 class="card-title text-muted">Estado  </h6>
-                      <small class="card-subtitle mb-10px text-semi-bold">
-                        Muy Bueno
-                        <i class="fa fa-circle fa-fw text-green me-2 fs-17px text-success"></i> </small>
-                    </div>
-                  </div>
-                </div>
-                <!--end col 2 -->
-              </div>
-              <!--end row inside cols -->
-            </div>
-          </div>
-        </nz-collapse-panel>
-      </nz-collapse>
-    </div>
-  </div>
-
-  <!-- Tabs -->
-  <nz-tabset>
-    <nz-tab nzTitle="Resumen">
-      <div class="panela">
-        <div nz-row nzGutter="16">
-          <!-- PM1 Panel -->
-          <nz-col nzSpan="12">
-            <nz-card nzTitle="PM1" [nzExtra]="extraTpl1">
-              <ng-template #extraTpl1>
-                <a title="Ir a Tendencias" (click)="abrirDashboard()" style="color: white;">
-                  <i class="fa-solid fa-syringe"></i>
-                </a>
-              </ng-template>
-              <table id="example" class="display" style="table-layout: fixed; width: 100%;">
-                <thead></thead>
-              </table>
-            </nz-card>
-          </nz-col>
-
-          <!-- PM2 Panel -->
-          <nz-col nzSpan="12">
-            <nz-card nzTitle="PM2" [nzExtra]="extraTpl2">
-              <ng-template #extraTpl2>
-                <a title="Ir a Tendencias" style="color: white;">
-                  <i class="fa fa-bong"></i>
-                </a>
-              </ng-template>
-            </nz-card>
-          </nz-col>
-
-          <!-- Another Panel -->
-          <nz-col nzSpan="12">
-            <nz-card nzTitle="Other" [nzExtra]="extraTpl3">
-              <ng-template #extraTpl3>
-                <a title="Ir a Tendencias" style="color: white;">
-                  <i class="fa-solid fa-hourglass"></i>
-                </a>
-              </ng-template>
-            </nz-card>
-          </nz-col>
-
-          <!-- Another Panel -->
-          <nz-col nzSpan="12">
-            <nz-card nzTitle="Other" [nzExtra]="extraTpl4">
-              <ng-template #extraTpl4>
-                <a title="Ir a Tendencias" style="color: white;">
-                  <i class="fa-solid fa-hourglass"></i>
-                </a>
-              </ng-template>
-            </nz-card>
-          </nz-col>
-        </div>
-      </div>
-    </nz-tab>
-
-    <nz-tab nzTitle="PM1">
-      <a class="nav-link">
-        <i class="fa-solid fa-syringe"></i> PM1
-      </a>
-    </nz-tab>
-
-    <nz-tab nzTitle="PM2">
-      <a class="nav-link" href="/physical_management/transformer/6/physicals">
-        <i class="fa fa-bong"></i> PM2
-      </a>
-    </nz-tab>
-
-    <nz-tab nzTitle="Pruebas Eléctricas">
-      <a class="nav-link" href="/electrical_management/transformer/6/electricals">
-        <i class="fa-solid fa-bolt"></i> Pruebas Eléctricas
-      </a>
-    </nz-tab>
-  </nz-tabset>
-</div>
 
 
 
@@ -525,6 +358,172 @@
 
 
 
+    <!-- Contenedor Principal con Tarjeta de Información del Transformador -->
+    <nz-card nzTitle="Datos del Transformador" class="card-header ">
+      <div nz-row nzJustify="start" nzAlign="middle">
+        <!-- Información Básica del Transformador con animaciones -->
+        <div nz-col [nzSpan]="3" class="data-container card-style">
+          <nz-statistic [nzTitle]="'TAG'" [nzValue]="'4712-TX-001'" class="animated-entry"></nz-statistic>
+        </div>
+        <div nz-col [nzSpan]="3" class="data-container card-style">
+          <nz-statistic [nzTitle]="'Voltaje'" [nzValue]="'220.0 KV'" class="animated-entry"></nz-statistic>
+        </div>
+        <div nz-col [nzSpan]="3" class="data-container card-style">
+          <nz-statistic [nzTitle]="'Potencia'" [nzValue]="'125.0 MVA'" class="animated-entry"></nz-statistic>
+        </div>
+        <div nz-col [nzSpan]="4" class="data-container card-style">
+          <nz-statistic [nzTitle]="'Fabricación - Edad'" [nzValue]="'2017 - 7 años'" class="animated-entry"></nz-statistic>
+        </div>
+        <div nz-col [nzSpan]="4" class="data-container card-style">
+          <nz-statistic [nzTitle]="'Índice de Salud'" [nzValue]="'100%'" class="health-status animated-entry"></nz-statistic>
+        </div>
+        <div nz-col [nzSpan]="4" class="data-container card-style">
+          <p class="health-status animated-entry" style="    margin-bottom: 4px;
+          color: rgba(0, 0, 0, 0.45);
+          font-size: 14px;">Estado</p>
+          <div class="d-flex health-status animated-entry">
+            <span style="    font-size: 14px;
+    color: rgba(0, 0, 0, 0.85);">Muy bueno</span>
+            <i nz-icon nzType="check-circle" nzTheme="fill" style="color: green; margin-left: 8px;"></i>
+          </div>
+        </div>
+      </div>
+    </nz-card>
+
+
+
+<!-- Tabs de Secciones (Resumen, Análisis, Furanos, etc.) -->
+<nz-tabset nzType="card" class="tab-container custom-card">
+
+
+  <nz-tab [nzTitle]="titleTemplate1" class="custom-card">
+    <ng-template #titleTemplate1>
+      <i nz-icon nzType="info-circle" nzTheme="outline"></i>
+      Resumen
+    </ng-template>
+    <!-- Contenido del tab Resumen -->
+
+    <div class="grid-container">
+      <!-- Sección de Análisis Cromatográfico -->
+    <nz-card class="custom-card">
+       <div (click)="abrirDashboard()">
+         <i class="fa-solid fa-syringe" style="margin-right: 8px;"></i>
+         <span>PM1</span>
+       </div>
+     <table id="example" class="table table-striped">
+
+         <thead>
+
+
+         </thead>
+
+     </table>
+    </nz-card>
+
+    <!-- Sección de Análisis Físico Químico -->
+    <nz-card class="custom-card">
+     <div>
+       <i class="fa fa-bong" style="margin-right: 8px;"></i>
+       <span>PM2</span>
+     </div>
+     <!--<table class="table table-striped">
+       <thead>
+         <tr>
+           <th>Parámetro</th>
+           <th>Límite</th>
+           <th>Valor</th>
+           <th>Estado</th>
+         </tr>
+       </thead>
+       <tbody>
+         <tr>
+           <td>Número Ácido ASTM D974</td>
+           <td>Máx. 0.15 mgKOH/g</td>
+           <td>0.01</td>
+           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
+         </tr>
+         <tr>
+           <td>Factor de Potencia ASTM D924 (25°C)</td>
+           <td>Máx. 0.5 %</td>
+           <td>0.002</td>
+           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
+         </tr>
+         <tr>
+           <td>Factor de Potencia ASTM D924 (100°C)</td>
+           <td>Máx. 5 %</td>
+           <td>0.09</td>
+           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
+         </tr>
+         <tr>
+           <td>Rigidez Dieléctrica ASTM D1816</td>
+           <td>Min. 47 kV/2.0mm</td>
+           <td>73.0</td>
+           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
+         </tr>
+         <tr>
+           <td>Tensión Interfacial ASTM D971</td>
+           <td>Min. 30 mN/m</td>
+           <td>47.0</td>
+           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
+         </tr>
+         <tr>
+           <td>Contenido de Agua ASTM D1533</td>
+           <td>Máx. 25 ppm</td>
+           <td>15</td>
+           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
+         </tr>
+       </tbody>
+     </table>-->
+    </nz-card>
+
+    <nz-card nzTitle="" class="custom-card"> <i class="fa-solid fa-hourglass"></i>
+
+    </nz-card>
+
+    <nz-card class="custom-card">
+     <div>
+       <i class="fa-solid fa-bolt" style="margin-right: 8px;"></i>
+       <span>Pruebas Eléctricas</span>
+     </div>
+    </nz-card>
+
+    </div>
+  </nz-tab>
+
+  <!-- Otras pestañas (Análisis Cromatográfico, Análisis Físico Químico, etc.) -->
+
+  <nz-tab [nzTitle]="titleTemplate2" class="custom-card">
+    <ng-template #titleTemplate2>
+      <i class="fa-solid fa-syringe" style="margin-right: 8px;"></i>
+      PM1
+    </ng-template>
+    <!-- Contenido del tab Resumen -->
+  </nz-tab>
+
+  <nz-tab [nzTitle]="titleTemplate3" class="custom-card">
+    <ng-template #titleTemplate3>
+      <i class="fa fa-bong" style="margin-right: 8px;"></i>
+      PM2
+    </ng-template>
+    <!-- Contenido del tab Resumen -->
+  </nz-tab>
+
+  <nz-tab [nzTitle]="titleTemplate4" class="custom-card">
+    <ng-template #titleTemplate4>
+      <i nz-icon nzType="thunderbolt" nzTheme="outline"></i>
+      Pruebas Eléctricas
+    </ng-template>
+    <!-- Contenido del tab Resumen -->
+  </nz-tab>
+
+
+</nz-tabset>
+
+<ng-template #pesoDeFactorExtra>
+  <div>
+    Peso de Factor: 40 %
+  </div>
+</ng-template>
 
 
 
@@ -548,6 +547,9 @@
 
 
 
+<ng-template #pdfModal>
+  <iframe [src]="pdfUrl" width="100%" height="600px"></iframe>
+</ng-template>
 
 
 
