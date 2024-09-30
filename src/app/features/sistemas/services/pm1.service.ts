@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { PM1,BuscarPM1PorId } from '../interface/pm1';
 import { environment } from '../../../../environments/environment';
+import { map } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -15,14 +16,18 @@ export class PM1Service {
   constructor(private http: HttpClient) {}
 
   postPM1(pm1: PM1): Observable<any> {
-    return this.http.post<any>(this.apiUrl, pm1, {
+    const url = `${this.apiUrl}/InsertarPm1`; // Usa la URL base y añade la ruta específica
+    return this.http.post<any>(url, pm1, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
       })
     }).pipe(
+      map(response => response.lastId), // Asumiendo que el 'id' es devuelto en la respuesta como { id: <valor> }
       catchError(this.handleError('postPM1'))
     );
   }
+
+
 
   mostrarPM1(subestacion: string, transformador: string): Observable<any> {
     const params = new HttpParams()

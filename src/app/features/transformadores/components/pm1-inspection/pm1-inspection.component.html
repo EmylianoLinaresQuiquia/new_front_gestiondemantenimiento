@@ -15,15 +15,11 @@
 
 
   <ng-template #pdfModal>
-    <div class="zoom-controls">
-      <button nz-button (click)="zoomIn()">+</button>
-      <button nz-button (click)="zoomOut()">-</button>
-    </div>
+
     <div class="pdf-container">
       <iframe
         [src]="pdfUrl"
-        [style.width.%]="zoomLevel * 100"
-        [style.height.px]="600 * zoomLevel"
+
         frameborder="0">
       </iframe>
     </div>

@@ -447,7 +447,39 @@ export class PdfViewerPm1Component implements OnInit, AfterViewInit {
 
           const page = pdfDoc.getPage(0);
           const { width, height } = page.getSize();
-          const x = 130;
+          const x = 120;
+          const y = height - 760;
+          const imgWidth = 35;
+          const imgHeight = 30;
+
+          page.drawImage(image, {
+            x: x,
+            y: y - imgHeight,
+            width: imgWidth,
+            height: imgHeight,
+          });
+        } catch (error) {
+          console.error('Error al obtener y embeder la imagen:', error);
+        }
+      }
+
+      if (this.pm1.firma_2) {
+        try {
+          const imageData = this.pm1.firma_2.split(',')[1];
+          const imageBytes = Uint8Array.from(atob(imageData), c => c.charCodeAt(0));
+          let image;
+          if (this.pm1.firma_2.startsWith('data:image/png')) {
+            image = await pdfDoc.embedPng(imageBytes);
+          } else if (this.pm1.firma_2.startsWith('data:image/jpeg')) {
+            image = await pdfDoc.embedJpg(imageBytes);
+          } else {
+            console.error('Formato de imagen no soportado. Solo PNG y JPEG son soportados.');
+            return;
+          }
+
+          const page = pdfDoc.getPage(0);
+          const { width, height } = page.getSize();
+          const x = 340;
           const y = height - 760;
           const imgWidth = 35;
           const imgHeight = 30;
@@ -529,7 +561,7 @@ export class PdfViewerPm1Component implements OnInit, AfterViewInit {
       const page = await pdf.getPage(pageNumber);
 
       const canvas = this.pdfViewerpm.nativeElement;
-      const viewport = page.getViewport({ scale: 1.5 });
+      const viewport = page.getViewport({ scale: 2.4 });
       const context = canvas.getContext('2d');
 
       if (!context) {

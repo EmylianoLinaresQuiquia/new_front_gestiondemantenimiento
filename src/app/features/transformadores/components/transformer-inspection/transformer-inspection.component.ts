@@ -125,7 +125,7 @@ initDataTable() {
         { data: 'orden_trabajo', title: 'OT', width: '20%' },
         { data: 'usuario', title: 'Lider', width: '25%' },
         { data: 'usuario_2', title: 'Supervisor', width: '25%' },
-        { data: null, title: 'Acciones', width: '10%' } // Columna sin buscador
+        { data: 'firma', title: 'Acciones', width: '10%' } // Columna sin buscador
       ],
       columnDefs: [
         {
@@ -133,13 +133,16 @@ initDataTable() {
           orderable: false,
           searchable: false,
           render: (data, type, full, meta) => {
-            return `
-              <div class="btn-group">
-                <button class="btn btn-xs btn-default ver-btn" type="button" title="Ver" data-id="${full.id_pm1}">
-                  <i class="fa fa-eye"></i>
-                </button>
-              </div>
-            `;
+           // Verificar el valor del campo firma
+                const iconColor = full.firma ? 'green' : 'orange'; // Cambia el color según el valor de firma
+
+                return `
+                  <div class="btn-group">
+                    <button class="btn btn-xs btn-default ver-btn" type="button" title="Ver" data-id="${full.id_pm1}">
+                      <i class="fa fa-file-pdf" style="color: ${iconColor};"></i>
+                    </button>
+                  </div>
+                `;
           }
         }
       ],
@@ -179,24 +182,36 @@ initDataTable() {
   });
 }
 
-
-
-
-
 abrirpdf(id: number) {
   this.pm1Service.getPM1ById(id).subscribe(
     (data: BuscarPM1PorId) => {
       this.pm1 = data;
+
       if (this.pdfSrc && this.pm1) {
         this.modal.create({
+          nzFooter: [
+            {
+              label: 'Cerrar',
+              type: 'default',
+              onClick: () => this.modal.closeAll(),
+              className: 'custom-close-button' // Clase CSS personalizada para el botón
+            },
+            {
+              label: 'Descargar PDF',
+              type: 'primary',
+              onClick: () => this.downloadPdf(this.pdfSrc),  // Usar pdfSrc en lugar de pdfBlob
+            }
+          ],
           nzContent: PdfViewerPm1Component,  // Componente que se abrirá en el modal
           nzData: {
             pdfSrc: this.pdfSrc,  // Asegúrate de que este valor esté correctamente asignado
             pm1: this.pm1         // El objeto `pm1` contiene los datos necesarios
           },
-          nzWidth: '60%',            // Ajusta el ancho del modal
-          nzBodyStyle: { height: '80rem' }  // Altura del modal
+          nzWidth: '100%',            // Ajusta el ancho del modal
+          nzStyle: { top: '20px' }, // Posicionar el modal en la parte superior
+          nzClosable: false // Desactivar el botón "X" de cerrar
         });
+
         console.log('Modal abierto con PDF:', this.pdfSrc, 'y PM1:', this.pm1);
       } else {
         console.error('No se puede abrir el modal porque faltan datos.');
@@ -206,6 +221,13 @@ abrirpdf(id: number) {
       console.error('Error al cargar los datos de PM1 por ID', error);
     }
   );
+}
+
+downloadPdf(pdfSrc: string): void {
+  const link = document.createElement('a');
+  link.href = pdfSrc;
+  link.download = 'pm1.pdf';  // Nombre de archivo para la descarga
+  link.click();
 }
 
 

@@ -124,7 +124,8 @@ export class HistorySpt2Component implements OnInit{
         { data: 'lider', title: 'Líder' },
         { data: 'supervisor', title: 'Supervisor' }, // Mantener esta columna independiente
         { data: null, title: 'Tendencia' },
-        { data: null, title: 'Documentos' }
+        { data: 'firma', title: 'Documentos' },
+
       ];
 
       // Solo agregamos la columna "Herramientas" si el usuario es SUPERVISOR
@@ -211,9 +212,11 @@ export class HistorySpt2Component implements OnInit{
             }
           },
           {
-            targets: 11,
+            targets: 11, // Asegúrate de que este target es el correcto para la columna 'firma'
             orderable: false,
             render: (data, type, full, meta) => {
+              const iconColor = data ? 'green' : 'orange'; // Cambia el color basado en true o false
+              const iconClass = data ? 'fa fa-file-pdf' : 'fa fa-file-pdf'; // Puedes usar íconos diferentes si es necesario
               return `
                 <div class="btn-group">
                   <button class="btn btn-xs btn-default documentos-btn"
@@ -221,12 +224,13 @@ export class HistorySpt2Component implements OnInit{
                       title="Ver Documentos"
                       data-tag-subestacion="${full.tag_subestacion}"
                       data-ot="${full.ot}">
-                      <i class="fa fa-file-pdf"></i>
+                      <i class="fa ${iconClass}" style="color: ${iconColor};"></i>
                   </button>
                 </div>
               `;
             }
-          },
+          }
+          ,
           {
             targets: this.mostrarHerramientas ? -1 : [], // Columna "Herramientas" solo si está presente
             orderable: false,
@@ -354,17 +358,31 @@ export class HistorySpt2Component implements OnInit{
 
     this.pdfGeneratorService.generarPDF(tag_subestacion, ot).then((pdfBlob: Blob) => {
       const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        URL.createObjectURL(pdfBlob)+ '#toolbar=0'
+        URL.createObjectURL(pdfBlob) + '#toolbar=0'
       );
 
       this.pdfUrl = pdfUrl;  // Asegúrate de que esta variable esté bien escrita
       console.log('PDF URL:', pdfUrl);  // Debugging
 
       this.modal.create({
-        nzTitle: 'PDF Document',
+
         nzContent: this.pdfModal,  // Verifica que pdfModal esté bien referenciado
-        nzFooter: null,
-        nzWidth: 1200
+        nzFooter: [
+          {
+            label: 'Cerrar',
+            type: 'default',
+            onClick: () => this.modal.closeAll(),
+            className: 'custom-close-button' // Clase CSS personalizada para el botón
+          },
+          {
+            label: 'Descargar PDF',
+            type: 'primary',
+            onClick: () => this.downloadPdf(pdfBlob),  // Llama a la función para descargar
+          }
+        ],
+        nzWidth: '100%',
+        nzStyle: { top: '20px' }, // Posicionar el modal en la parte superior
+        nzClosable: false // Desactivar el botón "X" de cerrar
       });
       console.log('Modal abierto con éxito');  // Debugging
     }).catch(error => {
@@ -373,7 +391,13 @@ export class HistorySpt2Component implements OnInit{
   }
 
 
-
+// Método para descargar el PDF
+downloadPdf(pdfBlob: Blob): void {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(pdfBlob);
+  link.download = 'spt2.pdf';
+  link.click();
+}
 
 
 }

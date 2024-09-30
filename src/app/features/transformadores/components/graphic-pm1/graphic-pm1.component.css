@@ -1,0 +1,11 @@
+::ng-deep .ant-collapse-header{
+  background-color: #4d4d4d !important;
+
+}
+a{
+  display: flex;
+  justify-content: center;
+  color: #fff;
+  gap: 10px;
+  align-items: center;
+}

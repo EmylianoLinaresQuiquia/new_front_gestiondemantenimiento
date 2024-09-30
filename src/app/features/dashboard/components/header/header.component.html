@@ -28,48 +28,61 @@
          nzTooltipPlacement="bottom">
 
       <i nz-icon nzType="bell" nzTheme="outline"></i>
-      <nz-badge [nzCount]="bellInfo.total"></nz-badge>
+      <nz-badge [nzCount]="this.noticeList.length"></nz-badge>
 
       <nz-dropdown-menu #menuBell="nzDropdownMenu">
         <div class="bell-container">
           <nz-tabset [nzSelectedIndex]="0">
 
-            <nz-tab [nzTitle]="'Pendiente' + (bellInfo.notice ? '(' + bellInfo.notice + ')' : '')">
-              <nz-list nzItemLayout="horizontal">
+            <nz-tab [nzTitle]="'Pendiente' + ( '(' + this.noticeList.length + ')' )">
+              <nz-list nzItemLayout="horizontl">
                 <nz-list-item *ngFor="let item of noticeList" [class.read]="item.read" (click)="read(item)">
                   <nz-list-item-meta>
-                    <nz-list-item-meta-avatar>
-                      <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar"></nz-avatar>
-                    </nz-list-item-meta-avatar>
+                    <nz-list-item-meta-avatar
+                    (click)="item.id_pm1
+                      ? pm1pdf(item.id_pm1)
+                      : item.id_spt1
+                        ? spt1pdf(item.id_spt1)
+                        : spt2pdf(item.tag_subestacion, item.ot)">
+                    <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar" style="color: orange;"></nz-avatar>
+                  </nz-list-item-meta-avatar>
+
+
                     <nz-list-item-meta-title>{{item.title}}</nz-list-item-meta-title>
-                    <nz-list-item-meta-description>{{item.time}}</nz-list-item-meta-description>
+                    <nz-list-item-meta-description>{{item.time}}
+
+                      <nz-tag [nzColor]="'#108ee9'" style="margin-left: 8px;" (click)="firmarNotificacion(item)">Firmar</nz-tag>
+                      <nz-tag [nzColor]="'#cd201f'" (click)="eliminarNotificacion(item)">Eliminar</nz-tag>
+
+                    </nz-list-item-meta-description>
                   </nz-list-item-meta>
+
                 </nz-list-item>
                 <nz-list-empty *ngIf="noticeList.length === 0" [nzNoResult]="noNoticeTpl"></nz-list-empty>
               </nz-list>
             </nz-tab>
 
 
-            <nz-tab [nzTitle]="'Firmado' + (bellInfo.message ? '(' + bellInfo.message + ')' : '')">
-              <nz-list nzItemLayout="horizontal">
-                <nz-list-item *ngFor="let item of messageList" [class.read]="item.read" (click)="read(item)">
-                  <nz-list-item-meta>
-                    <nz-list-item-meta-avatar>
-                      <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar"></nz-avatar>
-                    </nz-list-item-meta-avatar>
-                    <nz-list-item-meta-title>{{item.title}}</nz-list-item-meta-title>
-                    <nz-list-item-meta-description>
-                      <div>{{item.desc}}</div>
-                      <div>{{item.time}}</div>
 
-                      <div [ngSwitch]="item.status">
-                        <nz-tag *ngSwitchCase="2" [nzColor]="'red'">马上到期</nz-tag>
-                        <nz-tag *ngSwitchDefault>Otro estado</nz-tag>
-                      </div>
-                    </nz-list-item-meta-description>
+            <nz-tab [nzTitle]="'Firmado' + ( '(' + this.FirmadoList.length+ ')')">
+              <nz-list nzItemLayout="horizontal">
+                <nz-list-item *ngFor="let item of FirmadoList"  (click)="read(item)">
+                  <nz-list-item-meta>
+                    <nz-list-item-meta-avatar
+                (click)="item.id_pm1
+                  ? pm1pdf(item.id_pm1)
+                  : item.id_spt1
+                    ? spt1pdf(item.id_spt1)
+                    : spt2pdf(item.tag_subestacion, item.ot)">
+                <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar" style="color: green;"></nz-avatar>
+              </nz-list-item-meta-avatar>
+
+
+                    <nz-list-item-meta-title>{{item.title}}</nz-list-item-meta-title>
+                    <nz-list-item-meta-description>{{item.time}}</nz-list-item-meta-description>
                   </nz-list-item-meta>
                 </nz-list-item>
-                <nz-list-empty *ngIf="messageList.length === 0" [nzNoResult]="noMessageTpl"></nz-list-empty>
+                <nz-list-empty *ngIf="FirmadoList.length === 0" [nzNoResult]="noNoticeTpl"></nz-list-empty>
               </nz-list>
             </nz-tab>
           </nz-tabset>
@@ -103,3 +116,6 @@
 
 
 
+<ng-template #pdfModal>
+  <iframe [src]="pdfUrl" width="100%" height="600px"></iframe>
+</ng-template>

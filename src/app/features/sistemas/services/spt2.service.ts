@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { Spt2 } from '../interface/spt2';
 import { catchError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { map } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -19,31 +20,16 @@ export class Spt2Service {
   }
 
   insertarSpt2(spt2: Spt2): Observable<any> {
-    return this.http.post(this.apiUrl, spt2).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  buscarSpt2PorId(id: number): Observable<Spt2> {
-    const url = `${this.apiUrl}/BuscarPorId/${id}`;
-    return this.http.get<Spt2>(url).pipe(catchError(this.handleError));
-  }
-
-  eliminarSpt2(id: number): Observable<any> {
-    const url = `${this.apiUrl}/${id}`;
-    return this.http.delete(url).pipe(catchError(this.handleError));
-  }
-
-  private handleError(error: HttpErrorResponse) {
-    if (error.error instanceof ErrorEvent) {
-      // Error del lado del cliente o problemas de red
-      console.error('Error del lado del cliente:', error.error.message);
-    } else {
-      // Error del lado del servidor
-      console.error(`Error del servidor (código ${error.status}): `, error.error);
-    }
-    // Retorna un observable con un mensaje de error
-    return throwError('Algo salió mal; por favor, intenta más tarde.');
+    return this.http.post<any>(`${this.apiUrl}`, spt2)
+      .pipe(
+        map(response => {
+          if (!response.success) {
+            throw new Error(response.message || 'Error inesperado');
+          }
+          return response;
+        }),
+        catchError(this.handleError<any>('insertarSpt2'))
+      );
   }
 
   buscarPorSubestacion(tagSubestacion: string): Observable<Spt2[]> {
@@ -60,13 +46,41 @@ export class Spt2Service {
     return this.http.put(`${this.apiUrl}/ActualizarFirma/${idSpt2}`, firma);
   }
 
-  mostrarSpt2Firmados(): Observable<Spt2[]> {
-    const url = `${this.apiUrl}/MostrarFirmados`;
-    return this.http.get<Spt2[]>(url).pipe(
-      catchError(this.handleError)
+  buscarSpt2PorId(id: number): Observable<Spt2> {
+    const url = `${this.apiUrl}/BuscarPorId/${id}`;
+    return this.http.get<Spt2>(url).pipe(
+      catchError(this.handleError<Spt2>('buscarSpt2PorId'))
     );
   }
 
+  eliminarSpt2(id: number): Observable<any> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.delete(url).pipe(
+      catchError(this.handleError<any>('eliminarSpt2'))
+    );
+  }
+
+  mostrarSpt2Firmados(): Observable<Spt2[]> {
+    const url = `${this.apiUrl}/MostrarFirmados`;
+    return this.http.get<Spt2[]>(url).pipe(
+      catchError(this.handleError<Spt2[]>('mostrarSpt2Firmados'))
+    );
+  }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: HttpErrorResponse): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`, error);
+
+      let errorMessage = 'Ha ocurrido un error al guardar los datos.';
+      if (error.error && error.error.details) {
+        errorMessage = error.error.details;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      return throwError(() => new Error(errorMessage));
+    };
+  }
 
 
 

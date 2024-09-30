@@ -1,6 +1,7 @@
 export interface Spt1 {
   id_spt1: number;
   tag_subestacion: string;
+  firma:boolean;
   ot: string;
   fecha: Date;
   pat1: string;
@@ -47,6 +48,7 @@ export interface BuscarPorId {
   hora_inicio: string;
   hora_fin: string;
   tag_subestacion: string;        // Para la subestación
+  firma:boolean;
   ubicacion: string;
   cantidad_spt: string;
   plano: string;                  // Para la ubicación de la subestación

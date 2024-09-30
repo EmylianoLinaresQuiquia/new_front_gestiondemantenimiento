@@ -25,6 +25,22 @@ export class PdfGeneratorServicespt1Service {
       const { width, height } = newPage.getSize();
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
       const textSize = 8;
+
+     // Obtener todas las páginas del PDF
+     const pages = pdfDoc.getPages();
+
+     // Obtener las dimensiones del contenedor en el que se va a mostrar el PDF
+     const containerWidth = 1000; // Puedes usar el ancho del contenedor donde se muestra el iframe
+
+     // Escalar el contenido del PDF en cada página
+     pages.forEach(page => {
+       const { width } = page.getSize();
+       const scaleFactor = containerWidth / width;
+
+       // Escalar la página
+       page.scale(scaleFactor, scaleFactor);
+     });
+
       console.log("resultados",resultados)
 
       // Dibujar texto en el PDF
@@ -95,47 +111,48 @@ if (resultados.firma_lider) {
   }
 }
 
-/*
 // Verificar si hay datos de firma para el supervisor
-if (resultados.firma_supervisor) {
-  try {
-      // Extraer datos de la firma y el formato
-      const matchSupervisor = resultados.firma_supervisor.match(/^data:(image\/[a-z]+);base64,(.*)$/);
-      if (!matchSupervisor) {
-          throw new Error("Formato de firma del supervisor no reconocido o firma ausente.");
-      }
-      const [, imageFormatSupervisor, base64DataSupervisor] = matchSupervisor;
+if(resultados.firma === true){
+  if (resultados.firma_supervisor) {
+    try {
+        // Extraer datos de la firma y el formato
+        const matchSupervisor = resultados.firma_supervisor.match(/^data:(image\/[a-z]+);base64,(.*)$/);
+        if (!matchSupervisor) {
+            throw new Error("Formato de firma del supervisor no reconocido o firma ausente.");
+        }
+        const [, imageFormatSupervisor, base64DataSupervisor] = matchSupervisor;
 
-      // Convertir base64 a ArrayBuffer
-      let firmaSupervisorBytes = base64ToArrayBuffer(base64DataSupervisor);
-      let firmaSupervisorImage;
+        // Convertir base64 a ArrayBuffer
+        let firmaSupervisorBytes = base64ToArrayBuffer(base64DataSupervisor);
+        let firmaSupervisorImage;
 
-      // Verificar el formato de la imagen
-      switch (imageFormatSupervisor) {
-          case 'image/jpeg':
-              firmaSupervisorImage = await pdfDoc.embedJpg(firmaSupervisorBytes);
-              break;
-          case 'image/png':
-              firmaSupervisorImage = await pdfDoc.embedPng(firmaSupervisorBytes);
-              break;
-          default:
-              throw new Error(`Formato de imagen del supervisor no soportado: ${imageFormatSupervisor}`);
-      }
+        // Verificar el formato de la imagen
+        switch (imageFormatSupervisor) {
+            case 'image/jpeg':
+                firmaSupervisorImage = await pdfDoc.embedJpg(firmaSupervisorBytes);
+                break;
+            case 'image/png':
+                firmaSupervisorImage = await pdfDoc.embedPng(firmaSupervisorBytes);
+                break;
+            default:
+                throw new Error(`Formato de imagen del supervisor no soportado: ${imageFormatSupervisor}`);
+        }
 
 
-      // Dibujar la firma del supervisor en el PDF
-      newPage.drawImage(firmaSupervisorImage, {
-          x: 455,  // Cambiar según las coordenadas necesarias
-          y:  20,
-          width: 50,
-          height: 25,
-      });
-  } catch (error) {
-      console.error("Error al procesar la firma del supervisor: ", error);
+        // Dibujar la firma del supervisor en el PDF
+        newPage.drawImage(firmaSupervisorImage, {
+            x: 455,  // Cambiar según las coordenadas necesarias
+            y:  20,
+            width: 50,
+            height: 25,
+        });
+    } catch (error) {
+        console.error("Error al procesar la firma del supervisor: ", error);
+    }
   }
 }
 
-*/
+
 
 
 

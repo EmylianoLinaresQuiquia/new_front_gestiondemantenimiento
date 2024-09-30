@@ -41,11 +41,11 @@
   aviso_solicitud?: string;
 
 
-  
+
   usuario?: string;
   fotocheck?: string;
   firma?: string;
- 
+
   grupo_seleccionado?: string;
   grupo_ingresado?: string;
 
@@ -92,7 +92,7 @@ export interface PM1 {
   id_transformadores: number;
   id_usuario: number;
   id_usuario_2: number;
- 
+
   potencia_actual: string; // Nueva propiedad
   corriente_actual: string;
   equipos: Equipo[];
@@ -101,10 +101,11 @@ export interface PM1 {
 
 export interface MOSTRARPM1{
   id_pm1?:number;
-  
+
   orden_trabajo: string;
+  firma:boolean;
   fecha: string;
-  
+
   usuario: string;
   usuario_2: string;
   subestacion:string;
@@ -116,6 +117,7 @@ export interface BuscarPM1PorId {
   hora_inicio: string;
   hora_fin: string;
   orden_trabajo: string;
+  firma:boolean;
   fecha: string;
   correo_tecnico: string;
   fotocheck_tecnico: string;

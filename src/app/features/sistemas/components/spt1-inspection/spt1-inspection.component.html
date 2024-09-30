@@ -439,7 +439,8 @@
         <!----BARRAS EQUIPOTENCIALES--->
 
         <div class="stl_01 stl_79" style="left:9.6363em;top:58em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption24'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption24'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption24'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption24'] !== 'Buen Estado'  && barras_equipotencial['selectedOption24'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption24'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption24', $event)" [(ngModel)]="barras_equipotencial['selectedOption24']">
             <option>Buen Estado</option>
             <option>Oxidado</option>
@@ -451,7 +452,8 @@
         </div>
 
         <div class="stl_01 stl_79" style="left:15.409em;top:53.3027em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption25'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption25'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption25'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption25'] !== 'Buen Estado'  && barras_equipotencial['selectedOption25'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption25'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption25', $event)" [(ngModel)]="barras_equipotencial['selectedOption25']">
             <option>Buen Estado</option>
             <option>Faltante</option>
@@ -463,7 +465,8 @@
         </div>
 
         <div class="stl_01" style="left:24.5909em;top:53.3027em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption26'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption26'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption26'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption26'] !== 'Buen Estado'  && barras_equipotencial['selectedOption26'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption26'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption26', $event)" [(ngModel)]="barras_equipotencial['selectedOption26']">
             <option>Buen Estado</option>
             <option>Oxidado</option>
@@ -476,7 +479,8 @@
         </div>
 
         <div class="stl_01 stl_81" style="left:14.0454em;top:64.4754em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption27'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption27'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption27'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption27'] !== 'Buen Estado'  && barras_equipotencial['selectedOption27'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption27'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption27', $event)" [(ngModel)]="barras_equipotencial['selectedOption27']">
             <option>No Tiene</option>
             <option>Despintado</option>
@@ -487,7 +491,8 @@
         </div>
 
         <div class="stl_01" style="left:27.3363em;top:64.4391em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption28'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption28'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption28'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption28'] !== 'Buen Estado'  && barras_equipotencial['selectedOption28'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption28'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption28', $event)" [(ngModel)]="barras_equipotencial['selectedOption28']">
             <option>Roto</option>
             <option>Faltante</option>
@@ -499,7 +504,8 @@
         </div>
 
         <div class="stl_01" style="left:59.582em;top:60.9239em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption29'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption29'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption29'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption29'] !== 'Buen Estado'  && barras_equipotencial['selectedOption29'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption29'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption29', $event)" [(ngModel)]="barras_equipotencial['selectedOption29']">
             <option>Buen Estado</option>
             <option>Roto</option>
@@ -512,7 +518,8 @@
         </div>
 
         <div class="stl_01 stl_79" style="left:31.9364em;top:53.4845em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption30'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption30'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption30'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption30'] !== 'Buen Estado'  && barras_equipotencial['selectedOption30'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption30'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption30', $event)" [(ngModel)]="barras_equipotencial['selectedOption30']">
             <option>Buen Estado</option>
             <option>Con Polucion</option>
@@ -525,7 +532,8 @@
         </div>
 
         <div class="stl_01 stl_77" style="left:50.4456em;top:53.2784em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption31'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption31'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption31'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption31'] !== 'Buen Estado'  && barras_equipotencial['selectedOption31'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption31'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption31', $event)" [(ngModel)]="barras_equipotencial['selectedOption31']">
             <option>Buen Estado</option>
             <option>Oxidado</option>
@@ -538,7 +546,8 @@
         </div>
 
         <div class="stl_01" style="left:44.8818em;top:56.1209em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption32'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption32'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption32'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption32'] !== 'Buen Estado'  && barras_equipotencial['selectedOption32'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption32'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption32', $event)" [(ngModel)]="barras_equipotencial['selectedOption32']">
             <option>Buen Estado</option>
             <option>Flojo</option>
@@ -550,7 +559,8 @@
         </div>
 
         <div class="stl_01 stl_80" style="left:51.1728em;top:63.9422em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption33'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption33'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption33'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption33'] !== 'Buen Estado'  && barras_equipotencial['selectedOption33'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption33'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption33', $event)" [(ngModel)]="barras_equipotencial['selectedOption33']">
             <option>Buen Estado</option>
             <option>Faltante</option>
@@ -562,7 +572,8 @@
         </div>
 
         <div class="stl_01 stl_80" style="left:45.3183em;top:63.5695em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption34'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption34'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption34'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption34'] !== 'Buen Estado'  && barras_equipotencial['selectedOption34'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption34'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption34', $event)" [(ngModel)]="barras_equipotencial['selectedOption34']">
             <option>Buen Estado</option>
             <option>Oxidado</option>
@@ -576,7 +587,8 @@
         </div>
 
         <div class="stl_01" style="left:59.6911em;top:52.9966em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption35'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption35'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption35'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption35'] !== 'Buen Estado'  && barras_equipotencial['selectedOption35'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption35'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption35', $event)" [(ngModel)]="barras_equipotencial['selectedOption35']">
             <option>Buen Estado</option>
             <option>Con Polucion</option>
@@ -589,7 +601,8 @@
         </div>
 
         <div class="stl_01" style="left:57.482em;top:65.1239em;">
-          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption36'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption36'] !== 'Buen Estado'}"
+          <select [ngClass]="{'text-green': barras_equipotencial['selectedOption36'] === 'Buen Estado', 'text-red': barras_equipotencial['selectedOption36'] !== 'Buen Estado'  && barras_equipotencial['selectedOption36'] !== 'No aplica',
+              'text-black': barras_equipotencial['selectedOption36'] === 'No aplica'}"
             (ngModelChange)="get_barras_equipotencial('selectedOption36', $event)" [(ngModel)]="barras_equipotencial['selectedOption36']">
             <option>Buen Estado</option>
             <option>Roto</option>
@@ -604,161 +617,167 @@
 
 
     <!---------------------------->
-          <!--CERCO PERIMETRICO-->
-          <div class="stl_01" style="left:28.5546em;top:68.7059em;">
-            <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption37'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption37'] !== 'Buen Estado'}"
-                    (ngModelChange)="get_cerco_perimetrico('selectedOption37', $event)"
-                    [(ngModel)]="cerco_perimetrico['selectedOption37']">
-              <option>Buen Estado</option>
-              <option>Faltante</option>
-              <option>Oxidado</option>
-              <option>Suelto</option>
-              <option>Corroido</option>
-              <option >No aplica</option>
-            </select>
-          </div>
+<!--CERCO PERIMETRICO-->
+<div class="stl_01" style="left:28.5546em;top:68.7059em;">
+  <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption37'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption37'] !== 'Buen Estado'  && cerco_perimetrico['selectedOption37'] !== 'No aplica',
+        'text-black': cerco_perimetrico['selectedOption37'] === 'No aplica'}"
+          (ngModelChange)="get_cerco_perimetrico('selectedOption37', $event)"
+          [(ngModel)]="cerco_perimetrico['selectedOption37']">
+    <option>Buen Estado</option>
+    <option>Faltante</option>
+    <option>Oxidado</option>
+    <option>Suelto</option>
+    <option>Corroido</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
-          <div class="stl_01" style="left:15.0636em;top:69.2149em;">
-            <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption38'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption38'] !== 'Buen Estado'}"
-                    (ngModelChange)="get_cerco_perimetrico('selectedOption38', $event)"
-                    [(ngModel)]="cerco_perimetrico['selectedOption38']">
-              <option>Buen Estado</option>
-              <option>Roto</option>
-              <option>Faltante</option>
-              <option>Oxidado</option>
-              <option>Suelto</option>
-              <option>Corroido</option>
-              <option >No aplica</option>
-            </select>
-          </div>
+<div class="stl_01" style="left:15.0636em;top:69.2149em;">
+  <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption38'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption38'] !== 'Buen Estado' && cerco_perimetrico['selectedOption38'] !== 'No aplica',
+        'text-black': cerco_perimetrico['selectedOption38'] === 'No aplica'}"
+          (ngModelChange)="get_cerco_perimetrico('selectedOption38', $event)"
+          [(ngModel)]="cerco_perimetrico['selectedOption38']">
+    <option>Buen Estado</option>
+    <option>Roto</option>
+    <option>Faltante</option>
+    <option>Oxidado</option>
+    <option>Suelto</option>
+    <option>Corroido</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
-          <div class="stl_01 stl_81" style="left:13.9363em;top:75.4513em;">
-            <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption39'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption39'] !== 'Buen Estado'}"
-                    (ngModelChange)="get_cerco_perimetrico('selectedOption39', $event)"
-                    [(ngModel)]="cerco_perimetrico['selectedOption39']">
-              <option>Buen Estado</option>
-              <option>No Tiene</option>
-              <option>Despintado</option>
-              <option>Roto</option>
-              <option>Suelto</option>
-              <option >No aplica</option>
-            </select>
-          </div>
+<div class="stl_01 stl_81" style="left:13.9363em;top:75.4513em;">
+  <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption39'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption39'] !== 'Buen Estado' && cerco_perimetrico['selectedOption39'] !== 'No aplica' && cerco_perimetrico['selectedOption39'] !== 'No Tiene',
+        'text-black': cerco_perimetrico['selectedOption39'] === 'No aplica' || cerco_perimetrico['selectedOption39'] === 'No Tiene'}"
+          (ngModelChange)="get_cerco_perimetrico('selectedOption39', $event)"
+          [(ngModel)]="cerco_perimetrico['selectedOption39']">
+    <option>Buen Estado</option>
+    <option>No Tiene</option>
+    <option>Despintado</option>
+    <option>Roto</option>
+    <option>Suelto</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
-          <div class="stl_01" style="left:59.4819em;top:68.9664em;">
-            <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption40'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption40'] !== 'Buen Estado'}"
-                    (ngModelChange)="get_cerco_perimetrico('selectedOption40', $event)"
-                    [(ngModel)]="cerco_perimetrico['selectedOption40']">
-              <option>Buen Estado</option>
-              <option>Suelto</option>
-              <option>Flojo</option>
-              <option>Roto</option>
-              <option>Oxidado</option>
-              <option >No aplica</option>
-            </select>
-          </div>
+<div class="stl_01" style="left:59.4819em;top:68.9664em;">
+  <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption40'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption40'] !== 'Buen Estado' && cerco_perimetrico['selectedOption40'] !== 'No aplica',
+        'text-black': cerco_perimetrico['selectedOption40'] === 'No aplica'}"
+          (ngModelChange)="get_cerco_perimetrico('selectedOption40', $event)"
+          [(ngModel)]="cerco_perimetrico['selectedOption40']">
+    <option>Buen Estado</option>
+    <option>Suelto</option>
+    <option>Flojo</option>
+    <option>Roto</option>
+    <option>Oxidado</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
-          <div class="stl_01 stl_82" style="left:60.3em;top:72.1422em;">
-            <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption41'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption41'] !== 'Buen Estado'}"
-                    (ngModelChange)="get_cerco_perimetrico('selectedOption41', $event)"
-                    [(ngModel)]="cerco_perimetrico['selectedOption41']">
-              <option>Buen Estado</option>
-              <option>Oxidado</option>
-              <option>Sulfatado</option>
-              <option>Corroido</option>
-              <option>Roto</option>
-              <option>Suelto</option>
-              <option >No aplica</option>
-            </select>
-          </div>
+<div class="stl_01 stl_82" style="left:60.3em;top:72.1422em;">
+  <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption41'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption41'] !== 'Buen Estado' && cerco_perimetrico['selectedOption41'] !== 'No aplica',
+        'text-black': cerco_perimetrico['selectedOption41'] === 'No aplica'}"
+          (ngModelChange)="get_cerco_perimetrico('selectedOption41', $event)"
+          [(ngModel)]="cerco_perimetrico['selectedOption41']">
+    <option>Buen Estado</option>
+    <option>Oxidado</option>
+    <option>Sulfatado</option>
+    <option>Corroido</option>
+    <option>Roto</option>
+    <option>Suelto</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
-          <div class="stl_01" style="left:38.2455em;top:69.4876em;">
-            <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption42'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption42'] !== 'Buen Estado'}"
-                    (ngModelChange)="get_cerco_perimetrico('selectedOption42', $event)"
-                    [(ngModel)]="cerco_perimetrico['selectedOption42']">
-              <option>Buen Estado</option>
-              <option>Con Polucion</option>
-              <option>Faltante</option>
-              <option>Roto</option>
-              <option>Suelto</option>
-              <option>Descolorido</option>
-              <option >No aplica</option>
-            </select>
-          </div>
+<div class="stl_01" style="left:38.2455em;top:69.4876em;">
+  <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption42'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption42'] !== 'Buen Estado' && cerco_perimetrico['selectedOption42'] !== 'No aplica',
+        'text-black': cerco_perimetrico['selectedOption42'] === 'No aplica'}"
+          (ngModelChange)="get_cerco_perimetrico('selectedOption42', $event)"
+          [(ngModel)]="cerco_perimetrico['selectedOption42']">
+    <option>Buen Estado</option>
+    <option>Con Polucion</option>
+    <option>Faltante</option>
+    <option>Roto</option>
+    <option>Suelto</option>
+    <option>Descolorido</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
-          <div class="stl_01" style="left:38.5455em;top:77.4846em;">
-            <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption43'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption43'] !== 'Buen Estado'}"
-                    (ngModelChange)="get_cerco_perimetrico('selectedOption43', $event)"
-                    [(ngModel)]="cerco_perimetrico['selectedOption43']">
-              <option>Buen Estado</option>
-              <option>Suelto</option>
-              <option>Flojo</option>
-              <option>Roto</option>
-              <option>Oxidado</option>
-              <option >No aplica</option>
-            </select>
-          </div>
+<div class="stl_01" style="left:38.5455em;top:77.4846em;">
+  <select [ngClass]="{'text-green': cerco_perimetrico['selectedOption43'] === 'Buen Estado', 'text-red': cerco_perimetrico['selectedOption43'] !== 'Buen Estado' && cerco_perimetrico['selectedOption43'] !== 'No aplica',
+        'text-black': cerco_perimetrico['selectedOption43'] === 'No aplica'}"
+          (ngModelChange)="get_cerco_perimetrico('selectedOption43', $event)"
+          [(ngModel)]="cerco_perimetrico['selectedOption43']">
+    <option>Buen Estado</option>
+    <option>Suelto</option>
+    <option>Flojo</option>
+    <option>Roto</option>
+    <option>Oxidado</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
+<!---->
+<div class="stl_01" style="left:37.7364em;top:82.5877em;">
+  <select [ngClass]="{'text-green': transformador['selectedOption44'] === 'Buen Estado', 'text-red': transformador['selectedOption44'] !== 'Buen Estado' && transformador['selectedOption44'] !== 'No aplica',
+        'text-black': transformador['selectedOption44'] === 'No aplica'}"
+          (ngModelChange)="get_transformador('selectedOption44', $event)"
+          [(ngModel)]="transformador['selectedOption44']">
+    <option>Buen Estado</option>
+    <option>Con Polucion</option>
+    <option>Faltante</option>
+    <option>Roto</option>
+    <option>Suelto</option>
+    <option>Descolorido</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
+<div class="stl_01" style="left:15.5908em;top:82.5483em;">
+  <select [ngClass]="{'text-green': transformador['selectedOption45'] === 'Buen Estado', 'text-red': transformador['selectedOption45'] !== 'Buen Estado' && transformador['selectedOption45'] !== 'No aplica',
+        'text-black': transformador['selectedOption45'] === 'No aplica'}"
+          (ngModelChange)="get_transformador('selectedOption45', $event)"
+          [(ngModel)]="transformador['selectedOption45']">
+    <option>Buen Estado</option>
+    <option>Roto</option>
+    <option>Suelto</option>
+    <option>Oxidado</option>
+    <option>Sulfatado</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
-          <!---->
-          <div class="stl_01" style="left:37.7364em;top:82.5877em;">
-            <select
-              [ngClass]="{'text-green': transformador['selectedOption44'] === 'Buen Estado', 'text-red': transformador['selectedOption44'] !== 'Buen Estado'}"
-              (ngModelChange)="get_transformador('selectedOption44', $event)"
-              [(ngModel)]="transformador['selectedOption44']">
-              <option>Buen Estado</option>
-              <option>Con Polucion</option>
-              <option>Faltante</option>
-              <option>Roto</option>
-              <option>Suelto</option>
-              <option>Descolorido</option>
-              <option >No aplica</option>
-            </select>
-          </div>
+<div class="stl_01 stl_84" style="left:16.9182em;top:87.1422em;">
+  <select [ngClass]="{'text-green': transformador['selectedOption46'] === 'Buen Estado', 'text-red': transformador['selectedOption46'] !== 'Buen Estado' && transformador['selectedOption46'] !== 'No aplica' && transformador['selectedOption46'] !== 'No Tiene',
+        'text-black': transformador['selectedOption46'] === 'No aplica' || transformador['selectedOption46'] === 'No Tiene'}"
+          (ngModelChange)="get_transformador('selectedOption46', $event)"
+          [(ngModel)]="transformador['selectedOption46']">
+    <option>Buen Estado</option>
+    <option>No Tiene</option>
+    <option>Despintado</option>
+    <option>Roto</option>
+    <option>Suelto</option>
+    <option>No aplica</option>
+  </select>
+</div>
 
-          <div class="stl_01" style="left:15.5908em;top:82.5483em;">
-            <select
-              [ngClass]="{'text-green': transformador['selectedOption45'] === 'Buen Estado', 'text-red': transformador['selectedOption45'] !== 'Buen Estado'}"
-              (ngModelChange)="get_transformador('selectedOption45', $event)"
-              [(ngModel)]="transformador['selectedOption45']">
-              <option>Buen Estado</option>
-              <option>Roto</option>
-              <option>Suelto</option>
-              <option>Oxidado</option>
-              <option>Sulfatado</option>
-              <option >No aplica</option>
-            </select>
-          </div>
+<div class="stl_01 stl_85" style="left:38.1546em;top:88.1254em;">
+  <select [ngClass]="{'text-green': transformador['selectedOption47'] === 'Buen Estado', 'text-red': transformador['selectedOption47'] !== 'Buen Estado' && transformador['selectedOption47'] !== 'No aplica',
+        'text-black': transformador['selectedOption47'] === 'No aplica'}"
+          (ngModelChange)="get_transformador('selectedOption47', $event)"
+          [(ngModel)]="transformador['selectedOption47']">
+    <option>Buen Estado</option>
+    <option>Roto</option>
+    <option>Flojo</option>
+    <option>Oxidado</option>
+    <option>Sulfatado</option>
+    <option>No aplica</option>
+  </select>
+</div>
+<!---------------------------->
 
-          <div class="stl_01 stl_84" style="left:16.9182em;top:87.1422em;">
-            <select
-              [ngClass]="{'text-green': transformador['selectedOption46'] === 'Buen Estado', 'text-red': transformador['selectedOption46'] !== 'Buen Estado'}"
-              (ngModelChange)="get_transformador('selectedOption46', $event)"
-              [(ngModel)]="transformador['selectedOption46']">
-              <option>Buen Estado</option>
-              <option>Oxidado</option>
-              <option>Sulfatado</option>
-              <option>Corroido</option>
-              <option>Roto</option>
-              <option>Suelto</option>
-              <option >No aplica</option>
-            </select>
-          </div>
-
-          <div class="stl_01 stl_81" style="left:14.0454em;top:89.9877em;">
-            <select
-              [ngClass]="{'text-green': transformador['selectedOption47'] === 'Buen Estado', 'text-red': transformador['selectedOption47'] !== 'Buen Estado'}"
-              (ngModelChange)="get_transformador('selectedOption47', $event)"
-              [(ngModel)]="transformador['selectedOption47']">
-              <option>Buen Estado</option>
-              <option>No Tiene</option>
-              <option>Despintado</option>
-              <option>Roto</option>
-              <option>Suelto</option>
-              <option >No aplica</option>
-            </select>
-          </div>
 
 
 

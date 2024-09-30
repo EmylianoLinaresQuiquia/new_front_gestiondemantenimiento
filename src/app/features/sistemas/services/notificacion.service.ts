@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Notificacion } from '../interface/notificacion';
+import { Notificacion, NotificacionPendiente } from '../interface/notificacion';
 import { environment } from '../../../../environments/environment';
 @Injectable({
   providedIn: 'root'
@@ -21,14 +21,14 @@ export class NotificacionService {
   }
 
   insertarNotificacionPm1(notificacion: Notificacion): Observable<any> {
-    const url = `${this.apiUrl}/InsertarPm1`;
+    const url = `${this.apiUrl}/InsertarNotificacionPm1`;
     return this.http.post(url, notificacion).pipe(
       catchError(this.handleError)
     );
   }
 
   insertarNotificacionSpt1(notificacion: Notificacion): Observable<any> {
-    const url = `${this.apiUrl}/InsertarSpt1`;
+    const url = `${this.apiUrl}/InsertarNotificacionSpt1`;
     return this.http.post(url, notificacion).pipe(
       catchError(this.handleError)
     );
@@ -42,22 +42,18 @@ export class NotificacionService {
 }
 
 
-  eliminarNotificacion(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`).pipe(
+
+
+  obtenerNotificacionesFirmadas(supervisor: number): Observable<NotificacionPendiente[]> {
+    const url = `${this.apiUrl}/NotificacionesFirmadas?supervisor=${supervisor}`;
+    return this.http.get<NotificacionPendiente[]>(url).pipe(
       catchError(this.handleError)
     );
   }
 
-  obtenerNotificacionesFirmadas(id_usuario: number): Observable<Notificacion[]> {
-    const url = `${this.apiUrl}/NotificacionesFirmadas?id_usuario=${id_usuario}`;
-    return this.http.get<Notificacion[]>(url).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  obtenerNotificacionesPendientes(id_usuario: number): Observable<Notificacion[]> {
-    const url = `${this.apiUrl}/NotificacionesPendientes?id_usuario=${id_usuario}`;
-    return this.http.get<Notificacion[]>(url).pipe(
+  obtenerNotificacionesPendientes(supervisor: number): Observable<NotificacionPendiente[]> {
+    const url = `${this.apiUrl}/NotificacionesPendientes?supervisor=${supervisor}`;
+    return this.http.get<NotificacionPendiente[]>(url).pipe(
       catchError(this.handleError)
     );
   }
@@ -65,6 +61,12 @@ export class NotificacionService {
   actualizarFirmaNotificacion(idNotificacion: number, firmado: boolean): Observable<any> {
     const url = `${this.apiUrl}/ActualizarFirma/${idNotificacion}`;
     return this.http.put(url, firmado).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  eliminarNotificacion(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`).pipe(
       catchError(this.handleError)
     );
   }

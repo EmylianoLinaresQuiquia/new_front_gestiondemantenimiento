@@ -17,6 +17,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { string } from '@amcharts/amcharts4/core';
 @Component({
   selector: 'app-pm1-inspection',
   standalone: true,
@@ -85,10 +86,10 @@ export class Pm1InspectionComponent implements OnInit{
             const url = window.URL.createObjectURL(blob);
             this.loadPdf(url);
           } catch (error) {
-            console.error('Error al procesar el blob del PDF:', error);
+            this.alertservice.error('Formulario no encontrado:','');
           }
         }, error => {
-          console.error('Error al descargar el PDF:', error);
+          this.alertservice.error('Formulario no encontrado:', '');
         });
       }
     });
@@ -141,7 +142,7 @@ export class Pm1InspectionComponent implements OnInit{
         });
       } catch (error) {
         console.error('Error inesperado:', error);
-        this.alertservice.showAlert('Error inesperado al cargar el PDF.', 'error');
+        this.alertservice.error('Error inesperado al cargar el PDF.', 'error');
       }
     }
 
@@ -334,7 +335,7 @@ export class Pm1InspectionComponent implements OnInit{
             console.log("Extracted Form Data en saveData:", formData);
 
             if (Object.keys(formData).length === 0) {
-              console.warn("formData está vacío.");
+              this.alertservice.error('Error', 'El formulario está vacío.');
               return;
             }
 
@@ -363,37 +364,52 @@ export class Pm1InspectionComponent implements OnInit{
 
             try {
               const response = await this.pm1Service.postPM1(pm1).toPromise();
-              const idPm1 = response.id_pm1;
+              const idPm1 = response;
+              console.log("Response from postPM1:", response);
 
-              console.log("PM1 guardado correctamente");
+              if (idPm1) {
+                console.log("Response from postPM1:", response);
 
-              const notificacion: Notificacion = {
-                id_usuario: this.idusuario,
-                firmado: true,
-                id_pm1: idPm1
-              };
+                const notificacion: Notificacion = {
+                  supervisor: this.idusuario2,
+                  lider: this.idusuario,
+                  firmado: false,
+                  id_pm1: idPm1
+                };
 
-              await this.NotificacionService.insertarNotificacionPm1(notificacion).toPromise();
-              console.log("Notificación PM1 insertada correctamente");
+                await this.NotificacionService.insertarNotificacionPm1(notificacion).toPromise();
+                console.log("Notificación PM1 insertada correctamente");
 
-              this.messageService.remove(loadingMessageId);
-              this.notificationService.success('Datos Guardados', 'Los datos se han guardado con éxito.');
-            } catch (error) {
-              if (error instanceof Error) {
-                console.error("Error durante el proceso de guardado", error);
                 this.messageService.remove(loadingMessageId);
-                this.notificationService.error('Error al Guardar', 'Ha ocurrido un error inesperado al guardar los datos.');
+                this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
               } else {
-                console.error("Error desconocido durante el proceso de guardado", error);
-                this.notificationService.error('Error al Guardar', 'Ha ocurrido un error inesperado al guardar los datos.');
+                this.alertservice.error('Error', 'No se pudo obtener el ID de la PM1.');
+                this.messageService.remove(loadingMessageId);
               }
+            } catch (error) {
+              console.error("Error durante el proceso de guardado", error);
+              this.messageService.remove(loadingMessageId);
+
+              // Verificar si el error tiene la estructura esperada
+              let errorMessage = 'Ha ocurrido un error inesperado al guardar los datos. Por favor, intente nuevamente.';
+
+              if (this.isHttpErrorResponse(error)) {
+                errorMessage = error.error?.details || error.message || errorMessage;
+              }
+
+              this.alertservice.error('Error al Guardar', errorMessage);
             }
           } catch (error) {
             console.error("Error al extraer los datos del formulario", error);
             this.messageService.remove(loadingMessageId);
+            this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
           }
         }
       });
+    }
+
+    isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
+      return error && typeof error === 'object' && ('error' in error || 'message' in error);
     }
 
 
@@ -465,7 +481,7 @@ export class Pm1InspectionComponent implements OnInit{
   crearCampoImagenFirma(rutaFirma: string) {
     const annotationLayerDiv = this.pdfContainer.nativeElement.querySelector('.annotationLayer');
     const img = document.createElement('img');
-    Object.assign(img.style, { position: 'absolute', left: '100px', top: '136.2rem', width: '90px', height: '50px' });
+    Object.assign(img.style, { position: 'absolute', left: '100px', top: '119.2rem', width: '90px', height: '50px' });
     img.src = rutaFirma;
     annotationLayerDiv.appendChild(img);
   }
@@ -515,15 +531,7 @@ export class Pm1InspectionComponent implements OnInit{
     );
   }
 
-  zoomIn(): void {
-    this.zoomLevel += 0.2;  // Incrementa el zoom en 20%
-  }
 
-  zoomOut(): void {
-    if (this.zoomLevel > 0.4) {
-      this.zoomLevel -= 0.2;  // Reduce el zoom en 20%, pero no por debajo del 40% del tamaño original
-    }
-  }
 
 
 

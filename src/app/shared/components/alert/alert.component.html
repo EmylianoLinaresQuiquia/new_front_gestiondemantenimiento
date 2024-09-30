@@ -1,1 +1,7 @@
-<p>alert works!</p>
+<nz-alert
+      *ngIf="message"
+      [nzType]="type"
+      [nzMessage]="message"
+      [nzDescription]="description"
+      nzShowIcon>
+    </nz-alert>

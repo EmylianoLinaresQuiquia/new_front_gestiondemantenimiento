@@ -13,6 +13,8 @@ import { MetodoCaidaGraficaService } from './metodo-caida-grafica.service';
 import { MetodoSelectivoGraficaService } from './metodo-selectivo-grafica.service';
 import { TipostpService } from './tipostp.service';
 import { MetodoMedicionService } from './metodo-medicion.service';
+import { MedicionTelurometroService } from './medicion-telurometro.service';
+import { firstValueFrom } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
@@ -30,7 +32,8 @@ export class PdfGeneratorServiceService {
     private MetodoSelectivoGraficaService:MetodoSelectivoGraficaService,
     private UsuarioService :UsuarioService,
     private MetodoMedicionService:MetodoMedicionService,
-    private TipostpService :TipostpService
+    private TipostpService :TipostpService,
+    private MedicionTelurometroService:MedicionTelurometroService
 
     ) {
 
@@ -45,8 +48,8 @@ export class PdfGeneratorServiceService {
           resultadosArray,
           existingPdfBytes
         ] = await Promise.all([
-          this.subestacionService.getSubestacionPorTag(tagParam).toPromise(),
-          this.spt2Service.buscarPorSubestacionyot(tagParam, otParam).toPromise(),
+          firstValueFrom(this.subestacionService.getSubestacionPorTag(tagParam)),
+          firstValueFrom(this.spt2Service.buscarPorSubestacionyot(tagParam, otParam)),
           fetch('assets/spt2.pdf').then(res => res.arrayBuffer())
         ]);
 
@@ -67,17 +70,19 @@ export class PdfGeneratorServiceService {
           UsuarioService,
           UsuarioService1,
           metodoMedicion,
+
           yesImageBytes,
 
         ] = await Promise.all([
-          this.MetodoCaidaGraficaService.buscarPorId(resultados.idgrafica_caida).toPromise(),
-          this.MetodoSelectivoGraficaService.buscarPorId(resultados.idgrafica_selectivo).toPromise(),
-          this.metodoCaidaService.getMetodoCaidaById(resultados.id_mcaida).toPromise(),
-          this.MetodoSelectivoService.getMetodoSelectivoById(resultados.id_mselectivo).toPromise(),
-          this.ReportefotograficoService.buscarReportePorId(resultados.idreportefoto).toPromise(),
-          this.UsuarioService.buscarUsuarioPorCorreo(resultados.lider).toPromise(),
-          this.UsuarioService.buscarUsuarioPorCorreo(resultados.supervisor).toPromise(),
-          this.MetodoMedicionService.buscarPorIdMetodoMedicion(resultados.id_metodomedicion).toPromise(),
+
+      firstValueFrom(this.MetodoCaidaGraficaService.buscarPorId(resultados.idgrafica_caida)),
+      firstValueFrom(this.MetodoSelectivoGraficaService.buscarPorId(resultados.idgrafica_selectivo)),
+      firstValueFrom(this.metodoCaidaService.getMetodoCaidaById(resultados.id_mcaida)),
+      firstValueFrom(this.MetodoSelectivoService.getMetodoSelectivoById(resultados.id_mselectivo)),
+      firstValueFrom(this.ReportefotograficoService.buscarReportePorId(resultados.idreportefoto)),
+      firstValueFrom(this.UsuarioService.buscarUsuarioPorCorreo(resultados.lider)),
+      firstValueFrom(this.UsuarioService.buscarUsuarioPorCorreo(resultados.supervisor)),
+      firstValueFrom(this.MetodoMedicionService.buscarPorIdMetodoMedicion(resultados.id_metodomedicion)),
           fetch('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAQmSURBVGhD7ZpJKH1RGMDve2QKGYuFEqUMiRAroUQ2hg0bGTLtZGOplCVZSSyIFEWKMmaj2KGkZCNDLIwb8/j973f63vPOO/dNf+8O79//V1/efee7dX73nHPP8JhARvoHMNNfn8dnRTY3N6WpqSm6ksGu5Uvc3t5CY2MjmEwmiIyMhJubG/a9T4ksLi5CXFwcjmkWOTk5cHp6ysp8QuTh4QFaWlpYK6CA2WyGzs5O+Pj4oAwfENnf34eUlBRrK4SFhcHs7CyV/mBokbGxMQgKCrJKJCcnw+HhIZXyGFLk9fUV2tvbrQIYhYWFcH9/TxkihhO5vr5mlbaVqK+vh7e3N8pQxlAiR0dHkJSUZBXAwd3d3Q3f39+U4RjDiGxtbbF5wSKBb6aBgQEqdY0hRJaXlyEkJMQq4efnB8PDw1TqHrqLzMzMgL+/PycxOjpKpe6jq8jExIR1ksPA7uRpS1jQTcReAj8PDg5SqefoIjI9Pc1JYPT09FDp36G5CC78bMcEBq6j3HnFOkNTEXkPwS05MCoqKuDz85My/h7NRA4ODiA8PJyTyM7OhsfHR8r4HZqIXFxcQEJCAicRHx8P5+fnlPF7VBfBJ44bIFsJ7F7b29uU4R1UFfn6+oKamhpOAt9WIyMjlOE9VBXp7e3lJDAaGhqo1LuoJrK0tCTMFRkZGfD8/EwZ3kUVkePjY4iIiOAkQkNDHe7uvIHXRV5eXiA3N5eTwFBjXNjCiby/v7ONfVNTE9TW1rLPns64XV1dgkRVVdWvZ25XWEX29vYgMzNTqERHRwd7+7jDysoKW8Ha3h8bGwtXV1eUoR5MZH5+HgIDA7kK2EZfXx9Ldgae+NkenllC6ehGDZgIdqmFhQVITEwUKoKBi7ydnR12gxLYberq6oT7qqurKUN9uDGCJxjp6elChTDy8vIcdjFsUft8XFddXl5ShvpwIsjJyYnw6rQE7iPswbMmXDfZ5/b391OGNggiyOTkpFAxjNTUVGHJ3dbWJuSlpaVx57JaoCiCXaigoECoIMbc3BxlAVv42b+lcDZfW1ujDO1QFEFwE2RbQUvk5+ezwY1PPCsrSygvLS1Vfc5QwqEIUlxcLFQUnzi2BJ522JfhUc7u7i7drS1ORdbX14XKYhQVFUFMTIzwfWVlJd2pPU5FsIsodR+lwLGiV2sgTkWQ8fFxxYrbR3l5Od2hDy5FcP8QHR2tWHlL4LjZ2NigO/TB5c/TwcHBUnNzM10pI88vUklJCV3pg1u/s7e2tkryGKArEXlSlORWoSudoJZxCg56+Ykrdis8Ebm7u6NM/XCrRfBpy/sSuvpBXhhKQ0NDUlRUFH2jIyTkkqenJ24xWVZWBmdnZ1SqP26LIPKgh4CAAPaTmB7LEGd49G9Oq6urkryTlOSlC31jHP7/v5axkKQ/E5O9NqOelV4AAAAASUVORK5CYII=').then(res => res.arrayBuffer()), // Asegúrate de que esta ruta sea correcta
             // Asegúrate de que esta ruta sea correcta
         ]);
@@ -88,9 +93,16 @@ export class PdfGeneratorServiceService {
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
         const textSize = 8;
 
+
+
+
         const drawText = (text: string, x: number, y: number, color: [number, number, number] = [0, 0, 0]) => {
           newPage.drawText(text, { font, size: textSize, x, y, color: rgb(color[0], color[1], color[2]) });
         };
+
+
+
+
 
 
         const determinarMensaje = (valor: number): { mensaje: string, color: [number, number, number] } => {
@@ -145,8 +157,19 @@ export class PdfGeneratorServiceService {
           }
         };
 
+        const medicionTelurometro = await firstValueFrom(this.MedicionTelurometroService.buscarMedicionPorId(resultados.id_mtd_medicion_telurometro));
+        if (medicionTelurometro) {
+          drawText(medicionTelurometro.marca, 190, height -285);  // Ejemplo de uso de la marca
+          drawText(medicionTelurometro.n_serie, 400,height - 285); // Ejemplo de uso del modelo
+          drawText(medicionTelurometro.modelo, 655,height - 285); // Ejemplo de uso del número de serie
+          drawText(medicionTelurometro.frecuencia, 800,height - 285);  // Ejemplo de uso de la marca
+          drawText(medicionTelurometro.fecha_calibracion, 885,height - 265); // Ejemplo de uso del modelo
+          drawText(medicionTelurometro.precision, 925,height - 285); // Ejemplo de uso del número de serie
+        }
+
+
         console.log("metodoMedicion", metodoMedicion);
-        if (metodoMedicion) {
+        if (metodoMedicion ) {
           await drawImageOrText(metodoMedicion.caidaPotencia, 640, height - 340);
           await drawImageOrText(metodoMedicion.selectivo, 729, height - 340);
           await drawImageOrText(metodoMedicion.sinPicas, 789, height - 340);
@@ -169,6 +192,18 @@ export class PdfGeneratorServiceService {
         }
         if (metodoCaidaArray) {
           metodoCaidaArray.forEach((metodoCaida, index) => {
+            // Función para dibujar texto con color
+            const drawText = (text: string, x: number, y: number, color: [number, number, number] = [0, 0, 0]) => {
+              newPage.drawText(text, { font, size: textSize, x, y, color: rgb(color[0], color[1], color[2]) });
+            };
+
+            // Función para determinar mensaje y color
+            const determinarMensajeCumplimiento = (resultado: string): { mensaje: string, color: [number, number, number] } => {
+              if (resultado === "CUMPLE") return { mensaje: resultado, color: [0, 1, 0] }; // Verde para "CUMPLE"
+              if (resultado === "NO CUMPLE") return { mensaje: resultado, color: [1, 0, 0] }; // Rojo para "NO CUMPLE"
+              return { mensaje: resultado, color: [0, 0, 0] }; // Negro como predeterminado
+            };
+
             const yPos = height - (615 + index * 0);
             const yPoss = height - (615 + index * 20);
             const xPos = 380 + index * 50;
@@ -176,13 +211,29 @@ export class PdfGeneratorServiceService {
             drawText(metodoCaida.r2mc?.toString(), xPos, yPos + 180);
             drawText(metodoCaida.r3mc?.toString(), xPos, yPos + 170);
             if (+metodoCaida.valormc !== 0) drawText(metodoCaida.valormc?.toString(), 200, yPoss + 93);
-            drawText(metodoCaida.resultadomc, 290, yPoss + 93);
-            drawText(metodoCaida.conclusionesmc, 125, yPoss + 60);
+            const resultadoMetodoCaida = determinarMensajeCumplimiento(metodoCaida.resultadomc);
+            drawText(resultadoMetodoCaida.mensaje, 290, yPoss + 93, resultadoMetodoCaida.color);
+            //drawText(metodoCaida.conclusionesmc, 125, yPoss + 60);
           });
         }
 
+
+
         if (metodoSelectivoArray) {
           metodoSelectivoArray.forEach((metodoSelectivo, index) => {
+
+             // Función para dibujar texto con color
+             const drawText = (text: string, x: number, y: number, color: [number, number, number] = [0, 0, 0]) => {
+              newPage.drawText(text, { font, size: textSize, x, y, color: rgb(color[0], color[1], color[2]) });
+            };
+
+            // Función para determinar mensaje y color
+            const determinarMensajeCumplimiento = (resultado: string): { mensaje: string, color: [number, number, number] } => {
+              if (resultado === "CUMPLE") return { mensaje: resultado, color: [0, 1, 0] }; // Verde para "CUMPLE"
+              if (resultado === "NO CUMPLE") return { mensaje: resultado, color: [1, 0, 0] }; // Rojo para "NO CUMPLE"
+              return { mensaje: resultado, color: [0, 0, 0] }; // Negro como predeterminado
+            };
+
             const yPos = height - (900 + index * 0);
             const yPoss = height - (900 + index * 20);
             const xPos = 380 + index * 50;
@@ -190,10 +241,66 @@ export class PdfGeneratorServiceService {
             drawText(metodoSelectivo.r2ms?.toString(), xPos, yPos + 180);
             drawText(metodoSelectivo.r3ms?.toString(), xPos, yPos + 165);
             if (+metodoSelectivo.valorms !== 0) drawText(metodoSelectivo.valorms?.toString(), 200, yPoss + 85);
-            drawText(metodoSelectivo.resultadoms, 290, yPoss + 85);
-            drawText(metodoSelectivo.conclusionesms, 125, yPoss + 50);
+
+            const resultadoSelectivo = determinarMensajeCumplimiento(metodoSelectivo.resultadoms);
+            drawText(resultadoSelectivo.mensaje, 290, yPoss +85, resultadoSelectivo.color);
+
+            //drawText(metodoSelectivo.conclusionesms, 125, yPoss + 50);
           });
         }
+
+
+
+        if (reporteFotograficoArray && reporteFotograficoArray.length > 0) {
+          const reporteFoto = reporteFotograficoArray[0];
+          let imageX = 140; // Posición inicial en X
+          const imageY = height - 1250; // Posición fija en Y
+          const imageWidth = 100;
+          const imageHeight = 100;
+
+          // Array de imágenes
+          const imagenes = [reporteFoto.imagen1, reporteFoto.imagen2, reporteFoto.imagen3, reporteFoto.imagen4];
+
+          for (const imagenBase64 of imagenes) {
+            if (imagenBase64) {
+              try {
+                const base64Header = typeof imagenBase64 === 'string' ? imagenBase64.match(/^data:image\/([a-zA-Z]+);base64,/) : null;
+                let cleanedBase64 = typeof imagenBase64 === 'string' ? imagenBase64.replace(/^data:image\/[a-z]+;base64,/, '').replace(/[^A-Za-z0-9+/=]/g, '') : '';
+
+                if (/^[A-Za-z0-9+/=]*$/.test(cleanedBase64)) {
+                  const reporteFotoBytes = this.base64ToArrayBuffer(cleanedBase64);
+
+                  let reporteFotoImage;
+                  if (base64Header && base64Header[1] === 'jpeg') {
+                    reporteFotoImage = await pdfDoc.embedJpg(reporteFotoBytes);
+                  } else if (base64Header && base64Header[1] === 'png') {
+                    reporteFotoImage = await pdfDoc.embedPng(reporteFotoBytes);
+                  } else {
+                    throw new Error('Formato de imagen no soportado. Solo se permiten JPEG y PNG.');
+                  }
+
+                  newPage.drawImage(reporteFotoImage, {
+                    x: imageX,
+                    y: imageY,
+                    width: imageWidth,
+                    height: imageHeight,
+                  });
+
+                  // Ajustar la posición X para la próxima imagen
+                  imageX += imageWidth + 20; // Espacio entre imágenes
+                } else {
+                  console.error("La cadena Base64 contiene caracteres inválidos.");
+                }
+              } catch (error) {
+                console.error("Error completo al generar la imagen desde Base64:", error);
+                console.error("Error al generar la imagen desde Base64:", error instanceof Error ? error.message : "Error desconocido");
+              }
+            }
+          }
+        } else {
+          console.error('No se encontró reporte fotográfico.');
+        }
+
 
         const embedGrafica = async (graficaData: string, x: number, y: number, w: number, h: number) => {
           if (!graficaData) return;
@@ -250,6 +357,7 @@ export class PdfGeneratorServiceService {
         }
 
 
+
           const modifiedPdfBytes = await pdfDoc.save();
           const modifiedPdfBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
 
@@ -263,15 +371,21 @@ export class PdfGeneratorServiceService {
           throw error;
         }
       }
-    private base64ToArrayBuffer(base64: string): Uint8Array {
-      const binaryString = atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+      private base64ToArrayBuffer(base64: string): Uint8Array {
+        try {
+          const binaryString = atob(base64);
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          return bytes;
+        } catch (error) {
+          console.error("Error al decodificar base64:", error, base64);
+          throw error;
+        }
       }
-      return bytes;
-    }
+
 
 }
 

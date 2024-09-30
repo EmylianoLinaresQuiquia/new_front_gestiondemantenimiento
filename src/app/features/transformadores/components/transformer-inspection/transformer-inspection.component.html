@@ -357,19 +357,19 @@
 
 
 
-
+    <h1>{{ transformador }}</h1>
     <!-- Contenedor Principal con Tarjeta de Información del Transformador -->
     <nz-card nzTitle="Datos del Transformador" class="card-header ">
       <div nz-row nzJustify="start" nzAlign="middle">
         <!-- Información Básica del Transformador con animaciones -->
         <div nz-col [nzSpan]="3" class="data-container card-style">
-          <nz-statistic [nzTitle]="'TAG'" [nzValue]="'4712-TX-001'" class="animated-entry"></nz-statistic>
+          <nz-statistic [nzTitle]="'TAG'" [nzValue]="transformador" class="animated-entry"></nz-statistic>
         </div>
         <div nz-col [nzSpan]="3" class="data-container card-style">
-          <nz-statistic [nzTitle]="'Voltaje'" [nzValue]="'220.0 KV'" class="animated-entry"></nz-statistic>
+          <nz-statistic [nzTitle]="'Voltaje'" [nzValue]="voltage" class="animated-entry"></nz-statistic>
         </div>
         <div nz-col [nzSpan]="3" class="data-container card-style">
-          <nz-statistic [nzTitle]="'Potencia'" [nzValue]="'125.0 MVA'" class="animated-entry"></nz-statistic>
+          <nz-statistic [nzTitle]="'Potencia'" [nzValue]="potencia" class="animated-entry"></nz-statistic>
         </div>
         <div nz-col [nzSpan]="4" class="data-container card-style">
           <nz-statistic [nzTitle]="'Fabricación - Edad'" [nzValue]="'2017 - 7 años'" class="animated-entry"></nz-statistic>

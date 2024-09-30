@@ -10,10 +10,8 @@ import { map } from 'rxjs/operators';
 })
 export class Spt1Service {
 
-  // Usa la URL base del entorno y añade la ruta específica del recurso
-  private apiURL = `${environment.apiUrl}/Spt1`;
-
   constructor(private http: HttpClient) {}
+  private apiURL = `${environment.apiUrl}/Spt1`;
 
   insertarSpt1(spt1Dto: Spt1DTO): Observable<any> {
     return this.http.post<any>(`${this.apiURL}/insert`, spt1Dto)
@@ -24,54 +22,60 @@ export class Spt1Service {
           }
           return response;
         }),
-        catchError(this.handleError)
+        catchError(this.handleError<any>('insertarSpt1'))
       );
   }
 
-
-
   mostrarSpt1(): Observable<Spt1[]> {
-    const url = `${this.apiURL}/mostrar`;
-    return this.http.get<Spt1[]>(url).pipe(
-      catchError(this.handleError)
+    return this.http.get<Spt1[]>(`${this.apiURL}/mostrar`).pipe(
+      catchError(this.handleError<Spt1[]>('mostrarSpt1', []))
     );
   }
 
   buscarSpt1PorId(id_spt1: number): Observable<BuscarPorId[]> {
-    const url = `${this.apiURL}/BuscarSpt1PorId/${id_spt1}`;
-    return this.http.get<BuscarPorId[]>(url).pipe(
-      catchError(this.handleError)
+    return this.http.get<BuscarPorId[]>(`${this.apiURL}/BuscarSpt1PorId/${id_spt1}`).pipe(
+      catchError(this.handleError<BuscarPorId[]>('buscarSpt1PorId', []))
     );
   }
 
-  // Método para ejecutar el procedimiento almacenado TotalSpt1Pat1
   ejecutarTotalSpt1Pat1(): Observable<Spt1ResultDTO[]> {
     return this.http.get<Spt1ResultDTO[]>(`${this.apiURL}/TotalSpt1Pat1`).pipe(
-      catchError(this.handleError)
+      catchError(this.handleError<Spt1ResultDTO[]>('ejecutarTotalSpt1Pat1', []))
     );
   }
 
-  // Método para ejecutar el procedimiento almacenado TotalSpt1Pat2
   ejecutarTotalSpt1Pat2(): Observable<Spt1ResultDTO[]> {
     return this.http.get<Spt1ResultDTO[]>(`${this.apiURL}/TotalSpt1Pat2`).pipe(
-      catchError(this.handleError)
+      catchError(this.handleError<Spt1ResultDTO[]>('ejecutarTotalSpt1Pat2', []))
     );
   }
 
-  // Método para ejecutar el procedimiento almacenado TotalSpt1Pat3
   ejecutarTotalSpt1Pat3(): Observable<Spt1ResultDTO[]> {
     return this.http.get<Spt1ResultDTO[]>(`${this.apiURL}/TotalSpt1Pat3`).pipe(
-      catchError(this.handleError)
+      catchError(this.handleError<Spt1ResultDTO[]>('ejecutarTotalSpt1Pat3', []))
     );
   }
 
-  // Método para ejecutar el procedimiento almacenado TotalSpt1Pat4
   ejecutarTotalSpt1Pat4(): Observable<Spt1ResultDTO[]> {
     return this.http.get<Spt1ResultDTO[]>(`${this.apiURL}/TotalSpt1Pat4`).pipe(
-      catchError(this.handleError)
+      catchError(this.handleError<Spt1ResultDTO[]>('ejecutarTotalSpt1Pat4', []))
     );
   }
 
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: HttpErrorResponse): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`, error);
+
+      let errorMessage = 'Ha ocurrido un error al guardar los datos.';
+      if (error.error && error.error.details) {
+        errorMessage = error.error.details;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      return throwError(() => new Error(errorMessage));
+    };
+  }
 
   /*insertarSpt1(spt1: spt1dto): Observable<any> {
     return this.http.post(`${this.apiURL}`, spt1)
@@ -107,22 +111,5 @@ export class Spt1Service {
   buscarPorTagSubestacionYOt(tagSubestacion: string, ot: string): Observable<Spt1[]> {
     return this.http.get<Spt1[]>(`${this.apiURL}/BuscarPorTagSubestacionYOt/${tagSubestacion}/${ot}`);
   }*/
-
-    private handleError(error: HttpErrorResponse) {
-      if (error.error instanceof ErrorEvent) {
-        console.error('An error occurred:', error.error.message);
-      } else {
-        // Imprime la respuesta del servidor en formato JSON
-        console.error(`Backend returned code ${error.status}, body was: ${JSON.stringify(error.error)}`);
-
-        // Si hay un error de validación (400), detalla los errores específicos
-        if (error.status === 400 && error.error.errors) {
-          for (const [key, value] of Object.entries(error.error.errors)) {
-            console.error(`Validation error - ${key}: ${value}`);
-          }
-        }
-      }
-      return throwError('Something bad happened; please try again later.');
-    }
 
 }

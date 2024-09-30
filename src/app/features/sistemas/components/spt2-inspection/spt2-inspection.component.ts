@@ -75,11 +75,14 @@ export class Spt2InspectionComponent implements OnDestroy {
   plano = '';
   fecha_plano = '';
   versio : number | null = null;
-  marca = '';
-  nserie  = '';
-  modelo  = '';
-  frecuencia  = '';
-  precision  = '';
+
+  frecuencia: string = "111,128 Hz";
+  fecha_calibracion: string = "02/21/23";
+  precision: string = "+/- 5%";
+  n_serie: string = "ST181415734 B4";
+  marca: string = "Fluke";
+  modelo: string = "1625-2";
+
   cantidad_spt : number | null = null;
   r1 : number | null = null;
   r2  : number | null = null;
@@ -88,7 +91,8 @@ export class Spt2InspectionComponent implements OnDestroy {
   r4 : number | null = null;
   r5 : number | null = null;
   r6 : number | null = null;
-  idusuario = 0
+  idSupervisor = 0
+  idLider = 0
 
   conclucionselectivo = '';
   conclusionespat='';
@@ -338,7 +342,7 @@ const valores = [
 const valoresFiltrados = valores.filter(valor => valor !== null && valor !== undefined);
 const promedio = valoresFiltrados.length > 0 ? Math.floor(valoresFiltrados.reduce((acc, valor) => acc + valor, 0) / valoresFiltrados.length) : 0;
 return {
-  mensaje: promedio > 25 ? 'MALO' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'BUENO' : ''),
+  mensaje: promedio > 25 ? 'NO CUMPLE' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'CUMPLE' : ''),
   color: promedio > 25 ? 'red' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'green' : '')
 };
 
@@ -608,7 +612,7 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
         const promedio = valoresFiltrados.length > 0 ? Math.floor(valoresFiltrados.reduce((acc, valor) => acc + valor, 0) / valoresFiltrados.length) : 0;
 
         return {
-          mensaje: promedio > 25 ? 'MALO' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'BUENO' : ''),
+          mensaje: promedio > 25 ? 'NO CUMPLE' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'CUMPLE' : ''),
           color: promedio > 25 ? 'red' : (promedio <= 25 && valoresFiltrados.length > 0 ? 'green' : '')
         };
       }
@@ -705,7 +709,8 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
         if (usuarioSeleccionado.cargo === 'TECNICO') {
             this.rutaFirmaSeleccionada = usuarioSeleccionado.firma;
             this.correoSeleccionado = usuarioSeleccionado.usuario;
-
+            this.idLider = usuarioSeleccionado.idUsuario
+            console.log("idLider" , this.idLider)
         } else if (usuarioSeleccionado.cargo === 'SUPERVISOR') {
             // Manejar el caso en que el usuario es un SUPERVISOR
             console.error('Error: El usuario seleccionado no puede ser un SUPERVISOR.');
@@ -724,10 +729,10 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
 
     if (usuarioSeleccionado) {
       console.log("Usuario seleccionado:", usuarioSeleccionado);
-      this.idusuario = usuarioSeleccionado.idUsuario; // Cambiar aquí a idUsuario
-
-      if (this.idusuario !== undefined) {
-        console.log("ID del usuario seleccionado:", this.idusuario);
+      this.idSupervisor = usuarioSeleccionado.idUsuario; // Cambiar aquí a idUsuario
+      console.log("idSupervisor",this.idSupervisor)
+      if (this.idSupervisor !== undefined) {
+        console.log("ID del usuario seleccionado:", this.idSupervisor);
 
         if (usuarioSeleccionado.cargo === 'SUPERVISOR') {
           this.correoSeleccionado1 = usuarioSeleccionado.usuario;
@@ -782,7 +787,7 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
       },
       error => {
         console.error('Error inesperado', error);
-        this.alertservice.showAlert('No se encontró el Plano.', 'error');
+        this.alertservice.error('No se encontró el Plano.', 'error');
       }
     );
   }
@@ -903,12 +908,12 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
                 }
                 // Nuevo Proceso: Inserción de Medicion Telurometro
                 const medicion: MedicionTelurometro = {
-                  frecuencia: '111,128 Hz',  // Datos de ejemplo, pueden ser dinámicos
-                  fecha_calibracion: '02/21/23',
-                  precision: '+/- 5%',
-                  n_serie: 'ST181415734 B4',
-                  marca: 'Fluke',
-                  modelo: '1625-2'
+                  frecuencia: this.frecuencia,  // Datos de ejemplo, pueden ser dinámicos
+                  fecha_calibracion: this.fecha_calibracion,
+                  precision: this.precision,
+                  n_serie: this.n_serie,
+                  marca: this.marca,
+                  modelo: this.modelo
                 };
 
                 const responseMedicion = await this.MedicionTelurometroService.insertarMedicion(medicion).toPromise();
@@ -936,39 +941,54 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
                     id_metodomedicion:idMetodoMedicion,
                     id_mtd_medicion_telurometro: idMedicionTelurometro
                 };
-                console.log("spt2Data",spt2Data)
-                const responseSpt2 = await this.spt2Service.insertarSpt2(spt2Data).toPromise();
-                this.id_spt2 = responseSpt2.id;
+                try {
+                  const response = await this.spt2Service.insertarSpt2(spt2Data).toPromise();
+                  const idspt2 = response.id;
 
-                if (this.idusuario == null || this.idusuario === undefined) {
-                    console.error('Error: idUsuario no está definido.');
-                    return;
+                  if (idspt2) {
+                    console.log("Response from postspt2:", response);
+
+                    const notificacion: Notificacion = {
+                      supervisor: this.idSupervisor ?? 0,
+                      lider: this.idLider ?? 0,
+                      firmado: false,
+                      id_spt2: idspt2
+                    };
+                    console.log("data notificacion",notificacion)
+
+                    await this.notificacionService.insertarNotificacionSpt2(notificacion).toPromise();
+                    console.log("Notificación spt2 insertada correctamente");
+
+                    this.messageService.remove(loadingMessageId);
+                    this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
+                  } else {
+                    this.alertservice.error('Error', 'No se pudo obtener el ID de la spt1.');
+                    this.messageService.remove(loadingMessageId);
+                  }
+                } catch (error) {
+                  console.error("Error durante el proceso de guardado", error);
+                  this.messageService.remove(loadingMessageId);
+
+                  // Verificar si el error tiene la estructura esperada
+                  let errorMessage = 'Ha ocurrido un error inesperado al guardar los datos. Por favor, intente nuevamente.';
+
+                  if (this.isHttpErrorResponse(error)) {
+                    errorMessage = error.error?.details || error.message || errorMessage;
+                  }
+
+                  this.alertservice.error('Error al Guardar', errorMessage);
                 }
-
-                const nuevaNotificacion: Notificacion = {
-                  id_usuario: this.idusuario,
-                  id_spt2: this.id_spt2,
-                  firmado: false // Si necesitas firmarlo, cambia a true
-              };
-
-              await this.notificacionService.insertarNotificacionSpt2(nuevaNotificacion).toPromise();
-
-
-
-
+              } catch (error) {
+                console.error("Error al extraer los datos del formulario", error);
                 this.messageService.remove(loadingMessageId);
-                this.notificationService.success(
-                    'Datos Guardados',
-                    'Los datos se han guardado correctamente.'
-                );
-            } catch (error) {
-              this.messageService.remove(loadingMessageId);
-                this.notificationService.error(
-                    'Error al Guardar',
-                    'Ha ocurrido un error al guardar los datos.'
-                );
+                this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
+              }
             }
+          });
         }
-    });
-}
-}
+
+        isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
+          return error && typeof error === 'object' && ('error' in error || 'message' in error);
+        }
+      }
+

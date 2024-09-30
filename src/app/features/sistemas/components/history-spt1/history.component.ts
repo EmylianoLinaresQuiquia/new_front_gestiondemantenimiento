@@ -128,10 +128,12 @@ export class HistoryComponent implements OnInit {
         { data: 'lider', title: 'Líder', width: '18%' },
         { data: 'supervisor', title: 'Supervisor', width: '18%' },
         {
-          data: 'documento', title: 'Documento', width: '5%',
+          data: 'firma', title: 'Documento', width: '5%',
           render: (data: any, type: any, full: any, meta: any) => {
+            // Cambia el color dependiendo del valor de 'firma'
+            const color = full.firma === true ? 'green' : 'orange';
             return `<a class="pdf-icon" data-id="${full.idSpt1}">
-                      <i class="fas fa-file-pdf" style="color:orange;"></i>
+                      <i class="fas fa-file-pdf" style="color:${color};"></i>
                     </a>`;
           }
         }
@@ -224,15 +226,37 @@ export class HistoryComponent implements OnInit {
       this.pdfUrl = pdfUrl; // Asigna el pdfUrl a la propiedad de la clase
 
       this.modal.create({
-        nzTitle: 'PDF Document',
         nzContent: this.pdfModal,
-        nzFooter: null,
-        nzWidth: 1200
+        nzFooter: [
+          {
+            label: 'Cerrar',
+            type: 'default',
+            onClick: () => this.modal.closeAll(),
+            className: 'custom-close-button' // Clase CSS personalizada para el botón
+          },
+          {
+            label: 'Descargar PDF',
+            type: 'primary',
+            onClick: () => this.downloadPdf(pdfBlob),
+          }
+        ],
+        nzWidth: '100%',
+        nzStyle: { top: '20px' }, // Posicionar el modal en la parte superior
+        nzClosable: false // Desactivar el botón "X" de cerrar
       });
     }).catch(error => {
       console.error('Error opening PDF:', error);
     });
   }
+
+  // Método para descargar el PDF
+  downloadPdf(pdfBlob: Blob): void {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(pdfBlob);
+    link.download = 'spt1.pdf';
+    link.click();
+  }
+
 
 
 

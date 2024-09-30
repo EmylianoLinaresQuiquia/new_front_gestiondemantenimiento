@@ -173,8 +173,6 @@ export class Spt1InspectionComponent  {
       private CercopAiService: CercopAiService,
       private TransformadorNoAiService: TransformadorNoAiService,
       private RecomendacionService: RecomendacionService,
-
-      private notificacionService: NotificacionService,
       private authService: AuthServiceService,
       private TipostpService: TipostpService,
       //private PdfGeneratorPlanoService: PdfGeneratorPlanoService,
@@ -187,7 +185,8 @@ export class Spt1InspectionComponent  {
       private route: ActivatedRoute,
       private messageService:NzMessageService,
       private notificationService:NzNotificationService,
-      private modal: NzModalService
+      private modal: NzModalService,
+      private notificacionService: NotificacionService
     ) {
       this.initializeOptions(48);
 
@@ -244,8 +243,15 @@ export class Spt1InspectionComponent  {
     }
 
     getSelectClass(selectedOption: string): string {
-      return selectedOption === 'Buen Estado' ? 'select-green' : 'select-red';
+      if (selectedOption === 'Buen Estado') {
+        return 'select-green';
+      } else if (selectedOption === 'No aplica') {
+        return 'select-black';
+      } else {
+        return 'select-red';
+      }
     }
+
 
     onSelectChange(index: number, event: Event): void {
       const select = event.target as HTMLSelectElement;
@@ -362,7 +368,7 @@ export class Spt1InspectionComponent  {
         },
         error => {
           console.error('Error inesperado', error);
-          this.alertservice.showAlert('No se encontró el Plano.', 'error');
+          this.alertservice.error('No se encontró el Plano.', 'error');
         }
       );
     }
@@ -380,82 +386,105 @@ export class Spt1InspectionComponent  {
   pozos_a_tierra: string[] = [];
 
   guardarDatos(): void {
-    console.log("supervisor",this.supervisorIdUsuario ?? 0,"tecnico",this.tecnicoIdUsuario ?? 0,)
+    console.log("supervisor", this.supervisorIdUsuario ?? 0, "tecnico", this.tecnicoIdUsuario ?? 0);
     this.modal.confirm({
-      nzTitle: 'Confirmación',
-      nzContent: '¿Estás seguro de que quieres guardar los datos?',
-      nzOkText: 'Aceptar',
-    nzCancelText: 'Cancelar',
-      nzOnOk: async () => {
-        const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
+        nzTitle: 'Confirmación',
+        nzContent: '¿Estás seguro de que quieres guardar los datos?',
+        nzOkText: 'Aceptar',
+        nzCancelText: 'Cancelar',
+        nzOnOk: async () => {
+            const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
 
-        try {
-          const seguridad_observacione = [
-            { checks: [this.check1, this.check2], observacion: this.observacion1 },
-            { checks: [this.check3, this.check4], observacion: this.observacion2 },
-            { checks: [this.check5, this.check6], observacion: this.observacion3 },
-            { checks: [this.check7, this.check8], observacion: this.observacion4 },
-            { checks: [this.check9, this.check10], observacion: this.observacion5 },
-          ];
-          this.seguridad_observacion = seguridad_observacione;
+            try {
+                const seguridad_observacione = [
+                    { checks: [this.check1, this.check2], observacion: this.observacion1 },
+                    { checks: [this.check3, this.check4], observacion: this.observacion2 },
+                    { checks: [this.check5, this.check6], observacion: this.observacion3 },
+                    { checks: [this.check7, this.check8], observacion: this.observacion4 },
+                    { checks: [this.check9, this.check10], observacion: this.observacion5 },
+                ];
+                this.seguridad_observacion = seguridad_observacione;
 
-          const observacion_avisos = [
-            { observacion: this.observacion6, aviso: this.aviso6 },
-            { observacion: this.observacion7, aviso: this.aviso7 },
-            { observacion: this.observacion8, aviso: this.aviso8 },
-          ];
-          this.observacion_avisos = observacion_avisos;
+                const observacion_avisos = [
+                    { observacion: this.observacion6, aviso: this.aviso6 },
+                    { observacion: this.observacion7, aviso: this.aviso7 },
+                    { observacion: this.observacion8, aviso: this.aviso8 },
+                ];
+                this.observacion_avisos = observacion_avisos;
 
-          const spt1: Spt1DTO = {
-            ot: this.ot || "",
-            fecha: this.fecha || "",
-            hora_inicio: this.inicio || "",
-            hora_fin: this.fin || "",
-            id_subestacion: this.id_subestacion ?? 0,
-            id_usuario: this.tecnicoIdUsuario ?? 0,
-            id_usuario_2: this.supervisorIdUsuario ?? 0,
-            tipo_spt1: this.tipo_spt1?.join(",") || "",
-            observacion_aviso: this.observacion_avisos.map(oa => oa.observacion).join(",") || "",
-            aviso: this.observacion_avisos.map(oa => oa.aviso).join(",") || "",
-            seguridad_observaciones: this.seguridad_observacion.map(so => so.observacion).join(",") || "",
-            bueno: this.seguridad_observacion.map(so => so.checks[0] ? "TRUE" : "FALSE").join(",") || "",
-            na: this.seguridad_observacion.map(so => so.checks[1] ? "TRUE" : "FALSE").join(",") || "",
-            barras_equipotenciales: Object.values(this.barras_equipotencial).join(",") || "",
-            pozos_a_tierra: this.getSelectedOptions().join(",") || "",
-            cerco_perimetrico: Object.values(this.cerco_perimetrico).join(",") || "",
-            transformadores: Object.values(this.transformador).join(",") || ""
-          };
+                const spt1: Spt1DTO = {
+                    ot: this.ot || "",
+                    fecha: this.fecha || "",
+                    hora_inicio: this.inicio || "",
+                    hora_fin: this.fin || "",
+                    id_subestacion: this.id_subestacion ?? 0,
+                    id_usuario: this.tecnicoIdUsuario ?? 0,
+                    id_usuario_2: this.supervisorIdUsuario ?? 0,
+                    tipo_spt1: this.tipo_spt1?.join(",") || "",
+                    observacion_aviso: this.observacion_avisos.map(oa => oa.observacion).join(",") || "",
+                    aviso: this.observacion_avisos.map(oa => oa.aviso).join(",") || "",
+                    seguridad_observaciones: this.seguridad_observacion.map(so => so.observacion).join(",") || "",
+                    bueno: this.seguridad_observacion.map(so => so.checks[0] ? "TRUE" : "FALSE").join(",") || "",
+                    na: this.seguridad_observacion.map(so => so.checks[1] ? "TRUE" : "FALSE").join(",") || "",
+                    barras_equipotenciales: Object.values(this.barras_equipotencial).join(",") || "",
+                    pozos_a_tierra: this.getSelectedOptions().join(",") || "",
+                    cerco_perimetrico: Object.values(this.cerco_perimetrico).join(",") || "",
+                    transformadores: Object.values(this.transformador).join(",") || ""
+                };
 
-          this.Spt1Service.insertarSpt1(spt1).subscribe({
-            next: (response) => {
-              this.messageService.remove(loadingMessageId);
-              this.notificationService.success('Datos Guardados', 'Los datos se han guardado con éxito.');
-              console.log('Registro creado exitosamente', response);
-            },
-            error: (errorResponse) => {
-              this.messageService.remove(loadingMessageId);
-              if (errorResponse.status === 400) {
-                console.error('Errores de validación del servidor:', errorResponse.error.errors);
-                this.notificationService.error('Errores de Validación', 'Hubo errores en los datos enviados.');
-                for (const [key, value] of Object.entries(errorResponse.error.errors)) {
-                  console.error(`Error en el campo ${key}: ${value}`);
-                }
+                console.log("spt1 Object:", spt1);
+
+            try {
+              const response = await this.Spt1Service.insertarSpt1(spt1).toPromise();
+              const idspt1 = response.id;
+
+              if (idspt1) {
+                console.log("Response from postPM1:", response);
+
+                const notificacion: Notificacion = {
+                  supervisor: this.supervisorIdUsuario ?? 0,
+                  lider: this.tecnicoIdUsuario ?? 0,
+                  firmado: false,
+                  id_spt1: idspt1
+                };
+                console.log("data notificacion",notificacion)
+
+                await this.notificacionService.insertarNotificacionSpt1(notificacion).toPromise();
+                console.log("Notificación PM1 insertada correctamente");
+
+                this.messageService.remove(loadingMessageId);
+                this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
               } else {
-                this.notificationService.error('Error Inesperado', 'Ha ocurrido un error al guardar los datos.');
-                console.error('Error inesperado:', errorResponse);
+                this.alertservice.error('Error', 'No se pudo obtener el ID de la spt1.');
+                this.messageService.remove(loadingMessageId);
               }
+            } catch (error) {
+              console.error("Error durante el proceso de guardado", error);
+              this.messageService.remove(loadingMessageId);
+
+              // Verificar si el error tiene la estructura esperada
+              let errorMessage = 'Ha ocurrido un error inesperado al guardar los datos. Por favor, intente nuevamente.';
+
+              if (this.isHttpErrorResponse(error)) {
+                errorMessage = error.error?.details || error.message || errorMessage;
+              }
+
+              this.alertservice.error('Error al Guardar', errorMessage);
             }
-          });
-        } catch (error) {
-          this.messageService.remove(loadingMessageId);
-          this.notificationService.error('Error al Guardar', 'Ha ocurrido un error inesperado al guardar los datos.');
-          console.error('Error en el proceso de guardado:', error);
+          } catch (error) {
+            console.error("Error al extraer los datos del formulario", error);
+            this.messageService.remove(loadingMessageId);
+            this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
+          }
         }
-      }
-    });
+      });
+    }
 
+    isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
+      return error && typeof error === 'object' && ('error' in error || 'message' in error);
+    }
 
-
+}
 
 
 
@@ -684,7 +713,7 @@ export class Spt1InspectionComponent  {
                 }
             }
         });*/
-    }
+
 
 
 
@@ -1006,4 +1035,4 @@ getDropdownOptions(cell: any): string[] {
   }*/
 
 
-}
+

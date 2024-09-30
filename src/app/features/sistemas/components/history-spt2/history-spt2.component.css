@@ -1,0 +1,13 @@
+.custom-close-button {
+  background-color: #f5222d;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  padding: 6px 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.custom-close-button:hover {
+  background-color: #cf1322;
+}

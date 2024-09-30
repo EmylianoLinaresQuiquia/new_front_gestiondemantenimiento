@@ -2,22 +2,30 @@ import { DashboardService } from './../../services/dashboard.service';
 import { NotificacionService } from './../../../sistemas/services/notificacion.service';
 import { Spt2Service } from './../../../sistemas/services/spt2.service';
 import { Spt1Service } from './../../../sistemas/services/spt1.service';
-import { Component,Input  } from '@angular/core';
+import { Component,Input,ViewChild,TemplateRef  } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { AuthServiceService } from 'src/app/features/sistemas/services/auth-service.service';
 import { Router } from '@angular/router';
 import { UsuarioService } from 'src/app/features/sistemas/services/usuario.service';
-import { Notificacion } from 'src/app/features/sistemas/interface/notificacion';
+import { Notificacion, NotificacionPendiente } from 'src/app/features/sistemas/interface/notificacion';
 import { Spt2 } from 'src/app/features/sistemas/interface/spt2';
 import { Spt1 } from 'src/app/features/sistemas/interface/spt1';
+import { PdfGeneratorServiceService } from 'src/app/features/sistemas/services/pdf-generator-service.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalRef } from 'ng-zorro-antd/modal/modal-ref';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { ChangeDetectorRef } from '@angular/core';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-browser';
+import { PM1,BuscarPM1PorId } from 'src/app/features/sistemas/interface/pm1';
+import { PdfViewerPm1Component } from 'src/app/shared/components/pdf-viewer-pm1/pdf-viewer-pm1.component';
+import { PM1Service } from 'src/app/features/sistemas/services/pm1.service';
+import { PdfGeneratorServicespt1Service } from 'src/app/features/sistemas/services/pdf-generator-servicespt1.service'
 interface NotificationItem {
+  id:number,
   type: string;
   time: string;
   avatar: string;
@@ -65,7 +73,14 @@ export class HeaderComponent {
 
     private destroy$ = new Subject<void>(); // Añade esta línea
 
+    @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
+    pdfUrl: SafeResourceUrl | null = null;
 
+
+    //pdfUrl: SafeResourceUrl | null = null;
+  //@ViewChild('pdfModal', { static: false }) pdfModal!: TemplateRef<any>;
+  pm1: BuscarPM1PorId | undefined;
+  pdfSrc: string = 'assets/pdf/pm1/pm1.pdf';
   constructor(
     private authService:AuthServiceService,
     private router :Router,
@@ -76,7 +91,11 @@ export class HeaderComponent {
     private messageService:NzMessageService,
       private notificationService:NzNotificationService,
       private modal: NzModalService,
-      public DashboardService : DashboardService
+      public DashboardService : DashboardService,
+      private pdfGeneratorService:PdfGeneratorServiceService,
+      private sanitizer: DomSanitizer,
+      private pm1Service: PM1Service,
+      private Pdfspt1service :PdfGeneratorServicespt1Service
   ){
 
   }
@@ -85,6 +104,7 @@ export class HeaderComponent {
   }
 
   ngOnInit(): void {
+
     // Recuperar la configuración de notificaciones desde localStorage
     const storedNotificaciones = localStorage.getItem('mostrarNotificaciones');
     this.mostrarNotificaciones = storedNotificaciones ? JSON.parse(storedNotificaciones) : false;
@@ -131,9 +151,25 @@ export class HeaderComponent {
     });
 
     // Cargar otras notificaciones
-    this.cargarNotificaciones();
-    this.obtenerNotificacionesFirmadas();
-    this.obtenerNotificacionesPendientes();
+
+
+     // Recuperar el ID de usuario desde localStorage
+     const storedUserId = localStorage.getItem('userId');
+     if (storedUserId) {
+       this.userId = parseInt(storedUserId, 10);
+       console.log('ID de usuario obtenido desde localStorage:', this.userId);
+       this.obtenerNotificacionesPendientes(); // Llamada al método
+       this.obtenerNotificacionesFirmadas();
+     } else {
+       this.authService.userId$.subscribe((id) => {
+         this.userId = id;
+         console.log('ID de usuario obtenido desde observable:', this.userId);
+         this.obtenerNotificacionesPendientes(); // Llamada al método
+         this.obtenerNotificacionesFirmadas()
+       });
+     }
+
+
   }
   ngOnDestroy() {
     this.destroy$.next();
@@ -145,24 +181,37 @@ export class HeaderComponent {
     this.bellInfo.total = this.bellInfo.notice + this.bellInfo.message + this.bellInfo.task;
   }
 
-  cargarNotificaciones() {
-    this.notificacionService.obtenerNotificaciones()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.notificaciones = data;
-          console.log('Notificaciones cargadas:', data);  // Mostrar datos en consola
-        },
-        error: (e) => console.error('Error al cargar notificaciones:', e)
-      });
-  }
+
 
   obtenerNotificacionesFirmadas() {
     this.notificacionService.obtenerNotificacionesFirmadas(this.userId)
       .subscribe(
-        (data: Notificacion[]) => {
-          this.notificacionesfirmadas = data;
-          console.log('Notificaciones firmadas obtenidas:', data);  // Mostrar datos en consola
+        (data: NotificacionPendiente[]) => {
+          // Mapear las notificaciones firmadas para ajustar el formato y asignarlas a messageList
+          this.FirmadoList = data.map(notificacion => {
+            const fecha = notificacion.fecha ? new Date(notificacion.fecha).toLocaleString() : 'Fecha no disponible';
+
+            return {
+              type: 'notice',
+              id_pm1:notificacion.id_pm1,
+              id_spt1:notificacion.id_spt1,
+              id_spt2:notificacion.id_spt2,
+              id:notificacion.idnotificacion,
+              time: fecha,
+              avatar: 'path/to/avatar.png', // Puedes usar una URL dinámica si tienes un campo de avatar
+              read: notificacion.firmado,
+              tag_subestacion: notificacion.tag_subestacion,  // Agregar tag_subestacion
+              ot: notificacion.ot , // Agregar ot
+              desc: 'Descripción no disponible' ,
+              title: `${notificacion.nombre_lider}`,
+
+            } as NotificationItem;
+          });
+
+          // Actualiza la cantidad de mensajes firmados pendientes
+          this.bellInfo.notice = this.FirmadoList.length;
+
+          console.log('Notificaciones firmadas obtenidas:', this.FirmadoList);  // Mostrar datos en consola
         },
         error => {
           console.error('Error al obtener las notificaciones firmadas:', error);
@@ -173,18 +222,32 @@ export class HeaderComponent {
   obtenerNotificacionesPendientes() {
     this.notificacionService.obtenerNotificacionesPendientes(this.userId)
       .subscribe(
-        (data: Notificacion[]) => {
-          // Mapear notificaciones pendientes a la estructura de `NotificationItem`
-          this.noticeList = data.map(notificacion => ({
-            type: 'notice',  // Tipo de notificación
-            time: this.formatTime(notificacion.fecha),  // Convertir la fecha en un formato amigable
-            avatar: 'path/to/avatar.png',  // Puede ser dinámico si tienes avatares personalizados
-            desc: `Notificación pendiente con ID: ${notificacion.idnotificacion}`,
-            read: notificacion.firmado,  // Suponemos que `firmado` indica si está leída o no
-            title: `Notificación ID ${notificacion.idnotificacion}`
-          }));
+        (data: NotificacionPendiente[]) => {
+          console.log("data",data)
+          this.noticeList = data.map(notificacion => {
+            const fecha = notificacion.fecha ? new Date(notificacion.fecha).toLocaleString() : 'Fecha no disponible';
 
-          console.log('Notificaciones pendientes mapeadas:', this.noticeList);
+            return {
+              type: 'notice',
+              id_pm1:notificacion.id_pm1,
+              id_spt1:notificacion.id_spt1,
+              id_spt2:notificacion.id_spt2,
+              id:notificacion.idnotificacion,
+              time: fecha,
+              avatar: 'path/to/avatar.png',  // Puedes usar una URL dinámica si tienes un campo de avatar
+              read: notificacion.firmado,
+              title: `${notificacion.nombre_lider}`,
+              tag_subestacion: notificacion.tag_subestacion,  // Agregar tag_subestacion
+              ot: notificacion.ot , // Agregar ot
+              desc: 'Descripción no disponible' ,
+            } as NotificationItem;
+          });
+
+          // Actualiza bellInfo.notice con la cantidad de notificaciones pendientes
+          this.bellInfo.notice = this.noticeList.length;
+
+          console.log('Notificaciones pendientes', this.noticeList);
+          console.log('this.userId en pendiente', this.userId);
         },
         error => {
           console.error('Error al obtener las notificaciones pendientes:', error);
@@ -193,82 +256,121 @@ export class HeaderComponent {
   }
 
 
+  firmarNotificacion(item: NotificationItem): void {
+    const idNotificacion = item.id; // Asegúrate de tener el `id` de la notificación
+    const firmado = true;
 
-  actualizarFirma(Notificacion: Notificacion): void {
-    console.log("ID de notificación:", Notificacion.idnotificacion);
-    console.log("Firmado:", Notificacion.firmado);
-    console.log("idspt2", Notificacion.id_spt2)
-    console.log("idspt1", Notificacion.id_spt1)
+    this.notificacionService.actualizarFirmaNotificacion(idNotificacion, firmado).subscribe(
+      (response) => {
+        console.log('Notificación firmada con éxito:', response);
 
-    this.spt2Service.buscarSpt2PorId(Notificacion.id_spt2!).subscribe(
-      response => {
-        console.log('spt2', response);
-        if (response && response.idSpt2 !== undefined) {
-          response.firma = true;
-          this.spt2Service.actualizarFirma(response.idSpt2, response.firma).subscribe(
-            response => {
-              console.log('Firma actualizada correctamente:', response);
-              Notificacion.firmado = true;
-              if (Notificacion.idnotificacion !== undefined) {
-                this.notificacionService.actualizarFirmaNotificacion(Notificacion.idnotificacion, Notificacion.firmado).subscribe(
-                  response => {
-                    console.log('Firma actualizada correctamente:', response);
-                    this.notificationService.success('Excelente', 'Firma actualizada correctamente');
-                  },
-                  error => {
-                    console.error('Error al actualizar la firma:', error);
-                    this.notificationService.error('Error al Guardar', 'Error al actualizar la firma');
-                  }
-                );
-              } else {
-                console.error('ID de notificación no definido.');
-              }
-            },
-            error => {
-              console.error('Error al actualizar la firma:', error);
-              this.notificationService.error('Error al Guardar', 'Error al actualizar la firma');
-            }
-          );
-        } else {
-          console.error('ID de SPT2 no definido.');
-        }
+        // Actualizar el estado de la notificación y moverla a la lista de firmadas
+        this.noticeList = this.noticeList.filter(notice => notice.id !== item.id);
+        item.read = true; // Marcar como leído
+
+        // Agregar la notificación firmada a FirmadoList
+        this.FirmadoList.push(item);
+
+        // Actualizar la cantidad de notificaciones pendientes y firmadas
+        this.bellInfo.notice = this.noticeList.length;
+        this.bellInfo.total = this.bellInfo.notice + this.bellInfo.message + this.bellInfo.task;
       },
-      error => {
-        console.error('Error al buscar SPT2:', error);
+      (error) => {
+        console.error('Error al firmar la notificación:', error);
       }
     );
+  }
 
 
-    /*this.Spt1Service.buscarSpt1PorId(Notificacion.id_spt1).subscribe(
-        response => {
-            response.firma = true;
-            this.Spt1Service.actualizarFirma(response.id_spt1, response.firma).subscribe(
-                response => {
-                    console.log('Firma actualizada correctamente:', response);
-                    Notificacion.firmado = true;
-                    this.notificacionService.actualizarFirmaNotificacion(Notificacion.idnotificacion, Notificacion.firmado).subscribe(
-                        response => {
-                            console.log('Firma actualizada correctamente:', Notificacion.idnotificacion, Notificacion.firmado);
-                            this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Firma actualizada correctamente' });
-                            // Aquí puedes realizar alguna acción adicional si es necesario
-                        },
-                        error => {
-                            console.error('Error al actualizar la firma:', error);
-                            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar la firma' });
-                        }
-                    );
-                },
-                error => {
-                    console.error('Error al actualizar la firma:', error);
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar la firma' });
-                }
-            );
-        },
-        error => {
-            console.error('spt1', Response);
-        }
-    );*/
+  eliminarNotificacion(item: NotificationItem): void {
+    const idNotificacion = item.id;
+
+    this.notificacionService.eliminarNotificacion(idNotificacion).subscribe(
+      (response) => {
+        console.log('Notificación eliminada con éxito:', response);
+
+        // Eliminar la notificación de la lista de pendientes
+        this.noticeList = this.noticeList.filter(notice => notice.id !== item.id);
+
+        // Actualizar la cantidad de notificaciones pendientes
+        this.bellInfo.notice = this.noticeList.length;
+        this.bellInfo.total = this.bellInfo.notice + this.bellInfo.message + this.bellInfo.task;
+      },
+      (error) => {
+        console.error('Error al eliminar la notificación:', error);
+      }
+    );
+  }
+
+
+
+
+spt2pdf(tag_subestacion: string, ot: string): void {
+  console.log("tag y ot pdf",tag_subestacion,ot)
+  this.pdfGeneratorService.generarPDF(tag_subestacion, ot).then((pdfBlob: Blob) => {
+    const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+      URL.createObjectURL(pdfBlob) + '#toolbar=0'
+    );
+    this.pdfUrl = pdfUrl;
+    console.log('PDF URL:', pdfUrl);
+    this.modal.create({
+      //nzTitle: 'PDF Document',
+      nzContent: this.pdfModal,
+      nzFooter: null,
+      nzWidth: 1200
+    });
+    console.log('Modal abierto con éxito');
+  }).catch(error => {
+    console.error('Error opening PDF:', error);
+  });
 }
+
+pm1pdf(id: number) {
+  this.pm1Service.getPM1ById(id).subscribe(
+    (data: BuscarPM1PorId) => {
+      this.pm1 = data;
+      if (this.pdfSrc && this.pm1) {
+        this.modal.create({
+          nzContent: PdfViewerPm1Component,  // Componente que se abrirá en el modal
+          nzData: {
+            pdfSrc: this.pdfSrc,  // Asegúrate de que este valor esté correctamente asignado
+            pm1: this.pm1         // El objeto `pm1` contiene los datos necesarios
+          },
+          nzWidth: 1200,            // Ajusta el ancho del modal
+          //nzBodyStyle: { height: '80rem' }  // Altura del modal
+        });
+        console.log('Modal abierto con PDF:', this.pdfSrc, 'y PM1:', this.pm1);
+      } else {
+        console.error('No se puede abrir el modal porque faltan datos.');
+      }
+    },
+    (error: any) => {
+      console.error('Error al cargar los datos de PM1 por ID', error);
+    }
+  );
+}
+
+spt1pdf(id_spt1: number): void {
+  this.Pdfspt1service.generarPDF(id_spt1).then((pdfBlob: Blob) => {
+    const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+      URL.createObjectURL(pdfBlob) + '#toolbar=0'  // Oculta la barra de herramientas del visor PDF
+    );
+
+    this.pdfUrl = pdfUrl; // Asigna el pdfUrl a la propiedad de la clase
+
+    this.modal.create({
+      nzTitle: 'PDF Document',
+      nzContent: this.pdfModal,
+      nzFooter: null,
+      nzWidth: 1200
+    });
+  }).catch(error => {
+    console.error('Error opening PDF:', error);
+  });
+}
+
+
+
 
 
   drawerInfo = {
@@ -278,6 +380,7 @@ export class HeaderComponent {
   };
   noticeList: NotificationItem[] = [
     {
+      id:0,
       type: 'notice',
       time: '2 hours ago',
       avatar: 'path/to/avatar.png',
@@ -297,14 +400,15 @@ export class HeaderComponent {
   }
 
 
-  messageList: NotificationItem[] = [
+  FirmadoList: NotificationItem[] = [
     {
-      type: 'message',
-      time: '3 hours ago',
-      avatar: 'path/to/avatar3.png',
-      desc: 'You have a new message',
+      id:0,
+      type: 'notice',
+      time: '2 hours ago',
+      avatar: 'path/to/avatar.png',
+      desc: 'You have a new notice',
       read: false,
-      title: 'New Message'
+      title: 'New Notice'
     }
   ];
 
@@ -320,7 +424,7 @@ export class HeaderComponent {
 
   bellInfo = {
     total: 5, // ejemplo de conteo de notificaciones
-    notice: 2, // ejemplo de notificaciones
+    notice: 0, // ejemplo de notificaciones
     message: 3, // ejemplo de mensajes
     task: 1 // ejemplo de tareas
   };
