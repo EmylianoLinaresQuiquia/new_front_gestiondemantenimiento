@@ -335,22 +335,25 @@ export class Spt1InspectionComponent  {
 
 
     onGenerarPdfButtonClick(): void {
+      const newTab = window.open('', '_blank'); // Abrir una nueva pestaña en blanco de inmediato
+
+      if (!newTab) {
+        // Si no se pudo abrir, mostrar error
+        console.error('No se pudo abrir una nueva pestaña.');
+        this.alertservice.error('No se pudo abrir el PDF en una nueva pestaña.', 'error');
+        return;
+      }
+
+      // Llamada al servicio para obtener el PDF
       this.subestacionService.getPdfBySubestacion(this.tagSubestacion).subscribe(
         (pdfBlob: Blob) => {
           const blobUrl = URL.createObjectURL(pdfBlob);
-
-          // Abrir el PDF en una nueva pestaña
-          const newTab = window.open();
-          if (newTab) {
-            newTab.location.href = blobUrl;
-          } else {
-            console.error('No se pudo abrir una nueva pestaña.');
-            this.alertservice.error('No se pudo abrir el PDF en una nueva pestaña.', 'error');
-          }
+          newTab.location.href = blobUrl; // Asignar el URL del PDF a la nueva pestaña
         },
-        error => {
+        (error) => {
           console.error('Error inesperado', error);
           this.alertservice.error('No se encontró el Plano.', 'error');
+          newTab.close(); // Cerrar la pestaña si hubo un error
         }
       );
     }
