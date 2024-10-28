@@ -179,12 +179,6 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-
-
-
-
-
-
   openPdf(id_spt1: number): void {
     this.pdfGeneratorService.generarPDF(id_spt1).then((pdfBlob: Blob) => {
         // Crear URL para el PDF
@@ -196,7 +190,6 @@ export class HistoryComponent implements OnInit {
         console.error('Error opening PDF:', error);
     });
 }
-
 
   // Método para descargar el PDF
   downloadPdf(pdfBlob: Blob): void {
