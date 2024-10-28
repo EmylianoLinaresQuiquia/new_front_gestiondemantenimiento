@@ -22,6 +22,7 @@ type Opcion = 'Protocolo' | 'Historico';
 })
 export class InspectionPageComponent {
   tagSubestacion: string = '';
+  ubicacion :string = '';
   subestaciones: Subestacion[] = [];
   tagsSubestaciones: string[] = [];
   selectedOptionSpt1!: Opcion;  // Nueva variable para SPT1
@@ -52,8 +53,16 @@ export class InspectionPageComponent {
   }
 
   buscarSubestacion(): void {
+    const subestacionSeleccionada = this.subestaciones.find(s => s.tag_subestacion === this.tagSubestacion);
+    if (subestacionSeleccionada) {
+      this.ubicacion = subestacionSeleccionada.ubicacion; // Asigna la ubicación de la subestación seleccionada
+    } else {
+      this.ubicacion = ''; // Limpia el valor si no se encuentra una coincidencia
+    }
     console.log('Subestación seleccionada:', this.tagSubestacion);
+    console.log("Ubicación:", this.ubicacion);
   }
+
 
   seleccionarOpcion(tipo: Tipo, opcion: Opcion): void {
     console.log('Tipo seleccionado:', tipo);
@@ -87,12 +96,19 @@ export class InspectionPageComponent {
     };
 
     const rutaHistorial = rutasHistorial[tipo];
-    console.log('Navegando a la ruta de historial:', rutaHistorial);
-    this.router.navigate([rutaHistorial], {
-      queryParams: {
-        tag: this.tagSubestacion
-      },
-    });
+    const subestacionSeleccionada = this.subestaciones.find(s => s.tag_subestacion === this.tagSubestacion);
+
+    if (subestacionSeleccionada) {
+      console.log('Navegando a la ruta de historial:', rutaHistorial);
+      this.router.navigate([rutaHistorial], {
+        queryParams: {
+          tag: subestacionSeleccionada.tag_subestacion,
+          ubicacion: subestacionSeleccionada.ubicacion
+        },
+      });
+    } else {
+      console.error('Subestación no encontrada para redirigir al historial.');
+    }
   }
 
   navegarARuta(ruta: string): void {
@@ -108,7 +124,10 @@ export class InspectionPageComponent {
           cantidad_spt: subestacionSeleccionada.cantidad_spt,
           id_subestacion: subestacionSeleccionada.id_subestacion,
           fecha_plano : subestacionSeleccionada.fecha_plano,
-          versio:subestacionSeleccionada.versio
+          versio:subestacionSeleccionada.versio,
+
+
+
         },
       });
     } else {

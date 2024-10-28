@@ -344,11 +344,13 @@ export class Pm1InspectionComponent implements OnInit{
             const observacionesAvisoSolicitud = this.buildObservaciones(formData, 'ObservacionesAvisoSolicitud', 5, ['observacion', 'si', 'no', 'solicitud']);
             const equipos = this.buildEquipos(formData);
 
+            // Formatear la fecha en dd-MM-yyyy
+            const fechaFormateada = typeof formData['fecha'] === 'string' ? this.convertirFechaFormato(formData['fecha']) : '';
             const pm1 = {
               hora_inicio: typeof formData['hora_inicio'] === 'string' ? formData['hora_inicio'] : '',
               hora_fin: typeof formData['hora_fin'] === 'string' ? formData['hora_fin'] : '',
               orden_trabajo: typeof formData['orden_trabajo'] === 'string' ? formData['orden_trabajo'] : '',
-              fecha: typeof formData['fecha'] === 'string' ? formData['fecha'] : '',
+              fecha: fechaFormateada,
               seguridad_observaciones: seguridadObservaciones,
               patio_observaciones: patioObservaciones,
               aviso_observaciones: observacionesAvisoSolicitud,
@@ -408,6 +410,12 @@ export class Pm1InspectionComponent implements OnInit{
       });
     }
 
+      // Método para convertir la fecha al formato dd-MM-yyyy
+  convertirFechaFormato(fecha: string): string {
+    if (!fecha) return ''; // Verificación si la fecha está vacía
+    const [year, month, day] = fecha.split('-');
+    return `${day}-${month}-${year}`;
+  }
     isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
       return error && typeof error === 'object' && ('error' in error || 'message' in error);
     }

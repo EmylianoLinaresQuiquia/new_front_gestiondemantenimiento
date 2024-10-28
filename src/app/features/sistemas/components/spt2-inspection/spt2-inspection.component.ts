@@ -6,7 +6,7 @@ import { UsuarioService } from '../../services/usuario.service';
 
 import { SubestacionService } from '../../services/subestacion.service';
 import { Subestacion } from '../../interface/subestacion';
-import { Spt2 } from '../../interface/spt2';
+import { InsertSpt2 } from '../../interface/spt2';
 import { Spt2Service } from '../../services/spt2.service';
 import { MetodoCaida } from '../../interface/metodo-caida';
 import { MetodoCaidaService } from '../../services/metodo-caida.service';
@@ -75,9 +75,10 @@ export class Spt2InspectionComponent implements OnDestroy {
   plano = '';
   fecha_plano = '';
   versio : number | null = null;
+  id_subestacion : number | null = null;
 
   frecuencia: string = "111,128 Hz";
-  fecha_calibracion: string = "02/21/23";
+  fecha_calibracion: string = "09-07-2024";
   precision: string = "+/- 5%";
   n_serie: string = "ST181415734 B4";
   marca: string = "Fluke";
@@ -114,6 +115,10 @@ export class Spt2InspectionComponent implements OnDestroy {
 
   prevCaidaValues: number[] = []
   prevSelectivoValues: number[] = [];
+
+  esquema_caida: File | null = null;
+esquema_selectivo: File | null = null;
+
   //items: MenuItem[] | undefined;
   constructor(private subestacionService: SubestacionService,
     private usuarioService: UsuarioService,
@@ -145,6 +150,7 @@ export class Spt2InspectionComponent implements OnDestroy {
 
 
   ngOnInit(): void {
+
     /*this.items = [
         {
             icon: 'pi pi-upload',
@@ -162,6 +168,7 @@ export class Spt2InspectionComponent implements OnDestroy {
       this.cantidad_spt = params['cantidad_spt'] ? +params['cantidad_spt'] : null;
       this.fecha_plano = params['fecha_plano'] || '';
       this.versio = params['versio'] ? +params['versio'] : null;
+      this.id_subestacion = params['id_subestacion'] ? +params['id_subestacion'] : null;
     });
     /*this.subestacionService.getSubestacionData().subscribe((data) => {
         console.log("data spt2",data)
@@ -213,6 +220,7 @@ export class Spt2InspectionComponent implements OnDestroy {
 
     if (this.chart) {
         console.log('Disposing of existing chart');
+
         this.chart.dispose();
         this.chart = null;
     }
@@ -222,6 +230,10 @@ export class Spt2InspectionComponent implements OnDestroy {
     console.log('Creating chart instance');
     this.chart = am4core.create('caida-chart', am4charts.XYChart);
 
+    // Desactivar el logo inmediatamente después de crear la instancia del gráfico
+    if (this.chart && this.chart.logo) {
+      this.chart.logo.disabled = true;
+    }
     if (!this.chart) {
         console.error('Failed to create chart instance.');
         return;
@@ -303,15 +315,6 @@ export class Spt2InspectionComponent implements OnDestroy {
 
     console.log('Chart created successfully');
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -406,10 +409,10 @@ selectivografico(): void {
   console.log('Creating chart instance');
   this.selectivochart = am4core.create('selectivo-chart', am4charts.XYChart);
 
-  if (!this.selectivochart) {
-      console.error('Failed to create chart instance.');
-      return;
-  }
+  // Desactivar el logo inmediatamente después de crear la instancia del gráfico
+    if (this.selectivochart && this.selectivochart.logo) {
+        this.selectivochart.logo.disabled = true;
+    }
 
   const valuesPerCategory = 3; // Número de valores por cada PAT
   const categories: string[] = [];
@@ -504,51 +507,34 @@ ngOnDestroy(): void {
 
   }
 
-  enviarImagencaida(): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
-      const chartId = 'caida-chart';
-      const fileName = 'caida-chart.png';
+  enviarImagencaida(): Promise<File> {
+  return new Promise<File>((resolve, reject) => {
+    const chartId = 'caida-chart';
+    const fileName = 'caida-chart.png';
 
-      const formData = new FormData();
-      this.captureChartAsImage(chartId, fileName, (blob: Blob) => {
-        formData.append('grafica', blob, fileName);
-
-        this.MetodoCaidaGraficaService.insertarGrafica(formData).subscribe(
-          (response) => {
-            console.log(response);
-            resolve(response);  // Asegúrate de que 'response' contiene el ID
-          },
-          (error) => {
-            console.error(error);
-            reject(error);
-          }
-        );
-      });
+    this.captureChartAsImage(chartId, fileName, (blob: Blob) => {
+      const file = new File([blob], fileName, { type: 'image/png' });
+      this.esquema_caida = file;  // Asigna el archivo a esquema_caida
+      resolve(file);  // Devuelve el archivo
     });
-  }
+  });
+}
 
-  enviarImagenselectivo(): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
-      const chartId = 'selectivo-chart';
-      const fileName = 'selectivo-chart.png';
+enviarImagenselectivo(): Promise<File> {
+  return new Promise<File>((resolve, reject) => {
+    const chartId = 'selectivo-chart';
+    const fileName = 'selectivo-chart.png';
 
-      const formData = new FormData();
-      this.captureChartAsImage(chartId, fileName, (blob: Blob) => {
-        formData.append('grafica', blob, fileName);
-
-        this.MetodoSelectivoGraficaService.insertarGrafica(formData).subscribe(
-          (response) => {
-            console.log(response);
-            resolve(response);  // Asegúrate de que 'response' contiene el ID
-          },
-          (error) => {
-            console.error(error);
-            reject(error);
-          }
-        );
-      });
+    this.captureChartAsImage(chartId, fileName, (blob: Blob) => {
+      const file = new File([blob], fileName, { type: 'image/png' });
+      this.esquema_selectivo = file;  // Asigna el archivo a esquema_selectivo
+      resolve(file);  // Devuelve el archivo
     });
-  }
+  });
+}
+
+
+
 
 captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) => void): void {
   const chartElement = document.getElementById(chartId);
@@ -768,22 +754,19 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
     }
   }
   onGenerarPdfButtonClick(): void {
-    console.log("hola")
+    console.log("hola");
     this.subestacionService.getPdfBySubestacion(this.tagSubestacion).subscribe(
       (pdfBlob: Blob) => {
         const blobUrl = URL.createObjectURL(pdfBlob);
-        this.modal.create({
-          nzContent: PdfViewerComponent,
 
-          nzData: {
-            pdfSrc: blobUrl // Pasas el PDF como parámetro al componente
-          },
-          nzWidth: '95%',
-          nzBodyStyle: {
-            height: '1%',
-            overflow: 'hidden'
-          }
-        });
+        // Abrir el PDF en una nueva pestaña
+        const newTab = window.open();
+        if (newTab) {
+          newTab.location.href = blobUrl;
+        } else {
+          console.error('No se pudo abrir una nueva pestaña.');
+          this.alertservice.error('No se pudo abrir el PDF en una nueva pestaña.', 'error');
+        }
       },
       error => {
         console.error('Error inesperado', error);
@@ -792,203 +775,127 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
     );
   }
 
-  guardarDatos(): void {
-    this.modal.confirm({
-      nzTitle: 'Confirmación',
-      nzContent: '¿Estás seguro de que quieres guardar los datos?',
-      nzOnOk: async () => {
-        const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
-            try {
 
 
-                // Primero, crear y enviar los datos para MetodoCaida
-                const metodoCaida1: MetodoCaida = {
-                    r1mc: (this.caidaValues[0] || '').toString(),
-                    r2mc: (this.caidaValues[1] || '').toString(),
-                    r3mc: (this.caidaValues[2] || '').toString(),
-                    valormc: this.calcularPromedioCaida(0).toString(),
-                    resultadomc: this.getResultadoCaida(0)?.mensaje,
-                    conclusionesmc: this.conclucioncaida || ''
-                };
+  async insertarSpt2(): Promise<void> {
+    try {
 
-                const metodoCaida2: MetodoCaida = {
-                    r1mc: this.caidaValues[3]?.toString() || '',
-                    r2mc: this.caidaValues[4]?.toString() || '',
-                    r3mc: this.caidaValues[5]?.toString() || '',
-                    valormc: this.calcularPromedioCaida(1).toString(),
-                    resultadomc: this.getResultadoCaida(1)?.mensaje,
-                    conclusionesmc: this.conclucioncaida || ''
-                };
+      // Capturar las imágenes de esquema_caida y esquema_selectivo
+      const esquemaCaida = await this.enviarImagencaida(); // Devuelve un File
+      const esquemaSelectivo = await this.enviarImagenselectivo(); // Devuelve un File
 
-                const metodoCaida3: MetodoCaida = {
-                    r1mc: this.caidaValues[6]?.toString() || '',
-                    r2mc: this.caidaValues[7]?.toString() || '',
-                    r3mc: this.caidaValues[8]?.toString() || '',
-                    valormc: this.calcularPromedioCaida(2).toString(),
-                    resultadomc: this.getResultadoCaida(2)?.mensaje,
-                    conclusionesmc: this.conclucioncaida || ''
-                };
 
-                const metodoCaida4: MetodoCaida = {
-                    r1mc: this.caidaValues[9]?.toString() || '',
-                    r2mc: this.caidaValues[10]?.toString() || '',
-                    r3mc: this.caidaValues[11]?.toString() || '',
-                    valormc: this.calcularPromedioCaida(3).toString(),
-                    resultadomc: this.getResultadoCaida(3)?.mensaje,
-                    conclusionesmc: this.conclucioncaida || ''
-                };
 
-                const responseCaida = await this.metodoCaidaService.insertarMetodoCaida([metodoCaida1, metodoCaida2, metodoCaida3, metodoCaida4]).toPromise();
-                const insertedId = responseCaida!.insertedId as number;
+      const spt2Data: InsertSpt2 = {
+        ot: this.ot,
+        fecha: this.fecha,
+        firmado: false,
+        id_usuario: this.idLider ?? 0,
+        id_usuario_2: this.idSupervisor ?? 0,
+        id_subestacion: this.id_subestacion ?? 0,
 
-                const metodoSelectivo1: MetodoSelectivo = {
-                    r1ms: (this.selectivoValues[0] || '').toString(),
-                    r2ms: (this.selectivoValues[1] || '').toString(),
-                    r3ms: (this.selectivoValues[2] || '').toString(),
-                    valorms: this.calcularPromedioSelectivo(0).toString(),
-                    resultadoms: this.getResultadoSelectivo(0)?.mensaje,
-                    conclusionesms: this.conclucionselectivo || ''
-                };
+        caida_potencia: this.checkcaida,
+        selectivo: this.checkpotencial,
+        sin_picas: this.checksinpicas,
 
-                const metodoSelectivo2: MetodoSelectivo = {
-                    r1ms: (this.selectivoValues[3] || '').toString(),
-                    r2ms: (this.selectivoValues[4] || '').toString(),
-                    r3ms: (this.selectivoValues[5] || '').toString(),
-                    valorms: this.calcularPromedioSelectivo(1).toString(),
-                    resultadoms: this.getResultadoSelectivo(1)?.mensaje,
-                    conclusionesms: this.conclucionselectivo || ''
-                };
+        fecha_calibracion: this.fecha_calibracion,
+        marca: this.marca,
+        n_serie: this.n_serie,
+        modelo: this.modelo,
+        frecuencia: this.frecuencia,
+        precision: this.precision,
 
-                const metodoSelectivo3: MetodoSelectivo = {
-                    r1ms: (this.selectivoValues[6] || '').toString(),
-                    r2ms: (this.selectivoValues[7] || '').toString(),
-                    r3ms: (this.selectivoValues[8] || '').toString(),
-                    valorms: this.calcularPromedioSelectivo(2).toString(),
-                    resultadoms: this.getResultadoSelectivo(2)?.mensaje,
-                    conclusionesms: this.conclucionselectivo || ''
-                };
+        conclusiones_sujecion: this.conclusionespat,
+        pats: [
+          { pat1: 1.23, pat2: 2.34, pat3: 3.45, pat4: 4.56, ohm: '10', resultado: 'OK' },
+          { pat1: 5.67, pat2: 6.78, pat3: 7.89, pat4: 8.90, ohm: '20', resultado: 'FAIL' }
+        ],
+        esquema_caida: esquemaCaida,
+        conclusiones_caida: this.conclucioncaida || '',
+        esquema_selectivo: esquemaSelectivo,
+        conclusiones_selectivo: this.conclucionselectivo || '',
 
-                const metodoSelectivo4: MetodoSelectivo = {
-                    r1ms: (this.selectivoValues[9] || '').toString(),
-                    r2ms: (this.selectivoValues[10] || '').toString(),
-                    r3ms: (this.selectivoValues[11] || '').toString(),
-                    valorms: this.calcularPromedioSelectivo(3).toString(),
-                    resultadoms: this.getResultadoSelectivo(3)?.mensaje,
-                    conclusionesms: this.conclucionselectivo || ''
-                };
+        imagen1: this.files[0] || null,
+        imagen2: this.files[1] || null,
+        imagen3: this.files[2] || null,
+        imagen4: this.files[3] || null,
+      };
 
-                const responseSelectivo = await this.metodoSelectivoService.insertarMetodoSelectivo([metodoSelectivo1, metodoSelectivo2, metodoSelectivo3, metodoSelectivo4]).toPromise();
-                const idSelectivo = responseSelectivo!.insertedId as number;
+      const formData = new FormData();
 
-                const formData = new FormData();
-                this.files.forEach((file, index) => {
-                    formData.append(`imagen${index + 1}`, file, file.name);
-                });
+      // Agregar campos de texto al FormData
+      formData.append('Ot', spt2Data.ot);
+      formData.append('Fecha', spt2Data.fecha.toString());
+      formData.append('Firmado', spt2Data.firmado.toString());
+      formData.append('IdUsuario', spt2Data.id_usuario.toString());
+      formData.append('IdUsuario2', spt2Data.id_usuario_2.toString());
+      formData.append('IdSubestacion', spt2Data.id_subestacion.toString());
+      formData.append('CaidaPotencia', spt2Data.caida_potencia.toString());
+      formData.append('Selectivo', spt2Data.selectivo.toString());
+      formData.append('SinPicas', spt2Data.sin_picas.toString());
+      formData.append('FechaCalibracion', spt2Data.fecha_calibracion.toString());
+      formData.append('Marca', spt2Data.marca);
+      formData.append('NSerie', spt2Data.n_serie);
+      formData.append('Modelo', spt2Data.modelo);
+      formData.append('Frecuencia', spt2Data.frecuencia);
+      formData.append('Precision', spt2Data.precision);
+      formData.append('ConclusionesSujecion', spt2Data.conclusiones_sujecion);
+      formData.append('ConclusionesCaida', spt2Data.conclusiones_caida);
+      formData.append('ConclusionesSelectivo', spt2Data.conclusiones_selectivo);
 
-                const responseReporte = await this.ReportefotograficoService.insertarReporteFotografico(formData).toPromise();
-                const idReporteFoto = responseReporte as number;
-
-                const idcaidagrafica = await this.enviarImagencaida();
-                const idselectivografica = await this.enviarImagenselectivo();
-
-                const metodomedicion: MetodoMedicion = {
-                  caidaPotencia: this.checkcaida,
-                  selectivo: this.checkpotencial,
-                  sinPicas: this.checksinpicas
-                };
-
-                const responsemetodomedicion = await this.MetodoMedicionService.insertarMetodoMedicion(metodomedicion).toPromise();
-                const idMetodoMedicion = responsemetodomedicion.insertedId as number;
-
-                console.log('Datos de metodoMedicion:', metodomedicion);
-                console.log("idMetodoMedicion", idMetodoMedicion);
-
-                if (idMetodoMedicion === undefined || idMetodoMedicion === null) {
-                    throw new Error("El idMetodoMedicion es undefined o null");
-                }
-                // Nuevo Proceso: Inserción de Medicion Telurometro
-                const medicion: MedicionTelurometro = {
-                  frecuencia: this.frecuencia,  // Datos de ejemplo, pueden ser dinámicos
-                  fecha_calibracion: this.fecha_calibracion,
-                  precision: this.precision,
-                  n_serie: this.n_serie,
-                  marca: this.marca,
-                  modelo: this.modelo
-                };
-
-                const responseMedicion = await this.MedicionTelurometroService.insertarMedicion(medicion).toPromise();
-                const idMedicionTelurometro = responseMedicion!.insertedId as number;
-                console.log("medicion",medicion)
-                console.log("idMedicionTelurometro",idMedicionTelurometro)
-
-                const spt2Data: Spt2 = {
-                    tag_subestacion: this.tagSubestacion,
-                    ot: this.ot,
-                    fecha: this.fecha,
-                    pat1: this.inputValues[0] ? this.inputValues[0].toString() : '',
-                    pat2: this.inputValues[1] ? this.inputValues[1].toString() : '',
-                    pat3: this.inputValues[2] ? this.inputValues[2].toString() : '',
-                    pat4: this.inputValues[3] ? this.inputValues[3].toString() : '',
-                    conclusiones: this.conclusionespat,
-                    lider: this.correoSeleccionado,
-                    supervisor: this.correoSeleccionado1,
-                    firma: false,
-                    id_mselectivo: idSelectivo,
-                    id_mcaida: insertedId,
-                    idreportefoto: idReporteFoto,
-                    idgrafica_caida: idcaidagrafica,
-                    idgrafica_selectivo: idselectivografica,
-                    id_metodomedicion:idMetodoMedicion,
-                    id_mtd_medicion_telurometro: idMedicionTelurometro
-                };
-                try {
-                  const response = await this.spt2Service.insertarSpt2(spt2Data).toPromise();
-                  const idspt2 = response.id;
-
-                  if (idspt2) {
-                    console.log("Response from postspt2:", response);
-
-                    const notificacion: Notificacion = {
-                      supervisor: this.idSupervisor ?? 0,
-                      lider: this.idLider ?? 0,
-                      firmado: false,
-                      id_spt2: idspt2
-                    };
-                    console.log("data notificacion",notificacion)
-
-                    await this.notificacionService.insertarNotificacionSpt2(notificacion).toPromise();
-                    console.log("Notificación spt2 insertada correctamente");
-
-                    this.messageService.remove(loadingMessageId);
-                    this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
-                  } else {
-                    this.alertservice.error('Error', 'No se pudo obtener el ID de la spt1.');
-                    this.messageService.remove(loadingMessageId);
-                  }
-                } catch (error) {
-                  console.error("Error durante el proceso de guardado", error);
-                  this.messageService.remove(loadingMessageId);
-
-                  // Verificar si el error tiene la estructura esperada
-                  let errorMessage = 'Ha ocurrido un error inesperado al guardar los datos. Por favor, intente nuevamente.';
-
-                  if (this.isHttpErrorResponse(error)) {
-                    errorMessage = error.error?.details || error.message || errorMessage;
-                  }
-
-                  this.alertservice.error('Error al Guardar', errorMessage);
-                }
-              } catch (error) {
-                console.error("Error al extraer los datos del formulario", error);
-                this.messageService.remove(loadingMessageId);
-                this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
-              }
-            }
-          });
-        }
-
-        isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
-          return error && typeof error === 'object' && ('error' in error || 'message' in error);
-        }
+      // Añadir las imágenes
+      if (spt2Data.imagen1) {
+        formData.append('Imagen1', spt2Data.imagen1, spt2Data.imagen1.name);
+      }
+      if (spt2Data.imagen2) {
+        formData.append('Imagen2', spt2Data.imagen2, spt2Data.imagen2.name);
+      }
+      if (spt2Data.imagen3) {
+        formData.append('Imagen3', spt2Data.imagen3, spt2Data.imagen3.name);
+      }
+      if (spt2Data.imagen4) {
+        formData.append('Imagen4', spt2Data.imagen4, spt2Data.imagen4.name);
       }
 
+      // Añadir los esquemas
+      if (spt2Data.esquema_caida) {
+        formData.append('EsquemaCaida', spt2Data.esquema_caida, spt2Data.esquema_caida.name);
+      }
+      if (spt2Data.esquema_selectivo) {
+        formData.append('EsquemaSelectivo', spt2Data.esquema_selectivo, spt2Data.esquema_selectivo.name);
+      }
+
+      // Convertir el array de pats a JSON y agregarlo al FormData
+      formData.append('JsonPats', JSON.stringify({ pats: spt2Data.pats }));
+
+      // Mostrar el contenido de formData
+      for (const pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+
+      this.spt2Service.insertarSpt2(formData).subscribe(
+        response => {
+          console.log('Éxito:', response); // Aquí deberías ver la respuesta con idSpt2
+          if (response.idSpt2) {
+            console.log('Inserción exitosa. ID:', response.idSpt2);
+          } else {
+            console.error('Inserción fallida. No se recibió ID.');
+          }
+        },
+        error => {
+          console.error('Error al enviar los datos:', error);
+          if (error.error && error.error.message) {
+            console.error('Mensaje de error:', error.error.message);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Error al procesar las imágenes:', error);
+    }
+  }
+
+
+
+
+
+}

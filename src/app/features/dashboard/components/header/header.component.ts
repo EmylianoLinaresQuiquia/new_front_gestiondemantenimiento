@@ -1,3 +1,4 @@
+import { PdfPm1Service } from './../../../sistemas/services/pdf-pm1.service';
 import { DashboardService } from './../../services/dashboard.service';
 import { NotificacionService } from './../../../sistemas/services/notificacion.service';
 import { Spt2Service } from './../../../sistemas/services/spt2.service';
@@ -8,7 +9,7 @@ import { AuthServiceService } from 'src/app/features/sistemas/services/auth-serv
 import { Router } from '@angular/router';
 import { UsuarioService } from 'src/app/features/sistemas/services/usuario.service';
 import { Notificacion, NotificacionPendiente } from 'src/app/features/sistemas/interface/notificacion';
-import { Spt2 } from 'src/app/features/sistemas/interface/spt2';
+//import { Spt2 } from 'src/app/features/sistemas/interface/spt2';
 import { Spt1 } from 'src/app/features/sistemas/interface/spt1';
 import { PdfGeneratorServiceService } from 'src/app/features/sistemas/services/pdf-generator-service.service';
 import { takeUntil } from 'rxjs/operators';
@@ -56,7 +57,7 @@ export class HeaderComponent {
   userEmail?: string;
 
 
-    spt2Firmados: Spt2[] = [];
+    //spt2Firmados: Spt2[] = [];
     itemss!: string[];
     registroExitoso: boolean = false;
     mensajeError: string = '';
@@ -66,7 +67,7 @@ export class HeaderComponent {
     notificaciones: Notificacion[] = [];
     notificacionesfirmadas: Notificacion[] = [];
     notificacionespendientes: Notificacion[] = [];
-    spt2List: Spt2[] = [];
+    //spt2List: Spt2[] = [];
     spt2Resumen: { tagSubestacion: string; ot: string }[] = [];
     spt1List: Spt1[] = [];
     spt1Resumen: { tagSubestacion: string; ot: string }[] = [];
@@ -75,12 +76,12 @@ export class HeaderComponent {
 
     @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
     pdfUrl: SafeResourceUrl | null = null;
+    @ViewChild('pdfViewerPm1') pdfViewerPm1Component!: PdfViewerPm1Component;
 
 
     //pdfUrl: SafeResourceUrl | null = null;
   //@ViewChild('pdfModal', { static: false }) pdfModal!: TemplateRef<any>;
   pm1: BuscarPM1PorId | undefined;
-  pdfSrc: string = 'assets/pdf/pm1/pm1.pdf';
   constructor(
     private authService:AuthServiceService,
     private router :Router,
@@ -95,7 +96,8 @@ export class HeaderComponent {
       private pdfGeneratorService:PdfGeneratorServiceService,
       private sanitizer: DomSanitizer,
       private pm1Service: PM1Service,
-      private Pdfspt1service :PdfGeneratorServicespt1Service
+      private Pdfspt1service :PdfGeneratorServicespt1Service,
+      private PdfPm1Service:PdfPm1Service
   ){
 
   }
@@ -211,6 +213,7 @@ export class HeaderComponent {
           // Actualiza la cantidad de mensajes firmados pendientes
           this.bellInfo.notice = this.FirmadoList.length;
 
+
           console.log('Notificaciones firmadas obtenidas:', this.FirmadoList);  // Mostrar datos en consola
         },
         error => {
@@ -304,7 +307,7 @@ export class HeaderComponent {
 
 
 
-
+/*
 spt2pdf(tag_subestacion: string, ot: string): void {
   console.log("tag y ot pdf",tag_subestacion,ot)
   this.pdfGeneratorService.generarPDF(tag_subestacion, ot).then((pdfBlob: Blob) => {
@@ -323,49 +326,40 @@ spt2pdf(tag_subestacion: string, ot: string): void {
   }).catch(error => {
     console.error('Error opening PDF:', error);
   });
+}*/
+
+
+
+pm1pdf(id_pm1: number): void {
+  console.log("enviando id_pm1",id_pm1)
+  this.PdfPm1Service.fillPdf(id_pm1).then((pdfBlob: Blob | undefined) => {
+    if (pdfBlob) {
+      const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        URL.createObjectURL(pdfBlob) + '#toolbar=0'
+      );
+      const url = URL.createObjectURL(pdfBlob);
+      window.open(url, '_blank');
+    } else {
+      console.error('No se pudo generar el PDF.');
+    }
+  }).catch(error => {
+    console.error('Error al abrir el PDF:', error);
+  });
+
 }
 
-pm1pdf(id: number) {
-  this.pm1Service.getPM1ById(id).subscribe(
-    (data: BuscarPM1PorId) => {
-      this.pm1 = data;
-      if (this.pdfSrc && this.pm1) {
-        this.modal.create({
-          nzContent: PdfViewerPm1Component,  // Componente que se abrirá en el modal
-          nzData: {
-            pdfSrc: this.pdfSrc,  // Asegúrate de que este valor esté correctamente asignado
-            pm1: this.pm1         // El objeto `pm1` contiene los datos necesarios
-          },
-          nzWidth: 1200,            // Ajusta el ancho del modal
-          //nzBodyStyle: { height: '80rem' }  // Altura del modal
-        });
-        console.log('Modal abierto con PDF:', this.pdfSrc, 'y PM1:', this.pm1);
-      } else {
-        console.error('No se puede abrir el modal porque faltan datos.');
-      }
-    },
-    (error: any) => {
-      console.error('Error al cargar los datos de PM1 por ID', error);
-    }
-  );
-}
 
 spt1pdf(id_spt1: number): void {
   this.Pdfspt1service.generarPDF(id_spt1).then((pdfBlob: Blob) => {
     const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-      URL.createObjectURL(pdfBlob) + '#toolbar=0'  // Oculta la barra de herramientas del visor PDF
+      URL.createObjectURL(pdfBlob) + '#toolbar=0'  // Opcional: Oculta la barra de herramientas del visor PDF
     );
 
-    this.pdfUrl = pdfUrl; // Asigna el pdfUrl a la propiedad de la clase
-
-    this.modal.create({
-      nzTitle: 'PDF Document',
-      nzContent: this.pdfModal,
-      nzFooter: null,
-      nzWidth: 1200
-    });
+    // Abre el PDF en una nueva pestaña
+    const url = URL.createObjectURL(pdfBlob);
+    window.open(url, '_blank');  // Abre en una nueva pestaña
   }).catch(error => {
-    console.error('Error opening PDF:', error);
+    console.error('Error al abrir el PDF:', error);
   });
 }
 

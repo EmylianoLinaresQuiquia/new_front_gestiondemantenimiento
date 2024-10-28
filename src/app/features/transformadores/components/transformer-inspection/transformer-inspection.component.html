@@ -356,7 +356,6 @@
 
 
 
-
     <h1>{{ transformador }}</h1>
     <!-- Contenedor Principal con Tarjeta de Información del Transformador -->
     <nz-card nzTitle="Datos del Transformador" class="card-header ">
@@ -410,14 +409,57 @@
          <i class="fa-solid fa-syringe" style="margin-right: 8px;"></i>
          <span>PM1</span>
        </div>
-     <table id="example" class="table table-striped">
+       <nz-table #basicTable [nzData]="datos" [nzScroll]="{ x: '300px', y: '300px' }">
+        <thead>
+          <tr>
+            <th>
+              Fecha
+              <nz-input-group [nzSuffix]="suffixButton">
+                <input nz-input [(ngModel)]="filterFecha" placeholder="Filtrar Fecha" (ngModelChange)="applyFilter()" />
+              </nz-input-group>
 
-         <thead>
+            </th>
+            <th>
+              OT
+              <nz-input-group [nzSuffix]="suffixButton">
+                <input nz-input [(ngModel)]="filterOT" placeholder="Filtrar OT" (ngModelChange)="applyFilter()" />
+              </nz-input-group>
 
+            </th>
+            <th>
+              Lider
+              <nz-input-group [nzSuffix]="suffixButton">
+                <input nz-input [(ngModel)]="filterLider" placeholder="Filtrar Lider" (ngModelChange)="applyFilter()" />
+              </nz-input-group>
 
-         </thead>
+            </th>
+            <th>
+              Supervisor
+              <nz-input-group [nzSuffix]="suffixButton">
+                <input nz-input [(ngModel)]="filterSupervisor" placeholder="Filtrar Supervisor" (ngModelChange)="applyFilter()" />
+              </nz-input-group>
 
-     </table>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dato of filteredData">
+            <td>{{ dato.fecha }}</td>
+            <td>{{ dato.orden_trabajo }}</td>
+            <td>{{ dato.usuario }}</td>
+            <td>{{ dato.usuario_2 }}</td>
+            <td>
+              <button nz-button nzType="default" class="ver-btn" (click)="abrirpdf(dato.id_pm1)">
+                <i nz-icon nzType="file-pdf" [nzTheme]="dato.firma ? 'fill' : 'outline'" style="color: {{ dato.firma ? 'green' : 'orange' }}"></i>
+              </button>
+              <button nz-button nzType="danger" class="eliminar-btn" (click)="eliminarRegistro(dato.id_pm1)">
+                <i nz-icon nzType="delete"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
     </nz-card>
 
     <!-- Sección de Análisis Físico Químico -->

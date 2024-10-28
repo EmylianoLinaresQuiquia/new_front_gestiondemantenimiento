@@ -1,20 +1,80 @@
+<div class="d-flex align-items-center mb-2">
+  <img src="assets/icons/transformer-bolt-64.webp" alt="Icono Transformer" class="icon-class" />
+  <h4>Transformadores</h4>
+</div>
 
-<div class="d-flex align-items-center">
-  <img src="assets/icons/transformer-bolt-64.webp"  alt="Icono Transformer" class="icon-class">
-   <h4>Tranformadores</h4>
- </div>
- <div>
-   <table id="example" class="display">
-     <thead>
-       <tr class="selected">
-         <td class="sorting_1"></td>
-       </tr>
-     </thead>
-     <tfoot>
 
-     </tfoot>
-     <tbody>
 
-     </tbody>
-   </table>
- </div>
+
+
+
+
+
+<!-- Tabla con datos filtrados -->
+<nz-table #transformadorTable [nzData]="listOfDisplayData"
+[nzPageIndex]="pageIndex"
+  [nzPageSize]="pageSize"
+  [nzTotal]="listOfDisplayData.length"
+
+  [nzLoading]="loading"
+
+  [nzFrontPagination]="false"
+  (nzPageIndexChange)="onPageIndexChange($event)">
+  <thead>
+    <tr>
+      <th nzWidth="15%">SUBESTACIÓN
+        <nz-input-group [nzSuffix]="suffixButton" style="margin-bottom: 10px;">
+          <input nz-input [(ngModel)]="filterSubestacion" (ngModelChange)="applyFilters()" placeholder="Filtrar por Subestación" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="15%">UBICACIÓN
+        <nz-input-group [nzSuffix]="suffixButton" style="margin-bottom: 10px;">
+          <input nz-input [(ngModel)]="filterUbicacion" (ngModelChange)="applyFilters()" placeholder="Filtrar por Ubicación" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="15%">TRANSFORMADOR
+        <nz-input-group [nzSuffix]="suffixButton" style="margin-bottom: 10px;">
+          <input nz-input [(ngModel)]="filterTransformador" (ngModelChange)="applyFilters()" placeholder="Filtrar por Transformador" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="10%">TIPO
+        <nz-input-group [nzSuffix]="suffixButton" style="margin-bottom: 10px;">
+          <input nz-input [(ngModel)]="filterTipo" (ngModelChange)="applyFilters()" placeholder="Filtrar por Tipo" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="10%">MARCA
+        <nz-input-group [nzSuffix]="suffixButton" style="margin-bottom: 10px;">
+          <input nz-input [(ngModel)]="filterMarca" (ngModelChange)="applyFilters()" placeholder="Filtrar por Marca" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="10%">TENSIÓN (Kv)
+        <nz-input-group [nzSuffix]="suffixButton" style="margin-bottom: 10px;">
+          <input nz-input [(ngModel)]="filterVoltage" (ngModelChange)="applyFilters()" placeholder="Filtrar por Tensión" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="15%">POTENCIA (MVA)
+
+      <nz-input-group [nzSuffix]="suffixButton" style="margin-bottom: 10px;">
+        <input nz-input [(ngModel)]="filterPotencia" (ngModelChange)="applyFilters()" placeholder="Filtrar por Potencia" />
+      </nz-input-group>
+      </th>
+      <th nzWidth="5%">ACCIONES</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of listOfDisplayData.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)">
+      <td>{{ item.subestacion }}</td>
+      <td>{{ item.ubicacion }}</td>
+      <td>{{ item.transformador }}</td>
+      <td>{{ item.tipo }}</td>
+      <td>{{ item.marca }}</td>
+      <td>{{ item.voltage }}</td>
+      <td>{{ item.potencia }}</td>
+      <td>
+        <button nz-button nzType="default" nzSize="small" (click)="abrirpruebas(item.transformador, item.subestacion, item.voltage, item.potencia)">
+          <i nz-icon nzType="eye"></i>
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</nz-table>

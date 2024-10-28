@@ -24,22 +24,7 @@ import { Usuario } from '../../interface/usuario';
 
 
 import { Subestacion } from '../../interface/subestacion';
-
-import { Seguridadobservacion } from '../../interface/seguridadobservacion';
-import { BarraequiAi } from '../../interface/barraequi-ai';
-import { BarraequiNoAi } from '../../interface/barraequi-no-ai';
-import { CercopAi } from '../../interface/cercop-ai';
-import { CercopNoAi } from '../../interface/cercop-no-ai';
-import { TransformadorNoAi } from '../../interface/transformador-no-ai';
-import { Recomendacion } from '../../interface/recomendacion';
-import { Tipostp } from '../../interface/tipostp';
 import { Notificacion } from '../../interface/notificacion';
-import { Pat1spt1 } from '../../interface/pat1spt1';
-import { Pat2spt1 } from '../../interface/pat2spt1';
-import { Pat3spt1 } from '../../interface/pat3spt1';
-import { Pat4spt1 } from '../../interface/pat4spt1';
-
-
 import { SubestacionService } from '../../services/subestacion.service';
 import { Spt1Service } from '../../services/spt1.service';
 import { SeguridadobservacionService } from '../../services/seguridadobservacion.service';
@@ -68,7 +53,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { ChangeDetectorRef } from '@angular/core';
 import { NzModalService } from 'ng-zorro-antd/modal';
-
+import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'app-spt1-inspection',
   standalone: true,
@@ -353,18 +338,15 @@ export class Spt1InspectionComponent  {
       this.subestacionService.getPdfBySubestacion(this.tagSubestacion).subscribe(
         (pdfBlob: Blob) => {
           const blobUrl = URL.createObjectURL(pdfBlob);
-          this.modal.create({
-            nzContent: PdfViewerComponent,
 
-            nzData: {
-              pdfSrc: blobUrl // Pasas el PDF como parámetro al componente
-            },
-            nzWidth: '95%',
-            nzBodyStyle: {
-              height: '1%',
-              overflow: 'hidden'
-            }
-          });
+          // Abrir el PDF en una nueva pestaña
+          const newTab = window.open();
+          if (newTab) {
+            newTab.location.href = blobUrl;
+          } else {
+            console.error('No se pudo abrir una nueva pestaña.');
+            this.alertservice.error('No se pudo abrir el PDF en una nueva pestaña.', 'error');
+          }
         },
         error => {
           console.error('Error inesperado', error);
@@ -380,659 +362,133 @@ export class Spt1InspectionComponent  {
 
 
 
+
     seguridad_observacion: { checks: boolean[]; observacion: string }[] = [];
 
   observacion_avisos: { observacion: string; aviso: string }[] = [];
   pozos_a_tierra: string[] = [];
 
   guardarDatos(): void {
-    console.log("supervisor", this.supervisorIdUsuario ?? 0, "tecnico", this.tecnicoIdUsuario ?? 0);
-    this.modal.confirm({
-        nzTitle: 'Confirmación',
-        nzContent: '¿Estás seguro de que quieres guardar los datos?',
-        nzOkText: 'Aceptar',
-        nzCancelText: 'Cancelar',
-        nzOnOk: async () => {
-            const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
+    console.log("Supervisor ID:", this.supervisorIdUsuario ?? 0, "Técnico ID:", this.tecnicoIdUsuario ?? 0);
 
-            try {
-                const seguridad_observacione = [
-                    { checks: [this.check1, this.check2], observacion: this.observacion1 },
-                    { checks: [this.check3, this.check4], observacion: this.observacion2 },
-                    { checks: [this.check5, this.check6], observacion: this.observacion3 },
-                    { checks: [this.check7, this.check8], observacion: this.observacion4 },
-                    { checks: [this.check9, this.check10], observacion: this.observacion5 },
-                ];
-                this.seguridad_observacion = seguridad_observacione;
+  this.modal.confirm({
+    nzTitle: 'Confirmación',
+    nzContent: '¿Estás seguro de que quieres guardar los datos?',
+    nzOkText: 'Aceptar',
+    nzCancelText: 'Cancelar',
+    nzOnOk: async () => {
+      const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
 
-                const observacion_avisos = [
-                    { observacion: this.observacion6, aviso: this.aviso6 },
-                    { observacion: this.observacion7, aviso: this.aviso7 },
-                    { observacion: this.observacion8, aviso: this.aviso8 },
-                ];
-                this.observacion_avisos = observacion_avisos;
+      try {
+        // Crear las observaciones y avisos en la estructura requerida
+        const seguridad_observacione = [
+          { checks: [this.check1, this.check2], observacion: this.observacion1 },
+          { checks: [this.check3, this.check4], observacion: this.observacion2 },
+          { checks: [this.check5, this.check6], observacion: this.observacion3 },
+          { checks: [this.check7, this.check8], observacion: this.observacion4 },
+          { checks: [this.check9, this.check10], observacion: this.observacion5 },
+        ];
+        this.seguridad_observacion = seguridad_observacione;
 
-                const spt1: Spt1DTO = {
-                    ot: this.ot || "",
-                    fecha: this.fecha || "",
-                    hora_inicio: this.inicio || "",
-                    hora_fin: this.fin || "",
-                    id_subestacion: this.id_subestacion ?? 0,
-                    id_usuario: this.tecnicoIdUsuario ?? 0,
-                    id_usuario_2: this.supervisorIdUsuario ?? 0,
-                    tipo_spt1: this.tipo_spt1?.join(",") || "",
-                    observacion_aviso: this.observacion_avisos.map(oa => oa.observacion).join(",") || "",
-                    aviso: this.observacion_avisos.map(oa => oa.aviso).join(",") || "",
-                    seguridad_observaciones: this.seguridad_observacion.map(so => so.observacion).join(",") || "",
-                    bueno: this.seguridad_observacion.map(so => so.checks[0] ? "TRUE" : "FALSE").join(",") || "",
-                    na: this.seguridad_observacion.map(so => so.checks[1] ? "TRUE" : "FALSE").join(",") || "",
-                    barras_equipotenciales: Object.values(this.barras_equipotencial).join(",") || "",
-                    pozos_a_tierra: this.getSelectedOptions().join(",") || "",
-                    cerco_perimetrico: Object.values(this.cerco_perimetrico).join(",") || "",
-                    transformadores: Object.values(this.transformador).join(",") || ""
-                };
+        const observacion_avisos = [
+          { observacion: this.observacion6, aviso: this.aviso6 },
+          { observacion: this.observacion7, aviso: this.aviso7 },
+          { observacion: this.observacion8, aviso: this.aviso8 },
+        ];
+        this.observacion_avisos = observacion_avisos;
 
-                console.log("spt1 Object:", spt1);
 
-            try {
-              const response = await this.Spt1Service.insertarSpt1(spt1).toPromise();
-              const idspt1 = response.id;
+        const seguridad_observaciones = this.seguridad_observacion.map(item => item.observacion);
+        const bueno = this.seguridad_observacion.map(item => item.checks[0] || false);
+        const na = this.seguridad_observacion.map(item => item.checks[1] || false);
 
-              if (idspt1) {
-                console.log("Response from postPM1:", response);
+        const observacionAvisoList = this.observacion_avisos.map(item => item.observacion);
+        const avisoList = this.observacion_avisos.map(item => item.aviso);
 
-                const notificacion: Notificacion = {
-                  supervisor: this.supervisorIdUsuario ?? 0,
-                  lider: this.tecnicoIdUsuario ?? 0,
-                  firmado: false,
-                  id_spt1: idspt1
-                };
-                console.log("data notificacion",notificacion)
+        // Convertir la fecha al formato dd-MM-yyyy
+        const fechaFormateada = this.convertirFechaFormato(this.fecha);
+        const spt1: Spt1DTO = {
+          ot: this.ot ,
+          fecha: fechaFormateada ,
+          hora_inicio: this.inicio ,
+          hora_fin: this.fin ,
+          id_subestacion: this.id_subestacion ,
+          id_usuario: this.tecnicoIdUsuario ?? 0,
+          id_usuario_2: this.supervisorIdUsuario ?? 0,
+          tipo_spt1: this.tipo_spt1?.length ? this.tipo_spt1 : [],
 
-                await this.notificacionService.insertarNotificacionSpt1(notificacion).toPromise();
-                console.log("Notificación PM1 insertada correctamente");
+          observacion_aviso: observacionAvisoList,
+         aviso: avisoList,
+          seguridad_observaciones: seguridad_observaciones,
+          bueno: bueno,
+          na: na,
 
-                this.messageService.remove(loadingMessageId);
-                this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
-              } else {
-                this.alertservice.error('Error', 'No se pudo obtener el ID de la spt1.');
-                this.messageService.remove(loadingMessageId);
-              }
-            } catch (error) {
-              console.error("Error durante el proceso de guardado", error);
+          barras_equipotenciales: this.barras_equipotencial ? Object.values(this.barras_equipotencial) : [],
+          pozos_a_tierra: this.getSelectedOptions().length ? this.getSelectedOptions() : [],
+          cerco_perimetrico: this.cerco_perimetrico ? Object.values(this.cerco_perimetrico) : [],
+          transformadores: this.transformador ? Object.values(this.transformador) : []
+        };
+
+          console.log("Datos a enviar en spt1:", spt1);
+
+          try {
+            const response = await this.Spt1Service.insertarSpt1(spt1).toPromise();
+            const idspt1 = response.id;
+
+            if (idspt1) {
+              console.log("Respuesta recibida:", response);
+
+              const notificacion: Notificacion = {
+                supervisor: this.supervisorIdUsuario ?? 0,
+                lider: this.tecnicoIdUsuario ?? 0,
+                firmado: false,
+                id_spt1: idspt1
+              };
+              console.log("Datos de notificación:", notificacion);
+
+              await this.notificacionService.insertarNotificacionSpt1(notificacion).toPromise();
+              console.log("Notificación guardada correctamente");
+
               this.messageService.remove(loadingMessageId);
-
-              // Verificar si el error tiene la estructura esperada
-              let errorMessage = 'Ha ocurrido un error inesperado al guardar los datos. Por favor, intente nuevamente.';
-
-              if (this.isHttpErrorResponse(error)) {
-                errorMessage = error.error?.details || error.message || errorMessage;
-              }
-
-              this.alertservice.error('Error al Guardar', errorMessage);
+              this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
+            } else {
+              throw new Error('No se pudo obtener el ID de la spt1');
             }
           } catch (error) {
-            console.error("Error al extraer los datos del formulario", error);
-            this.messageService.remove(loadingMessageId);
-            this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
+            this.handleErrorInterno(error, 'insertarSpt1', loadingMessageId);
           }
+        } catch (error) {
+          console.error("Error al procesar datos del formulario:", error);
+          this.messageService.remove(loadingMessageId);
+          this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
         }
-      });
-    }
-
-    isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
-      return error && typeof error === 'object' && ('error' in error || 'message' in error);
-    }
-
-}
-
-
-
-        /*this.modal.confirm({
-          nzTitle: 'Confirmación',
-          nzContent: '¿Estás seguro de que quieres guardar los datos?',
-          nzOnOk: async () => {
-            this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 });
-
-                try {
-                    const observaciones: Seguridadobservacion[] = [
-                        { bueno: this.check1, na: this.check2, observacion: this.observacion1 },
-                        { bueno: this.check3, na: this.check4, observacion: this.observacion2 },
-                        { bueno: this.check5, na: this.check6, observacion: this.observacion3 },
-                        { bueno: this.check7, na: this.check8, observacion: this.observacion4 },
-                        { bueno: this.check9, na: this.check10, observacion: this.observacion5 }
-                        // ...resto de tus observaciones...
-                    ];
-
-                    // Primero insertar observaciones
-                    this.SeguridadobservacionService.insertarCincoObservaciones(observaciones).subscribe(responseObservacion => {
-                        this.seguridad_observacion = responseObservacion.lote_id;
-
-                        const transformadores: TransformadorNoAi[] = [
-                            { seleccionado: this.options['selectedOption44'].selected },
-                            { seleccionado: this.options['selectedOption45'].selected },
-                            { seleccionado: this.options['selectedOption46'].selected },
-                            { seleccionado: this.options['selectedOption47'].selected },
-                        ];
-
-                        this.TransformadorNoAiService.insertarTransformadorNoAi(transformadores).subscribe(responseTransformador => {
-                            this.transformador_noAi = responseTransformador.lote_id;
-
-                            const cercos: CercopAi[] = [
-                                { seleccionado: this.options['selectedOption41'].selected },
-                                { seleccionado: this.options['selectedOption42'].selected },
-                                { seleccionado: this.options['selectedOption43'].selected },
-                            ];
-
-                            this.CercopAiService.insertarCercoPerimetricoAi(cercos).subscribe(responseCercos => {
-                                this.cerco_p_Ai = responseCercos.lote_id;
-
-                                const cercosnoAi: CercopNoAi[] = [
-                                    { seleccionado: this.options['selectedOption37'].selected },
-                                    { seleccionado: this.options['selectedOption38'].selected },
-                                    { seleccionado: this.options['selectedOption39'].selected },
-                                    { seleccionado: this.options['selectedOption40'].selected },
-                                ];
-
-                                this.CercopNoAiService.insertarCercoPerimetricoNoAi(cercosnoAi).subscribe(responseCercosNoAi => {
-                                    this.cerco_p_noAi = responseCercosNoAi.lote_id;
-
-                                    const barraeqAi: BarraequiAi[] = [
-                                        { seleccionado: this.options['selectedOption30'].selected },
-                                        { seleccionado: this.options['selectedOption31'].selected },
-                                        { seleccionado: this.options['selectedOption32'].selected },
-                                        { seleccionado: this.options['selectedOption33'].selected },
-                                        { seleccionado: this.options['selectedOption34'].selected },
-                                        { seleccionado: this.options['selectedOption35'].selected },
-                                        { seleccionado: this.options['selectedOption36'].selected },
-                                    ];
-
-                                    this.BarraequiAiService.insertarBarraEquipotencialAi(barraeqAi).subscribe(responseBarraAi => {
-                                        this.barra_e_Ai = responseBarraAi.lote_id;
-
-                                        const barraeqnoAi: BarraequiNoAi[] = [
-                                            { seleccionado: this.options['selectedOption24'].selected },
-                                            { seleccionado: this.options['selectedOption25'].selected },
-                                            { seleccionado: this.options['selectedOption26'].selected },
-                                            { seleccionado: this.options['selectedOption27'].selected },
-                                            { seleccionado: this.options['selectedOption28'].selected },
-                                            { seleccionado: this.options['selectedOption29'].selected },
-                                        ];
-
-                                        this.BarraequiNoAiService.insertarBarraEquipotencialNoAi(barraeqnoAi).subscribe(responseBarraNoAi => {
-                                            this.barra_e_noAi = responseBarraNoAi.lote_id;
-
-                                            const TipoSpt: Tipostp = {
-                                                aislado: this.aislado,
-                                                contrapeso: this.contrapeso,
-                                                horizontal: this.horizontal,
-                                                vertical: this.vertical,
-                                                delta: this.delta,
-                                                malla: this.malla
-                                            };
-
-                                            this.TipostpService.insertarTipoSpt(TipoSpt).subscribe(responseTipostp => {
-                                                this.id_tipostp = responseTipostp.id;
-
-                                                const recomendaciones: Recomendacion[] = [
-                                                    { observacion: this.observacion6, aviso: this.aviso6 },
-                                                    { observacion: this.observacion7, aviso: this.aviso7 },
-                                                    { observacion: this.observacion8, aviso: this.aviso8 }
-                                                    // ... más recomendaciones
-                                                ];
-
-                                                this.RecomendacionService.insertarRecomendacion(recomendaciones).subscribe(responseRecomendacion => {
-                                                    this.recomendacion_lote_id = responseRecomendacion.lote_id;
-
-                                                    const pat1spt1: Pat1spt1[] = [
-                                                        {
-                                                            Electrodo: this.options['selectedOption'].selected,
-                                                            Soldadura: this.options['selectedOption1'].selected,
-                                                            Conductor: this.options['selectedOption2'].selected,
-                                                            Conector: this.options['selectedOption3'].selected,
-                                                            Caja_de_Registro: this.options['selectedOption4'].selected,
-                                                            Identificacion: this.options['selectedOption5'].selected
-                                                        }
-                                                    ];
-
-                                                    this.Pat1spt1Service.insertarPat1Spt1(pat1spt1).subscribe(responsepat1spt1 => {
-
-                                                        const pat2spt1: Pat2spt1[] = [
-                                                            {
-                                                                Electrodo: this.options['selectedOption6'].selected,
-                                                                Soldadura: this.options['selectedOption7'].selected,
-                                                                Conductor: this.options['selectedOption8'].selected,
-                                                                Conector: this.options['selectedOption9'].selected,
-                                                                Caja_de_Registro: this.options['selectedOption10'].selected,
-                                                                Identificacion: this.options['selectedOption11'].selected
-                                                            }
-                                                        ];
-
-                                                        this.Pat2spt2Service.insertarPat2Spt1(pat2spt1).subscribe(responsepat2spt1 => {
-
-                                                            const pat3spt1: Pat3spt1[] = [
-                                                                {
-                                                                    Electrodo: this.options['selectedOption12'].selected,
-                                                                    Soldadura: this.options['selectedOption13'].selected,
-                                                                    Conductor: this.options['selectedOption14'].selected,
-                                                                    Conector: this.options['selectedOption15'].selected,
-                                                                    Caja_de_Registro: this.options['selectedOption16'].selected,
-                                                                    Identificacion: this.options['selectedOption17'].selected
-                                                                }
-                                                            ];
-
-                                                            this.Pat3spt1Service.insertarPat3Spt1(pat3spt1).subscribe(responsepat3spt1 => {
-
-                                                                const pat4spt1: Pat4spt1[] = [
-                                                                    {
-                                                                        Electrodo: this.options['selectedOption18'].selected,
-                                                                        Soldadura: this.options['selectedOption19'].selected,
-                                                                        Conductor: this.options['selectedOption20'].selected,
-                                                                        Conector: this.options['selectedOption21'].selected,
-                                                                        Caja_de_Registro: this.options['selectedOption22'].selected,
-                                                                        Identificacion: this.options['selectedOption23'].selected
-                                                                    }
-                                                                ];
-
-                                                                this.Pat4spt1Service.insertarPat4Spt1(pat4spt1).subscribe(responsepat4spt1 => {
-                                                                        */
-                                                                    /*const spt1Data: Spt1 = {
-                                                                        tagSubestacion: this.tagSubestacion,
-                                                                        ot: this.ot,
-                                                                        ubicacion: this.ubicacion,
-                                                                        fecha: this.fecha,
-                                                                        lider: this.correoSeleccionado,
-                                                                        supervisor: this.correoSeleccionado1,
-                                                                        inicio: this.inicio,
-                                                                        fin: this.fin,
-                                                                        firma: false,
-                                                                        Pat1Spt1Id: responsepat1spt1.pat1Spt1Id,
-                                                                        Pat2Spt1Id: responsepat2spt1.pat2Spt1Id,
-                                                                        Pat3Spt1Id: responsepat3spt1.pat3Spt1Id,
-                                                                        Pat4Spt1Id: responsepat4spt1.pat4Spt1Id,
-                                                                        lote_id: this.seguridad_observacion, // asegúrate de que seguridad_observacion tiene un valor válido
-                                                                        barra_e_noAi_lote_id: this.barra_e_noAi,
-                                                                        barra_e_Ai_lote_id: this.barra_e_Ai,
-                                                                        cerco_p_noAi_lote_id: this.cerco_p_noAi,
-                                                                        cerco_p_Ai_lote_id: this.cerco_p_Ai,
-                                                                        transformador_noAi_lote_id: this.transformador_noAi,
-                                                                        id_tipostp: this.id_tipostp,
-                                                                        recomendacion_lote_id: this.recomendacion_lote_id
-                                                                    };*/
-                                                                    /*const spt1Data: spt1dto = {
-                                                                      ot: this.ot,
-                                                                      fecha: this.fecha,
-                                                                      hora_inicio: this.inicio,
-                                                                      hora_fin: this.fin,
-                                                                      id_subestacion: this.id_subestacion,
-                                                                      id_usuario: this.tecnicoIdUsuario,
-                                                                      id_usuario_2: this.supervisorIdUsuario,
-                                                                      seguridad_observaciones: string,
-                                                                      tipo_spt1: string,
-                                                                      barras_equipotenciales: string,
-                                                                      pozos_a_tierra: string[],  // Array de strings para múltiples pozos a tierra
-                                                                      cerco_perimetrico: string,
-                                                                      transformadores: string,
-                                                                      observacion_aviso: string,
-
-                                                                  };
-
-                                                                    this.Spt1Service.insertarSpt1(spt1Data).subscribe(responsespt1 => {
-                                                                        this.id_spt1 = responsespt1.id;
-                                                                        console.log(this.patValues[0], 'Esto es para ver si sale algo');
-                                                                        this.messageService.remove('evaluacion');
-                                                                        this.notificationService.success(
-                                                                            'Datos Guardados',
-                                                                            'Los datos se han guardado correctamente.'
-                                                                        );
-                                                                    }, error => {
-                                                                        this.messageService.remove('evaluacion');
-                                                                        this.notificationService.error(
-                                                                            'Error al Guardar',
-                                                                            'Ha ocurrido un error al guardar los datos.'
-                                                                        );
-                                                                    });
-                                                                });
-                                                            });
-                                                        });
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                } catch (error) {
-                    this.messageService.remove('evaluacion');
-                    this.notificationService.error(
-                        'Error al Guardar',
-                        'Ha ocurrido un error inesperado al guardar los datos.'
-                    );
-                }
-            }
-        });*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  /*async onFileChange(event: any): Promise<void> {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (e: ProgressEvent<FileReader>) => {
-      if (!e.target || !e.target.result) return;
-
-      const data = new Uint8Array(e.target.result as ArrayBuffer);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-
-      if (!worksheet) return;
-
-      const excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
-      this.renderTable(excelData);
-
-      await this.processImages(file);
-    };
-    reader.readAsArrayBuffer(file);
-  }
-  renderTable(data: any[][]): void {
-    const table = document.getElementById('excelTable') as HTMLTableElement;
-    if (!table) return;
-
-    table.innerHTML = '';
-
-    data.forEach((row, rowIndex) => {
-        const tr = table.insertRow();
-        row.forEach((cell, cellIndex) => {
-            const td = tr.insertCell();
-
-            console.log(`Row ${rowIndex}, Cell ${cellIndex}:`, cell);
-
-            if (cell === 'TRUE' || cell === 'FALSE') {
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = cell === 'TRUE';
-                td.appendChild(checkbox);
-            } else if (this.isDropdownCell(cell)) {
-                console.log('Detected dropdown cell:', cell);
-                const select = document.createElement('select');
-                const options = this.getDropdownOptions(cell);
-                options.forEach((option: string) => {
-                    const optionElement = document.createElement('option');
-                    optionElement.value = option;
-                    optionElement.text = option;
-                    select.appendChild(optionElement);
-                });
-                td.appendChild(select);
-                console.log('Dropdown appended:', select);
-            } else {
-                td.innerText = cell ? cell : '';
-            }
-        });
+      }
     });
 }
+// Método para convertir la fecha al formato dd-MM-yyyy
+convertirFechaFormato(fecha: string): string {
+  if (!fecha) return ''; // Verificación si la fecha está vacía
 
-
-
-
-isDropdownCell(cell: any): boolean {
-  // Detecta cualquier celda que contenga comas, asumiendo que es una lista desplegable.
-  return typeof cell === 'string' && cell.includes(',');
-}
-
-getDropdownOptions(cell: any): string[] {
-  // Divide la celda en opciones separadas por comas.
-  return cell.split(',').map((option: string) => option.trim());
+  const [year, month, day] = fecha.split('-');
+  return `${day}-${month}-${year}`;
 }
 
 
-  async processImages(file: File): Promise<void> {
-    const workbook = new ExcelJS.Workbook();
-    const buffer = await file.arrayBuffer();
-    await workbook.xlsx.load(buffer);
+handleErrorInterno(error: any, context: string, loadingMessageId: string) {
+  console.error(`Error en ${context}:`, error);
+  this.messageService.remove(loadingMessageId);
 
-    const worksheet = workbook.getWorksheet(1);
-    if (!worksheet) return;
+  // Mostramos el error completo en la alerta
+  this.alertservice.error('Error al Guardar', error.message);
+}
 
-    const images = worksheet.getImages();
-    console.log('Images found:', images); // Verificar si las imágenes están siendo detectadas
 
-    const imagesContainer = document.createElement('div');
-
-    for (const image of images) {
-      const imageId = Number(image.imageId);
-      const imageData = workbook.getImage(imageId);
-
-      if (!imageData) {
-          console.log(`No image data found for imageId: ${imageId}`);
-       } else {
-          console.log('Image data:', imageData);
-      }
-
-      if (imageData && imageData.buffer) {
-        const extension = this.getImageExtension(imageData.extension);
-        const base64Image = this.arrayBufferToBase64(imageData.buffer);
-
-        console.log(`Image base64 string: data:image/${extension};base64,${base64Image}`);
-        const imgElement = document.createElement('img');
-        imgElement.src = `data:image/${extension};base64,${base64Image}`;
-        imgElement.style.width = '100px'; // Ajustar el tamaño de la imagen
-        imgElement.style.height = 'auto'; // Mantener la proporción de la imagen
-        imgElement.style.margin = '10px';
-
-        console.log('Image displayed:', imgElement.src); // Verificar si la imagen se está mostrando correctamente
-
-        imagesContainer.appendChild(imgElement);
-      } else {
-        console.log('No image data found for imageId:', imageId);
-      }
-    }
-
-    const table = document.getElementById('excelTable') as HTMLTableElement;
-    if (table) {
-      const imagesRow = table.insertRow();
-      const imagesCell = imagesRow.insertCell();
-      imagesCell.colSpan = table.rows[0]?.cells.length || 1;
-      imagesCell.appendChild(imagesContainer);
-    }
+  isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
+    return error instanceof HttpErrorResponse;
   }
 
-  arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    const binary = Array.from(bytes).map(byte => String.fromCharCode(byte)).join('');
-    return window.btoa(binary);
-  }
 
-  getImageExtension(mime: string): string {
-    switch (mime) {
-      case 'image/png':
-        return 'png';
-      case 'image/jpeg':
-        return 'jpeg';
-      case 'image/gif':
-        return 'gif';
-      case 'image/bmp':
-        return 'bmp';
-      default:
-        return 'png'; // Default to PNG if unrecognized
-    }
-  }*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  /*sheetData: (string | number)[][] = [];
-
-  constructor(private http: HttpClient) {}
-
-  ngOnInit(): void {
-    this.loadExcelTemplate();
-  }
-
-  loadExcelTemplate(): void {
-    const url = 'assets/Libro1.xlsx';
-    this.http.get(url, { responseType: 'arraybuffer' }).subscribe(data => {
-      try {
-        const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-
-        if (worksheet) {
-          const sheetData: (string | number)[][] = [];
-          const range = XLSX.utils.decode_range(worksheet['!ref'] || '');
-
-          for (let R = range.s.r; R <= range.e.r; ++R) {
-            const row: (string | number)[] = [];
-            for (let C = range.s.c; C <= range.e.c; ++C) {
-              const cellAddress = { c: C, r: R };
-              const cellRef = XLSX.utils.encode_cell(cellAddress);
-              const cell = worksheet[cellRef];
-              const cellValue = this.getCellValue(cell);
-
-              console.log(`Procesando celda [${R}, ${C}]:`, cell, '->', cellValue);
-              row.push(cellValue);
-            }
-            sheetData.push(row);
-          }
-
-          this.sheetData = sheetData;
-          console.log('Datos de la hoja convertidos:', this.sheetData);
-        } else {
-          console.error('La hoja de trabajo no se pudo encontrar o está vacía.');
-        }
-      } catch (error) {
-        console.error('Error al cargar o procesar el archivo .xlsx:', error);
-      }
-    });
-  }
-
-  private getCellValue(cell: any): string | number {
-    if (cell === undefined || cell === null) return '';
-
-    if (typeof cell === 'object') {
-      if (cell.hasOwnProperty('v')) {
-        const cellValue = cell.v;
-
-        // Verifica si el valor es un objeto
-        if (typeof cellValue === 'object') {
-          return JSON.stringify(cellValue);
-        }
-
-        return cellValue;
-      } else if (cell.hasOwnProperty('w')) {
-        return cell.w;
-      } else {
-        return JSON.stringify(cell);
-      }
-    }
-
-    return cell;
-  }*/
+}
 
 
 

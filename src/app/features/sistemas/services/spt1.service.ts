@@ -13,6 +13,13 @@ export class Spt1Service {
   constructor(private http: HttpClient) {}
   private apiURL = `${environment.apiUrl}/Spt1`;
 
+  // Método para eliminar un registro por su id_spt1
+  eliminarSpt1(id_spt1: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiURL}/Eliminar/${id_spt1}`)
+      .pipe(
+        catchError(this.handleError<any>('eliminarSpt1'))
+      );
+  }
   insertarSpt1(spt1Dto: Spt1DTO): Observable<any> {
     return this.http.post<any>(`${this.apiURL}/insert`, spt1Dto)
       .pipe(

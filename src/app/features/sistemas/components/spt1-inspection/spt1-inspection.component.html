@@ -1,72 +1,159 @@
-<!--<div>
-  <input type="file" (change)="loadExcelFile($event)" />
+<!---
+<div class="w-[1100px] mx-auto bg-white font-sans border border-black">
+  <div class="flex justify-between items-stretch h-[160px] border-b border-black">
+    <div class="w-[150px] h-full flex flex-col justify-center border-r border-black">
+      <img src="/assets/placeholder.svg" alt="Marcobre Logo" class="object-contain mx-auto" width="120" height="50" />
+    </div>
+    <div class="flex flex-col flex-grow">
+      <h1 class="text-[20px] font-bold text-center flex-grow p-2 border-b border-black">
+        MANTENIMIENTO PROGRAMADO DE SUB ESTACIONES TIPO ESTACIÓN - PM1
+      </h1>
+      <div class="grid grid-cols-4 text-[14px] text-left h-[40px] border-b border-black">
+        <div class="p-2 border-r border-black col-span-3">
+          <strong>Área:</strong> Electricidad y Potencia
+        </div>
+        <div class="p-2">
+          <strong>Versión:</strong> 004
+        </div>
+      </div>
+      <div class="grid grid-cols-4 text-[14px] text-left h-[40px]">
+        <div class="p-2 border-r border-black col-span-2">
+          <strong>Fecha:</strong> 20-09-2023
+        </div>
+        <div class="p-2 border-r border-black">
+          <strong>Documento:</strong> MJ-EP-MPSETE-001
+        </div>
+        <div class="p-2">
+          <strong>Página:</strong> 1 de 1
+        </div>
+      </div>
+    </div>
+    <div class="w-[150px] h-full flex flex-col justify-center border-l border-black">
+      <img src="/assets/placeholder.svg" alt="Mina Justa Logo" class="object-contain mx-auto" width="120" height="50" />
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 text-[14px] border-t border-b border-black">
+    <div class="bg-[#FFEBB5] border-r border-black">
+      <div class="flex items-center h-full">
+        <strong class="w-1/2 p-2">Tag de la sub estación:</strong>
+        <input type="text" class="border-l border-black w-1/2 h-full" />
+      </div>
+    </div>
+    <div class="border-r border-black">
+      <div class="flex items-center bg-[#FFEBB5] h-1/2">
+        <strong class="w-1/3 p-2">Ubicación:</strong>
+        <input type="text" class="border-l border-black w-2/3 h-10" />
+      </div>
+      <div class="grid grid-cols-2 h-1/2">
+        <div class="flex items-center bg-[#FFEBB5] border-t border-r border-black">
+          <strong class="w-1/2 p-2">Hora Inicio:</strong>
+          <input type="time" class="border-l border-black w-1/2 h-full" />
+        </div>
+        <div class="flex items-center bg-[#FFEBB5] border-t border-black">
+          <strong class="w-1/2 p-2">Hora Fin:</strong>
+          <input type="time" class="border-l border-black w-1/2 h-full" />
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="flex items-center bg-[#FFEBB5] h-1/2">
+        <strong class="w-1/2 p-2">Orden de Trabajo:</strong>
+        <input type="text" class="border-l border-black w-1/2 h-10" />
+      </div>
+      <div class="flex items-center bg-[#FFEBB5] border-t border-black h-1/2">
+        <strong class="w-1/4 p-2">Fecha:</strong>
+        <input type="date" class="border-l border-black w-3/4 h-10" />
+      </div>
+    </div>
+  </div>
 </div>
 
-<div *ngIf="sheetData.length > 0">
-  <table>
+<div className="w-full max-w-4xl mx-auto font-sans text-sm">
+
+  <table className="w-full border-collapse border border-black">
     <thead>
       <tr>
-        <th *ngFor="let header of sheetData[0]"> {{ header }} </th>
+        <th className="border border-black p-2 text-left font-bold bg-[#FFF2CC] w-[40%]">PATIO DE SUB ESTACIÓN</th>
+        <th className="border border-black p-2 text-center font-bold bg-white" colSpan={3}>ESTADO</th>
+        <th className="border border-black p-2 text-left font-bold bg-[#FFF2CC] w-[40%]">OBSERVACIONES</th>
+      </tr>
+      <tr>
+        <th className="border border-black p-2 bg-[#FFF2CC]"></th>
+        <th className="border border-black p-2 text-center font-bold bg-white w-[6%]">"√"</th>
+        <th className="border border-black p-2 text-center font-bold bg-white w-[6%]">"X"</th>
+        <th className="border border-black p-2 text-center font-bold bg-white w-[6%]">"N/A"</th>
+        <th className="border border-black p-2 bg-[#FFF2CC]"></th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let row of sheetData.slice(1); let rowIndex = index">
-        <td *ngFor="let cell of row; let cellIndex = index" style="position: relative;">
 
+        <tr key={index}>
+          <td className="border border-black p-2"></td>
 
-          <ng-container *ngIf="getImageForCell(rowIndex + 1, cellIndex + 1) as imageBase64">
-            <img [src]="imageBase64"
-                 style="width: 100%; height: auto;"
-                 (load)="onImageLoad()"
-                 (error)="onImageError()">
-          </ng-container>
+          <td className="border border-black p-2 text-center"><input type="checkbox" /></td>
+          <td className="border border-black p-2 text-center"><input type="checkbox" /></td>
+          <td className="border border-black p-2 text-center"><input type="checkbox" /></td>
+          <td className="border border-black p-2"><input type="text" className="w-full p-1 border border-gray-300" placeholder="Observaciones" /></td>
+        </tr>
 
-          <ng-template #cellContent>
-            <span *ngIf="cell; else emptyCell">{{ cell }}</span>
-            <ng-template #emptyCell>
-              <span>Celda vacía</span>
-            </ng-template>
-          </ng-template>
-
-        </td>
-      </tr>
     </tbody>
   </table>
-</div>
 
 
+  <table className="w-full border-collapse border border-black border-t-0">
+    <thead>
+      <tr>
+        <th className="border border-black p-2 text-left font-bold bg-[#FFF2CC] w-[70%]">RECOMENDACIONES - OBSERVACIONES</th>
+        <th className="border border-black p-2 text-center font-bold bg-[#FFF2CC] w-[20%]">SOLICITA AVISO SAP</th>
+        <th className="border border-black p-2 text-center font-bold bg-[#FFF2CC] w-[10%]"># SOLICITUD</th>
+      </tr>
+    </thead>
+    <tbody>
 
-<div *ngIf="images.length > 0">
-  <img [src]="images[0].base64" alt="Primera Imagen" style="width: 100px; height: 100px;" />
-</div>
--->
-<!--
-<div id="fileUploader">
-  <input type="file" (change)="onFileChange($event)" />
-</div>
+        <tr key={index}>
 
-<div id="tableContainer">
-  <table id="excelTable">
+          <td className="border border-black p-2">
+            <input type="text" className="w-full p-1 border border-gray-300" placeholder="Recomendaciones/Observaciones" />
+          </td>
+          <td className="border border-black p-2">
+            <div className="flex justify-center items-center space-x-4">
 
+              <div className="flex items-center">
+                <span className="mr-1">SI</span>
+                <input type="checkbox" />
+              </div>
+              <div className="flex items-center">
+                <span className="mr-1">NO</span>
+                <input type="checkbox" />
+              </div>
+            </div>
+          </td>
+
+          <td className="border border-black p-2">
+            <input type="text" className="w-full p-1 border border-gray-300" placeholder="Solicitud #" />
+          </td>
+        </tr>
+
+    </tbody>
   </table>
+
+
+  <div className="grid grid-cols-2 gap-4 mt-4">
+    <div>
+      <p className="font-bold">RESP. DEL SERVICIO:</p>
+
+      <p className="mt-2">N° FOTOCHECK: <input type="text" className="border border-gray-300 p-1" /></p>
+      <p className="mt-2">FIRMA: <input type="text" className="border border-gray-300 p-1" /></p>
+    </div>
+    <div>
+      <p className="font-bold">SUPERVISOR:</p>
+
+      <p className="mt-2">N° FOTOCHECK: <input type="text" className="border border-gray-300 p-1" /></p>
+      <p className="mt-2">FIRMA: <input type="text" className="border border-gray-300 p-1" /></p>
+    </div>
+  </div>
 </div>-->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 <body>
@@ -763,7 +850,7 @@
   </select>
 </div>
 
-<div class="stl_01 stl_85" style="left:38.1546em;top:88.1254em;">
+<div class="stl_01 stl_85" style="left:13.1546em;top:90.1254em;">
   <select [ngClass]="{'text-green': transformador['selectedOption47'] === 'Buen Estado', 'text-red': transformador['selectedOption47'] !== 'Buen Estado' && transformador['selectedOption47'] !== 'No aplica',
         'text-black': transformador['selectedOption47'] === 'No aplica'}"
           (ngModelChange)="get_transformador('selectedOption47', $event)"
@@ -820,7 +907,7 @@
                     </div>
         <div class="stl_01 stl_07" style="left:30.9678em;top:101.4617em;"><span class="stl_70 stl_09 stl_27">FOTOCHECK: &nbsp;</span></div>
         <div class="stl_01 stl_07" style="left:9.0177em;top:103.6605em;"><span class="stl_70 stl_09 stl_41">FIRMA: &nbsp;</span> </div>
-                  <div class="stl_01 stl_07" style="left:12.9177em;top:102.6605em;"><img [src]="rutaFirmaSeleccionada" alt="" width="800px" height="400px"></div>
+                  <div class="stl_01 stl_07" style="left:12.9177em;top:102.3em;"><img [src]="rutaFirmaSeleccionada"  style="width: 750px;height: 450px;"></div>
         <div class="stl_01 stl_07" style="left:33.2857em;top:103.7112em;"><span class="stl_70 stl_09 stl_37">FIRMA: &nbsp;</span>  </div>
       </div>
     </div>
@@ -855,25 +942,3 @@
     </a>
 
 </div>
-<!---
-<p-toast key="PdfGeneratorPlanoServiceerror"></p-toast>-->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -6,12 +6,13 @@ import { DashSpt2Service } from './../../services/dash-spt2.service';
 import { Spt2Service } from './../../services/spt2.service';
 import { PdfGeneratorServiceService } from '../../services/pdf-generator-service.service';
 import { Component ,OnInit,ViewChild,TemplateRef} from '@angular/core';
-import { Spt2 } from '../../interface/spt2';
+import { MostrarSpt2 } from '../../interface/spt2';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzModalRef } from 'ng-zorro-antd/modal/modal-ref';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { AlertService } from '../../services/alert.service';
 import 'datatables.net';
 import 'datatables.net-buttons';
 import 'datatables.net-buttons/js/buttons.html5.js';
@@ -21,7 +22,9 @@ import 'jszip';
 import 'pdfmake';
 import 'pdfmake/build/vfs_fonts.js';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { Router, ActivatedRoute } from '@angular/router';
 
+import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-history-spt2',
   standalone: true,
@@ -30,12 +33,34 @@ import { SharedModule } from 'src/app/shared/shared.module';
   styleUrl: './history-spt2.component.css'
 })
 export class HistorySpt2Component implements OnInit{
-  spt2List: Spt2[] = [];
+  spt2List: MostrarSpt2[] = [];
+  filteredSpt2List: MostrarSpt2[] = [];
+
   mostrarHerramientas: boolean = false;
   modalRef: NzModalRef | null = null;
+  loading = true;
+  pageIndex: number = 1;
+  pageSize: number = 7;
 
   @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
   pdfUrl: SafeResourceUrl | null = null;
+
+
+  // Filtros para los campos sujeción
+  filterPat1_sujecion: string = '';
+  filterPat2_sujecion: string = '';
+  filterPat3_sujecion: string = '';
+  filterPat4_sujecion: string = '';
+
+
+    // Filtros para cada columna
+    filterSubestacion: string = '';
+    filterOt: string = '';
+    filterFecha: string = '';
+
+    filterLider: string = '';
+    filterSupervisor: string = '';
+
 
   constructor(private spt2Service: Spt2Service, private router: Router,
     private pdfGeneratorService:PdfGeneratorServiceService,
@@ -46,41 +71,146 @@ export class HistorySpt2Component implements OnInit{
     private MetodoCaidaService : MetodoCaidaService,
     private MetodoSelectivoService : MetodoSelectivoService,
     private usuarioService : UsuarioService,
-    private AuthService : AuthServiceService
+    private AuthService : AuthServiceService,
+    private messageService:NzMessageService,
+    private alertservice: AlertService,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
-    // Recuperar el cargo del usuario desde localStorage
     const storedCargo = localStorage.getItem('cargo');
     if (storedCargo) {
-      console.log(`Cargo almacenado en localStorage: ${storedCargo}`);
       this.mostrarHerramientas = storedCargo === 'SUPERVISOR';
-      console.log(
-        this.mostrarHerramientas
-          ? 'El usuario es SUPERVISOR, se mostrará la columna Herramientas'
-          : 'El usuario no es SUPERVISOR, no se mostrará la columna Herramientas'
-      );
-    } else {
-      console.log('No se encontró un cargo almacenado en localStorage');
-      this.mostrarHerramientas = false;
     }
 
-    // Obtener la lista de SPT2
-    this.spt2Service.mostrarListaSpt2().subscribe(
-      (data: Spt2[]) => {
-        this.spt2List = data;
-        console.log('Lista de SPT2:', this.spt2List);
+    this.spt2Service.obtenerSpt2().subscribe(
+      (data: MostrarSpt2[]) => {
+        this.spt2List = data.map(item => {
+          // Si alguna de las nuevas propiedades no está inicializada, puedes establecer valores por defecto
+         if (!item.caida_potencia) {
+            item.caida_potencia = false; // Valor por defecto para caida_potencia
+          }
+          if (!item.selectivo) {
+            item.selectivo = false; // Valor por defecto para selectivo
+          }
+          if (!item.sin_picas) {
+            item.sin_picas = false; // Valor por defecto para sin_picas
+          }
+          return item;
+        });
 
-        // Inicializar la tabla solo después de recibir los datos
-        this.initDataTable();
+        this.filteredSpt2List = this.spt2List;
+        this.loading = false;
       },
       (error) => {
         console.error('Error al obtener la lista SPT2', error);
+        this.loading = false;
       }
     );
   }
 
-  verTendencia(spt2: any) {
+  applyFilter() {
+    this.filteredSpt2List = this.spt2List.filter(item =>
+      (!this.filterSubestacion || item.tag_subestacion?.toLowerCase().includes(this.filterSubestacion.toLowerCase())) &&
+      (!this.filterOt || item.ot?.toLowerCase().includes(this.filterOt.toLowerCase())) &&
+      (!this.filterFecha || item.fecha?.toLowerCase().includes(this.filterFecha.toLowerCase())) &&
+
+      (!this.filterPat1_sujecion || item.pat1_sujecion?.toString().includes(this.filterPat1_sujecion)) &&
+      (!this.filterPat2_sujecion || item.pat2_sujecion?.toString().includes(this.filterPat2_sujecion)) &&
+      (!this.filterPat3_sujecion || item.pat3_sujecion?.toString().includes(this.filterPat3_sujecion)) &&
+      (!this.filterPat4_sujecion || item.pat4_sujecion?.toString().includes(this.filterPat4_sujecion))  &&
+
+      //AGREGAR AQUI
+      (!this.filterLider || item.usuario_lider?.toLowerCase().includes(this.filterLider.toLowerCase())) &&
+      (!this.filterSupervisor || item.usuario_supervisor?.toLowerCase().includes(this.filterSupervisor.toLowerCase()))
+    );
+  }
+  /*verTendencia(){
+    this.route.queryParams.subscribe(params => {
+      const tagSubestacion = params['tag_subestacion'] || '';
+      console.log('Tag Subestación:',spt2List.tag_subestacion);
+      this.router.navigate(['/sistemas/grafico-spt2'], {
+        queryParams: { tag_subestacion: tagSubestacion }
+      });
+
+      // O cualquier otra lógica que necesites hacer con el parámetro.
+    });
+  }*/
+
+  /*onMetodoChange(item: Spt2) {
+    console.log('Método seleccionado:', item.tipo_metodo);
+    console.log('Subestación:', item.tag_subestacion, 'OT:', item.ot);
+
+    // Si el tipo de método es "SIN PICAS"
+    if (item.tipo_metodo === 'SIN PICAS') {
+      console.log('Buscando datos para SIN PICAS');
+      this.spt2Service.buscarPorSubestacionyot(item.tag_subestacion, item.ot).subscribe((data) => {
+        console.log('Datos obtenidos para SIN PICAS:', data);
+        if (data.length > 0) {
+          // Convierte los valores a número antes de comparar
+          item.pat1 = Number(data[0].pat1) !== 0 ? data[0].pat1 : '';
+          item.pat2 = Number(data[0].pat2) !== 0 ? data[0].pat2 : '';
+          item.pat3 = Number(data[0].pat3) !== 0 ? data[0].pat3 : '';
+          item.pat4 = Number(data[0].pat4) !== 0 ? data[0].pat4 : '';
+          console.log('Valores actualizados:', item.pat1, item.pat2, item.pat3, item.pat4);
+        }
+      });
+    }
+
+    // Si el tipo de método es "METODO SELECTIVO"
+    else if (item.tipo_metodo === 'METODO SELECTIVO') {
+      console.log('Buscando datos para METODO SELECTIVO');
+      this.MetodoSelectivoService.getMetodoSelectivoById(item.id_mselectivo).subscribe((data) => {
+        console.log('Datos obtenidos para METODO SELECTIVO:', data);
+        if (data.length > 0) {
+          // Convierte los valores a número antes de comparar
+          item.pat1 = Number(data[0].valorms) !== 0 ? data[0].valorms : '';
+          item.pat2 = Number(data[1].valorms) !== 0 ? data[1].valorms : '';
+          item.pat3 = Number(data[2].valorms) !== 0 ? data[2].valorms : '';
+          item.pat4 = Number(data[3].valorms) !== 0 ? data[3].valorms : '';
+          console.log('Valores actualizados:', item.pat1, item.pat2, item.pat3, item.pat4);
+        }
+      });
+    }
+
+    // Si el tipo de método es "METODO CAIDA"
+    else if (item.tipo_metodo === 'METODO CAIDA') {
+      console.log('Buscando datos para METODO CAIDA');
+      this.MetodoCaidaService.getMetodoCaidaById(item.id_mcaida).subscribe((data) => {
+        console.log('Datos obtenidos para METODO CAIDA:', data);
+        if (data.length > 0) {
+          // Convierte los valores a número antes de comparar
+          item.pat1 = Number(data[0].valormc) !== 0 ? data[0].valormc : '';
+          item.pat2 = Number(data[1].valormc) !== 0 ? data[1].valormc : '';
+          item.pat3 = Number(data[2].valormc) !== 0 ? data[2].valormc : '';
+          item.pat4 = Number(data[3].valormc) !== 0 ? data[3].valormc : '';
+          console.log('Valores actualizados:', item.pat1, item.pat2, item.pat3, item.pat4);
+        }
+      });
+    } else {
+      console.warn('Método no reconocido:', item.tipo_metodo);
+    }
+  }
+
+
+
+
+  applyFilter() {
+    this.filteredSpt2List = this.spt2List.filter(item =>
+      (!this.filterSubestacion || item.tag_subestacion?.toLowerCase().includes(this.filterSubestacion.toLowerCase())) &&
+      (!this.filterOt || item.ot?.toLowerCase().includes(this.filterOt.toLowerCase())) &&
+      (!this.filterFecha || item.fecha?.toLowerCase().includes(this.filterFecha.toLowerCase())) &&
+      (!this.filterTipoMetodo || (item.tipo_metodo && item.tipo_metodo.toLowerCase().includes(this.filterTipoMetodo.toLowerCase()))) &&
+      (!this.filterPat1 || item.pat1?.toString().toLowerCase().includes(this.filterPat1.toLowerCase())) &&
+      (!this.filterPat2 || item.pat2?.toString().toLowerCase().includes(this.filterPat2.toLowerCase())) &&
+      (!this.filterPat3 || item.pat3?.toString().toLowerCase().includes(this.filterPat3.toLowerCase())) &&
+      (!this.filterPat4 || item.pat4?.toString().toLowerCase().includes(this.filterPat4.toLowerCase())) &&
+      (!this.filterLider || item.lider?.toLowerCase().includes(this.filterLider.toLowerCase())) &&
+      (!this.filterSupervisor || item.supervisor?.toLowerCase().includes(this.filterSupervisor.toLowerCase()))
+    );
+  }
+
+  /*verTendencia(spt2: any) {
     const { tag_subestacion, ot, fecha, lider, supervisor, pat01, pat02, pat03, pat04 } = spt2;
 
     console.log("Datos pasados al servicio verTendencia:", {
@@ -97,307 +227,110 @@ export class HistorySpt2Component implements OnInit{
         // Lógica para manejar errores
       }
     );
+  }*/
+
+
+  // Exportar a CSV
+  /*exportToCSV() {
+    const csvContent = this.filteredSpt2List.map(item => {
+      return `${item.tag_subestacion},${item.ot},${item.fecha},${item.tipo_metodo},${item.pat1},${item.pat2},${item.pat3},${item.pat4},${item.lider},${item.supervisor}`;
+    }).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'tabla.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
-
-  initDataTable() {
-    $(document).ready(() => {
-      // Incluir el CSS para el hover
-      $('<style>')
-        .prop('type', 'text/css')
-        .html(`
-          #example tbody tr:hover {
-            background-color: #dfdfdf !important;
-          }
-        `)
-        .appendTo('head');
-
-      const columnsConfig = [
-        { data: 'tag_subestacion', title: 'Subestación' },
-        { data: 'ot', title: 'Ot' },
-        { data: 'fecha', title: 'Fecha' },
-        { data: null, title: 'Tipo de Método' },
-        { data: 'pat1', title: 'Pat1' },
-        { data: 'pat2', title: 'Pat2' },
-        { data: 'pat3', title: 'Pat3' },
-        { data: 'pat4', title: 'Pat4' },
-        { data: 'lider', title: 'Líder' },
-        { data: 'supervisor', title: 'Supervisor' }, // Mantener esta columna independiente
-        { data: null, title: 'Tendencia' },
-        { data: 'firma', title: 'Documentos' },
-
-      ];
-
-      // Solo agregamos la columna "Herramientas" si el usuario es SUPERVISOR
-      if (this.mostrarHerramientas) {
-        columnsConfig.push({ data: null, title: 'Herramientas' });
-      }
-
-      const table = $('#example').DataTable({
-        dom: 'Brtipl',
-        buttons: [
-          {
-            extend: 'excelHtml5',
-            text: '<i class="fas fa-file-excel" style="color: green;"></i> Excel',
-            className: 'btn btn-success'
-          },
-          {
-            extend: 'pdfHtml5',
-            text: '<i class="fas fa-file-pdf" style="color: red;"></i> PDF',
-            className: 'btn btn-danger'
-          },
-          {
-            extend: 'print',
-            text: '<i class="fas fa-print" style="color: blue;"></i> Imprimir',
-            className: 'btn btn-info'
-          }
-        ],
-        data: this.spt2List,
-        columns: columnsConfig,
-        columnDefs: [
-          {
-            targets: [4, 5, 6, 7],
-            render: (data, type, full, meta) => {
-              if (!data) return '';
-              let icon = '';
-              if (data < 25) {
-                icon = '<i class="fas fa-check-circle" style="color: green;"></i>';
-              } else if (data >= 25) {
-                icon = '<i class="fas fa-times-circle" style="color: red;"></i>';
-              }
-              return `${data} ${icon}`;
-            }
-          },
-          {
-            targets: 3,
-            orderable: false,
-            render: (data, type, full, meta) => {
-              return `
-                <select class="form-control metodo-select" data-row-index="${meta.row}">
-                  <option value="SIN PICAS">SIN PICAS</option>
-                  <option value="METODO SELECTIVO">METODO SELECTIVO</option>
-                  <option value="METODO CAIDA">METODO CAIDA</option>
-                </select>
-              `;
-            }
-          },
-          {
-            targets: 9, // Target para la columna "supervisor"
-            render: (data, type, full, meta) => {
-              return data ? data : 'Sin supervisor';
-            }
-          },
-          {
-            targets: 10,
-            orderable: false,
-            render: (data, type, full, meta) => {
-              return `
-                <div class="btn-group">
-                  <button class="btn btn-xs btn-default tendencia-btn"
-                      type="button"
-                      title="Ver Tendencia"
-                      data-tag-subestacion="${full.tag_subestacion}"
-                      data-ot="${full.ot}"
-                      data-fecha="${full.fecha}"
-                      data-lider="${full.lider}"
-                      data-supervisor="${full.supervisor}"
-                      data-pat1="${full.pat1}"
-                      data-pat2="${full.pat2}"
-                      data-pat3="${full.pat3}"
-                      data-pat4="${full.pat4}">
-                      <i class="fa fa-chart-line"></i>
-                  </button>
-                </div>
-              `;
-            }
-          },
-          {
-            targets: 11, // Asegúrate de que este target es el correcto para la columna 'firma'
-            orderable: false,
-            render: (data, type, full, meta) => {
-              const iconColor = data ? 'green' : 'orange'; // Cambia el color basado en true o false
-              const iconClass = data ? 'fa fa-file-pdf' : 'fa fa-file-pdf'; // Puedes usar íconos diferentes si es necesario
-              return `
-                <div class="btn-group">
-                  <button class="btn btn-xs btn-default documentos-btn"
-                      type="button"
-                      title="Ver Documentos"
-                      data-tag-subestacion="${full.tag_subestacion}"
-                      data-ot="${full.ot}">
-                      <i class="fa ${iconClass}" style="color: ${iconColor};"></i>
-                  </button>
-                </div>
-              `;
-            }
-          }
-          ,
-          {
-            targets: this.mostrarHerramientas ? -1 : [], // Columna "Herramientas" solo si está presente
-            orderable: false,
-            render: (data, type, full, meta) => {
-              return `
-                <div class="btn-group">
-                  <button class="btn btn-xs btn-default eliminar-btn"
-                      type="button"
-                      title="Eliminar"
-                      data-idspt2="${full.idSpt2}">
-                      <i class="fa fa-trash"></i>
-                  </button>
-                </div>
-              `;
-            }
-          }
-        ],
-
-        initComplete: function (settings, json) {
-          const api = (this as any).api();
-          api.columns().every(function (this: any) {
-            const column = this;
-            const header = $(column.header());
-
-            // Agregar campo de búsqueda solo si la columna no es "Tendencia", "Documentos" o "Herramientas"
-            if (column.index() < api.columns().nodes().length - 3) {
-              const input = $('<input type="text" placeholder="" />')
-                  .appendTo(header)
-                  .on('keyup change', function () {
-                      if (column.search() !== (this as HTMLInputElement).value) {
-                          column.search((this as HTMLInputElement).value).draw();
-                      }
-                  });
-            }
-          });
-        }
-      });
-      // Eventos de cambio para la columna "Tipo de Método"
-    $('#example').on('change', '.metodo-select', (event) => {
-      const rowIndex = $(event.currentTarget).data('row-index');
-      const selectedOption = $(event.currentTarget).val();
-      const rowData = table.row(rowIndex).data();
-
-      if (selectedOption === 'SIN PICAS') {
-        // Llamada al servicio correspondiente y actualización de la fila
-        this.Spt2Service.buscarPorSubestacionyot(rowData.tag_subestacion, rowData.ot).subscribe((data) => {
-          if (data.length > 0) {
-            rowData.pat1 = data[0].pat1;
-            rowData.pat2 = data[0].pat2;
-            rowData.pat3 = data[0].pat3;
-            rowData.pat4 = data[0].pat4;
-            table.row(rowIndex).data(rowData).draw();
-          }
-        });
-      } else if (selectedOption === 'METODO SELECTIVO') {
-        this.MetodoSelectivoService.getMetodoSelectivoById(rowData.id_mselectivo).subscribe((data) => {
-          if (data.length > 0) {
-            rowData.pat1 = data[0].valorms;
-            rowData.pat2 = data[1] ? data[1].valorms : '';
-            rowData.pat3 = data[2] ? data[2].valorms : '';
-            rowData.pat4 = data[3] ? data[3].valorms : '';
-            table.row(rowIndex).data(rowData).draw();
-          }
-        });
-      } else if (selectedOption === 'METODO CAIDA') {
-        this.MetodoCaidaService.getMetodoCaidaById(rowData.id_mcaida).subscribe((data) => {
-          if (data.length > 0) {
-            rowData.pat1 = data[0].valormc;
-            rowData.pat2 = data[1] ? data[1].valormc : '';
-            rowData.pat3 = data[2] ? data[2].valormc : '';
-            rowData.pat4 = data[3] ? data[3].valormc : '';
-            table.row(rowIndex).data(rowData).draw();
-          }
-        });
-      }
-    });
+  // Exportar a Excel
+  exportToExcel() {
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.filteredSpt2List);
+    const wb: XLSX.WorkBook = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+    XLSX.writeFile(wb, 'tabla.xlsx');
+}*/
 
 
-      // Eventos para los botones de "ver", "tendencia", "documentos", y "eliminar"
-      $('#example').on('click', '.ver-btn', (event) => {
-        const idSpt2 = $(event.currentTarget).data('idspt2');
-       // this.abrirDetalle(idSpt2);
-      });
-
-      $('#example').on('click', '.tendencia-btn', (event) => {
-        const target = $(event.currentTarget);
-
-        const tag_subestacion = target.data('tag-subestacion');
-        const ot = target.data('ot');
-        const fecha = target.data('fecha');
-        const lider = target.data('lider');
-        const supervisor = target.data('supervisor');
-        const pat01 = target.data('pat01');
-        const pat02 = target.data('pat02');
-        const pat03 = target.data('pat03');
-        const pat04 = target.data('pat04');
-
-        // Pasar todos los datos al método verTendencia
-        this.verTendencia({
-          tag_subestacion,
-          ot,
-          fecha,
-          lider,
-          supervisor,
-          pat01,
-          pat02,
-          pat03,
-          pat04
-        });
-      });
-      $('#example').on('click', '.documentos-btn', (event) => {
-        const tag_subestacion = $(event.currentTarget).data('tag-subestacion');
-        const ot = $(event.currentTarget).data('ot');
-        this.verDocumentos(tag_subestacion, ot);  // Pasa los parámetros correctos
-      });
-      $('#example').on('click', '.eliminar-btn', (event) => {
-        const idSpt2 = $(event.currentTarget).data('idspt2');
-        //this.eliminarRegistro(idSpt2);  // Función para manejar la eliminación del registro
-      });
-    });
-  }
-
-  verDocumentos(tag_subestacion: string, ot: string): void {
-    console.log(tag_subestacion, ot);
-
-    this.pdfGeneratorService.generarPDF(tag_subestacion, ot).then((pdfBlob: Blob) => {
-      const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        URL.createObjectURL(pdfBlob) + '#toolbar=0'
-      );
-
-      this.pdfUrl = pdfUrl;  // Asegúrate de que esta variable esté bien escrita
-      console.log('PDF URL:', pdfUrl);  // Debugging
-
-      this.modal.create({
-
-        nzContent: this.pdfModal,  // Verifica que pdfModal esté bien referenciado
-        nzFooter: [
-          {
-            label: 'Cerrar',
-            type: 'default',
-            onClick: () => this.modal.closeAll(),
-            className: 'custom-close-button' // Clase CSS personalizada para el botón
-          },
-          {
-            label: 'Descargar PDF',
-            type: 'primary',
-            onClick: () => this.downloadPdf(pdfBlob),  // Llama a la función para descargar
-          }
-        ],
-        nzWidth: '100%',
-        nzStyle: { top: '20px' }, // Posicionar el modal en la parte superior
-        nzClosable: false // Desactivar el botón "X" de cerrar
-      });
-      console.log('Modal abierto con éxito');  // Debugging
-    }).catch(error => {
-      console.error('Error opening PDF:', error);
-    });
-  }
 
 
-// Método para descargar el PDF
-downloadPdf(pdfBlob: Blob): void {
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(pdfBlob);
-  link.download = 'spt2.pdf';
-  link.click();
+
+
+verDocumentos(id_spt2: number): void {
+  console.log('ID SPT2:', id_spt2);
+
+
+  // Llamar al método generarPDF pasando solo el id_spt2
+  this.pdfGeneratorService.generarPDF(id_spt2).then((pdfBlob: Blob) => {
+    // Convertir el Blob a una URL segura
+    const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+      URL.createObjectURL(pdfBlob) + '#toolbar=0'
+    );
+
+    // Asignar la URL a la variable correspondiente
+    this.pdfUrl = pdfUrl;
+    console.log('PDF URL:', pdfUrl);  // Debugging
+
+    // Abrir el PDF en una nueva pestaña del navegador
+    window.open(URL.createObjectURL(pdfBlob), '_blank');
+    console.log('PDF abierto con éxito');  // Debugging
+  }).catch(error => {
+    console.error('Error al abrir el PDF:', error);
+  });
 }
+
+
+  /*eliminarRegistro(id_spt2: number): void {
+    // Mostrar el modal de confirmación
+    this.modal.confirm({
+      nzTitle: 'Confirmación',
+      nzContent: '¿Estás seguro de que quieres eliminar spt2?',
+      nzOkText: 'Aceptar',
+      nzCancelText: 'Cancelar',
+      nzOnOk: async () => {
+        // Mostrar mensaje de carga mientras se realiza la operación
+        const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
+
+        // Llamar al servicio para eliminar el registro
+        this.spt2Service.eliminarSpt2(id_spt2).subscribe({
+          next: () => {
+            // Eliminar el mensaje de carga
+            this.messageService.remove(loadingMessageId);
+
+            // Mostrar mensaje de éxito
+            this.alertservice.success('spt2 eliminar', 'Los datos se han eliminado con éxito.');
+
+            // Aquí puedes realizar otras acciones, como actualizar la tabla
+            this.actualizarTabla(id_spt2);
+          },
+          error: (err) => {
+            // Eliminar el mensaje de carga
+            this.messageService.remove(loadingMessageId);
+
+            // Mostrar mensaje de error
+            this.alertservice.error('Error', 'No se pudo eliminar el registro. Por favor, intenta de nuevo.');
+          }
+        });
+      },
+      nzOnCancel: () => {
+        this.alertservice.warning('Cancelado', 'La eliminación ha sido cancelada.');
+      }
+    });
+  }*/
+  actualizarTabla(id_spt2: number): void {
+    // Filtrar la lista eliminando el registro que tiene el idSpt2
+    this.spt2List = this.spt2List.filter(item => item.id_spt2 !== id_spt2);
+
+    // Actualizar la tabla de DataTables
+    const table = $('#example').DataTable();
+    table.clear();
+    table.rows.add(this.spt2List); // Volver a agregar los datos actualizados
+    table.draw();
+  }
+
+
+
 
 
 }

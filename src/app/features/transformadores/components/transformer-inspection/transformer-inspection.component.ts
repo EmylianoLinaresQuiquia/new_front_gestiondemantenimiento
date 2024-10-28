@@ -9,6 +9,10 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzModalRef } from 'ng-zorro-antd/modal/modal-ref';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-browser';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { AlertService } from 'src/app/features/sistemas/services/alert.service';
+
+
 @Component({
   selector: 'app-transformer-inspection',
   standalone: true,
@@ -16,8 +20,10 @@ import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-brows
   templateUrl: './transformer-inspection.component.html',
   styleUrl: './transformer-inspection.component.css'
 })
+
 export class TransformerInspectionComponent {
   datos: any[] = [];
+  filteredData: any[] = [];
   pdfUrl: SafeResourceUrl | null = null;
   @ViewChild('pdfModal', { static: false }) pdfModal!: TemplateRef<any>;
   pdfSrc: string = 'assets/pdf/pm1/pm1.pdf';
@@ -29,6 +35,11 @@ export class TransformerInspectionComponent {
   potencia: string | null = null;
 
 
+  filterFecha: string = '';
+  filterOT: string = '';
+  filterLider: string = '';
+  filterSupervisor: string = '';
+
 
 
 
@@ -38,7 +49,9 @@ export class TransformerInspectionComponent {
     private transformadorPM1Service: TransformadorPM1Service,
     private router: Router,
     private modal: NzModalService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private messageService:NzMessageService,
+    private alertservice: AlertService,
 
   ) { }
 
@@ -52,41 +65,31 @@ export class TransformerInspectionComponent {
     });
   }
 
-  selectTab(event: Event) {
-    event.preventDefault();
-    const clickedTab = event.target as HTMLElement;
 
-    // Ocultar todos los contenidos
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(content => content.setAttribute('style', 'display: none;'));
 
-    // Eliminar la clase activa de todos los enlaces
-    const tabLinks = document.querySelectorAll('.tab-link');
-    tabLinks.forEach(link => link.parentElement?.classList.remove('active'));
-
-    // Añadir la clase activa al enlace clicado
-    clickedTab.parentElement?.classList.add('active');
-
-    // Mostrar el contenido correspondiente
-    const targetTab = clickedTab.getAttribute('data-tab');
-    if (targetTab) {
-      const targetElement = document.getElementById(targetTab);
-      targetElement?.setAttribute('style', 'display: block;');
-    }
-  }
   cargarDatos(transformador: string, subestacion: string) {
     this.pm1Service.mostrarPM1(subestacion, transformador).subscribe(
       data => {
-        this.datos = data;
-        console.log("datos",this.datos)
-        this.initDataTable();
+        this.datos = data;  // Asignar datos directamente
+        this.filteredData = data;  // Inicialmente mostrar todos los datos
+        console.log("datos", this.datos);
         this.cargarPdf(subestacion, transformador); // Llama a cargar el PDF
       },
       error => {
         console.error('Error al cargar los datos', error);
       }
     );
-}
+  }
+  applyFilter(): void {
+    this.filteredData = this.datos.filter(item => {
+      return (
+        (!this.filterFecha || item.fecha.includes(this.filterFecha)) &&
+        (!this.filterOT || item.orden_trabajo.includes(this.filterOT)) &&
+        (!this.filterLider || item.usuario.includes(this.filterLider)) &&
+        (!this.filterSupervisor || item.usuario_2.includes(this.filterSupervisor))
+      );
+    });
+  }
 
 cargarPdf(subestacion: string, transformador: string) {
     this.transformadorPM1Service.getPdf(subestacion, transformador).subscribe(
@@ -100,87 +103,68 @@ cargarPdf(subestacion: string, transformador: string) {
     );
 }
 
-initDataTable() {
-  $(document).ready(() => {
-    // Incluye el CSS para el hover
-    $('<style>')
-  .prop('type', 'text/css')
-  .html(`
-    #example tbody tr:hover {
-      background-color: #dfdfdf !important;
-    }
-
-  `)
-  .appendTo('head');
 
 
-    // Inicializa DataTable
-    const table = $('#example').DataTable({
-      pagingType: 'full_numbers',
-      pageLength: 10,
-      dom: 'rtipl', // Eliminado 'B' para quitar los botones de exportación
-      data: this.datos,
-      columns: [
-        { data: 'fecha', title: 'Fecha', width: '20%' },
-        { data: 'orden_trabajo', title: 'OT', width: '20%' },
-        { data: 'usuario', title: 'Lider', width: '25%' },
-        { data: 'usuario_2', title: 'Supervisor', width: '25%' },
-        { data: 'firma', title: 'Acciones', width: '10%' } // Columna sin buscador
-      ],
-      columnDefs: [
-        {
-          targets: -1,
-          orderable: false,
-          searchable: false,
-          render: (data, type, full, meta) => {
-           // Verificar el valor del campo firma
-                const iconColor = full.firma ? 'green' : 'orange'; // Cambia el color según el valor de firma
+eliminarRegistro(id_pm1: number): void {
+  // Mostrar el modal de confirmación
+  this.modal.confirm({
+    nzTitle: 'Confirmación',
+    nzContent: '¿Estás seguro de que quieres eliminar pm1?',
+    nzOkText: 'Aceptar',
+    nzCancelText: 'Cancelar',
+    nzOnOk: async () => {
+      // Mostrar mensaje de carga mientras se realiza la operación
+      const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
 
-                return `
-                  <div class="btn-group">
-                    <button class="btn btn-xs btn-default ver-btn" type="button" title="Ver" data-id="${full.id_pm1}">
-                      <i class="fa fa-file-pdf" style="color: ${iconColor};"></i>
-                    </button>
-                  </div>
-                `;
-          }
+      // Llamar al servicio para eliminar el registro
+      this.pm1Service.eliminarPM1(id_pm1).subscribe({
+        next: () => {
+          // Eliminar el mensaje de carga
+          this.messageService.remove(loadingMessageId);
+
+          // Mostrar mensaje de éxito
+          this.alertservice.success('pm1 eliminar', 'Los datos se han eliminado con éxito.');
+
+          // Depuración: Confirmar que el registro fue eliminado
+          console.log(`El registro con id_pm1 = ${id_pm1} se eliminó correctamente.`);
+
+          // Actualizar la tabla
+          this.actualizarTabla(id_pm1);
+        },
+        error: (err) => {
+          // Eliminar el mensaje de carga
+          this.messageService.remove(loadingMessageId);
+
+          // Mostrar mensaje de error
+          this.alertservice.error('Error', 'No se pudo eliminar el registro. Por favor, intenta de nuevo.');
+
+          // Depuración: Mostrar el error en la consola
+          console.error(`Error al intentar eliminar el registro con id_pm1 = ${id_pm1}`, err);
         }
-      ],
-      scrollX: true,  // Habilita el scroll horizontal
-      scrollY: '300px',  // Limita el alto de la tabla
-      scrollCollapse: true,
-      autoWidth: false,  // Desactiva el ajuste automático de ancho
-      initComplete: function(settings, json) {
-        const api = (this as any).api();
-        api.columns().every((columnIdx: any) => {
-          const column = api.column(columnIdx);
-          const header = $(column.header());
-
-          // Agregar campo de búsqueda solo si la columna no es "Acciones"
-          if (columnIdx !== api.columns().nodes().length - 1) {
-            const headerWidth = $(column.header()).width() || 100; // Asignar un valor predeterminado si el ancho es undefined
-            const input = $('<input type="text" placeholder="" />')
-              .css('width', headerWidth + 'px') // Establecer el ancho del input igual al ancho de la columna
-              .appendTo(header)
-              .on('keyup change', function() {
-                if (column.search() !== (this as HTMLInputElement).value) {
-                  column.search((this as HTMLInputElement).value).draw();
-                }
-              });
-          }
-        });
-      }
-
-
-    });
-
-    // Evento para el botón "ver"
-    $('#example').on('click', '.ver-btn', (event) => {
-      const id = $(event.currentTarget).data('id');
-       this.abrirpdf(id);
-    });
+      });
+    },
+    nzOnCancel: () => {
+      this.alertservice.warning('Cancelado', 'La eliminación ha sido cancelada.');
+    }
   });
 }
+
+actualizarTabla(id_pm1: number): void {
+  // Buscar el índice del objeto con el id_pm1 en el array de datos
+  const index = this.datos.findIndex(item => item.id_pm1 === id_pm1);
+
+  // Si se encuentra, eliminar el objeto del array de datos
+  if (index !== -1) {
+    this.datos.splice(index, 1); // Eliminar el elemento del array
+    this.datos = [...this.datos]; // Actualizar el array para que NG-ZORRO detecte los cambios
+  }
+
+  // Depuración: Confirmar que la tabla se ha actualizado
+  console.log(`La fila con id_pm1 = ${id_pm1} ha sido eliminada de la tabla.`);
+}
+
+
+
 
 abrirpdf(id: number) {
   this.pm1Service.getPM1ById(id).subscribe(

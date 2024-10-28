@@ -9,9 +9,12 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-browser';
 import { PdfGeneratorServicespt1Service } from '../../services/pdf-generator-servicespt1.service';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { AlertService } from '../../services/alert.service';
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
 import am4themes_animated from '@amcharts/amcharts4/themes/animated';
+import { ChangeDetectorRef } from '@angular/core';
 am4core.useTheme(am4themes_animated);
 @Component({
   selector: 'app-history',
@@ -30,10 +33,31 @@ export class HistoryComponent implements OnInit {
   @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
   pdfUrl: SafeResourceUrl | null = null;
   chart!: am4charts.XYChart;
+
+  filteredData: any[] = [];
+  loading = true;
+  pageIndex: number = 1;
+  pageSize: number = 7;
+
+
+
+  // Variables para los filtros
+  filterTagSubestacion: string = '';
+  filterOt: string = '';
+  filterFecha: string = '';
+  filterPat1: string = '';
+  filterPat2: string = '';
+  filterPat3: string = '';
+  filterPat4: string = '';
+  filterLider: string = '';
+  filterSupervisor: string = '';
   constructor(private spt1Service: Spt1Service,
     private modal: NzModalService,
     private pdfGeneratorService: PdfGeneratorServicespt1Service,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private messageService:NzMessageService,
+    private alertservice: AlertService,
+    private cdr: ChangeDetectorRef
 
   ) {}
 
@@ -60,10 +84,12 @@ export class HistoryComponent implements OnInit {
       console.log('Datos de SPT1:', this.spt1Data);
 
       // Inicializar la tabla solo después de recibir los datos
-      this.initDataTable();
+      this.filteredData = this.spt1Data;
+      this.loading = false;
     },
     (error) => {
       console.error('Error al obtener la lista SPT1', error);
+      this.loading = false;
     }
   );
 
@@ -93,161 +119,84 @@ export class HistoryComponent implements OnInit {
 
   }
 
-  initDataTable() {
-    $(document).ready(() => {
-      $('<style>')
-        .prop('type', 'text/css')
-        .html(`
-          #example tbody tr:hover {
-            background-color: #dfdfdf !important;
-          }
-        `)
-        .appendTo('head');
 
-      // Definir las columnas base
-      const columns = [
-        { data: 'tagSubestacion', title: 'Tag Subestacion', width: '19%' },
-        { data: 'ot', title: 'OT', width: '12%' },
-        { data: 'fecha', title: 'Fecha', width: '14%' },
-        {
-          data: 'pat1', title: 'PAT1', width: '5%',
-          render: (data: any, type: any, full: any, meta: any) => this.getPatIcon(full.pat1, 'PAT1', meta.row)
-        },
-        {
-          data: 'pat2', title: 'PAT2', width: '5%',
-          render: (data: any, type: any, full: any, meta: any) => this.getPatIcon(full.pat2, 'PAT2', meta.row)
-        },
-        {
-          data: 'pat3', title: 'PAT3', width: '5%',
-          render: (data: any, type: any, full: any, meta: any) => this.getPatIcon(full.pat3, 'PAT3', meta.row)
-        },
-        {
-          data: 'pat4', title: 'PAT4', width: '5%',
-          render: (data: any, type: any, full: any, meta: any) => this.getPatIcon(full.pat4, 'PAT4', meta.row)
-        },
-        { data: 'lider', title: 'Líder', width: '18%' },
-        { data: 'supervisor', title: 'Supervisor', width: '18%' },
-        {
-          data: 'firma', title: 'Documento', width: '5%',
-          render: (data: any, type: any, full: any, meta: any) => {
-            // Cambia el color dependiendo del valor de 'firma'
-            const color = full.firma === true ? 'green' : 'orange';
-            return `<a class="pdf-icon" data-id="${full.idSpt1}">
-                      <i class="fas fa-file-pdf" style="color:${color};"></i>
-                    </a>`;
-          }
-        }
-      ];
+  applyFilter(): void {
+    this.filteredData = this.spt1Data.filter(item => {
 
-      // Agregar la columna "Herramientas" si el usuario es SUPERVISOR
-      if (this.mostrarHerramientas) {
-        columns.push({
-          data: 'herramientas', title: 'Herramientas', width: '50%',
-          render: (data: any, type: any, full: any, meta: any) => {
-            return `<button class="btn btn-danger btn-sm delete-btn" data-row="${meta.row}">
-                      <i class="fas fa-trash-alt"></i>
-                    </button>`;
+      const matchTagSubestacion = this.filterTagSubestacion
+      ? (item.tagSubestacion && item.tagSubestacion.toLowerCase().includes(this.filterTagSubestacion.toLowerCase())) // Verificar si item.tagSubestacion existe antes de usarlo
+      : true;
+
+      const matchOt = this.filterOt ? item.ot.toLowerCase().includes(this.filterOt.toLowerCase()) : true;
+      // Convert 'fecha' to a string before comparison
+      const matchFecha = this.filterFecha
+      ? (item.fecha && new Date(item.fecha).toISOString().slice(0, 10) === this.filterFecha)
+      : true;
+
+      const matchPat1 = this.filterPat1 ? item.pat1.toLowerCase().includes(this.filterPat1.toLowerCase()) : true;
+      const matchPat2 = this.filterPat2 ? item.pat2.toLowerCase().includes(this.filterPat2.toLowerCase()) : true;
+      const matchPat3 = this.filterPat3 ? item.pat3.toLowerCase().includes(this.filterPat3.toLowerCase()) : true;
+      const matchPat4 = this.filterPat4 ? item.pat4.toLowerCase().includes(this.filterPat4.toLowerCase()) : true;
+      const matchLider = this.filterLider ? item.lider.toLowerCase().includes(this.filterLider.toLowerCase()) : true;
+      const matchSupervisor = this.filterSupervisor ? item.supervisor.toLowerCase().includes(this.filterSupervisor.toLowerCase()) : true;
+
+      return matchTagSubestacion && matchOt && matchFecha && matchPat1 && matchPat2 && matchPat3 && matchPat4 && matchLider && matchSupervisor;
+    });
+  }
+  onPageIndexChange(newPageIndex: number): void {
+    this.pageIndex = newPageIndex;
+  }
+
+
+  eliminarRegistro(id_spt1: number): void {
+    this.modal.confirm({
+      nzTitle: 'Confirmación',
+      nzContent: '¿Estás seguro de que quieres eliminar el registro?',
+      nzOkText: 'Aceptar',
+      nzCancelText: 'Cancelar',
+      nzOnOk: () => {
+        const loadingMessageId = this.messageService.loading('Eliminando...', { nzDuration: 0 }).messageId;
+        this.spt1Service.eliminarSpt1(id_spt1).subscribe({
+          next: () => {
+            this.messageService.remove(loadingMessageId);
+            this.messageService.success('Registro eliminado correctamente');
+
+            // Volver a cargar los datos desde el servidor
+            this.spt1Service.mostrarSpt1().subscribe((data: Spt1[]) => {
+              this.spt1Data = data;
+              this.filteredData = this.spt1Data;
+              this.cdr.detectChanges(); // Forzar detección de cambios si es necesario
+            });
+
+          },
+          error: (err) => {
+            this.messageService.remove(loadingMessageId);
+            this.messageService.error('Error al eliminar el registro');
+            console.error(err);
           }
         });
       }
-
-      // Inicializar la tabla
-      const table = $('#example').DataTable({
-        dom: 'Brtipl',
-        buttons: [
-          {
-            extend: 'excelHtml5',
-            text: '<i class="fas fa-file-excel" style="color: green;"></i> Excel',
-            className: 'btn btn-success'
-          },
-          {
-            extend: 'pdfHtml5',
-            text: '<i class="fas fa-file-pdf" style="color: red;"></i> PDF',
-            className: 'btn btn-danger'
-          },
-          {
-            extend: 'print',
-            text: '<i class="fas fa-print" style="color: blue;"></i> Imprimir',
-            className: 'btn btn-info'
-          }
-        ],
-        data: this.spt1Data,
-        columns: columns,
-        initComplete: (settings: any, json: any) => {
-          const api = new $.fn.dataTable.Api(settings);
-
-          // Añadir filtros de búsqueda
-          api.columns().every((columnIdx: any) => {
-            const column = api.column(columnIdx);
-            const header = $(column.header());
-
-            // Excluir columnas 'Documento' y 'Herramientas' de los filtros
-            const title = $(header).text().trim();
-            if (title !== 'Documento' && title !== 'Herramientas') {
-              const input = $('<input type="text" />')
-                .appendTo(header)
-                .on('keyup change', function () {
-                  if (column.search() !== (this as HTMLInputElement).value) {
-                    column.search((this as HTMLInputElement).value).draw();
-                  }
-                });
-            }
-          });
-
-          // Manejo de eventos para botones y acciones específicas
-          $('#example').on('click', '.pat-icon', (event) => {
-            const patData = $(event.currentTarget).data('pat-data');
-            const patNumber = $(event.currentTarget).data('pat-number');
-            this.openPatDetails(patData, patNumber);
-          });
-
-          $('#example').on('click', '.delete-btn', (event) => {
-            const rowIndex = $(event.currentTarget).data('row');
-            this.deleteRow(rowIndex);
-          });
-
-          $('#example').on('click', '.pdf-icon', (event) => {
-            const id_spt1 = $(event.currentTarget).data('id');
-            this.openPdf(id_spt1);
-          });
-        }
-      });
     });
   }
+
+
+
+
 
 
 
   openPdf(id_spt1: number): void {
     this.pdfGeneratorService.generarPDF(id_spt1).then((pdfBlob: Blob) => {
-      const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        URL.createObjectURL(pdfBlob) + '#toolbar=0'  // Oculta la barra de herramientas del visor PDF
-      );
+        // Crear URL para el PDF
+        const pdfUrl = URL.createObjectURL(pdfBlob);
 
-      this.pdfUrl = pdfUrl; // Asigna el pdfUrl a la propiedad de la clase
-
-      this.modal.create({
-        nzContent: this.pdfModal,
-        nzFooter: [
-          {
-            label: 'Cerrar',
-            type: 'default',
-            onClick: () => this.modal.closeAll(),
-            className: 'custom-close-button' // Clase CSS personalizada para el botón
-          },
-          {
-            label: 'Descargar PDF',
-            type: 'primary',
-            onClick: () => this.downloadPdf(pdfBlob),
-          }
-        ],
-        nzWidth: '100%',
-        nzStyle: { top: '20px' }, // Posicionar el modal en la parte superior
-        nzClosable: false // Desactivar el botón "X" de cerrar
-      });
+        // Abrir el PDF en una nueva pestaña
+        window.open(pdfUrl, '_blank');
     }).catch(error => {
-      console.error('Error opening PDF:', error);
+        console.error('Error opening PDF:', error);
     });
-  }
+}
+
 
   // Método para descargar el PDF
   downloadPdf(pdfBlob: Blob): void {
@@ -259,51 +208,48 @@ export class HistoryComponent implements OnInit {
 
 
 
-
-
-  deleteRow(rowIndex: number) {
-    const table = $('#example').DataTable();
-    table.row(rowIndex).remove().draw();
-  }
-
-  getPatIcon(patData: any, patNumber: string, rowIndex: number): string {
+  getPatIconClass(patData: string): string {
     if (typeof patData !== 'string') {
       return '';
     }
 
     const estados = patData.split(',');
     const todosBuenos = estados.every(estado => estado.trim() === 'Buen Estado');
-    const iconClass = todosBuenos ? 'fas fa-check-circle' : 'fas fa-times-circle';
-    const color = todosBuenos ? 'green' : 'red';
+    return todosBuenos ? 'fas fa-check-circle' : 'fas fa-times-circle';
+  }
 
-    return `<i class="${iconClass} pat-icon" style="color: ${color};" data-pat-data="${patData}" data-pat-number="${patNumber}"></i>`;
+  getPatIconColor(patData: string): string {
+    if (typeof patData !== 'string') {
+      return '';
+    }
+
+    const estados = patData.split(',');
+    const todosBuenos = estados.every(estado => estado.trim() === 'Buen Estado');
+    return todosBuenos ? 'green' : 'red';
   }
 
   openPatDetails(patData: string, patNumber: string): void {
     console.log('openPatDetails called', { patData, patNumber });
 
-    // Define los pares clave-valor para los detalles del PAT
     const labels = [
-        'Electrodo ',
-        'Soldadura ',
-        'Conductor ',
-        'Conector ',
-        'Identificación ',
-        'Caja de registro '
+      'Electrodo ',
+      'Soldadura ',
+      'Conductor ',
+      'Conector ',
+      'Identificación ',
+      'Caja de registro '
     ];
 
-    // Combina los labels con los datos de patData
     const dataArray = patData.split(',');
-    this.selectedPatData = dataArray.map((data, index) => {
-        return `${labels[index]}: ${data}`;
-    });
+    this.selectedPatData = dataArray.map((data, index) => `${labels[index]}: ${data}`);
 
     this.modalRef = this.modal.create({
       nzTitle: `Detalles de ${patNumber}`,
-      nzContent: this.patDetailsTemplate, // Utiliza el template del modal
+      nzContent: this.patDetailsTemplate,
       nzFooter: null
     });
-}
+  }
+
 
 
 

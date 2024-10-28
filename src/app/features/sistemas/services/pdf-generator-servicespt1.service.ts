@@ -171,8 +171,10 @@ if(resultados.firma === true){
         });
       };
 
+
+      const seguridadObservacionesArray = JSON.parse(resultados.seguridad_observaciones); // Parsear seguridad_observaciones
       // Dibujar seguridad observaciones
-      drawValuesWithCoordinates(resultados.seguridad_observaciones.split(',').map(item => item.trim()), [
+      drawValuesWithCoordinates(seguridadObservacionesArray, [
         { x: 510, y: height - 270 },
         { x: 510, y: height - 282 },
         { x: 510, y: height - 294 },
@@ -227,8 +229,13 @@ drawImagesForValues(naValues, naCoordinates);
 
 // Función para dibujar imágenes si el valor es True
 
-// Convertir los valores de 'tipo_spt1_seleccionado' en un array de 0s y 1s
-const tipoSpt1Values = resultados.tipo_spt1_seleccionado.split(',').map(item => item.trim());
+// Obtener los valores de tipo_spt1_seleccionado y procesarlos
+const tipoSpt1Values = resultados.tipo_spt1_seleccionado
+  .split(',')
+  .map(item => item.trim()) // Elimina espacios en blanco alrededor de cada valor
+  .filter(item => item !== ''); // Elimina valores vacíos
+
+console.log("tipoSpt1Values:", tipoSpt1Values);
 
 // Definir coordenadas para los valores de 'tipo_spt1_seleccionado'
 const tipoSpt1Coordinates = [
@@ -238,17 +245,20 @@ const tipoSpt1Coordinates = [
   { x: 580, y: height - 365 },
   { x: 710, y: height - 365 },
   { x: 815, y: height - 365 },
-
   // Agrega más coordenadas según la cantidad de valores que esperas en 'tipo_spt1_seleccionado'
 ];
 
 // Dibujar imágenes para los valores de 'tipo_spt1_seleccionado'
-drawImagesForValues(tipoSpt1Values, tipoSpt1Coordinates);
-
-
-
-
-
+tipoSpt1Values.forEach((value, index) => {
+  if (tipoSpt1Coordinates[index]) {
+    newPage.drawImage(miImagen, {
+      x: tipoSpt1Coordinates[index].x,
+      y: tipoSpt1Coordinates[index].y,
+      width: 8,  // Ajusta el tamaño de la imagen si es necesario
+      height: 8, // Ajusta el tamaño de la imagen si es necesario
+    });
+  }
+});
 
 
 
@@ -304,17 +314,24 @@ drawImagesForValues(tipoSpt1Values, tipoSpt1Coordinates);
       );
 
       // Dibujar observaciones de aviso
-      drawValuesWithCoordinates(resultados.observacion_aviso.split(',').map(item => item.trim()), [
+      // Convertir la cadena JSON a un array
+      const observacionAvisoArray = JSON.parse(resultados.observacion_aviso);
+      const avisoArray = JSON.parse(resultados.aviso); // Asumiendo que esto también tiene el mismo formato
+
+      // Dibujar observaciones de aviso
+      drawValuesWithCoordinates(observacionAvisoArray, [
         { x: 110, y: height - 1145 },
         { x: 110, y: height - 1164 },
         { x: 110, y: height - 1181 }
       ]);
 
-      drawValuesWithCoordinates(resultados.aviso.split(',').map(item => item.trim()), [
+      drawValuesWithCoordinates(avisoArray, [
         { x: 745, y: height - 1145 },
         { x: 745, y: height - 1164 },
         { x: 745, y: height - 1181 }
       ]);
+
+
 
 
       function base64ToArrayBuffer(base64: string) {
@@ -330,7 +347,15 @@ drawImagesForValues(tipoSpt1Values, tipoSpt1Coordinates);
 
       // Guardar y devolver el PDF modificado
       const modifiedPdfBytes = await pdfDoc.save();
-      return new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+      const modifiedPdfBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+
+      // Abrir el PDF en una nueva pestaña
+      const blobUrl = URL.createObjectURL(modifiedPdfBlob);
+      window.open(blobUrl, '_blank');
+
+      return modifiedPdfBlob;
+
+
     } catch (error) {
       console.error('Error al generar el PDF:', error);
       throw error;

@@ -39,13 +39,14 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 // import { registerAllModules } from 'handsontable/registry'; // Uncomment if needed
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzProgressModule } from 'ng-zorro-antd/progress';
+import { PdfViewerPm1Component } from './components/pdf-viewer-pm1/pdf-viewer-pm1.component';
 @NgModule({
   imports: [
     CommonModule,
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-
+    PdfViewerPm1Component,
     // Ng-Zorro Ant Design modules
     NzFormModule,
     NzInputModule,
@@ -80,7 +81,7 @@ import { NzProgressModule } from 'ng-zorro-antd/progress';
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-
+    PdfViewerPm1Component,
     // Ng-Zorro Ant Design modules
     NzFormModule,
     NzInputModule,

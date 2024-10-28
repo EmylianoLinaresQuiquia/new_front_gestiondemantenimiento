@@ -15,6 +15,15 @@ export class PM1Service {
 
   constructor(private http: HttpClient) {}
 
+   // Método para eliminar un registro de PM1
+   eliminarPM1(id_pm1: number): Observable<any> {
+    const url = `${this.apiUrl}/Eliminar/${id_pm1}`;  // Define la URL para el DELETE
+    return this.http.delete<any>(url)
+      .pipe(
+        catchError(this.handleError('eliminarPM1'))
+      );
+  }
+
   postPM1(pm1: PM1): Observable<any> {
     const url = `${this.apiUrl}/InsertarPm1`; // Usa la URL base y añade la ruta específica
     return this.http.post<any>(url, pm1, {

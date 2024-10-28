@@ -1,13 +1,15 @@
-.custom-close-button {
-  background-color: #f5222d;
-  color: white;
-  border-radius: 5px;
-  border: none;
-  padding: 6px 12px;
-  font-weight: bold;
-  cursor: pointer;
+th[nzColumnKey="tipo_metodo"], td[nzColumnKey="tipo_metodo"] {
+  width: 200px;
 }
 
-.custom-close-button:hover {
-  background-color: #cf1322;
+
+
+.ant-table-thead > tr > th {
+  background-color: black !important;
+  color: white !important;
+}
+
+::ng-deep .ant-table-thead{
+  background-color: black !important;
+  color: white !important;
 }

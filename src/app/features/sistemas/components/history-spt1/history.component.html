@@ -1,31 +1,116 @@
-<div>
-  <table id="example" class="display">
-    <thead>
-      <tr class="selected">
-        <td class="sorting_1"></td>
-      </tr>
-    </thead>
-    <tfoot>
+<nz-table
+  #basicTable
+  [nzData]="filteredData"
+  [nzPageIndex]="pageIndex"
+  [nzPageSize]="pageSize"
+  [nzTotal]="filteredData.length"
 
+  [nzLoading]="loading"
 
+  [nzFrontPagination]="false"
+  (nzPageIndexChange)="onPageIndexChange($event)"
 
-    </tfoot>
-    <tbody>
-
-    </tbody>
-  </table>
-
-  <!--<div style="display: flex;">
-    <h3>Total: <b>PAT1</b></h3>
-  <div id="chartDiv1" style="width: 300PX; height: 300px;"></div>
-  <h3>Total: <b>PAT2</b></h3>
-  <div id="chartDiv2" style="width: 300PX; height: 300px;"></div>
-  <h3>Total: <b>PAT3</b></h3>
-  <div id="chartDiv3" style="width: 300PX; height: 300px;"></div>
-  <h3>Total: <b>PAT4</b></h3>
-  <div id="chartDiv4" style="width: 300PX; height: 300px;"></div>
-  </div>-->
-</div>
+>
+  <thead>
+    <tr>
+      <th nzWidth="19%">
+        Tag Subestacion
+        <nz-input-group [nzSuffix]="suffixButton">
+          <input nz-input [(ngModel)]="filterTagSubestacion"  (ngModelChange)="applyFilter()" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="18%">
+        OT
+        <nz-input-group [nzSuffix]="suffixButton">
+          <input nz-input [(ngModel)]="filterOt"  (ngModelChange)="applyFilter()" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="18%">
+        Fecha
+        <nz-input-group [nzSuffix]="suffixButton">
+          <input nz-input [(ngModel)]="filterFecha"  (ngModelChange)="applyFilter()" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="5%">
+        PAT1
+        <nz-input-group [nzSuffix]="suffixButton">
+          <input nz-input [(ngModel)]="filterPat1"  (ngModelChange)="applyFilter()" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="5%">
+        PAT2
+        <nz-input-group [nzSuffix]="suffixButton">
+          <input nz-input [(ngModel)]="filterPat2"  (ngModelChange)="applyFilter()" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="5%">
+        PAT3
+        <nz-input-group [nzSuffix]="suffixButton">
+          <input nz-input [(ngModel)]="filterPat3"  (ngModelChange)="applyFilter()" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="5%">
+        PAT4
+        <nz-input-group [nzSuffix]="suffixButton">
+          <input nz-input [(ngModel)]="filterPat4"  (ngModelChange)="applyFilter()" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="18%">
+        Líder
+        <nz-input-group [nzSuffix]="suffixButton">
+          <input nz-input [(ngModel)]="filterLider"  (ngModelChange)="applyFilter()" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="18%">
+        Supervisor
+        <nz-input-group [nzSuffix]="suffixButton">
+          <input nz-input [(ngModel)]="filterSupervisor"  (ngModelChange)="applyFilter()" />
+        </nz-input-group>
+      </th>
+      <th nzWidth="5%">Documento</th>
+      <th *ngIf="mostrarHerramientas" nzWidth="50%">Herramientas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of filteredData.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)">
+      <td>{{ item.tagSubestacion }}</td>
+      <td>{{ item.ot }}</td>
+      <td>{{ item.fecha }}</td>
+      <td>
+        <i [ngClass]="getPatIconClass(item.pat1)"
+           [ngStyle]="{ color: getPatIconColor(item.pat1) }"
+           (click)="openPatDetails(item.pat1, 'PAT1')"></i>
+      </td>
+      <td>
+        <i [ngClass]="getPatIconClass(item.pat2)"
+           [ngStyle]="{ color: getPatIconColor(item.pat2) }"
+           (click)="openPatDetails(item.pat2, 'PAT2')"></i>
+      </td>
+      <td>
+        <i [ngClass]="getPatIconClass(item.pat3)"
+           [ngStyle]="{ color: getPatIconColor(item.pat3) }"
+           (click)="openPatDetails(item.pat3, 'PAT3')"></i>
+      </td>
+      <td>
+        <i [ngClass]="getPatIconClass(item.pat4)"
+           [ngStyle]="{ color: getPatIconColor(item.pat4) }"
+           (click)="openPatDetails(item.pat4, 'PAT4')"></i>
+      </td>
+      <td>{{ item.lider }}</td>
+      <td>{{ item.supervisor }}</td>
+      <td nzWidth="5%">
+        <a (click)="openPdf(item.idSpt1)">
+          <i class="fas fa-file-pdf" [style.color]="item.firma ? 'green' : 'orange'"></i>
+        </a>
+      </td>
+      <td *ngIf="mostrarHerramientas" nzWidth="5%">
+        <button nz-button nzType="danger" nzSize="small" (click)="eliminarRegistro(item.idSpt1)">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</nz-table>
 
 
 <!-- Template para el modal de detalles de PAT -->

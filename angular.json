@@ -16,6 +16,7 @@
             "allowedCommonJsDependencies": [
             "@babel/runtime/regenerator",
             "exceljs",
+            "pdfjs-dist",
             "pako",
             "html2canvas",
             "jquery",

@@ -43,16 +43,16 @@ private chartTestigo: am4charts.XYChart = null!;
         data => {
           console.log('Datos del dashboard:', data);
           this.datos = data;
-          this.updateChartData(data);
-          this.updateChartTestigoData(data);
+          this.tendencia_testigo(data);
+          this.tendencia_potencia(data);
         },
         error => {
           console.error('Error al obtener los datos del dashboard:', error);
         }
       );
   }
-
-  updateChartData(data: any[]): void {
+  //CREACION DEL GRAFICO TENDENDIA POTENCIA
+  tendencia_potencia(data: any[]): void {
     this.zone.runOutsideAngular(() => {
       if (this.chartCorrientePotencia) {
         this.chartCorrientePotencia.dispose();
@@ -63,6 +63,7 @@ private chartTestigo: am4charts.XYChart = null!;
       console.log("Chart created");
 
       let dateFormatter = new am4core.DateFormatter();
+      this.chartCorrientePotencia.logo.disabled = true;  // Desactivar el logo en el gráfico
 
       // Procesar los datos y agregar mensajes de depuración
       this.chartCorrientePotencia.data = data.map(item => {
@@ -133,7 +134,7 @@ private chartTestigo: am4charts.XYChart = null!;
       // Crear todas las series y agregar mensajes de depuración
       createAxisAndSeries("corriente_actual", "Corriente Actual", false, "#C767DC", "A");
       createAxisAndSeries("potencia_actual", "Potencia Actual", false, "#808080", "W");
-      createAxisAndSeries("manovacuometro", "Manovacuómetro", false, "#B3DBEE", "Pa");
+      createAxisAndSeries("manovacuometro", "Manovacuómetro", false, "#B3DBEE", "MVA");
       createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "°C");
       createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", false, "#EDB2C3", "°C");
 
@@ -164,8 +165,8 @@ private chartTestigo: am4charts.XYChart = null!;
     });
   }
 
-
-  updateChartTestigoData(data: any[]): void {
+  //CREACION DEL GRAFICO TENDENDIA TESTIGO
+  tendencia_testigo(data: any[]): void {
     this.zone.runOutsideAngular(() => {
       if (this.chartTestigo) {
         this.chartTestigo.dispose(); // Limpiar gráfico previo si existe
@@ -176,6 +177,7 @@ private chartTestigo: am4charts.XYChart = null!;
       console.log("Gráfico testigo creado");
 
       let dateFormatter = new am4core.DateFormatter();
+      this.chartTestigo.logo.disabled = true;  // Desactivar el logo en el gráfico testigo
 
       // Procesar los datos
       this.chartTestigo.data = data.map(item => {
@@ -234,7 +236,7 @@ private chartTestigo: am4charts.XYChart = null!;
       };
 
       // Crear las series para el gráfico testigo
-      createAxisAndSeries("manovacuometro", "Manovacuómetro", false, "#B3DBEE", "Pa");
+      createAxisAndSeries("manovacuometro", "Manovacuómetro", false, "#B3DBEE", "MVA");
       createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "°C");
       createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", false, "#EDB2C3", "°C");
 

@@ -26,6 +26,13 @@
       </div>
     </nz-row>
 
+    <!-- Mostrar la Ubicación seleccionada -->
+    <nz-row justify="center" gutter="16" *ngIf="ubicacion">
+      <div class="d-flex justify-content-center">
+        <p>{{ ubicacion }}</p>
+      </div>
+    </nz-row>
+
     <!-- Selección de SPT1 y SPT2 -->
     <nz-row justify="center" gutter="16">
       <div nz-col [nzSm]="24" [nzMd]="24" [nzLg]="10" [nzXl]="6">

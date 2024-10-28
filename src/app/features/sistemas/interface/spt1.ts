@@ -10,6 +10,8 @@ export interface Spt1 {
   pat4: string;
   lider: string;
   supervisor: string;
+
+  tagSubestacion?:string;
 }
 
 export interface Spt1DTO {
@@ -20,17 +22,19 @@ export interface Spt1DTO {
   id_subestacion: number;
   id_usuario: number;
   id_usuario_2: number;
-  seguridad_observaciones: string;
-  tipo_spt1: string;
-  barras_equipotenciales: string;
-  pozos_a_tierra: string;
-  cerco_perimetrico: string;
-  transformadores: string;
-  observacion_aviso: string;
-  aviso: string;
-  bueno: string;
-  na: string;
+  tipo_spt1: string[];
+  observacion_aviso: string[]; // Cambiado a lista de strings
+  aviso: string[]; // Lista de strings para avisos
+  seguridad_observaciones: string[];
+  bueno: boolean[];
+  na: boolean[];
+  barras_equipotenciales: string[];
+  pozos_a_tierra: string[];
+  cerco_perimetrico: string[];
+  transformadores: string[];
 }
+
+
 
 export interface Spt1ResultDTO {
   electrodo: string | null;
