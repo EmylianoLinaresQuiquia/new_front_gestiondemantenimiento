@@ -96,20 +96,14 @@ export class InspectionPageComponent {
     };
 
     const rutaHistorial = rutasHistorial[tipo];
-    const subestacionSeleccionada = this.subestaciones.find(s => s.tag_subestacion === this.tagSubestacion);
-
-    if (subestacionSeleccionada) {
+    if (rutaHistorial) {
       console.log('Navegando a la ruta de historial:', rutaHistorial);
-      this.router.navigate([rutaHistorial], {
-        queryParams: {
-          tag: subestacionSeleccionada.tag_subestacion,
-          ubicacion: subestacionSeleccionada.ubicacion
-        },
-      });
+      this.router.navigate([rutaHistorial]);
     } else {
-      console.error('Subestación no encontrada para redirigir al historial.');
+      console.error('Tipo de historial no válido para redirigir.');
     }
   }
+
 
   navegarARuta(ruta: string): void {
     const subestacionSeleccionada = this.subestaciones.find(s => s.tag_subestacion === this.tagSubestacion);

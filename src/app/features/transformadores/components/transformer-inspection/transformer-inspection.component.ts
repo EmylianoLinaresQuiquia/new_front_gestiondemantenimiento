@@ -1,3 +1,4 @@
+
 import { Component,ViewChild,TemplateRef } from '@angular/core';
 import { ActivatedRoute,Router } from '@angular/router';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -11,8 +12,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-browser';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AlertService } from 'src/app/features/sistemas/services/alert.service';
-
-
+import { PdfPm1Service } from './../../../sistemas/services/pdf-pm1.service';
 @Component({
   selector: 'app-transformer-inspection',
   standalone: true,
@@ -52,6 +52,7 @@ export class TransformerInspectionComponent {
     private sanitizer: DomSanitizer,
     private messageService:NzMessageService,
     private alertservice: AlertService,
+    private PdfPm1Service:PdfPm1Service
 
   ) { }
 
@@ -164,54 +165,34 @@ actualizarTabla(id_pm1: number): void {
 }
 
 
-
-
-abrirpdf(id: number) {
+abrirpdf(id: number): void {
   this.pm1Service.getPM1ById(id).subscribe(
-    (data: BuscarPM1PorId) => {
+    async (data: BuscarPM1PorId) => {
       this.pm1 = data;
 
-      if (this.pdfSrc && this.pm1) {
-        this.modal.create({
-          nzFooter: [
-            {
-              label: 'Cerrar',
-              type: 'default',
-              onClick: () => this.modal.closeAll(),
-              className: 'custom-close-button' // Clase CSS personalizada para el botón
-            },
-            {
-              label: 'Descargar PDF',
-              type: 'primary',
-              onClick: () => this.downloadPdf(this.pdfSrc),  // Usar pdfSrc en lugar de pdfBlob
-            }
-          ],
-          nzContent: PdfViewerPm1Component,  // Componente que se abrirá en el modal
-          nzData: {
-            pdfSrc: this.pdfSrc,  // Asegúrate de que este valor esté correctamente asignado
-            pm1: this.pm1         // El objeto `pm1` contiene los datos necesarios
-          },
-          nzWidth: '100%',            // Ajusta el ancho del modal
-          nzStyle: { top: '20px' }, // Posicionar el modal en la parte superior
-          nzClosable: false // Desactivar el botón "X" de cerrar
-        });
+      if (this.pm1) {
+        try {
+          // Llamar al método que genera el PDF
+          const pdfBlob = await this.PdfPm1Service.fillPdf(id);
 
-        console.log('Modal abierto con PDF:', this.pdfSrc, 'y PM1:', this.pm1);
+          if (pdfBlob) {
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            window.open(pdfUrl, '_blank'); // Abrir el PDF en una nueva pestaña
+            console.log('Se generó y se abrió el PDF para PM1:', this.pm1);
+          } else {
+            console.error('Error generando el PDF.');
+          }
+        } catch (error) {
+          console.error('Error al generar el PDF:', error);
+        }
       } else {
-        console.error('No se puede abrir el modal porque faltan datos.');
+        console.error('No se puede abrir el PDF porque faltan datos.');
       }
     },
     (error: any) => {
       console.error('Error al cargar los datos de PM1 por ID', error);
     }
   );
-}
-
-downloadPdf(pdfSrc: string): void {
-  const link = document.createElement('a');
-  link.href = pdfSrc;
-  link.download = 'pm1.pdf';  // Nombre de archivo para la descarga
-  link.click();
 }
 
 

@@ -8,9 +8,9 @@ import { SubestacionService } from '../../services/subestacion.service';
 import { Subestacion } from '../../interface/subestacion';
 import { InsertSpt2 } from '../../interface/spt2';
 import { Spt2Service } from '../../services/spt2.service';
-import { MetodoCaida } from '../../interface/metodo-caida';
+
 import { MetodoCaidaService } from '../../services/metodo-caida.service';
-import { MetodoSelectivo } from '../../interface/metodo-selectivo';
+
 import { MetodoSelectivoService } from '../../services/metodo-selectivo.service';
 import { ReportefotograficoService } from '../../services/reportefotografico.service';
 import { MetodoCaidaGraficaService } from '../../services/metodo-caida-grafica.service';
@@ -46,6 +46,25 @@ import { PdfViewerComponent } from 'src/app/shared/components/pdf-viewer/pdf-vie
 import { MedicionTelurometro } from '../../interface/medicion-telurometro';
 import { MedicionTelurometroService } from '../../services/medicion-telurometro.service';
 declare var $: any;
+
+
+interface MetodoCaida {
+  pat1: string;
+  pat2: string;
+  pat3: string;
+  pat4: string;
+  ohm: string;
+  resultado: string;
+}
+
+interface MetodoSelectivo {
+  pat1: string;
+  pat2: string;
+  pat3: string;
+  pat4: string;
+  ohm: string;
+  resultado: string;
+}
 @Component({
   selector: 'app-spt2-inspection',
   standalone: true,
@@ -778,123 +797,311 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
 
 
   async insertarSpt2(): Promise<void> {
+
+  this.modal.confirm({
+    nzTitle: 'Confirmación',
+    nzContent: '¿Estás seguro de que quieres guardar los datos?',
+    nzOkText: 'Aceptar',
+    nzCancelText: 'Cancelar',
+    nzOnOk: async () => {
+      const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
+
     try {
 
       // Capturar las imágenes de esquema_caida y esquema_selectivo
       const esquemaCaida = await this.enviarImagencaida(); // Devuelve un File
       const esquemaSelectivo = await this.enviarImagenselectivo(); // Devuelve un File
+      // Convertir la fecha al formato dd-MM-yyyy antes de guardarla
+      const fechaFormateada = this.convertirFechaFormato(this.fecha);
+
+        // Tipificar las propiedades para MetodoCaida
+          // Estructura original con pat1, pat2, etc.
+        // Estructura original con pat1, pat2, etc.
+const metodosCaidaOriginal: {
+  pat1: number[],
+  pat2: number[],
+  pat3: number[],
+  pat4: number[],
+  ohm: number[],
+  resultado: string[]
+} = {
+  pat1: [],
+  pat2: [],
+  pat3: [],
+  pat4: [],
+  ohm: [],
+  resultado: []
+};
+
+// Llenar valores en metodosCaidaOriginal
+for (let i = 0; i < this.caidaValues.length; i++) {
+  const value = parseFloat(this.caidaValues[i]?.toString()) || 0;
+  if (i < 3) {
+    metodosCaidaOriginal.pat1.push(value);
+  } else if (i < 6) {
+    metodosCaidaOriginal.pat2.push(value);
+  } else if (i < 9) {
+    metodosCaidaOriginal.pat3.push(value);
+  } else {
+    metodosCaidaOriginal.pat4.push(value);
+  }
+}
+
+for (let j = 0; j < Math.ceil(this.caidaValues.length / 3); j++) {
+  metodosCaidaOriginal.ohm.push(this.calcularPromedioCaida(j) || 0);
+  metodosCaidaOriginal.resultado.push(this.getResultadoCaida(j)?.mensaje || 'desconocido');
+}
+
+// Definir tipo explícito para `metodosCaida`
+const metodosCaida: {
+  pat_data: { pat1: number; pat2: number; pat3: number; pat4: number }[],
+  ohm_data: { ohm: number; resultado: string }[]
+} = {
+  pat_data: [],
+  ohm_data: []
+};
+
+// Transformar los datos de `metodosCaidaOriginal` a `metodosCaida.pat_data`
+for (let i = 0; i < metodosCaidaOriginal.pat1.length; i++) {
+  metodosCaida.pat_data.push({
+    pat1: metodosCaidaOriginal.pat1[i],
+    pat2: metodosCaidaOriginal.pat2[i],
+    pat3: metodosCaidaOriginal.pat3[i],
+    pat4: metodosCaidaOriginal.pat4[i]
+  });
+}
+
+// Transformar los datos de `metodosCaidaOriginal` a `metodosCaida.ohm_data`
+for (let i = 0; i < metodosCaidaOriginal.ohm.length; i++) {
+  metodosCaida.ohm_data.push({
+    ohm: metodosCaidaOriginal.ohm[i],
+    resultado: metodosCaidaOriginal.resultado[i]
+  });
+}
+
+
+
+
+        // Tipificar las propiedades para MetodoSelectivo
+        // Estructura original con pat1, pat2, etc.
+const metodosSelectivosOriginal: {
+  pat1: string[],
+  pat2: string[],
+  pat3: string[],
+  pat4: string[],
+  ohm: string[],
+  resultado: string[]
+} = {
+  pat1: [],
+  pat2: [],
+  pat3: [],
+  pat4: [],
+  ohm: [],
+  resultado: []
+};
+
+// Llenar valores en metodosSelectivosOriginal
+for (let i = 0; i < this.selectivoValues.length; i++) {
+  const value = (this.selectivoValues[i] || '').toString();
+  if (i < 3) {
+    metodosSelectivosOriginal.pat1.push(value);
+  } else if (i < 6) {
+    metodosSelectivosOriginal.pat2.push(value);
+  } else if (i < 9) {
+    metodosSelectivosOriginal.pat3.push(value);
+  } else {
+    metodosSelectivosOriginal.pat4.push(value);
+  }
+}
+
+for (let j = 0; j < Math.ceil(this.selectivoValues.length / 3); j++) {
+  metodosSelectivosOriginal.ohm.push(this.calcularPromedioSelectivo(j).toString());
+  metodosSelectivosOriginal.resultado.push(this.getResultadoSelectivo(j)?.mensaje || "desconocido");
+}
+
+// Definir tipo explícito para `metodosSelectivos`
+const metodosSelectivos: {
+  pat_data: { pat1: string; pat2: string; pat3: string; pat4: string }[],
+  ohm_data: { ohm: string; resultado: string }[]
+} = {
+  pat_data: [],
+  ohm_data: []
+};
+
+// Transformar los datos de `metodosSelectivosOriginal` a `metodosSelectivos.pat_data`
+for (let i = 0; i < metodosSelectivosOriginal.pat1.length; i++) {
+  metodosSelectivos.pat_data.push({
+    pat1: metodosSelectivosOriginal.pat1[i],
+    pat2: metodosSelectivosOriginal.pat2[i],
+    pat3: metodosSelectivosOriginal.pat3[i],
+    pat4: metodosSelectivosOriginal.pat4[i]
+  });
+}
+
+// Transformar los datos de `metodosSelectivosOriginal` a `metodosSelectivos.ohm_data`
+for (let i = 0; i < metodosSelectivosOriginal.ohm.length; i++) {
+  metodosSelectivos.ohm_data.push({
+    ohm: metodosSelectivosOriginal.ohm[i],
+    resultado: metodosSelectivosOriginal.resultado[i]
+  });
+}
+
+
+        // Tipificar las propiedades para Sujecion
+        // Estructura original con solo `ohm`
+const patsSujecionOriginal: {
+  ohm: number[]
+} = {
+  ohm: []
+};
+
+// Llenar `ohm` en patsSujecionOriginal
+for (let i = 0; i < this.inputValues.length; i++) {
+  const value = parseFloat(this.inputValues[i]?.toString()) || 0;
+  patsSujecionOriginal.ohm.push(value);
+}
+
+// Transformar a formato de la API
+
+
+const patsSujecion: {
+  ohm_data: { ohm: number; resultado: string }[]
+} = {
+  ohm_data: []
+};
+
+// Llenar `ohm_data`
+for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
+  patsSujecion.ohm_data.push({
+    ohm: patsSujecionOriginal.ohm[i],
+    resultado: `selepat${i + 1}`
+  });
+}
+
 
 
 
       const spt2Data: InsertSpt2 = {
-        ot: this.ot,
-        fecha: this.fecha,
-        firmado: false,
-        id_usuario: this.idLider ?? 0,
-        id_usuario_2: this.idSupervisor ?? 0,
-        id_subestacion: this.id_subestacion ?? 0,
-
-        caida_potencia: this.checkcaida,
-        selectivo: this.checkpotencial,
-        sin_picas: this.checksinpicas,
-
-        fecha_calibracion: this.fecha_calibracion,
-        marca: this.marca,
-        n_serie: this.n_serie,
-        modelo: this.modelo,
-        frecuencia: this.frecuencia,
-        precision: this.precision,
-
-        conclusiones_sujecion: this.conclusionespat,
-        pats: [
-          { pat1: 1.23, pat2: 2.34, pat3: 3.45, pat4: 4.56, ohm: '10', resultado: 'OK' },
-          { pat1: 5.67, pat2: 6.78, pat3: 7.89, pat4: 8.90, ohm: '20', resultado: 'FAIL' }
-        ],
-        esquema_caida: esquemaCaida,
-        conclusiones_caida: this.conclucioncaida || '',
-        esquema_selectivo: esquemaSelectivo,
-        conclusiones_selectivo: this.conclucionselectivo || '',
-
-        imagen1: this.files[0] || null,
-        imagen2: this.files[1] || null,
-        imagen3: this.files[2] || null,
-        imagen4: this.files[3] || null,
+        Ot: this.ot,
+        Fecha: fechaFormateada,
+        Firmado: false,
+        IdUsuario: this.idLider ?? 0,
+        IdUsuario2: this.idSupervisor ?? 0,
+        IdSubestacion: this.id_subestacion ?? 0,
+        CaidaPotencia: this.checkcaida,
+        Selectivo: this.checkpotencial,
+        SinPicas: this.checksinpicas,
+        FechaCalibracion: this.fecha_calibracion,
+        Marca: this.marca,
+        NSerie: this.n_serie,
+        Modelo: this.modelo,
+        Frecuencia: this.frecuencia,
+        Precision: this.precision,
+        ConclusionesSujecion: this.conclusionespat,
+        JsonPatsSelectivo: JSON.stringify(metodosSelectivos),
+        JsonPatsCaida: JSON.stringify(metodosCaida),
+        JsonPatsSujecion: JSON.stringify(patsSujecion),
+        ConclusionesCaida: this.conclucioncaida || '',
+        ConclusionesSelectivo: this.conclucionselectivo || '',
+        Imagen1: this.files[0] || null,
+        Imagen2: this.files[1] || null,
+        Imagen3: this.files[2] || null,
+        Imagen4: this.files[3] || null,
+        EsquemaCaida: esquemaCaida,
+        EsquemaSelectivo: esquemaSelectivo,
       };
 
       const formData = new FormData();
 
       // Agregar campos de texto al FormData
-      formData.append('Ot', spt2Data.ot);
-      formData.append('Fecha', spt2Data.fecha.toString());
-      formData.append('Firmado', spt2Data.firmado.toString());
-      formData.append('IdUsuario', spt2Data.id_usuario.toString());
-      formData.append('IdUsuario2', spt2Data.id_usuario_2.toString());
-      formData.append('IdSubestacion', spt2Data.id_subestacion.toString());
-      formData.append('CaidaPotencia', spt2Data.caida_potencia.toString());
-      formData.append('Selectivo', spt2Data.selectivo.toString());
-      formData.append('SinPicas', spt2Data.sin_picas.toString());
-      formData.append('FechaCalibracion', spt2Data.fecha_calibracion.toString());
-      formData.append('Marca', spt2Data.marca);
-      formData.append('NSerie', spt2Data.n_serie);
-      formData.append('Modelo', spt2Data.modelo);
-      formData.append('Frecuencia', spt2Data.frecuencia);
-      formData.append('Precision', spt2Data.precision);
-      formData.append('ConclusionesSujecion', spt2Data.conclusiones_sujecion);
-      formData.append('ConclusionesCaida', spt2Data.conclusiones_caida);
-      formData.append('ConclusionesSelectivo', spt2Data.conclusiones_selectivo);
-
+      Object.keys(spt2Data).forEach(key => {
+        if (spt2Data[key] !== undefined && spt2Data[key] !== null) {
+          formData.append(key, spt2Data[key].toString());
+        }
+      });
       // Añadir las imágenes
-      if (spt2Data.imagen1) {
-        formData.append('Imagen1', spt2Data.imagen1, spt2Data.imagen1.name);
+      if (spt2Data.Imagen1) {
+        formData.append('Imagen1', spt2Data.Imagen1, spt2Data.Imagen1.name);
       }
-      if (spt2Data.imagen2) {
-        formData.append('Imagen2', spt2Data.imagen2, spt2Data.imagen2.name);
+      if (spt2Data.Imagen2) {
+        formData.append('Imagen2', spt2Data.Imagen2, spt2Data.Imagen2.name);
       }
-      if (spt2Data.imagen3) {
-        formData.append('Imagen3', spt2Data.imagen3, spt2Data.imagen3.name);
+      if (spt2Data.Imagen3) {
+        formData.append('Imagen3', spt2Data.Imagen3, spt2Data.Imagen3.name);
       }
-      if (spt2Data.imagen4) {
-        formData.append('Imagen4', spt2Data.imagen4, spt2Data.imagen4.name);
+      if (spt2Data.Imagen4) {
+        formData.append('Imagen4', spt2Data.Imagen4, spt2Data.Imagen4.name);
       }
 
       // Añadir los esquemas
-      if (spt2Data.esquema_caida) {
-        formData.append('EsquemaCaida', spt2Data.esquema_caida, spt2Data.esquema_caida.name);
+      if (spt2Data.EsquemaCaida) {
+        formData.append('EsquemaCaida', spt2Data.EsquemaCaida, spt2Data.EsquemaCaida.name);
       }
-      if (spt2Data.esquema_selectivo) {
-        formData.append('EsquemaSelectivo', spt2Data.esquema_selectivo, spt2Data.esquema_selectivo.name);
+      if (spt2Data.EsquemaSelectivo) {
+        formData.append('EsquemaSelectivo', spt2Data.EsquemaSelectivo, spt2Data.EsquemaSelectivo.name);
       }
 
       // Convertir el array de pats a JSON y agregarlo al FormData
-      formData.append('JsonPats', JSON.stringify({ pats: spt2Data.pats }));
+      //formData.append('JsonPats', JSON.stringify({ pats: spt2Data.JsonPats }));
 
       // Mostrar el contenido de formData
       for (const pair of formData.entries()) {
         console.log(`${pair[0]}:`, pair[1]);
       }
-
       this.spt2Service.insertarSpt2(formData).subscribe(
-        response => {
-          console.log('Éxito:', response); // Aquí deberías ver la respuesta con idSpt2
+        async  response => {
+          console.log('Éxito:', response);
           if (response.idSpt2) {
+
+            const notificacion: Notificacion = {
+              supervisor: this.idSupervisor ?? 0,
+              lider: this.idLider ?? 0,
+              firmado: false,
+              id_spt2: response.idSpt2
+            };
+            console.log("Datos de notificación:", notificacion);
+
+            await this.notificacionService.insertarNotificacionSpt2(notificacion).toPromise();
+            console.log("Notificación guardada correctamente");
             console.log('Inserción exitosa. ID:', response.idSpt2);
+            this.messageService.remove(loadingMessageId);
+              this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
           } else {
             console.error('Inserción fallida. No se recibió ID.');
           }
         },
         error => {
           console.error('Error al enviar los datos:', error);
-          if (error.error && error.error.message) {
-            console.error('Mensaje de error:', error.error.message);
+          if (error.error) {
+            console.error('Mensaje de error:', error.error.message || 'Error desconocido');
+            console.error('Detalles del error completo:', error.error); // Detalles adicionales
           }
         }
       );
+
     } catch (error) {
       console.error('Error al procesar las imágenes:', error);
     }
+
+    // Cerrar el mensaje de carga
+    this.messageService.remove(loadingMessageId);
   }
+});
+}
 
 
+
+      isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
+        return error && typeof error === 'object' && ('error' in error || 'message' in error);
+      }
+
+  // Método para convertir la fecha al formato dd-MM-yyyy
+    convertirFechaFormato(fecha: string): string {
+      if (!fecha) return ''; // Verificación si la fecha está vacía
+
+      const [year, month, day] = fecha.split('-');
+      return `${day}-${month}-${year}`;
+    }
 
 
 

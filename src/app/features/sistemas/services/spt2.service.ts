@@ -41,12 +41,27 @@ export class Spt2Service {
     );
 }
 
-obtenerSpt2PorId(id: number): Observable<MostrarSpt2PorId[]> {
-  return this.http.get<MostrarSpt2PorId[]>(`${this.apiUrl}/GetSpt2ById/${id}`)
+obtenerSpt2PorId(id: number): Observable<MostrarSpt2PorId> {
+  return this.http.get<MostrarSpt2PorId>(`${this.apiUrl}/GetSpt2ById/${id}`)
     .pipe(
-      map(response => response),  // Mapear la respuesta si es necesario
-      catchError(this.handleError<MostrarSpt2PorId[]>('obtenerSpt2PorId')) // Manejar errores correctamente
+      map(response => response), // Si necesitas hacer alguna transformación, hazla aquí
+      catchError(this.handleError<MostrarSpt2PorId>('obtenerSpt2PorId'))
     );
+}
+
+
+
+// Método para obtener una imagen en base64 desde una URL
+obtenerImagenBase64(rutaImagen: string): Observable<string> {
+  const urlCompleta = `${this.apiUrl}/ObtenerImagenBase64?rutaImagen=${encodeURIComponent(rutaImagen)}`;
+
+  return this.http.get<{ base64: string }>(urlCompleta).pipe(
+    map(response => response.base64), // Extraer solo el valor base64 del resultado
+    catchError(err => {
+      console.error('Error al obtener la imagen en base64', err);
+      throw err; // Re-lanzar el error para que sea manejado por el flujo principal
+    })
+  );
 }
 
 
@@ -66,35 +81,45 @@ dashboardSelectivoSpt2(tagSubestacion: string): Observable<any> {
   return this.http.get(`${this.apiUrl}/dashboardSelectivoSpt2/${tagSubestacion}`);
 }
 
-  insertarSpt2(formData: FormData): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/insert`, formData)
-      .pipe(
-        map(response => {
-          // Verificar si la respuesta contiene el idSpt2
-          if (!response.idSpt2) {
-            throw new Error('Error inesperado: no se recibió idSpt2');
-          }
-          return response;
-        }),
-        catchError(this.handleError<any>('insertarSpt2'))
-      );
-  }
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: HttpErrorResponse): Observable<T> => {
-      console.error(`${operation} failed: ${error.message}`, error);
+insertarSpt2(formData: FormData): Observable<InsertSpt2> {
+  return this.http.post<InsertSpt2>(`${this.apiUrl}/insert`, formData)
+    .pipe(
+      map(response => {
+        // Validación del ID en la respuesta en minúsculas
+        if (!response.idSpt2) {  // Cambiado de IdSpt2 a idSpt2
+          throw new Error('Error inesperado: no se recibió idSpt2');
+        }
+        return response;
+      }),
+      catchError(this.handleError<InsertSpt2>('insertarSpt2'))
+    );
+}
 
-      let errorMessage = 'Ha ocurrido un error al guardar los datos.';
-      if (error.error && error.error.details) {
-        errorMessage = error.error.details;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
+private handleError<T>(operation = 'operation', result?: T) {
+  return (error: HttpErrorResponse): Observable<T> => {
+    console.error(`${operation} failed: ${error.message}`, error);
+
+    let errorMessage = 'Ha ocurrido un error al guardar los datos.';
+
+    // Extraer detalles adicionales del error
+    if (error.error) {
+      if (typeof error.error === 'string') {
+        errorMessage = error.error; // Mostrar el mensaje si es un texto simple
+      } else if (error.error.message) {
+        errorMessage = error.error.message; // Mensaje en JSON
+      } else if (error.error.details) {
+        errorMessage = error.error.details; // Mensaje de error detallado
       }
+    }
 
-      return throwError(() => new Error(errorMessage));
-    };
+    // Mostrar el mensaje de error en consola
+    console.error(`Detalles del error: ${errorMessage}`, error);
 
-
-  }}
+    // Lanzar el error personalizado
+    return throwError(() => new Error(errorMessage));
+  };
+}
+}
 
 /*
   buscarPorSubestacion(tagSubestacion: string): Observable<Spt2[]> {

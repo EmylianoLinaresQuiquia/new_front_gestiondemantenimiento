@@ -35,65 +35,67 @@
     <tr>
       <th nzColumnKey="tag_subestacion">
         Subestación
-        <nz-input-group >
+        <nz-input-group>
           <input nz-input [(ngModel)]="filterSubestacion" placeholder="Filtrar Subestación" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
       <th nzColumnKey="ot">
         Ot
-        <nz-input-group >
+        <nz-input-group>
           <input nz-input [(ngModel)]="filterOt" placeholder="Filtrar Ot" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
       <th nzColumnKey="fecha">
         Fecha
-        <nz-input-group >
+        <nz-input-group>
           <input nz-input [(ngModel)]="filterFecha" placeholder="Filtrar Fecha" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
       <th nzColumnKey="tipo_metodo">
         Tipo de Método
-        <nz-input-group >
-          <input nz-input  placeholder="Filtrar Método" (ngModelChange)="applyFilter()" />
+        <nz-input-group>
+          <input nz-input placeholder="Filtrar Método" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
+
+      <!-- Pat1 to Pat4 columns with dynamic labels based on selected method -->
       <th nzColumnKey="pat1_sujecion">
         Pat1
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterPat1_sujecion"  (ngModelChange)="applyFilter()" />
+        <nz-input-group>
+          <input nz-input [(ngModel)]="filterohm_sujecion" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
       <th nzColumnKey="pat2_sujecion">
         Pat2
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterPat2_sujecion"  (ngModelChange)="applyFilter()" />
+        <nz-input-group>
+          <input nz-input [(ngModel)]="filterohm_sujecion" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
       <th nzColumnKey="pat3_sujecion">
         Pat3
         <nz-input-group>
-          <input nz-input [(ngModel)]="filterPat3_sujecion"  (ngModelChange)="applyFilter()" />
+          <input nz-input [(ngModel)]="filterohm_sujecion" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
       <th nzColumnKey="pat4_sujecion">
         Pat4
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterPat4_sujecion"  (ngModelChange)="applyFilter()" />
+        <nz-input-group>
+          <input nz-input [(ngModel)]="filterohm_sujecion" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
       <th nzColumnKey="lider">
         Líder
-        <nz-input-group >
+        <nz-input-group>
           <input nz-input [(ngModel)]="filterLider" placeholder="Filtrar Líder" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
       <th nzColumnKey="supervisor">
         Supervisor
-        <nz-input-group >
+        <nz-input-group>
           <input nz-input [(ngModel)]="filterSupervisor" placeholder="Filtrar Supervisor" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
@@ -103,67 +105,68 @@
       <th *ngIf="mostrarHerramientas" nzColumnKey="herramientas">Herramientas</th>
     </tr>
   </thead>
+
   <tbody>
     <tr *ngFor="let item of filteredSpt2List.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)">
       <td>{{ item.tag_subestacion }}</td>
       <td>{{ item.ot }}</td>
       <td>{{ item.fecha }}</td>
-      <td>
-        <nz-select [(ngModel)]="item.tipo_metodo" (ngModelChange)="onMetodoChange(item)">
-          <nz-option nzValue="SIN PICAS" nzLabel="SIN PICAS"></nz-option>
-          <nz-option nzValue="METODO SELECTIVO" nzLabel="METODO SELECTIVO"></nz-option>
-          <nz-option nzValue="METODO CAIDA" nzLabel="METODO CAIDA"></nz-option>
-        </nz-select>
-      </td>
+      <!-- Tipo de Método Selector -->
+    <td>
+      <nz-select [(ngModel)]="item.tipo_metodo" (ngModelChange)="onMetodoChange(item)">
+        <nz-option nzValue="SIN PICAS" nzLabel="SIN PICAS"></nz-option>
+        <nz-option nzValue="METODO SELECTIVO" nzLabel="METODO SELECTIVO"></nz-option>
+        <nz-option nzValue="METODO CAIDA" nzLabel="METODO CAIDA"></nz-option>
+      </nz-select>
+    </td>
 
+    <!-- Pat1 -->
+    <td>
+      <span *ngIf="item.pat1">
+        {{ item.pat1 }}
+        <i nz-icon
+           [nzType]="item.pat1 > 25 ? 'close-circle' : 'check-circle'"
+           nzTheme="twotone"
+           [nzTwotoneColor]="item.pat1 > 25 ? 'red' : 'green'">
+        </i>
+      </span>
+    </td>
 
-      <td>
-        <span *ngIf="item.pat1_sujecion !== null && item.pat1_sujecion !== undefined && item.pat1_sujecion !== '' && item.pat1_sujecion !== 0">
-          {{ item.pat1_sujecion }}
-          <i nz-icon
-             [nzType]="item.pat1_sujecion > 25 ? 'close-circle' : 'check-circle'"
-             nzTheme="twotone"
-             [nzTwotoneColor]="item.pat1_sujecion > 25 ? 'red' : 'green'">
-          </i>
-        </span>
-      </td>
+    <!-- Pat2 -->
+    <td>
+      <span *ngIf="item.pat2">
+        {{ item.pat2 }}
+        <i nz-icon
+           [nzType]="item.pat2 > 25 ? 'close-circle' : 'check-circle'"
+           nzTheme="twotone"
+           [nzTwotoneColor]="item.pat2 > 25 ? 'red' : 'green'">
+        </i>
+      </span>
+    </td>
 
-      <td>
-        <span *ngIf="item.pat2_sujecion !== null && item.pat2_sujecion !== undefined && item.pat2_sujecion !== '' && item.pat2_sujecion !== 0">
-          {{ item.pat2_sujecion }}
-          <i nz-icon
-             [nzType]="item.pat2_sujecion > 25 ? 'close-circle' : 'check-circle'"
-             nzTheme="twotone"
-             [nzTwotoneColor]="item.pat2_sujecion > 25 ? 'red' : 'green'">
-          </i>
-        </span>
-      </td>
+    <!-- Pat3 -->
+    <td>
+      <span *ngIf="item.pat3">
+        {{ item.pat3 }}
+        <i nz-icon
+           [nzType]="item.pat3 > 25 ? 'close-circle' : 'check-circle'"
+           nzTheme="twotone"
+           [nzTwotoneColor]="item.pat3 > 25 ? 'red' : 'green'">
+        </i>
+      </span>
+    </td>
 
-      <td>
-        <span *ngIf="item.pat3_sujecion !== null && item.pat3_sujecion !== undefined && item.pat3_sujecion !== '' && item.pat3_sujecion !== 0">
-          {{ item.pat3_sujecion }}
-          <i nz-icon
-             [nzType]="item.pat3_sujecion > 25 ? 'close-circle' : 'check-circle'"
-             nzTheme="twotone"
-             [nzTwotoneColor]="item.pat3_sujecion > 25 ? 'red' : 'green'">
-          </i>
-        </span>
-      </td>
-
-      <td>
-        <span *ngIf="item.pat4_sujecion !== null && item.pat4_sujecion !== undefined && item.pat4_sujecion !== '' && item.pat4_sujecion !== 0">
-          {{ item.pat4_sujecion }}
-          <i nz-icon
-             [nzType]="item.pat4_sujecion > 25 ? 'close-circle' : 'check-circle'"
-             nzTheme="twotone"
-             [nzTwotoneColor]="item.pat4_sujecion > 25 ? 'red' : 'green'">
-          </i>
-        </span>
-      </td>
-
-
-
-
+    <!-- Pat4 -->
+    <td>
+      <span *ngIf="item.pat4">
+        {{ item.pat4 }}
+        <i nz-icon
+           [nzType]="item.pat4 > 25 ? 'close-circle' : 'check-circle'"
+           nzTheme="twotone"
+           [nzTwotoneColor]="item.pat4 > 25 ? 'red' : 'green'">
+        </i>
+      </span>
+    </td>
 
 
       <td>{{ item.usuario_lider }}</td>

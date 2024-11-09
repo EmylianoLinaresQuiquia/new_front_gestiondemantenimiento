@@ -47,10 +47,9 @@ export class HistorySpt2Component implements OnInit{
 
 
   // Filtros para los campos sujeción
-  filterPat1_sujecion: string = '';
-  filterPat2_sujecion: string = '';
-  filterPat3_sujecion: string = '';
-  filterPat4_sujecion: string = '';
+  filterohm_sujecion: string = '';
+  filterohm_caida: string = '';
+  filterohm_selectivo: string = '';
 
 
     // Filtros para cada columna
@@ -83,20 +82,37 @@ export class HistorySpt2Component implements OnInit{
       this.mostrarHerramientas = storedCargo === 'SUPERVISOR';
     }
 
-    this.spt2Service.obtenerSpt2().subscribe(
+     // Obtener datos de SPT2 y procesarlos
+     this.spt2Service.obtenerSpt2().subscribe(
       (data: MostrarSpt2[]) => {
         this.spt2List = data.map(item => {
-          // Si alguna de las nuevas propiedades no está inicializada, puedes establecer valores por defecto
-         if (!item.caida_potencia) {
-            item.caida_potencia = false; // Valor por defecto para caida_potencia
-          }
-          if (!item.selectivo) {
-            item.selectivo = false; // Valor por defecto para selectivo
-          }
-          if (!item.sin_picas) {
-            item.sin_picas = false; // Valor por defecto para sin_picas
-          }
-          return item;
+          console.log("data spt2",data)
+          const ohmSujecionArray = item.ohm_sujecion ? item.ohm_sujecion.split(',').map(val => val.trim()) : [];
+          const ohmSelectivoArray = item.ohm_selectivo ? item.ohm_selectivo.split(',').map(val => val.trim()) : [];
+          const ohmCaidaArray = item.ohm_caida ? item.ohm_caida.split(',').map(val => val.trim()) : [];
+
+          return {
+            ...item,
+            pat1_sujecion: ohmSujecionArray[0] || null,
+            pat2_sujecion: ohmSujecionArray[1] || null,
+            pat3_sujecion: ohmSujecionArray[2] || null,
+            pat4_sujecion: ohmSujecionArray[3] || null,
+            pat1_selectivo: ohmSelectivoArray[0] || null,
+            pat2_selectivo: ohmSelectivoArray[1] || null,
+            pat3_selectivo: ohmSelectivoArray[2] || null,
+            pat4_selectivo: ohmSelectivoArray[3] || null,
+            pat1_caida: ohmCaidaArray[0] || null,
+            pat2_caida: ohmCaidaArray[1] || null,
+            pat3_caida: ohmCaidaArray[2] || null,
+            pat4_caida: ohmCaidaArray[3] || null,
+            tipo_metodo: 'SIN PICAS', // Valor inicial predeterminado
+
+            // Inicializa los valores visibles de Pat1 a Pat4 para SIN PICAS
+          pat1: ohmSujecionArray[0] || null,
+          pat2: ohmSujecionArray[1] || null,
+          pat3: ohmSujecionArray[2] || null,
+          pat4: ohmSujecionArray[3] || null
+          };
         });
 
         this.filteredSpt2List = this.spt2List;
@@ -109,22 +125,55 @@ export class HistorySpt2Component implements OnInit{
     );
   }
 
+  onMetodoChange(item: any) {
+    // Actualizar el valor de `selectedMethodLabel`
+
+
+    // Actualiza los valores de Pat1, Pat2, Pat3, y Pat4 según el método seleccionado
+    switch (item.tipo_metodo) {
+      case 'SIN PICAS':
+        item.pat1 = item.pat1_sujecion;
+        item.pat2 = item.pat2_sujecion;
+        item.pat3 = item.pat3_sujecion;
+        item.pat4 = item.pat4_sujecion;
+        break;
+      case 'METODO SELECTIVO':
+        item.pat1 = item.pat1_selectivo;
+        item.pat2 = item.pat2_selectivo;
+        item.pat3 = item.pat3_selectivo;
+        item.pat4 = item.pat4_selectivo;
+        break;
+      case 'METODO CAIDA':
+        item.pat1 = item.pat1_caida;
+        item.pat2 = item.pat2_caida;
+        item.pat3 = item.pat3_caida;
+        item.pat4 = item.pat4_caida;
+        break;
+    }
+  }
+
   applyFilter() {
     this.filteredSpt2List = this.spt2List.filter(item =>
       (!this.filterSubestacion || item.tag_subestacion?.toLowerCase().includes(this.filterSubestacion.toLowerCase())) &&
       (!this.filterOt || item.ot?.toLowerCase().includes(this.filterOt.toLowerCase())) &&
       (!this.filterFecha || item.fecha?.toLowerCase().includes(this.filterFecha.toLowerCase())) &&
-
-      (!this.filterPat1_sujecion || item.pat1_sujecion?.toString().includes(this.filterPat1_sujecion)) &&
-      (!this.filterPat2_sujecion || item.pat2_sujecion?.toString().includes(this.filterPat2_sujecion)) &&
-      (!this.filterPat3_sujecion || item.pat3_sujecion?.toString().includes(this.filterPat3_sujecion)) &&
-      (!this.filterPat4_sujecion || item.pat4_sujecion?.toString().includes(this.filterPat4_sujecion))  &&
-
-      //AGREGAR AQUI
+      (!this.filterohm_sujecion || item.ohm_sujecion?.toString().includes(this.filterohm_sujecion)) &&
+      (!this.filterohm_caida || item.ohm_caida?.toString().includes(this.filterohm_caida)) &&
+      (!this.filterohm_selectivo || item.ohm_selectivo?.toString().includes(this.filterohm_selectivo)) &&
       (!this.filterLider || item.usuario_lider?.toLowerCase().includes(this.filterLider.toLowerCase())) &&
       (!this.filterSupervisor || item.usuario_supervisor?.toLowerCase().includes(this.filterSupervisor.toLowerCase()))
     );
   }
+  verTendencia(item: any) {
+    const tagSubestacion = item.tag_subestacion || '';
+    console.log('Tag Subestación:', tagSubestacion);
+
+    this.router.navigate(['/sistemas/grafico-spt2'], {
+      queryParams: { tag_subestacion: tagSubestacion }
+    });
+  }
+
+
   /*verTendencia(){
     this.route.queryParams.subscribe(params => {
       const tagSubestacion = params['tag_subestacion'] || '';
@@ -273,7 +322,7 @@ verDocumentos(id_spt2: number): void {
     console.log('PDF URL:', pdfUrl);  // Debugging
 
     // Abrir el PDF en una nueva pestaña del navegador
-    window.open(URL.createObjectURL(pdfBlob), '_blank');
+    //window.open(URL.createObjectURL(pdfBlob), '_blank');
     console.log('PDF abierto con éxito');  // Debugging
   }).catch(error => {
     console.error('Error al abrir el PDF:', error);

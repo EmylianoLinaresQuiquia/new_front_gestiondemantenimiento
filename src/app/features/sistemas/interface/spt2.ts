@@ -6,75 +6,66 @@ export interface MostrarSpt2 {
   caida_potencia: boolean; // Cambiado a boolean
   selectivo: boolean;      // Cambiado a boolean
   sin_picas: boolean;
-  pat1_sujecion: number;
-  pat2_sujecion: number;
-  pat3_sujecion: number;
-  pat4_sujecion: number;
-  pat1_selectivo: number;
-  pat2_selectivo: number;
-  pat3_selectivo: number;
-  pat4_selectivo: number;
-  pat1_caida: number;
-  pat2_caida: number;
-  pat3_caida: number;
-  pat4_caida: number;
+  ohm_caida:string;
+  ohm_selectivo:string;
+  ohm_sujecion:string;
   usuario_lider: string;
   usuario_supervisor: string;
 }
 
 
 export interface InsertSpt2{
-
-  ot: string;
-  fecha: string;
-  firmado: boolean;
-  id_usuario: number;
-  id_usuario_2: number;
-  id_subestacion: number;
-
-  // Datos de metodo_medicion_spt2
-  caida_potencia: boolean;
-  selectivo: boolean;
-  sin_picas: boolean;
-
-  // Datos de metodo_telurometro_spt2
-  fecha_calibracion: string;
-  marca: string;
-  n_serie: string;
-  modelo: string;
-  frecuencia: string;
-  precision: string;
-
-  // Datos de metodo_sujecion_spt2
-  conclusiones_sujecion: string;
-
-  // JSON para pat_metodo_spt2
-  pats: Array<{
-    pat1: number;
-    pat2: number;
-    pat3: number;
-    pat4: number;
-    ohm: string;
-    resultado: string;
-  }>;
-
-  // Datos de metodo_caida_spt2
-  esquema_caida:  File| null;
-  conclusiones_caida: string;
-
-  // Datos de metodo_selectivo_spt2
-  esquema_selectivo:  File| null;
-  conclusiones_selectivo: string;
-
-
-  imagen1: File | null;
-  imagen2: File | null;
-  imagen3: File | null;
-  imagen4: File | null;
+  [key: string]: any;
+  idSpt2?: number;
+  Ot: string;
+  Fecha: string;
+  Firmado: boolean;
+  IdUsuario: number;
+  IdUsuario2: number;
+  IdSubestacion: number;
+  Imagen1: File;
+  Imagen2: File;
+  Imagen3: File;
+  Imagen4: File;
+  EsquemaSelectivo: File;
+  EsquemaCaida: File;
+  CaidaPotencia: boolean;
+  Selectivo: boolean;
+  SinPicas: boolean;
+  FechaCalibracion: string;
+  Marca: string;
+  NSerie: string;
+  Modelo: string;
+  Frecuencia: string;
+  Precision: string;
+  ConclusionesSujecion: string;
+  JsonPatsSelectivo: string;
+  JsonPatsCaida: string;
+  JsonPatsSujecion: string;
+  ConclusionesCaida: string;
+  ConclusionesSelectivo: string;
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
 export interface MostrarSpt2PorId {
+  datosSpt2: DatosSpt2;
+  metodoCaida: MetodoCaida[];
+  metodoSelectivo: MetodoSelectivo[];
+  metodoSujecion: MetodoSujecion[];
+}
+
+export interface DatosSpt2 {
   ot: string;
   fecha: string;
   firmado: boolean;
@@ -88,6 +79,7 @@ export interface MostrarSpt2PorId {
   plano: string;
   fecha_plano: string;
   subestacion_versio: number;
+  tag_subestacion:string;
   imagen1: string;
   imagen2: string;
   imagen3: string;
@@ -101,15 +93,41 @@ export interface MostrarSpt2PorId {
   caida_potencia: boolean;
   selectivo: boolean;
   sin_picas: boolean;
-  pat1: string;
-  pat2: string;
-  pat3: string;
-  pat4: string;
+}
+
+export interface MetodoCaida {
+  id_metodo_caida_spt2: number;
+  caida_esquema: string | null;
+  caida_conclusiones: string | null;
+  id_spt2: number;
+  id_grupo: number;
+  pat1: number | null;
+  pat2: number | null;
+  pat3: number | null;
+  pat4: number | null;
   ohm: string;
   resultado: string;
-  caida_esquema: string;
-  caida_conclusiones: string;
-  selectivo_esquema: string;
-  selectivo_conclusiones: string;
-  sujecion_conclusiones: string;
+}
+
+export interface MetodoSelectivo {
+  id_metodo_selectivo_spt2: number;
+  selectivo_esquema: string | null;
+  selectivo_conclusiones: string | null;
+  id_spt2: number;
+  id_grupo: number;
+  pat1: number | null;
+  pat2: number | null;
+  pat3: number | null;
+  pat4: number | null;
+  ohm: string;
+  resultado: string;
+}
+
+export interface MetodoSujecion {
+  id_metodo_sujecion_spt2: number;
+  sujecion_conclusiones: string | null;
+  id_spt2: number;
+  id_grupo: number;
+  ohm: string;
+  resultado: string;
 }

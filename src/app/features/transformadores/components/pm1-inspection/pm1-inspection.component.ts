@@ -521,20 +521,21 @@ export class Pm1InspectionComponent implements OnInit{
   VerPlano(): void {
     this.transformadorService.MostrarPlano(this.subestacion, this.transformador).subscribe(
       (pdfBlob: Blob) => {
-        const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-          URL.createObjectURL(pdfBlob) + '#toolbar=0'
-        );
-        this.pdfUrl = pdfUrl;
+        const pdfUrl = URL.createObjectURL(pdfBlob);
 
-        this.modal.create({
-          nzTitle: 'PDF Document',
-          nzContent: this.pdfModal,
-          nzFooter: null,
-          nzWidth: 1200
-        });
+        // Abrir el PDF en una nueva pestaña
+        const newTab = window.open();
+        if (newTab) {
+          newTab.location.href = pdfUrl;
+        } else {
+          console.error('No se pudo abrir una nueva pestaña.');
+          this.alertservice.error('No se pudo abrir el PDF en una nueva pestaña.', 'error');
+        }
       },
       (error) => {
-        console.error('Error al abrir el PDF:', error);
+        console.error('Error inesperado', error);
+        // Aquí puedes agregar un mensaje más descriptivo
+        this.alertservice.error('No se encontró el plano', 'error');
       }
     );
   }
