@@ -51,9 +51,7 @@ async generarPDF(id: number): Promise<Blob> {
             console.error('No se encontraron resultados para el ID:', id);
             throw new Error('No se encontraron resultados para el ID proporcionado');
         }
-
         console.log('Datos recibidos:', resultado);
-
         const existingPdfBytes = await fetch('assets/spt2.pdf').then(res => res.arrayBuffer());
         const pdfDoc = await PDFDocument.load(existingPdfBytes);
         const [newPage] = pdfDoc.getPages();
@@ -76,9 +74,6 @@ async generarPDF(id: number): Promise<Blob> {
         drawText(resultado.datosSpt2.fecha_plano || '', 795, height - 232);
         drawText(resultado.datosSpt2.subestacion_versio?.toString() || '', 935, height - 235);
 
-
-
-
         const determinarMensaje = (valor: number): { mensaje: string, color: [number, number, number] } => {
           if (valor > 25) return { mensaje: "NO CUMPLE", color: [1, 0, 0] }; // Rojo
           if (valor > 0) return { mensaje: "CUMPLE", color: [0, 1, 0] }; // Verde
@@ -93,12 +88,6 @@ async generarPDF(id: number): Promise<Blob> {
 
         drawText(resultado.datosSpt2.usuario1_usuario , 262, height - 1290);
         drawText(resultado.datosSpt2.usuario2_usuario , 262, height - 1323);
-
-
-        //drawText(resultado.metodoSelectivo[0]?.selectivo_conclusiones || '', 130, height - 905);
-        //drawText(resultado.metodoCaida[0]?.caida_conclusiones || '', 130, height - 610);
-
-
               drawText(resultado.datosSpt2.marca, 190, height - 285);
               drawText(resultado.datosSpt2.n_serie, 400, height - 285);
               drawText(resultado.datosSpt2.modelo, 655, height - 285);
@@ -125,23 +114,37 @@ async generarPDF(id: number): Promise<Blob> {
                 await drawImageOrText(resultado.datosSpt2.sin_picas, 789, height - 340);
 
 
-                const addImageToPdf = async (url: string, x: number, y: number, width: number, height: number) => {
+                const addImageToPdf = async (
+                  pdfDoc: PDFDocument,
+                  newPage: any,
+                  url: string,
+                  x: number,
+                  y: number,
+                  width: number,
+                  height: number
+                ) => {
                   if (!url) return; // Salta si la URL es vacía
 
                   try {
-                    const imageBytes = await fetch(url).then(res => res.arrayBuffer());
-                    const fileType = new Uint8Array(imageBytes.slice(0, 4)).join(""); // Chequear los primeros bytes
+                    // Descarga los bytes de la imagen desde la URL
+                    const imageBytes = await fetch(url).then((res) => res.arrayBuffer());
+
+                    // Detecta el tipo de archivo verificando los primeros bytes
+                    const fileType = new Uint8Array(imageBytes.slice(0, 4)).join("");
 
                     let image;
-                    if (fileType.startsWith("255216")) { // Detecta JPEG
+                    if (fileType.startsWith("255216")) {
+                      // Detecta JPEG (firma: 255216 en decimal)
                       image = await pdfDoc.embedJpg(imageBytes);
-                    } else if (fileType.startsWith("13780")) { // Detecta PNG
+                    } else if (fileType.startsWith("13780")) {
+                      // Detecta PNG (firma: 13780 en decimal)
                       image = await pdfDoc.embedPng(imageBytes);
                     } else {
                       console.error("Formato de imagen no soportado o imagen no válida:", url);
                       return;
                     }
 
+                    // Dibuja la imagen en la página del PDF
                     newPage.drawImage(image, { x, y, width, height });
                   } catch (error) {
                     console.error("Error al incrustar imagen:", error);
@@ -152,15 +155,15 @@ async generarPDF(id: number): Promise<Blob> {
 
 
     // Agregar las imágenes en posiciones específicas en el PDF
-    await addImageToPdf(resultado.datosSpt2.imagen1, 150, height - 1260, 150, 100); // Posición y tamaño de la imagen 1
-    await addImageToPdf(resultado.datosSpt2.imagen2, 350, height - 1260, 150, 100); // Posición y tamaño de la imagen 2
-    await addImageToPdf(resultado.datosSpt2.imagen2, 550, height - 1260, 150, 100);
-    await addImageToPdf(resultado.datosSpt2.imagen4, 750, height - 1260, 150, 100); // Posición y tamaño de la imagen 4
+await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen1, 150, height - 1260, 150, 100); // Posición y tamaño de la imagen 1
+await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen2, 350, height - 1260, 150, 100); // Posición y tamaño de la imagen 2
+await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen3, 550, height - 1260, 150, 100); // Posición y tamaño de la imagen 3
+await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen4, 750, height - 1260, 150, 100); // Posición y tamaño de la imagen 4
 
 
                                                                       //x           //y    //ancho   //alto
-    await addImageToPdf(resultado.metodoCaida[0]?.caida_esquema || '', 582, height - 575, 250, 185);
-    await addImageToPdf(resultado.metodoSelectivo[0]?.selectivo_esquema || '', 582, height - 870, 250, 185);
+       await addImageToPdf(pdfDoc, newPage, resultado.metodoCaida[0]?.caida_esquema || '', 582, height - 575, 250, 185);
+        await addImageToPdf(pdfDoc, newPage, resultado.metodoSelectivo[0]?.selectivo_esquema || '', 582, height - 870, 250, 185);
 
 
 
@@ -288,133 +291,11 @@ resultado.metodoCaida.forEach((registro: any, index: number) => {
       drawText(`${registro.resultado || ''}`, xResultado, yOhmResultado,resultadoColor);
 
     });
-
-
                                                                   //x         //y
-    await addImageToPdf(resultado.datosSpt2.usuario1_firma || '', 810, height - 1302, 100, 30);
-    if(resultado.datosSpt2.firmado === true){
-      await addImageToPdf(resultado.datosSpt2.usuario2_firma || '', 810, height - 1336, 100, 30);
-    }
-
-               /* if (resultados.length > 0) {
-                  const resultado = resultados[0]; // Tomamos el primer elemento como ejemplo
-
-                  // Rutas de las imágenes del reporte
-                  const imagenesRutas = [resultado.imagen1, resultado.imagen2, resultado.imagen3, resultado.imagen4];
-
-                  for (const [index, rutaImagen] of imagenesRutas.entries()) {
-                    if (rutaImagen) {
-                      try {
-                        // Convertimos el Observable a Promesa y verificamos si la imagen es válida
-                        const imagenBase64 = await this.spt2Service.obtenerImagenBase64(rutaImagen).toPromise();
-
-                        if (imagenBase64) {
-                          const match = imagenBase64.match(/^data:(image\/[a-z]+);base64,(.*)$/);
-                          if (!match) throw new Error("Formato de imagen no reconocido o imagen ausente.");
-
-                          const [, imageFormat, base64Data] = match;
-                          const imageBytes = base64ToArrayBuffer(base64Data);
-                          let image;
-
-                          if (imageFormat === 'image/jpeg') image = await pdfDoc.embedJpg(imageBytes);
-                          else if (imageFormat === 'image/png') image = await pdfDoc.embedPng(imageBytes);
-                          else throw new Error(`Formato de imagen no soportado: ${imageFormat}`);
-
-                          // Posición y tamaño de la imagen
-                          newPage.drawImage(image, {
-                            x: 50,
-                            y: 400 - (index * 100), // Cambia la posición en Y para cada imagen
-                            width: 150,
-                            height: 100
-                          });
-                        } else {
-                          console.warn(`La imagen en la ruta ${rutaImagen} no se pudo obtener o está vacía.`);
-                        }
-                      } catch (error) {
-                        console.error(`Error al agregar la imagen ${index + 1}:`, error);
-                      }
-                    }
-                  }
-                }
-
-
-
-
-              // Asegúrate de que hay al menos un elemento en resultados
-if (resultados.length > 0) {
-  const resultado = resultados[0]; // Usamos el primer elemento del array para este ejemplo
-  // Verificar si hay datos de firma para el líder
-
-if (resultado.usuario1_firma) {
-  try {
-    const matchLider = resultado.usuario1_firma.match(/^data:(image\/[a-z]+);base64,(.*)$/);
-    if (!matchLider) throw new Error("Formato de firma del líder no reconocido o firma ausente.");
-
-    const [, imageFormatLider, base64DataLider] = matchLider;
-    let firmaLiderBytes = base64ToArrayBuffer(base64DataLider);
-
-    // Embedding de la firma
-    let firmaLiderImage;
-    if (imageFormatLider === 'image/jpeg') firmaLiderImage = await pdfDoc.embedJpg(firmaLiderBytes);
-    else if (imageFormatLider === 'image/png') firmaLiderImage = await pdfDoc.embedPng(firmaLiderBytes);
-    else throw new Error(`Formato de imagen del líder no soportado: ${imageFormatLider}`);
-
-    console.log("Imagen del líder embebida correctamente.");
-
-    // Dibujar la firma en el PDF
-    newPage.drawImage(firmaLiderImage, {
-      x: 820,  // Cambiar las coordenadas para pruebas
-      y: 165,  // para asegurarse de que la firma esté en la zona visible
-      width: 80,  // Cambiar el tamaño para pruebas
-      height: 28,
-    });
-
-    console.log("Firma del líder insertada en el PDF.");
-  } catch (error) {
-    console.error("Error al procesar la firma del líder:", error);
-  }
-}
-
-
-  // Verificar si hay datos de firma para el supervisor
-  if (resultado.usuario2_firma) {
-    try {
-      const matchSupervisor = resultado.usuario2_firma.match(/^data:(image\/[a-z]+);base64,(.*)$/);
-      if (!matchSupervisor) {
-        throw new Error("Formato de firma del supervisor no reconocido o firma ausente.");
+      await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.usuario1_firma || '', 810, height - 1302, 100, 30);
+      if (resultado.datosSpt2.firmado === true) {
+        await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.usuario2_firma || '', 810, height - 1336, 100, 30);
       }
-      const [, imageFormatSupervisor, base64DataSupervisor] = matchSupervisor;
-
-      let firmaSupervisorBytes = base64ToArrayBuffer(base64DataSupervisor);
-      let firmaSupervisorImage;
-
-      switch (imageFormatSupervisor) {
-        case 'image/jpeg':
-          firmaSupervisorImage = await pdfDoc.embedJpg(firmaSupervisorBytes);
-          break;
-        case 'image/png':
-          firmaSupervisorImage = await pdfDoc.embedPng(firmaSupervisorBytes);
-          break;
-        default:
-          throw new Error(`Formato de imagen del supervisor no soportado: ${imageFormatSupervisor}`);
-      }
-
-      newPage.drawImage(firmaSupervisorImage, {
-        x: 455,
-        y: 20,
-        width: 50,
-        height: 25,
-      });
-    } catch (error) {
-      console.error("Error al procesar la firma del supervisor: ", error);
-    }
-  }
-} else {
-  console.error("El array de resultados está vacío.");
-}*/
-
-
-
         function base64ToArrayBuffer(base64: string) {
           const binaryString = window.atob(base64);
           const len = binaryString.length;

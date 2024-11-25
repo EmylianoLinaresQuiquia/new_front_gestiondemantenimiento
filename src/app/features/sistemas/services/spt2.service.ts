@@ -15,19 +15,14 @@ export class Spt2Service {
 
   constructor(private http: HttpClient) { }
 
-  eliminarSpt2(idSpt2: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/Eliminar/${idSpt2}`)
-      .pipe(
-        map(response => {
-          // Verificar que el mensaje indica éxito en la eliminación
-          if (response.message && response.message.includes('eliminados correctamente')) {
-            return response;
-          } else {
-            throw new Error(response.message || 'Error inesperado al eliminar el registro');
-          }
-        }),
-        catchError(this.handleError<any>('eliminarSpt2'))
-      );
+  eliminarSpt2(id_spt2: number): Observable<void> {
+    const url = `${this.apiUrl}/${id_spt2}`;
+    return this.http.delete<void>(url).pipe(
+      catchError((error) => {
+        console.error('Error al eliminar el registro:', error);
+        return throwError(() => new Error('No se pudo eliminar el registro.'));
+      })
+    );
   }
 
 

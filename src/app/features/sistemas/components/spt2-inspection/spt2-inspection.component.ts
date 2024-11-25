@@ -970,11 +970,16 @@ const patsSujecion: {
   ohm_data: []
 };
 
+
+
 // Llenar `ohm_data`
 for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
+  const ohmValue = patsSujecionOriginal.ohm[i];
+  const resultado = ohmValue < 25 ? "CUMPLE" : "  No CUMPLE"; // Evalúa si cumple o no
+
   patsSujecion.ohm_data.push({
-    ohm: patsSujecionOriginal.ohm[i],
-    resultado: `selepat${i + 1}`
+    ohm: ohmValue,
+    resultado: resultado // Asigna el resultado evaluado
   });
 }
 

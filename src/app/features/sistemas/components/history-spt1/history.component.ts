@@ -185,7 +185,7 @@ export class HistoryComponent implements OnInit {
         const pdfUrl = URL.createObjectURL(pdfBlob);
 
         // Abrir el PDF en una nueva pestaña
-        window.open(pdfUrl, '_blank');
+       // window.open(pdfUrl, '_blank');
     }).catch(error => {
         console.error('Error opening PDF:', error);
     });

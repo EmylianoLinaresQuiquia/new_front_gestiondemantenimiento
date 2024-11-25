@@ -330,43 +330,45 @@ verDocumentos(id_spt2: number): void {
 }
 
 
-  /*eliminarRegistro(id_spt2: number): void {
-    // Mostrar el modal de confirmación
-    this.modal.confirm({
-      nzTitle: 'Confirmación',
-      nzContent: '¿Estás seguro de que quieres eliminar spt2?',
-      nzOkText: 'Aceptar',
-      nzCancelText: 'Cancelar',
-      nzOnOk: async () => {
-        // Mostrar mensaje de carga mientras se realiza la operación
-        const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
+eliminarRegistro(id_spt2: number): void {
+  // Mostrar el modal de confirmación
+  this.modal.confirm({
+    nzTitle: 'Confirmación',
+    nzContent: '¿Estás seguro de que quieres eliminar spt2?',
+    nzOkText: 'Aceptar',
+    nzCancelText: 'Cancelar',
+    nzOnOk: async () => {
+      // Mostrar mensaje de carga mientras se realiza la operación
+      const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
 
-        // Llamar al servicio para eliminar el registro
-        this.spt2Service.eliminarSpt2(id_spt2).subscribe({
-          next: () => {
-            // Eliminar el mensaje de carga
-            this.messageService.remove(loadingMessageId);
+      // Llamar al servicio para eliminar el registro
+      this.spt2Service.eliminarSpt2(id_spt2).subscribe({
+        next: () => {
+          // Eliminar el mensaje de carga
+          this.messageService.remove(loadingMessageId);
 
-            // Mostrar mensaje de éxito
-            this.alertservice.success('spt2 eliminar', 'Los datos se han eliminado con éxito.');
+          // Mostrar mensaje de éxito
+          this.alertservice.success('Eliminación exitosa', 'El registro se ha eliminado correctamente.');
 
-            // Aquí puedes realizar otras acciones, como actualizar la tabla
-            this.actualizarTabla(id_spt2);
-          },
-          error: (err) => {
-            // Eliminar el mensaje de carga
-            this.messageService.remove(loadingMessageId);
+          // Actualizar la tabla o lista
+          this.actualizarTabla(id_spt2);
+        },
+        error: (err) => {
+          // Eliminar el mensaje de carga
+          this.messageService.remove(loadingMessageId);
 
-            // Mostrar mensaje de error
-            this.alertservice.error('Error', 'No se pudo eliminar el registro. Por favor, intenta de nuevo.');
-          }
-        });
-      },
-      nzOnCancel: () => {
-        this.alertservice.warning('Cancelado', 'La eliminación ha sido cancelada.');
-      }
-    });
-  }*/
+          // Mostrar mensaje de error
+          this.alertservice.error('Error', 'No se pudo eliminar el registro. Intenta nuevamente.');
+          console.error('Error al eliminar el registro:', err);
+        }
+      });
+    },
+    nzOnCancel: () => {
+      this.alertservice.warning('Cancelado', 'La eliminación ha sido cancelada.');
+    }
+  });
+}
+
   actualizarTabla(id_spt2: number): void {
     // Filtrar la lista eliminando el registro que tiene el idSpt2
     this.spt2List = this.spt2List.filter(item => item.id_spt2 !== id_spt2);

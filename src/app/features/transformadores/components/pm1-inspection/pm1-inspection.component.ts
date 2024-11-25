@@ -29,6 +29,33 @@ import { string } from '@amcharts/amcharts4/core';
   styleUrl: './pm1-inspection.component.css'
 })
 export class Pm1InspectionComponent implements OnInit{
+
+
+
+  timeInputs = [
+    { label: 'Start Time:', placeholder: '--:--' },
+    { label: 'End Time:', placeholder: '--:--' },
+    { label: 'Date:', placeholder: 'dd/mm/aaaa', type: 'date' }
+  ];
+
+  instructions = [
+    { text: 'Completar los permisos de trabajo según la actividad adjuntos a la OT (IPERC - ATS - PETAR PETS)' },
+    { text: 'Inspección de herramientas y evitar exceso de carga (>25 kg)' },
+    { text: 'Usar implementos de seguridad personal de acuerdo al tipo de trabajo (EPP\'s)' },
+    { text: 'Realizar el aislamiento, bloqueo y confirmación energía cero de la sub estación eléctrica, evaluar' },
+  ];
+
+  patioItems = [
+    'Candados y manijas de puertas de acceso',
+    'Señalización de seguridad en cerco, transformador, bandejas',
+    'Bandejas porta cables',
+    'Sistema de iluminación y luces de emergencia en patio',
+  ];
+
+
+
+
+
   private transformadorData: any;
   usuarios: Usuario[] = [];
   correoSeleccionado = '';
@@ -295,10 +322,8 @@ export class Pm1InspectionComponent implements OnInit{
                 formData[fieldName] = element.checked;
               } else {
                 if (fieldName.includes('fecha') || fieldName.includes('date')) {
-                  // Format date from YYYY-MM-DD to DD/MM/YYYY
-                  const dateValue = element.value || '';
-                  const [year, month, day] = dateValue.split('-');
-                  formData[fieldName] = `${day}/${month}/${year}`;
+                  // Mantén el valor en formato YYYY-MM-DD
+                  formData[fieldName] = element.value || '';
                 } else {
                   formData[fieldName] = element.value || '';
                 }
@@ -345,7 +370,8 @@ export class Pm1InspectionComponent implements OnInit{
             const equipos = this.buildEquipos(formData);
 
             // Formatear la fecha en dd-MM-yyyy
-            const fechaFormateada = typeof formData['fecha'] === 'string' ? this.convertirFechaFormato(formData['fecha']) : '';
+            const fechaOriginal = formData['fecha'];
+            const fechaFormateada = typeof fechaOriginal === 'string' && fechaOriginal ? this.convertirFechaFormato(fechaOriginal) : '';
             const pm1 = {
               hora_inicio: typeof formData['hora_inicio'] === 'string' ? formData['hora_inicio'] : '',
               hora_fin: typeof formData['hora_fin'] === 'string' ? formData['hora_fin'] : '',

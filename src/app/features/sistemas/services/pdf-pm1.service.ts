@@ -143,7 +143,7 @@ export class PdfPm1Service implements OnInit, AfterViewInit {
         }
 
         // Repetir la lógica de firma para firma_2
-        if (this.pm1.firma_2) {
+        if (this.pm1.firma === true) {
           try {
             const imageData = this.pm1.firma_2.split(',')[1];
             if (imageData) {
