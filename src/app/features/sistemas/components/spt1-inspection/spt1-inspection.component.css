@@ -561,77 +561,74 @@ select {
 
 /*************************MY CSS*/
 
+/*************************MY CSS*/
+
 
 .text-green {
-  color: green;
-}
-
-.text-red {
-  color: red;
-}
-
-
-
-
-
-  .color-rojo {
-    color: red;
+	color: green;
   }
-  option{
-    font-size: 10px;
 
+  .text-red {
+	color: red;
+  }
+
+
+
+
+
+	.color-rojo {
+	  color: red;
+	}
+	option{
+	  font-size: 10px;
+
+	}
+	select{
+	  border: 1px solid black;
+
+	}
+
+	.caracteristicassistema{
+	  border: 4px solid black;
+	}
+	.caracteristicassistema input{
+	  width: 150px;height: 150px;
+	}
+	option{
+	  font-size: 20px;
   }
   select{
-    border: 1px solid black;
+	  font-size: 120px;
+
 
   }
-
-  .caracteristicassistema{
-    border: 4px solid black;
-  }
-  .caracteristicassistema input{
-    width: 150px;height: 150px;
-  }
-  option{
-    font-size: 20px;
-}
-select{
-    font-size: 120px;
-
-}
-input{
-    font-size: 120px;
-    border: 1px solid black;
-}
-
-
-.select-green {
-    color: green;
-  }
-
-  .select-red {
-    color: red;
+  input{
+	  font-size: 120px;
+	  border: 1px solid black;
   }
 
 
+  .select-green {
+	  color: green;
+	}
 
-
-
-  :host ::ng-deep {
-    .speeddial-mask-demo {
-        .p-speeddial-direction-up {
-            right: 0;
-
-            top: 0;
-        }
-    }
-}
+	.select-red {
+	  color: red;
+	}
 
 
 
 
 
+	:host ::ng-deep {
+	  .speeddial-mask-demo {
+		  .p-speeddial-direction-up {
+			  right: 0;
 
+			  top: 0;
+		  }
+	  }
+  }
 
 
 
@@ -644,110 +641,5 @@ input{
 
 
 /* spt01.component.css */
-/*
-#pdfContainer {
-	position: relative;
-	width: 100%;
-	height: auto;
-	overflow: hidden;
-  }
 
-
-  canvas {
-	border: 1px solid black;
-	width: 100%;
-	height: auto;
-  }
-
-  .annotationLayer {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	pointer-events: none;
-  }
-
-  .annotationLayer input,
-  .annotationLayer textarea,
-  .annotationLayer select {
-	pointer-events: auto;
-	background-color: white !important;
-	border: 1px solid #ccc;
-	box-sizing: border-box;
-  }
-
-  input[type="checkbox"] {
-	width: 20px;
-	height: 20px;
-  }
-
-  input[type="date"], input[type="time"] {
-	width: 100%;
-	height: auto;
-  }
-
-
-
-
-select {
-	background-color: white !important;
-	color: #000000;
-	border: 1px solid #ccc;
-  }
-
-
-  .default-option {
-
-	background-color: #ffffff;
-	color: #999999;
-  }
-  */
-
-  /*
-.control-section {
-    height: 550px;
-}
-
-.control-section .e-spreadsheet .e-cell .e-radio-wrapper {
-    margin: 5px;
-}
-
-.control-section .e-spreadsheet .e-cell .e-radio-wrapper:first-child {
-    margin-left: 0;
-}
-
-.control-section .e-spreadsheet .e-cell .e-radio + label .e-label {
-    color: rgba(0, 0, 0, 0.87);
-}
-
-.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-input-group.e-control-wrapper {
-    background-color: rgb(56, 56, 56);
-}
-
-.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-radio + label .e-label {
-    color: #000;
-}
-
-.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-radio + label::before {
-    background-color: #fff;
-    border-color: #757575;
-}
-
-.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-radio:checked + label::before {
-    border-color: #00b0ff;
-}
-
-.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-radio-wrapper {
-    padding-right: 10px;
-}
-
-.material-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-btn.e-flat {
-    color: #000;
-}
-
-.fluent2-dark .e-custom-spreadsheet.e-spreadsheet .e-sheet .e-sheet-content .e-cell-template .e-btn.e-flat {
-    background-color: #292929;
-}
-*/
 

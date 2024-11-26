@@ -114,58 +114,6 @@ async generarPDF(id: number): Promise<Blob> {
                 await drawImageOrText(resultado.datosSpt2.sin_picas, 789, height - 340);
 
 
-                const addImageToPdf = async (
-                  pdfDoc: PDFDocument,
-                  newPage: any,
-                  url: string,
-                  x: number,
-                  y: number,
-                  width: number,
-                  height: number
-                ) => {
-                  if (!url) return; // Salta si la URL es vacía
-
-                  try {
-                    // Descarga los bytes de la imagen desde la URL
-                    const imageBytes = await fetch(url).then((res) => res.arrayBuffer());
-
-                    // Detecta el tipo de archivo verificando los primeros bytes
-                    const fileType = new Uint8Array(imageBytes.slice(0, 4)).join("");
-
-                    let image;
-                    if (fileType.startsWith("255216")) {
-                      // Detecta JPEG (firma: 255216 en decimal)
-                      image = await pdfDoc.embedJpg(imageBytes);
-                    } else if (fileType.startsWith("13780")) {
-                      // Detecta PNG (firma: 13780 en decimal)
-                      image = await pdfDoc.embedPng(imageBytes);
-                    } else {
-                      console.error("Formato de imagen no soportado o imagen no válida:", url);
-                      return;
-                    }
-
-                    // Dibuja la imagen en la página del PDF
-                    newPage.drawImage(image, { x, y, width, height });
-                  } catch (error) {
-                    console.error("Error al incrustar imagen:", error);
-                  }
-                };
-
-
-
-
-    // Agregar las imágenes en posiciones específicas en el PDF
-await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen1, 150, height - 1260, 150, 100); // Posición y tamaño de la imagen 1
-await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen2, 350, height - 1260, 150, 100); // Posición y tamaño de la imagen 2
-await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen3, 550, height - 1260, 150, 100); // Posición y tamaño de la imagen 3
-await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen4, 750, height - 1260, 150, 100); // Posición y tamaño de la imagen 4
-
-
-                                                                      //x           //y    //ancho   //alto
-       await addImageToPdf(pdfDoc, newPage, resultado.metodoCaida[0]?.caida_esquema || '', 582, height - 575, 250, 185);
-        await addImageToPdf(pdfDoc, newPage, resultado.metodoSelectivo[0]?.selectivo_esquema || '', 582, height - 870, 250, 185);
-
-
 
     let contadorPatcaida = 1;
     resultado.metodoCaida.forEach((item, index) => {
@@ -291,20 +239,145 @@ resultado.metodoCaida.forEach((registro: any, index: number) => {
       drawText(`${registro.resultado || ''}`, xResultado, yOhmResultado,resultadoColor);
 
     });
-                                                                  //x         //y
-      await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.usuario1_firma || '', 810, height - 1302, 100, 30);
-      if (resultado.datosSpt2.firmado === true) {
-        await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.usuario2_firma || '', 810, height - 1336, 100, 30);
+
+    const addImageToPdf = async (
+      pdfDoc: PDFDocument,
+      newPage: any,
+      url: string,
+      x: number,
+      y: number,
+      width: number,
+      height: number
+    ) => {
+      if (!url) {
+        console.warn('[WARN] URL vacía. No se dibujará nada.');
+        return;
       }
-        function base64ToArrayBuffer(base64: string) {
-          const binaryString = window.atob(base64);
-          const len = binaryString.length;
-          const bytes = new Uint8Array(len);
-          for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-          return bytes.buffer;
+
+      try {
+        console.log(`[DEBUG] Procesando imagen en la URL: ${url}`);
+        let imageBytes: ArrayBuffer;
+
+        // Determinar si es base64 o URL externa
+        if (url.startsWith('data:image')) {
+          console.log('[DEBUG] Imagen en formato Base64.');
+          imageBytes = base64ToArrayBuffer(url.split(',')[1]);
+        } else {
+          console.log('[DEBUG] Descargando y convirtiendo imagen desde URL externa.');
+          const base64 = await convertImageToBase64(url);
+          imageBytes = base64ToArrayBuffer(base64.split(',')[1]);
         }
+
+        // Detectar formato de imagen
+        let image;
+        try {
+          console.log('[DEBUG] Intentando incrustar imagen como PNG.');
+          image = await pdfDoc.embedPng(imageBytes);
+        } catch {
+          console.log('[DEBUG] Falló PNG, intentando incrustar como JPG.');
+          image = await pdfDoc.embedJpg(imageBytes);
+        }
+
+        // Dibujar la imagen en el PDF
+        console.log('[DEBUG] Dibujando imagen en las coordenadas:', { x, y, width, height });
+        newPage.drawImage(image, { x, y, width, height });
+      } catch (error) {
+        console.error(`[ERROR] Error al incrustar la imagen (${url}):`, error);
+      }
+    };
+
+    const convertImageToBase64 = async (url: string): Promise<string> => {
+      try {
+        console.log('[DEBUG] Intentando convertir URL a Base64:', url);
+
+        // Verificar si la URL es válida
+        if (!url.startsWith('http') && !url.startsWith('data:image')) {
+          throw new Error(`[ERROR] URL inválida o no soportada: ${url}`);
+        }
+
+        // Realizar la solicitud a la URL
+        console.log('[DEBUG] Haciendo fetch de la URL:', url);
+        const response = await fetch(url);
+
+        console.log('[DEBUG] Respuesta del servidor:', response.status, response.statusText);
+        if (!response.ok) {
+          throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+        }
+
+        // Convertir la respuesta a blob
+        console.log('[DEBUG] Convirtiendo respuesta a Blob...');
+        const blob = await response.blob();
+        console.log('[DEBUG] Blob generado con éxito:', blob);
+
+        // Convertir Blob a Base64
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            console.log('[DEBUG] Conversión a Base64 exitosa.');
+            resolve(reader.result as string);
+          };
+          reader.onerror = (e) => {
+            console.error('[ERROR] Falló FileReader:', e);
+            reject(e);
+          };
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error('[ERROR] Error al convertir imagen a Base64:', error);
+        throw error;
+      }
+    };
+
+    console.log('[DEBUG] Validando imágenes antes de procesar...');
+const urls = [
+  resultado.datosSpt2.usuario1_firma,
+  resultado.datosSpt2.usuario2_firma,
+  resultado.datosSpt2.imagen1,
+  resultado.datosSpt2.imagen2,
+  resultado.datosSpt2.imagen3,
+  resultado.datosSpt2.imagen4,
+  resultado.metodoCaida[0]?.caida_esquema,
+  resultado.metodoSelectivo[0]?.selectivo_esquema,
+];
+
+urls.forEach((url, index) => {
+  if (!url) {
+    console.warn(`[WARN] La imagen en el índice ${index} es nula o vacía.`);
+  } else {
+    console.log(`[DEBUG] Imagen válida encontrada en el índice ${index}: ${url}`);
+  }
+});
+
+
+
+      // Dibujar las imágenes base64 o externas
+    await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.usuario1_firma || '', 810, height - 1302, 100, 30);
+
+    if (resultado.datosSpt2.firmado === true) {
+      await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.usuario2_firma || '', 810, height - 1336, 100, 30);
+    }
+
+    // Dibujar imágenes externas
+    await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen1, 150, height - 1260, 150, 100);
+    await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen2, 350, height - 1260, 150, 100);
+    await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen3, 550, height - 1260, 150, 100);
+    await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen4, 750, height - 1260, 150, 100);
+
+    await addImageToPdf(pdfDoc, newPage, resultado.metodoCaida[0]?.caida_esquema || '', 582, height - 575, 250, 185);
+    await addImageToPdf(pdfDoc, newPage, resultado.metodoSelectivo[0]?.selectivo_esquema || '', 582, height - 870, 250, 185);
+
+
+
+    function base64ToArrayBuffer(base64: string) {
+      const binaryString = window.atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
         const modifiedPdfBytes = await pdfDoc.save();
         const modifiedPdfBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
 
