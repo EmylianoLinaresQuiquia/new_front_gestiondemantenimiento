@@ -998,7 +998,7 @@ for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
         SinPicas: this.checksinpicas,
         FechaCalibracion: this.fecha_calibracion,
         Marca: this.marca,
-        NSerie: this.n_serie,
+        NumeroSerie: this.n_serie,
         Modelo: this.modelo,
         Frecuencia: this.frecuencia,
         Precision: this.precision,
@@ -1012,41 +1012,17 @@ for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
         Imagen2: this.files[1] || null,
         Imagen3: this.files[2] || null,
         Imagen4: this.files[3] || null,
-        EsquemaCaida: esquemaCaida,
-        EsquemaSelectivo: esquemaSelectivo,
+        EsquemaCaida: esquemaCaida || null,
+        EsquemaSelectivo: esquemaSelectivo || null,
       };
 
       const formData = new FormData();
 
-      // Agregar campos de texto al FormData
       Object.keys(spt2Data).forEach(key => {
         if (spt2Data[key] !== undefined && spt2Data[key] !== null) {
-          formData.append(key, spt2Data[key].toString());
+          formData.append(key, spt2Data[key]);
         }
       });
-      // Añadir las imágenes
-      if (spt2Data.Imagen1) {
-        formData.append('Imagen1', spt2Data.Imagen1, spt2Data.Imagen1.name);
-      }
-      if (spt2Data.Imagen2) {
-        formData.append('Imagen2', spt2Data.Imagen2, spt2Data.Imagen2.name);
-      }
-      if (spt2Data.Imagen3) {
-        formData.append('Imagen3', spt2Data.Imagen3, spt2Data.Imagen3.name);
-      }
-      if (spt2Data.Imagen4) {
-        formData.append('Imagen4', spt2Data.Imagen4, spt2Data.Imagen4.name);
-      }
-
-      // Añadir los esquemas
-      if (spt2Data.EsquemaCaida) {
-        formData.append('EsquemaCaida', spt2Data.EsquemaCaida, spt2Data.EsquemaCaida.name);
-      }
-      if (spt2Data.EsquemaSelectivo) {
-        formData.append('EsquemaSelectivo', spt2Data.EsquemaSelectivo, spt2Data.EsquemaSelectivo.name);
-      }
-
-      // Convertir el array de pats a JSON y agregarlo al FormData
       //formData.append('JsonPats', JSON.stringify({ pats: spt2Data.JsonPats }));
 
       // Mostrar el contenido de formData
@@ -1093,6 +1069,7 @@ for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
   }
 });
 }
+
 
 
 

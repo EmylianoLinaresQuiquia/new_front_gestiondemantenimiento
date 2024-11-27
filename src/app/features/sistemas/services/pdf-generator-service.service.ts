@@ -115,21 +115,23 @@ async generarPDF(id: number): Promise<Blob> {
 
 
 
-    let contadorPatcaida = 1;
-    resultado.metodoCaida.forEach((item, index) => {
-      // Verificamos que el item y item.resultado existan y tengan longitud mayor a 0
-      const registroCount = item.resultado?.length || 0;
-      const mensaje = registroCount > 0 ? `PAT${contadorPatcaida}` : '';
-      // Solo dibuja el texto si hay mensaje
-      if (mensaje) {
-          // Ajusta las coordenadas en función del índice para evitar superposición
-          const posY = height - 500 - (contadorPatcaida * 20); // Ejemplo: ajusta 20px de separación entre textos
-          drawText(mensaje, 135, posY)
+                let contadorPatcaida = 1;
 
-          // Incrementa el contador para el siguiente mensaje
-          contadorPatcaida++;
-      }
-  });
+                resultado.metodoCaida.forEach((item, index) => {
+                  // Verificamos que el item y item.resultado existan y tengan longitud mayor a 0
+                  const registroCount = item.resultado?.length || 0;
+                  const mensaje = registroCount > 0 ? `PAT${contadorPatcaida}` : '';
+
+                  // Solo dibuja el texto si hay mensaje
+                  if (mensaje) {
+                    // Ajusta las coordenadas en función del índice para evitar superposición
+                    const posY = height - 500 - (contadorPatcaida * 20); // Ejemplo: ajusta 20px de separación entre textos
+                    drawText(mensaje, 135, posY);
+
+                    // Incrementa el contador para el siguiente mensaje
+                    contadorPatcaida++;
+                  }
+                });
 
 
     //VARIBALE METODOS
@@ -137,10 +139,11 @@ async generarPDF(id: number): Promise<Blob> {
     const lineHeight = 5; // Distancia entre cada registro completo en el array
 
     //METODO CAIDA
-drawText(resultado.metodoCaida[0]?.caida_conclusiones || '', 130, height - 610);
-resultado.metodoCaida.forEach((registro: any, index: number) => {
-  const currentY = startY - index * lineHeight * 2; // Ajusta el espacio entre registros completos
-  const currentYohm = startY - index * lineHeight * 4;
+    drawText(resultado.metodoCaida[0]?.caida_conclusiones || '', 130, height - 610);
+
+    resultado.metodoCaida.forEach((registro: any, index: number) => {
+      const currentY = startY - index * lineHeight * 2; // Ajusta el espacio entre registros completos
+      const currentYohm = startY - index * lineHeight * 4;
       const xRegistro = 100;
       const xOhm = 190;
       const xResultado = 270;
@@ -148,214 +151,181 @@ resultado.metodoCaida.forEach((registro: any, index: number) => {
       const xPat2 = 425;
       const xPat3 = 475;
       const xPat4 = 525;
-      const yOhmResultado = currentYohm + 90; // Para `Ohm` y `Resultado`, ligeramente por debajo de `Conclusiones`
-      const yPat = currentY + 185; // Exclusiva para los valores `Pat`, más abajo para evitar superposición
+      const yOhmResultado = currentYohm + 90; // Para Ohm y Resultado, ligeramente por debajo de Conclusiones
+      const yPat = currentY + 185; // Exclusiva para los valores Pat, más abajo para evitar superposición
       const resultadoColor: [number, number, number] = registro.resultado === 'CUMPLE'
-        ? [0, 1, 0]  // Verde (0, 1, 0)
-        : [1, 0, 0]; // Rojo (1, 0, 0)
+    ? [0, 1, 0] // Verde (0, 1, 0)
+    : [1, 0, 0]; // Rojo (1, 0, 0)
 
-      // `Ohm` y `Resultado` en `yOhmResultado`
-      drawText(`${registro.ohm || ''}`, xOhm, yOhmResultado, [0, 0, 0]);
-      drawText(`${registro.resultado || ''}`, xResultado, yOhmResultado, resultadoColor);
-      // Valores de `Pat` en la posición `yPat`
-      drawText(`${registro.pat1 || ''}`, xPat1, yPat, [0, 0, 0]);
-      drawText(`${registro.pat2 || ''}`, xPat2, yPat, [0, 0, 0]);
-      drawText(`${registro.pat3 || ''}`, xPat3, yPat, [0, 0, 0]);
-      drawText(`${registro.pat4 || ''}`, xPat4, yPat, [0, 0, 0]);
+      // Ohm y Resultado en yOhmResultado
+      drawText(registro.ohm?.toString() || '', xOhm, yOhmResultado);
+      drawText(registro.resultado?.toString() || '', xResultado, yOhmResultado,resultadoColor);
+
+      // Valores de Pat en la posición yPat
+      drawText(registro.pat1?.toString() || '', xPat1, yPat);
+      drawText(registro.pat2?.toString() || '', xPat2, yPat);
+      drawText(registro.pat3?.toString() || '', xPat3, yPat);
+      drawText(registro.pat4?.toString() || '', xPat4, yPat);
   });
 
 
 
 
   let contadorPatselectivo = 1;
-  resultado.metodoSelectivo.forEach((item, index) => {
-    // Verificamos que el item y item.resultado existan y tengan longitud mayor a 0
-    const registroCount = item.resultado?.length || 0;
-    const mensaje = registroCount > 0 ? `PAT${contadorPatselectivo}` : '';
-    // Solo dibuja el texto si hay mensaje
-    if (mensaje) {
-        // Ajusta las coordenadas en función del índice para evitar superposición
-        const posY = height - 795 - (contadorPatselectivo * 20); // Ejemplo: ajusta 20px de separación entre textos
-        drawText(mensaje, 135, posY)
-
-        // Incrementa el contador para el siguiente mensaje
-        contadorPatselectivo++;
-    }
-});
-    //METODO SELECTIVO
-    drawText(resultado.metodoSelectivo[0]?.selectivo_conclusiones || '', 130, height - 905);
-    resultado.metodoSelectivo.forEach((registro: any, index: number) => {
-      const currentY = startY - index * lineHeight * 2.2; // Ajusta el espacio entre registros completos
-      const currentYohm = startY - index * lineHeight * 4;
-      const xOhm = 190;
-      const xPat1 = 375;
-      const xPat2 = 425;
-      const xPat3 = 475;
-      const xPat4 = 525;
-      const xResultado = 270;
-      const yOhmResultado = currentYohm - 205; // Para `Ohm` y `Resultado`, ligeramente por debajo de `Conclusiones`
-      const yPat = currentY - 100; // Exclusiva para los valores `Pat`, más abajo para evitar superposición
-      const resultadoColor: [number, number, number] = registro.resultado === 'CUMPLE'
-        ? [0, 1, 0]  // Verde (0, 1, 0)
-        : [1, 0, 0]; // Rojo (1, 0, 0)
-      drawText(`${registro.ohm || ''}`, xOhm, yOhmResultado, [0, 0, 0]);
-      drawText(`${registro.resultado || ''}`, xResultado, yOhmResultado,resultadoColor);
-      drawText(`${registro.pat1 || ''}`, xPat1, yPat, [0, 0, 0]);
-      drawText(`${registro.pat2 || ''}`, xPat2, yPat, [0, 0, 0]);
-      drawText(`${registro.pat3 || ''}`, xPat3, yPat, [0, 0, 0]);
-      drawText(`${registro.pat4 || ''}`, xPat4, yPat, [0, 0, 0]);
-    });
-
-
-
-    let contadorPatsujecion = 1;
-    resultado.metodoSujecion.forEach((item, index) => {
-      // Verificamos que el item y item.resultado existan y tengan longitud mayor a 0
-      const registroCount = item.resultado?.length || 0;
-      const mensaje = registroCount > 0 ? `PAT${contadorPatsujecion}` : '';
-      // Solo dibuja el texto si hay mensaje
-      if (mensaje) {
-          // Ajusta las coordenadas en función del índice para evitar superposición
-          const posY = height - 995 - (contadorPatsujecion * 20); // Ejemplo: ajusta 20px de separación entre textos
-          drawText(mensaje, 190, posY)
-
-          // Incrementa el contador para el siguiente mensaje
-          contadorPatsujecion++;
-      }
-  });
-
-    //METODO SUJECION
-    drawText(resultado.metodoSujecion[0]?.sujecion_conclusiones || '', 130, height - 1105);
-    resultado.metodoSujecion.forEach((registro: any, index: number) => {
-      const currentY = startY - index * lineHeight * 2.2; // Ajusta el espacio entre registros completos
-      const currentYohm = startY - index * lineHeight * 4;
-      const xOhm = 260;
-      const xResultado = 340;
-      const resultadoColor: [number, number, number] = registro.resultado === 'CUMPLE'
-        ? [0, 1, 0]  // Verde (0, 1, 0)
-        : [1, 0, 0]; // Rojo (1, 0, 0)
-      const yOhmResultado = currentYohm - 405; // Para `Ohm` y `Resultado`, ligeramente por debajo de `Conclusiones`
-      drawText(`${registro.ohm || ''}`, xOhm, yOhmResultado, [0, 0, 0]);
-      drawText(`${registro.resultado || ''}`, xResultado, yOhmResultado,resultadoColor);
-
-    });
-
-    const addImageToPdf = async (
-      pdfDoc: PDFDocument,
-      newPage: any,
-      url: string,
-      x: number,
-      y: number,
-      width: number,
-      height: number
-    ) => {
-      if (!url) {
-        console.warn('[WARN] URL vacía. No se dibujará nada.');
-        return;
-      }
-
-      try {
-        console.log(`[DEBUG] Procesando imagen en la URL: ${url}`);
-        let imageBytes: ArrayBuffer;
-
-        // Determinar si es base64 o URL externa
-        if (url.startsWith('data:image')) {
-          console.log('[DEBUG] Imagen en formato Base64.');
-          imageBytes = base64ToArrayBuffer(url.split(',')[1]);
-        } else {
-          console.log('[DEBUG] Descargando y convirtiendo imagen desde URL externa.');
-          const base64 = await convertImageToBase64(url);
-          imageBytes = base64ToArrayBuffer(base64.split(',')[1]);
-        }
-
-        // Detectar formato de imagen
-        let image;
-        try {
-          console.log('[DEBUG] Intentando incrustar imagen como PNG.');
-          image = await pdfDoc.embedPng(imageBytes);
-        } catch {
-          console.log('[DEBUG] Falló PNG, intentando incrustar como JPG.');
-          image = await pdfDoc.embedJpg(imageBytes);
-        }
-
-        // Dibujar la imagen en el PDF
-        console.log('[DEBUG] Dibujando imagen en las coordenadas:', { x, y, width, height });
-        newPage.drawImage(image, { x, y, width, height });
-      } catch (error) {
-        console.error(`[ERROR] Error al incrustar la imagen (${url}):`, error);
-      }
-    };
-
-    const convertImageToBase64 = async (url: string): Promise<string> => {
-      try {
-        console.log('[DEBUG] Intentando convertir URL a Base64:', url);
-
-        // Verificar si la URL es válida
-        if (!url.startsWith('http') && !url.startsWith('data:image')) {
-          throw new Error(`[ERROR] URL inválida o no soportada: ${url}`);
-        }
-
-        // Realizar la solicitud a la URL
-        console.log('[DEBUG] Haciendo fetch de la URL:', url);
-        const response = await fetch(url);
-
-        console.log('[DEBUG] Respuesta del servidor:', response.status, response.statusText);
-        if (!response.ok) {
-          throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
-        }
-
-        // Convertir la respuesta a blob
-        console.log('[DEBUG] Convirtiendo respuesta a Blob...');
-        const blob = await response.blob();
-        console.log('[DEBUG] Blob generado con éxito:', blob);
-
-        // Convertir Blob a Base64
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            console.log('[DEBUG] Conversión a Base64 exitosa.');
-            resolve(reader.result as string);
-          };
-          reader.onerror = (e) => {
-            console.error('[ERROR] Falló FileReader:', e);
-            reject(e);
-          };
-          reader.readAsDataURL(blob);
-        });
-      } catch (error) {
-        console.error('[ERROR] Error al convertir imagen a Base64:', error);
-        throw error;
-      }
-    };
-
-    console.log('[DEBUG] Validando imágenes antes de procesar...');
-const urls = [
-  resultado.datosSpt2.usuario1_firma,
-  resultado.datosSpt2.usuario2_firma,
-  resultado.datosSpt2.imagen1,
-  resultado.datosSpt2.imagen2,
-  resultado.datosSpt2.imagen3,
-  resultado.datosSpt2.imagen4,
-  resultado.metodoCaida[0]?.caida_esquema,
-  resultado.metodoSelectivo[0]?.selectivo_esquema,
-];
-
-urls.forEach((url, index) => {
-  if (!url) {
-    console.warn(`[WARN] La imagen en el índice ${index} es nula o vacía.`);
-  } else {
-    console.log(`[DEBUG] Imagen válida encontrada en el índice ${index}: ${url}`);
+resultado.metodoSelectivo.forEach((item, index) => {
+  const registroCount = item.resultado?.length || 0;
+  if (registroCount > 0) {
+    const mensaje = `PAT${contadorPatselectivo}`;
+    const posY = height - 795 - (contadorPatselectivo * 20);
+    drawText(mensaje, 135, posY);
+    contadorPatselectivo++;
   }
 });
 
+// Método Selectivo
+drawText(resultado.metodoSelectivo[0]?.selectivo_conclusiones || '', 130, height - 905);
+
+resultado.metodoSelectivo.forEach((registro, index) => {
+  const currentY = startY - index * lineHeight * 2.2;
+  const currentYohm = startY - index * lineHeight * 4;
+
+  const xOhm = 190;
+  const xPat1 = 375;
+  const xPat2 = 425;
+  const xPat3 = 475;
+  const xPat4 = 525;
+  const xResultado = 270;
+
+  const yOhmResultado = currentYohm - 205;
+  const yPat = currentY - 100;
+
+  const resultadoColor: [number, number, number] = registro.resultado === 'CUMPLE'
+    ? [0, 1, 0]
+    : [1, 0, 0];
+
+  // Asegúrate de convertir los valores a cadenas de texto antes de pasarlos a drawText
+  drawText(registro.ohm?.toString() || '', xOhm, yOhmResultado, [0, 0, 0]);
+  drawText(registro.resultado?.toString() || '', xResultado, yOhmResultado, resultadoColor);
+  drawText(registro.pat1?.toString() || '', xPat1, yPat, [0, 0, 0]);
+  drawText(registro.pat2?.toString() || '', xPat2, yPat, [0, 0, 0]);
+  drawText(registro.pat3?.toString() || '', xPat3, yPat, [0, 0, 0]);
+  drawText(registro.pat4?.toString() || '', xPat4, yPat, [0, 0, 0]);
+});
 
 
-      // Dibujar las imágenes base64 o externas
-    await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.usuario1_firma || '', 810, height - 1302, 100, 30);
 
-    if (resultado.datosSpt2.firmado === true) {
-      await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.usuario2_firma || '', 810, height - 1336, 100, 30);
+let contadorPatsujecion = 1;
+
+resultado.metodoSujecion.forEach((item, index) => {
+  // Verificamos que el item y item.resultado existan y tengan longitud mayor a 0
+  const registroCount = item.resultado?.length || 0;
+  const mensaje = registroCount > 0 ? `PAT${contadorPatsujecion}` : '';
+  // Solo dibuja el texto si hay mensaje
+  if (mensaje) {
+    // Ajusta las coordenadas en función del índice para evitar superposición
+    const posY = height - 995 - (contadorPatsujecion * 20); // Ejemplo: ajusta 20px de separación entre textos
+    drawText(mensaje, 190, posY);
+
+    // Incrementa el contador para el siguiente mensaje
+    contadorPatsujecion++;
+  }
+});
+
+// Método Sujeción
+drawText(resultado.metodoSujecion[0]?.sujecion_conclusiones || '', 130, height - 1105);
+
+resultado.metodoSujecion.forEach((registro: any, index: number) => {
+  const currentY = startY - index * lineHeight * 2.2; // Ajusta el espacio entre registros completos
+  const currentYohm = startY - index * lineHeight * 4;
+  const xOhm = 260;
+  const xResultado = 340;
+
+  const resultadoColor: [number, number, number] = registro.resultado === 'CUMPLE'
+    ? [0, 1, 0] // Verde (0, 1, 0)
+    : [1, 0, 0]; // Rojo (1, 0, 0)
+
+  const yOhmResultado = currentYohm - 405; // Para Ohm y Resultado, ligeramente por debajo de Conclusiones
+
+  // Convierte los valores a cadenas antes de pasarlos
+  drawText(registro.ohm?.toString() || '', xOhm, yOhmResultado, [0, 0, 0]);
+  drawText(registro.resultado?.toString() || '', xResultado, yOhmResultado, resultadoColor);
+});
+
+
+
+// Función para convertir Base64 a ArrayBuffer
+const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+
+  return bytes.buffer;
+};
+
+// Función para agregar una imagen al PDF desde Base64
+const addImageToPdf = async (
+  pdfDoc: PDFDocument,
+  newPage: any,
+  base64: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) => {
+  if (!base64) {
+    console.warn('Base64 vacío. No se dibujará nada.');
+    return;
+  }
+
+  try {
+    // Convertir Base64 a ArrayBuffer
+    const imageBytes = base64ToArrayBuffer(base64.split(',')[1]);
+
+    // Detectar el tipo de imagen y embederla en el PDF
+    let image;
+    try {
+      image = await pdfDoc.embedPng(imageBytes); // Intentar como PNG
+    } catch {
+      image = await pdfDoc.embedJpg(imageBytes); // Intentar como JPG
     }
+
+    // Dibujar la imagen en el PDF
+    newPage.drawImage(image, { x, y, width, height });
+  } catch (error) {
+    console.error(`Error al incrustar la imagen (${base64}):`, error);
+  }
+};
+
+// Uso de la función para incrustar imágenes
+await addImageToPdf(
+  pdfDoc,
+  newPage,
+  resultado.datosSpt2.usuario1_firma || '',
+  810,
+  height - 1302,
+  100,
+  30
+);
+
+if (resultado.datosSpt2.firmado === true) {
+  await addImageToPdf(
+    pdfDoc,
+    newPage,
+    resultado.datosSpt2.usuario2_firma || '',
+    810,
+    height - 1336,
+    100,
+    30
+  );
+}
+
+
+
+     /*
 
     // Dibujar imágenes externas
     await addImageToPdf(pdfDoc, newPage, resultado.datosSpt2.imagen1, 150, height - 1260, 150, 100);
@@ -366,34 +336,91 @@ urls.forEach((url, index) => {
     await addImageToPdf(pdfDoc, newPage, resultado.metodoCaida[0]?.caida_esquema || '', 582, height - 575, 250, 185);
     await addImageToPdf(pdfDoc, newPage, resultado.metodoSelectivo[0]?.selectivo_esquema || '', 582, height - 870, 250, 185);
 
+*/
+  // Procesar las imágenes Base64 y dibujarlas en posiciones específicas
+const images = [
+  { base64: resultado.datosSpt2.imagen1, x: 150, y: height - 1260, scale: 0.5 },
+  { base64: resultado.datosSpt2.imagen2, x: 350, y: height - 1260, scale: 0.5 },
+  { base64: resultado.datosSpt2.imagen3, x: 550, y: height - 1260, scale: 0.5 },
+  { base64: resultado.datosSpt2.imagen4, x: 750, y: height - 1260, scale: 0.5 },
+  { base64: resultado.metodoSelectivo[0]?.selectivo_esquema || '', x: 582, y: height - 870, width: 250, height: 185 },
+  { base64: resultado.metodoCaida[0]?.caida_esquema || '', x: 582, y: height - 575, width: 250, height: 185 },
+].filter(image => image.base64); // Filtrar solo imágenes con base64 válido
 
+// Procesar y dibujar cada imagen
+for (const image of images) {
+  try {
+    const mimeType = detectImageMimeType(image.base64);
+    const imageBytes = base64ToUint8Array(image.base64);
+    const embeddedImage = await embedImage(pdfDoc, imageBytes, mimeType);
 
-    function base64ToArrayBuffer(base64: string) {
-      const binaryString = window.atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      return bytes.buffer;
-    }
+    // Escalar la imagen o usar dimensiones específicas si están definidas
+    const imageDims = image.scale
+      ? embeddedImage.scale(image.scale) // Escalar por factor
+      : { width: image.width, height: image.height }; // Usar dimensiones específicas
 
-        const modifiedPdfBytes = await pdfDoc.save();
-        const modifiedPdfBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
-
-        console.log('El PDF se generó de manera correcta.');
-        const blobUrl = URL.createObjectURL(modifiedPdfBlob);
-        window.open(blobUrl, '_blank');
-
-        return modifiedPdfBlob;
-
-      } catch (error) {
-        console.error('Error al generar el PDF:', error);
-        throw error;
-      }
-    }
-
-
-
+    // Dibujar la imagen
+    newPage.drawImage(embeddedImage, {
+      x: image.x,
+      y: image.y,
+      width: imageDims.width,
+      height: imageDims.height,
+    });
+  } catch (error) {
+    console.error('Error al procesar la imagen:', error);
+    continue; // Opcional, permite continuar con otras imágenes
+  }
 }
 
+
+    // Guardar el PDF modificado
+    const modifiedPdfBytes = await pdfDoc.save();
+    const modifiedPdfBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+
+    console.log('El PDF con múltiples imágenes se generó correctamente.');
+    const blobUrl = URL.createObjectURL(modifiedPdfBlob);
+    window.open(blobUrl, '_blank');
+
+    // Retornar el blob generado
+    return modifiedPdfBlob;
+
+    } catch (error) {
+    console.error('Error al generar el PDF:', error);
+    throw error; // Relanzar el error para manejarlo externamente si es necesario
+    }
+    }
+  }
+
+  function detectImageMimeType(base64: string): string {
+    if (base64.startsWith('/9j')) {
+    return 'image/jpeg';
+    } else if (base64.startsWith('iVBORw')) {
+    return 'image/png';
+    } else {
+    throw new Error('Formato de imagen no soportado.');
+    }
+    }
+
+    // Función auxiliar: Convertir Base64 a Uint8Array
+    function base64ToUint8Array(base64: string): Uint8Array {
+    const binaryString = atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+    }
+
+    // Función auxiliar: Incrustar imagen en el PDF
+    async function embedImage(pdfDoc: PDFDocument, imageBytes: Uint8Array, mimeType: string) {
+    if (mimeType === 'image/png') {
+    return await pdfDoc.embedPng(imageBytes);
+    } else if (mimeType === 'image/jpeg') {
+    return await pdfDoc.embedJpg(imageBytes);
+    } else {
+    throw new Error('Formato de imagen no soportado.');
+    }
+    }
+
+// Función auxiliar: Detectar el tipo MIME de la imagen

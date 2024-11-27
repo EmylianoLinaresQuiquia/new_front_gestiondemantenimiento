@@ -14,37 +14,54 @@ export interface MostrarSpt2 {
 }
 
 
-export interface InsertSpt2{
-  [key: string]: any;
-  idSpt2?: number;
+export interface InsertSpt2 {
+  [key: string]: any; // Permite agregar dinámicamente propiedades si es necesario
+  idSpt2?: number; // Propiedad opcional para el ID generado
+
+  // Parámetros generales
   Ot: string;
   Fecha: string;
   Firmado: boolean;
   IdUsuario: number;
   IdUsuario2: number;
   IdSubestacion: number;
-  Imagen1: File;
-  Imagen2: File;
-  Imagen3: File;
-  Imagen4: File;
-  EsquemaSelectivo: File;
-  EsquemaCaida: File;
+
+  // Imágenes y esquemas como base64 o null
+  Imagen1: File | null; // Cambiado a File
+  Imagen2: File | null;
+  Imagen3: File | null;
+  Imagen4: File | null;
+  EsquemaCaida: File | null;
+  EsquemaSelectivo: File | null;
+
+  // Valores para metodo_medicion_spt2
   CaidaPotencia: boolean;
   Selectivo: boolean;
   SinPicas: boolean;
+
+  // Valores para metodo_telurometro_spt2
   FechaCalibracion: string;
   Marca: string;
-  NSerie: string;
+  NumeroSerie: string; // Asegurarse de usar el nombre correcto en la API
   Modelo: string;
   Frecuencia: string;
   Precision: string;
+
+  // Valores para metodo_sujecion_spt2
   ConclusionesSujecion: string;
+
+  // JSON para metodos
   JsonPatsSelectivo: string;
   JsonPatsCaida: string;
   JsonPatsSujecion: string;
+
+  // Valores para metodo_caida_spt2
   ConclusionesCaida: string;
+
+  // Valores para metodo_selectivo_spt2
   ConclusionesSelectivo: string;
 }
+
 
 
 
