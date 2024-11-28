@@ -307,26 +307,29 @@ export class HeaderComponent {
 
 
 
-/*
-spt2pdf(tag_subestacion: string, ot: string): void {
-  console.log("tag y ot pdf",tag_subestacion,ot)
-  this.pdfGeneratorService.generarPDF(tag_subestacion, ot).then((pdfBlob: Blob) => {
+
+spt2pdf(id_spt2: number): void {
+  console.log('ID SPT2:', id_spt2);
+
+
+  // Llamar al método generarPDF pasando solo el id_spt2
+  this.pdfGeneratorService.generarPDF(id_spt2).then((pdfBlob: Blob) => {
+    // Convertir el Blob a una URL segura
     const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
       URL.createObjectURL(pdfBlob) + '#toolbar=0'
     );
+
+    // Asignar la URL a la variable correspondiente
     this.pdfUrl = pdfUrl;
-    console.log('PDF URL:', pdfUrl);
-    this.modal.create({
-      //nzTitle: 'PDF Document',
-      nzContent: this.pdfModal,
-      nzFooter: null,
-      nzWidth: 1200
-    });
-    console.log('Modal abierto con éxito');
+    console.log('PDF URL:', pdfUrl);  // Debugging
+
+    // Abrir el PDF en una nueva pestaña del navegador
+    //window.open(URL.createObjectURL(pdfBlob), '_blank');
+    console.log('PDF abierto con éxito');  // Debugging
   }).catch(error => {
-    console.error('Error opening PDF:', error);
+    console.error('Error al abrir el PDF:', error);
   });
-}*/
+}
 
 
 

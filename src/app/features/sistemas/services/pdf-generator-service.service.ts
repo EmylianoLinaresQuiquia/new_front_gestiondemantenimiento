@@ -339,10 +339,10 @@ if (resultado.datosSpt2.firmado === true) {
 */
   // Procesar las imágenes Base64 y dibujarlas en posiciones específicas
 const images = [
-  { base64: resultado.datosSpt2.imagen1, x: 150, y: height - 1260, scale: 0.5 },
-  { base64: resultado.datosSpt2.imagen2, x: 350, y: height - 1260, scale: 0.5 },
-  { base64: resultado.datosSpt2.imagen3, x: 550, y: height - 1260, scale: 0.5 },
-  { base64: resultado.datosSpt2.imagen4, x: 750, y: height - 1260, scale: 0.5 },
+  { base64: resultado.datosSpt2.imagen1, x: 150, y: height - 1260,  width: 150, height: 85 },
+  { base64: resultado.datosSpt2.imagen2, x: 350, y: height - 1260,  width: 150, height: 85},
+  { base64: resultado.datosSpt2.imagen3, x: 550, y: height - 1260, width: 150, height: 85 },
+  { base64: resultado.datosSpt2.imagen4, x: 750, y: height - 1260,  width: 150, height: 85},
   { base64: resultado.metodoSelectivo[0]?.selectivo_esquema || '', x: 582, y: height - 870, width: 250, height: 185 },
   { base64: resultado.metodoCaida[0]?.caida_esquema || '', x: 582, y: height - 575, width: 250, height: 185 },
 ].filter(image => image.base64); // Filtrar solo imágenes con base64 válido
@@ -354,10 +354,8 @@ for (const image of images) {
     const imageBytes = base64ToUint8Array(image.base64);
     const embeddedImage = await embedImage(pdfDoc, imageBytes, mimeType);
 
-    // Escalar la imagen o usar dimensiones específicas si están definidas
-    const imageDims = image.scale
-      ? embeddedImage.scale(image.scale) // Escalar por factor
-      : { width: image.width, height: image.height }; // Usar dimensiones específicas
+    // Usar dimensiones específicas
+    const imageDims = { width: image.width, height: image.height };
 
     // Dibujar la imagen
     newPage.drawImage(embeddedImage, {
@@ -368,9 +366,10 @@ for (const image of images) {
     });
   } catch (error) {
     console.error('Error al procesar la imagen:', error);
-    continue; // Opcional, permite continuar con otras imágenes
+    continue;
   }
 }
+
 
 
     // Guardar el PDF modificado

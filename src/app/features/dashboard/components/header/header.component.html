@@ -43,7 +43,7 @@
                       ? pm1pdf(item.id_pm1)
                       : item.id_spt1
                         ? spt1pdf(item.id_spt1)
-                        : spt2pdf(item.tag_subestacion, item.ot)">
+                        : spt2pdf(item.id_spt2)">
                     <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar" style="color: orange;"></nz-avatar>
                   </nz-list-item-meta-avatar>
 
@@ -73,7 +73,7 @@
                   ? pm1pdf(item.id_pm1)
                   : item.id_spt1
                     ? spt1pdf(item.id_spt1)
-                    : spt2pdf(item.tag_subestacion, item.ot)">
+                    : spt2pdf(item.id_spt2)">
                 <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar" style="color: green;"></nz-avatar>
               </nz-list-item-meta-avatar>
 

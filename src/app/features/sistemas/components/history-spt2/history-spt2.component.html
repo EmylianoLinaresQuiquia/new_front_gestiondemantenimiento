@@ -25,8 +25,7 @@
   #basicTable
   [nzData]="filteredSpt2List"
   [nzFrontPagination]="false"
-  [(nzPageIndex)]="pageIndex"
-  [(nzPageSize)]="pageSize"
+
   [nzScroll]="{ x: '1700px' }"
   [nzLoading]="loading"
   [nzTotal]="filteredSpt2List.length"
@@ -107,7 +106,7 @@
   </thead>
 
   <tbody>
-    <tr *ngFor="let item of filteredSpt2List.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)">
+    <tr *ngFor="let item of filteredSpt2List">
       <td>{{ item.tag_subestacion }}</td>
       <td>{{ item.ot }}</td>
       <td>{{ item.fecha }}</td>

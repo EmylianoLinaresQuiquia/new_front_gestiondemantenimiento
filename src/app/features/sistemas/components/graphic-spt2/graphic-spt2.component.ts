@@ -118,9 +118,9 @@ export class GraphicSpt2Component {
       });
 
       if (!this.areSeriesDataEmpty(seriesData)) {
-        this.renderChart('metodo-sujecion', 'Método de Sujeción', seriesData, fechas);
+        this.renderChart('metodo-sujecion', 'Método Sin Picas', seriesData, fechas);
       } else {
-        console.log('Método de Sujeción: No hay datos para mostrar.');
+        console.log('Método Sin Picas: No hay datos para mostrar.');
       }
     });
   }
@@ -147,7 +147,7 @@ export class GraphicSpt2Component {
 
       seriesData.forEach((serie, i) => {
         const value = serie[index];
-        if (value !== null && !isNaN(value)) { // Check for both null and NaN
+        if (value !== null && !isNaN(value)) {
           data[`pat${i + 1}`] = value;
         }
       });
@@ -163,33 +163,64 @@ export class GraphicSpt2Component {
     valueAxis.strictMinMax = false;
     valueAxis.min = 0;
 
+    // Paleta de colores llamativos
+    const colorPalette = [
+      am4core.color("#e6194B"), // Rojo brillante
+      am4core.color("#3cb44b"), // Verde brillante
+      am4core.color("#ffe119"), // Amarillo brillante
+      am4core.color("#4363d8"), // Azul brillante
+      am4core.color("#f58231"), // Naranja
+      am4core.color("#911eb4"), // Púrpura
+      am4core.color("#42d4f4"), // Cian
+      am4core.color("#f032e6"), // Rosa
+    ];
+
     seriesData.forEach((serie, index) => {
-      const hasData = serie.some(value => value !== null && !isNaN(value)); // Check for both null and NaN
+      const hasData = serie.some(value => value !== null && !isNaN(value));
       if (!hasData) return;
 
       const series = chartElement.series.push(new am4charts.LineSeries());
       series.dataFields.valueY = `pat${index + 1}`;
       series.dataFields.categoryX = "fecha";
       series.name = `PAT${index + 1}`;
-      series.tooltipText = "{name}: [bold]{valueY}[/]";
       series.strokeWidth = 2;
       series.minBulletDistance = 10;
 
-      const bullet = series.bullets.push(new am4charts.CircleBullet());
-      bullet.circle.radius = 4;
-      bullet.circle.strokeWidth = 2;
-      bullet.circle.fill = am4core.color("#fff");
+      // Asignar color de la paleta
+      const color = colorPalette[index % colorPalette.length];
+      series.stroke = color;
 
+      // Configuración del tooltip (verificación para evitar error TS18048)
+      if (series.tooltip) {
+        series.tooltip.getFillFromObject = false; // Desvincular el color por defecto
+        series.tooltip.background.fill = color; // Fondo del tooltip del color de la serie
+        series.tooltip.label.fill = am4core.color("#fff"); // Texto blanco para contraste
+        series.tooltipText = "{name}: [bold]{valueY}[/]";
+      }
+
+      // Configuración de los puntos (bullets)
+      const bullet = series.bullets.push(new am4charts.CircleBullet());
+      bullet.circle.radius = 6; // Tamaño aumentado para mayor impacto
+      bullet.circle.strokeWidth = 2;
+      bullet.circle.fill = color; // Fondo del punto
+      bullet.circle.stroke = am4core.color("#000"); // Bordes negros para contraste
+
+      // Etiqueta de valor en el punto
       const label = bullet.createChild(am4core.Label);
       label.text = "{valueY}";
       label.verticalCenter = "bottom";
       label.dy = -10;
     });
 
+    // Configurar cursor, leyenda y menú de exportación
     chartElement.cursor = new am4charts.XYCursor();
     chartElement.legend = new am4charts.Legend();
+    chartElement.legend.itemContainers.template.dy = 5; // Espaciado
+    chartElement.legend.markers.template.width = 18; // Tamaño de marcador
+    chartElement.legend.markers.template.height = 18;
     chartElement.exporting.menu = new am4core.ExportMenu();
   }
+
 
 }
 

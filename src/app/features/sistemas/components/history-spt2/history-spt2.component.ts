@@ -39,8 +39,8 @@ export class HistorySpt2Component implements OnInit{
   mostrarHerramientas: boolean = false;
   modalRef: NzModalRef | null = null;
   loading = true;
-  pageIndex: number = 1;
-  pageSize: number = 7;
+  //pageIndex: number = 1;
+  //pageSize: number = 7;
 
   @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
   pdfUrl: SafeResourceUrl | null = null;
@@ -172,137 +172,6 @@ export class HistorySpt2Component implements OnInit{
       queryParams: { tag_subestacion: tagSubestacion }
     });
   }
-
-
-  /*verTendencia(){
-    this.route.queryParams.subscribe(params => {
-      const tagSubestacion = params['tag_subestacion'] || '';
-      console.log('Tag Subestación:',spt2List.tag_subestacion);
-      this.router.navigate(['/sistemas/grafico-spt2'], {
-        queryParams: { tag_subestacion: tagSubestacion }
-      });
-
-      // O cualquier otra lógica que necesites hacer con el parámetro.
-    });
-  }*/
-
-  /*onMetodoChange(item: Spt2) {
-    console.log('Método seleccionado:', item.tipo_metodo);
-    console.log('Subestación:', item.tag_subestacion, 'OT:', item.ot);
-
-    // Si el tipo de método es "SIN PICAS"
-    if (item.tipo_metodo === 'SIN PICAS') {
-      console.log('Buscando datos para SIN PICAS');
-      this.spt2Service.buscarPorSubestacionyot(item.tag_subestacion, item.ot).subscribe((data) => {
-        console.log('Datos obtenidos para SIN PICAS:', data);
-        if (data.length > 0) {
-          // Convierte los valores a número antes de comparar
-          item.pat1 = Number(data[0].pat1) !== 0 ? data[0].pat1 : '';
-          item.pat2 = Number(data[0].pat2) !== 0 ? data[0].pat2 : '';
-          item.pat3 = Number(data[0].pat3) !== 0 ? data[0].pat3 : '';
-          item.pat4 = Number(data[0].pat4) !== 0 ? data[0].pat4 : '';
-          console.log('Valores actualizados:', item.pat1, item.pat2, item.pat3, item.pat4);
-        }
-      });
-    }
-
-    // Si el tipo de método es "METODO SELECTIVO"
-    else if (item.tipo_metodo === 'METODO SELECTIVO') {
-      console.log('Buscando datos para METODO SELECTIVO');
-      this.MetodoSelectivoService.getMetodoSelectivoById(item.id_mselectivo).subscribe((data) => {
-        console.log('Datos obtenidos para METODO SELECTIVO:', data);
-        if (data.length > 0) {
-          // Convierte los valores a número antes de comparar
-          item.pat1 = Number(data[0].valorms) !== 0 ? data[0].valorms : '';
-          item.pat2 = Number(data[1].valorms) !== 0 ? data[1].valorms : '';
-          item.pat3 = Number(data[2].valorms) !== 0 ? data[2].valorms : '';
-          item.pat4 = Number(data[3].valorms) !== 0 ? data[3].valorms : '';
-          console.log('Valores actualizados:', item.pat1, item.pat2, item.pat3, item.pat4);
-        }
-      });
-    }
-
-    // Si el tipo de método es "METODO CAIDA"
-    else if (item.tipo_metodo === 'METODO CAIDA') {
-      console.log('Buscando datos para METODO CAIDA');
-      this.MetodoCaidaService.getMetodoCaidaById(item.id_mcaida).subscribe((data) => {
-        console.log('Datos obtenidos para METODO CAIDA:', data);
-        if (data.length > 0) {
-          // Convierte los valores a número antes de comparar
-          item.pat1 = Number(data[0].valormc) !== 0 ? data[0].valormc : '';
-          item.pat2 = Number(data[1].valormc) !== 0 ? data[1].valormc : '';
-          item.pat3 = Number(data[2].valormc) !== 0 ? data[2].valormc : '';
-          item.pat4 = Number(data[3].valormc) !== 0 ? data[3].valormc : '';
-          console.log('Valores actualizados:', item.pat1, item.pat2, item.pat3, item.pat4);
-        }
-      });
-    } else {
-      console.warn('Método no reconocido:', item.tipo_metodo);
-    }
-  }
-
-
-
-
-  applyFilter() {
-    this.filteredSpt2List = this.spt2List.filter(item =>
-      (!this.filterSubestacion || item.tag_subestacion?.toLowerCase().includes(this.filterSubestacion.toLowerCase())) &&
-      (!this.filterOt || item.ot?.toLowerCase().includes(this.filterOt.toLowerCase())) &&
-      (!this.filterFecha || item.fecha?.toLowerCase().includes(this.filterFecha.toLowerCase())) &&
-      (!this.filterTipoMetodo || (item.tipo_metodo && item.tipo_metodo.toLowerCase().includes(this.filterTipoMetodo.toLowerCase()))) &&
-      (!this.filterPat1 || item.pat1?.toString().toLowerCase().includes(this.filterPat1.toLowerCase())) &&
-      (!this.filterPat2 || item.pat2?.toString().toLowerCase().includes(this.filterPat2.toLowerCase())) &&
-      (!this.filterPat3 || item.pat3?.toString().toLowerCase().includes(this.filterPat3.toLowerCase())) &&
-      (!this.filterPat4 || item.pat4?.toString().toLowerCase().includes(this.filterPat4.toLowerCase())) &&
-      (!this.filterLider || item.lider?.toLowerCase().includes(this.filterLider.toLowerCase())) &&
-      (!this.filterSupervisor || item.supervisor?.toLowerCase().includes(this.filterSupervisor.toLowerCase()))
-    );
-  }
-
-  /*verTendencia(spt2: any) {
-    const { tag_subestacion, ot, fecha, lider, supervisor, pat01, pat02, pat03, pat04 } = spt2;
-
-    console.log("Datos pasados al servicio verTendencia:", {
-      tag_subestacion, ot, fecha, lider, supervisor, pat01, pat02, pat03, pat04
-    });
-
-    this.Spt2Service.buscarPorSubestacion(tag_subestacion).subscribe(
-      (resultados) => {
-        this.DashSpt2Service.actualizarResultadosBúsqueda(resultados);
-        this.router.navigate(['sistemas/grafico-spt2']);
-      },
-      (error) => {
-        console.error('Error al buscar por subestación con tag:', error);
-        // Lógica para manejar errores
-      }
-    );
-  }*/
-
-
-  // Exportar a CSV
-  /*exportToCSV() {
-    const csvContent = this.filteredSpt2List.map(item => {
-      return `${item.tag_subestacion},${item.ot},${item.fecha},${item.tipo_metodo},${item.pat1},${item.pat2},${item.pat3},${item.pat4},${item.lider},${item.supervisor}`;
-    }).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', 'tabla.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  // Exportar a Excel
-  exportToExcel() {
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.filteredSpt2List);
-    const wb: XLSX.WorkBook = { Sheets: { 'data': ws }, SheetNames: ['data'] };
-    XLSX.writeFile(wb, 'tabla.xlsx');
-}*/
-
-
-
 
 
 
