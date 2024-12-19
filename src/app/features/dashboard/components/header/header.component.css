@@ -199,8 +199,19 @@ nz-footer {
 
 
 
+/*** mys css*/
 
 
 
+.bell-container {
+  max-height: 600px; /* Ajusta el tamaño según sea necesario */
+  overflow-y: auto;
+  padding: 10px;
+}
 
-
+.file-type{
+  font-size: 10px;
+  color: #888; /* Color gris para resaltar el texto */
+  text-align: center;
+  margin-top: 4px; /* Espacio entre el avatar y el texto */
+}

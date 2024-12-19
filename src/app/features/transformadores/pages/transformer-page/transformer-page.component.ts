@@ -1,3 +1,4 @@
+import { TransformadoresService } from './../../../../shared/services/transformadores.service';
 import { SubestacionService } from 'src/app/features/sistemas/services/subestacion.service';
 import { Component } from '@angular/core';
 
@@ -33,7 +34,8 @@ export class TransformerPageComponent {
 
   constructor(
     private router: Router,
-    private transformadorService: TransformadorPM1Service
+    private transformadorService: TransformadorPM1Service,
+    private TransformadoresService:TransformadoresService
   ) {}
 
   ngOnInit(): void {
@@ -87,11 +89,33 @@ export class TransformerPageComponent {
 
   buscarTransformador() {
     if (this.selectedFiltradoTransformador) {
-      console.log("Enviando transformador filtrado:", this.selectedFiltradoTransformador);
-      this.router.navigate(['transformadores/pm1'], { queryParams: { subestacion: this.selectedFiltradoTransformador.subestacion, transformador:
-        this.selectedFiltradoTransformador.transformador,id_transformadores:this.selectedFiltradoTransformador.id_transformadores,ubicacion:this.selectedFiltradoTransformador.ubicacion } });
+        // Usar el atributo "transformador" como clave para buscar en el servicio
+        const claveTransformador = this.selectedFiltradoTransformador.transformador;
+
+        // Obtener el transformador del servicio
+        const transformador = this.TransformadoresService.getTransformador(claveTransformador);
+
+        if (transformador) {
+            console.log("Enviando transformador filtrado y asociado:", transformador);
+
+            // Navegar a la ruta con los datos del transformador
+            this.router.navigate(['transformadores/pm1'], {
+                queryParams: {
+                    subestacion: this.selectedFiltradoTransformador.subestacion,
+                    transformador: this.selectedFiltradoTransformador.transformador,
+                    id_transformadores: this.selectedFiltradoTransformador.id_transformadores,
+                    ubicacion: this.selectedFiltradoTransformador.ubicacion,
+                    transformadorData: JSON.stringify(transformador),
+                }
+            });
+        } else {
+            console.error("Transformador no encontrado en el servicio.");
+        }
     }
-  }
+}
+
+
+
 
   abrirtransformador() {
     this.router.navigate(['transformadores/transformador']);

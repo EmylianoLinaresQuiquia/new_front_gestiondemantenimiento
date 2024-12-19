@@ -1,78 +1,26 @@
 <nz-table
-  #basicTable
   [nzData]="filteredData"
-  [nzPageIndex]="pageIndex"
-  [nzPageSize]="pageSize"
-  [nzTotal]="filteredData.length"
-
+  [nzBordered]="true"
+  [nzFrontPagination]="false" [nzShowPagination]="false"
   [nzLoading]="loading"
-
-  [nzFrontPagination]="false"
-  (nzPageIndexChange)="onPageIndexChange($event)"
-
 >
   <thead>
     <tr>
-      <th nzWidth="19%">
-        Tag Subestacion
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterTagSubestacion"  (ngModelChange)="applyFilter()" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="18%">
-        OT
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterOt"  (ngModelChange)="applyFilter()" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="18%">
-        Fecha
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterFecha"  (ngModelChange)="applyFilter()" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="5%">
-        PAT1
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterPat1"  (ngModelChange)="applyFilter()" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="5%">
-        PAT2
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterPat2"  (ngModelChange)="applyFilter()" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="5%">
-        PAT3
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterPat3"  (ngModelChange)="applyFilter()" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="5%">
-        PAT4
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterPat4"  (ngModelChange)="applyFilter()" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="18%">
-        Líder
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterLider"  (ngModelChange)="applyFilter()" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="18%">
-        Supervisor
-        <nz-input-group >
-          <input nz-input [(ngModel)]="filterSupervisor"  (ngModelChange)="applyFilter()" />
-        </nz-input-group>
-      </th>
+      <th nzWidth="19%">Tag Subestacion</th>
+      <th nzWidth="18%">OT</th>
+      <th nzWidth="18%">Fecha</th>
+      <th nzWidth="5%">PAT1</th>
+      <th nzWidth="5%">PAT2</th>
+      <th nzWidth="5%">PAT3</th>
+      <th nzWidth="5%">PAT4</th>
+      <th nzWidth="18%">Líder</th>
+      <th nzWidth="18%">Supervisor</th>
       <th nzWidth="5%">Documento</th>
       <th *ngIf="mostrarHerramientas" nzWidth="50%">Herramientas</th>
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let item of filteredData.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)">
+    <tr *ngFor="let item of filteredData">
       <td>{{ item.tagSubestacion }}</td>
       <td>{{ item.ot }}</td>
       <td>{{ item.fecha }}</td>
@@ -98,12 +46,12 @@
       </td>
       <td>{{ item.lider }}</td>
       <td>{{ item.supervisor }}</td>
-      <td nzWidth="5%">
+      <td>
         <a (click)="openPdf(item.idSpt1)">
           <i class="fas fa-file-pdf" [style.color]="item.firma ? 'green' : 'orange'"></i>
         </a>
       </td>
-      <td *ngIf="mostrarHerramientas" nzWidth="5%">
+      <td *ngIf="mostrarHerramientas">
         <button nz-button nzType="danger" nzSize="small" (click)="eliminarRegistro(item.idSpt1)">
           <i class="fas fa-trash-alt"></i>
         </button>

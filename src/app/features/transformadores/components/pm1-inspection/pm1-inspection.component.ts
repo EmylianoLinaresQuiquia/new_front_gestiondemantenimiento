@@ -18,6 +18,42 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { string } from '@amcharts/amcharts4/core';
+
+import { PM1 } from 'src/app/features/sistemas/interface/pm1';
+
+interface Mediciones {
+  label: string;
+  valores?: string[]; // Valores opcionales para entradas múltiples
+  valor?: string; // Valor único opcional
+  opciones?: string[]; // Opciones en caso de ser un campo seleccionable
+}
+
+export interface Item {
+  label: string; // Etiqueta del campo
+  tipo: 'valores' | 'opciones'; // Tipo del campo
+  valores?: number[]; // Para valores reales y testigos
+  opciones?: string[]; // Lista de opciones disponibles
+  valor?: string; // Valor seleccionado
+}
+
+export interface Equipo {
+  seleccionados: string[];      // Lista de seleccionados
+  valorReal?: number[];        // Lista de valores reales
+  valorTestigo?: number[];     // Lista de valores testigo
+}
+
+export interface Formulario {
+  items: Item[];
+}
+
+export interface Transformador {
+  form1?: Formulario;
+  form2?: Formulario;
+  form3?: Formulario;
+  form4?: Formulario;
+  imagen?: string;
+}
+
 @Component({
   selector: 'app-pm1-inspection',
   standalone: true,
@@ -30,34 +66,9 @@ import { string } from '@amcharts/amcharts4/core';
 })
 export class Pm1InspectionComponent implements OnInit{
 
-
-
-  timeInputs = [
-    { label: 'Start Time:', placeholder: '--:--' },
-    { label: 'End Time:', placeholder: '--:--' },
-    { label: 'Date:', placeholder: 'dd/mm/aaaa', type: 'date' }
-  ];
-
-  instructions = [
-    { text: 'Completar los permisos de trabajo según la actividad adjuntos a la OT (IPERC - ATS - PETAR PETS)' },
-    { text: 'Inspección de herramientas y evitar exceso de carga (>25 kg)' },
-    { text: 'Usar implementos de seguridad personal de acuerdo al tipo de trabajo (EPP\'s)' },
-    { text: 'Realizar el aislamiento, bloqueo y confirmación energía cero de la sub estación eléctrica, evaluar' },
-  ];
-
-  patioItems = [
-    'Candados y manijas de puertas de acceso',
-    'Señalización de seguridad en cerco, transformador, bandejas',
-    'Bandejas porta cables',
-    'Sistema de iluminación y luces de emergencia en patio',
-  ];
-
-
-
-
-
-  private transformadorData: any;
+   transformadorData: any;
   usuarios: Usuario[] = [];
+  usuariosMap: Map<number, Usuario> = new Map();
   correoSeleccionado = '';
   correoSeleccionado1 = '';
   rutaFirmaSeleccionada = '';
@@ -65,24 +76,27 @@ export class Pm1InspectionComponent implements OnInit{
   fotocheckSeleccionado1: number | null = null;
   idusuario = 0;
   idusuario2 = 0;
-  private ubicacion: string = '';
+   ubicacion: string = '';
+   subestacion: string = '';
+   transformador: string = '';
+   id_transformadores:string = '';
+
+   transformador1: any = {
+    form1: { estadosGenerales: [], mediciones: [] },
+    form2: { estadosGenerales: [], mediciones: [] },
+    imagen: null,
+  };
+
+  transformador2: any = {
+    form3: { estadosGenerales: [], mediciones: [] },
+    form4: { estadosGenerales: [], mediciones: [] },
+    imagen: null,
+  };
 
 
-  private subestacion: string = '';
-  private transformador: string = '';
-  private id_transformadores:string = '';
-
-  @ViewChild('pdfContainer', { static: false }) pdfContainer!: ElementRef;
-
-  @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
-  pdfUrl: SafeResourceUrl | null = null;
-  modalRef: NzModalRef | null = null;
-  zoomLevel: number = 1;
   private annotations: any[] = [
 
   ];
-
-
   constructor(
     private transformadorService: TransformadorPM1Service,
     private usuarioService: UsuarioService,
@@ -95,9 +109,7 @@ export class Pm1InspectionComponent implements OnInit{
     private messageService:NzMessageService,
       private notificationService:NzNotificationService,
   ) {
-    // Configura la ruta del worker
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    this.initializeOpcionesSelect();
+
   }
 
   ngOnInit() {
@@ -107,334 +119,225 @@ export class Pm1InspectionComponent implements OnInit{
       this.id_transformadores = params['id_transformadores'] || '';
       this.ubicacion = params['ubicacion'] || '';
 
-      if (this.subestacion && this.transformador) {
-        this.transformadorService.getPdf(this.subestacion, this.transformador).subscribe(blob => {
-          try {
-            const url = window.URL.createObjectURL(blob);
-            this.loadPdf(url);
-          } catch (error) {
-            this.alertservice.error('Formulario no encontrado:','');
-          }
-        }, error => {
-          this.alertservice.error('Formulario no encontrado:', '');
-        });
+      if (params['transformadorData']) {
+        this.transformadorData = JSON.parse(params['transformadorData']);
+        console.log("Datos del transformador:", this.transformadorData);
+
+        // Validar y asignar transformadores
+        this.transformador1 = this.transformadorData?.form1 && this.transformadorData?.form2 ? {
+          form1: this.normalizeForm(this.transformadorData.form1),
+          form2: this.normalizeForm(this.transformadorData.form2),
+          imagen: this.transformadorData.imagen?.[0] || null,
+        } : null;
+
+        this.transformador2 = this.transformadorData?.form3 && this.transformadorData?.form4 ? {
+          form3: this.normalizeForm(this.transformadorData.form3),
+          form4: this.normalizeForm(this.transformadorData.form4),
+          imagen: this.transformadorData.imagen2?.[0] || null,
+        } : null;
       }
     });
 
     this.usuarioService.getUsers().subscribe(
-      (usuarios: Usuario[]) => this.usuarios = usuarios,
+      (usuarios: Usuario[]) => {
+        this.usuarios = usuarios;
+        this.usuarios.forEach(usuario => {
+          this.usuariosMap.set(usuario.fotocheck, usuario);
+        });
+      },
       error => {
         console.error('Error al obtener la lista de usuarios:', error);
       }
     );
   }
 
+  // Normalizar formularios para inicializar valores predeterminados
+  normalizeForm(form: any): any {
+    if (!form || !form.items) return null;
+    return {
+      ...form,
+      items: form.items.map((item: any) => ({
+        ...item,
+        tipo: item.valores ? 'valores' : 'opciones' // Identificar tipo automáticamente
+      }))
+    };
+  }
 
 
 
- /* ngAfterViewInit() {
-    this.loadPdf(this.getAbsoluteUrl('assets/pdf/pm1/Minas/pm1.pdf'));
-  }*/
 
-    getAbsoluteUrl(relativeUrl: string): string {
-      return new URL(relativeUrl, window.location.origin).href;
-    }
+  horaInicio: string = '--:--';
+horaFin: string = '--:--';
+ordenTrabajo: string = '';
+fechaOrden: string = '';
+seguridadObservaciones = [
+  { descripcion: 'Completar los permisos de trabajo según la actividad adjuntados a la OT (IPERC - ATS - PETAR PETS)', bueno: false, na: false, observaciones: '' },
+  { descripcion: 'Inspección de herramientas y evitar exceso de carga (>25 kg)', bueno: false, na: false, observaciones: '' },
+  { descripcion: 'Usar implementos de seguridad personal de acuerdo al tipo de trabajo (EPP\'s)', bueno: false, na: false, observaciones: '' },
+  { descripcion: 'Realizar el aislamiento, bloqueo y confirmación energía cero de la sub estación eléctrica, evaluar', bueno: false, na: false, observaciones: '' }
+];
 
-    loadPdf(url: string) {
+potenciaActual: string = '';
+corrienteActual: string = '';
+patioObservaciones = [
+  { descripcion:'Candados y manijas de puertas de acceso',bueno: false, malo: false, na: false, observaciones: '' },
+  {descripcion:'Señalizacion de seguridad en cerco, transformador, bandejas', bueno: false, malo: false, na: false, observaciones: '' },
+  { descripcion:'Bandejas porta cables',bueno: false, malo: false, na: false, observaciones: '' },
+  { descripcion:'Sistema de iluminación y luces de emergencia en patio',bueno: false, malo: false, na: false, observaciones: '' }
+];
+
+recomendacionesObservaciones = [
+  { descripcion: '', si: false, no: false, solicitud: '' },
+  { descripcion: '', si: false, no: false, solicitud: '' },
+  { descripcion: '', si: false, no: false, solicitud: '' },
+  { descripcion: '', si: false, no: false, solicitud: '' },
+  { descripcion: '', si: false, no: false, solicitud: '' }
+
+];
+
+async saveData() {
+  this.modal.confirm({
+    nzTitle: 'Confirmación',
+    nzContent: '¿Estás seguro de que quieres guardar los datos?',
+    nzOkText: 'Aceptar',
+    nzCancelText: 'Cancelar',
+    nzOnOk: async () => {
+      const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
+
       try {
-        pdfjsLib.getDocument(url).promise.then(pdf => {
-          pdf.getPage(1).then(page => {
-            const scale = 2.5;
-            const viewport = page.getViewport({ scale });
-            const canvas = this.pdfContainer.nativeElement.querySelector('canvas');
-            const context = canvas.getContext('2d');
+        // Formatear la fecha del formulario
+        const fechaFormateada = this.convertirFechaFormato(this.fechaOrden);
 
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            this.pdfContainer.nativeElement.style.width = `${viewport.width}px`;
-            this.pdfContainer.nativeElement.style.height = `${viewport.height}px`;
-
-            page.render({ canvasContext: context, viewport }).promise.then(() => {
-              this.renderAnnotations(page, viewport);
-            }).catch(error => {
-              throw new Error('Error al renderizar la página del PDF');
-            });
-          }).catch(error => {
-            console.error('Detailed error on page load:', error);
-            throw new Error('Error al obtener la página del PDF');
-          });
-        }).catch(error => {
-          console.error('Detailed error on document load:', error);
-          throw new Error('Error al obtener el documento PDF.');
-        });
-      } catch (error) {
-        console.error('Error inesperado:', error);
-        this.alertservice.error('Error inesperado al cargar el PDF.', 'error');
-      }
-    }
-
-
-
-    renderAnnotations(page: any, viewport: any) {
-      page.getAnnotations({ intent: 'display' }).then((annotations: any[]) => {
-        this.annotations = annotations.map(annotation => ({
-          ...annotation,
-          ...this.annotations.find(a => a.fieldName === annotation.fieldName) // Merge existing annotation data
+        // Capturar datos de patio
+        const patioObservaciones = this.patioObservaciones.map(obs => ({
+          bueno: obs.bueno,
+          malo: obs.malo,
+          na: obs.na,
+          observaciones: obs.observaciones,
         }));
 
-        const annotationLayerDiv = this.pdfContainer.nativeElement.querySelector('.annotationLayer');
-        annotationLayerDiv.innerHTML = '';
+        // Capturar datos de recomendaciones/avisos
+        const avisoObservaciones = this.recomendacionesObservaciones.map(obs => ({
+          observaciones: obs.descripcion,
+          si: obs.si,
+          no: obs.no,
+          solicitud: obs.solicitud,
+        }));
 
-        this.annotations.forEach(annotation => {
-          if (annotation.subtype === 'Widget' && annotation.fieldType) {
-            const input = this.createInputElement(annotation, viewport);
-            if (input) {
-              annotationLayerDiv.appendChild(input);
-            } else {
-              console.warn('No se pudo crear el elemento de entrada para la anotación:', annotation);
+        // Función para procesar cada formulario
+        const procesarFormularioAgrupado = (formulario: Formulario | undefined): Equipo | null => {
+          if (!formulario) return null;
+
+          const resultado: Equipo = {
+            seleccionados: [],
+            valorReal: [],
+            valorTestigo: []
+          };
+
+          formulario.items.forEach((item: Item) => {
+            if (item.tipo === 'valores' && item.valores?.length === 2) {
+              const valorReal = item.valores[0];
+              const valorTestigo = item.valores[1];
+
+              if (valorReal !== null && valorTestigo !== null) {
+                resultado.valorReal?.push(Number(valorReal));
+                resultado.valorTestigo?.push(Number(valorTestigo));
+              }
+            } else if (item.tipo === 'opciones' && item.valor) {
+              resultado.seleccionados.push(item.valor.trim());
             }
-          }
-        });
-
-        this.populateFields(); // Aquí se llama a populateFields
-      });
-    }
-
-
-
-    opcionesSelect: any = {};
-    initializeOpcionesSelect() {
-      const baseOptions = {
-        'value0': 'buen estado',
-        'value1': 'mal estado'
-      };
-
-      for (let i = 1; i <= 35; i++) {
-        this.opcionesSelect[`caja${i}`] = { ...baseOptions };
-      }
-    }
-    private createInputElement(annotation: any, viewport: any): HTMLElement | null {
-      if (!annotation.rect) {
-        console.warn('Annotation without rect:', annotation);
-        return null;
-      }
-
-      const [x1, y1, x2, y2] = annotation.rect;
-      const rect = viewport.convertToViewportRectangle([x1, y1, x2, y2]);
-      const x = rect[0], y = rect[1] - 20, width = rect[2] - rect[0], height = Math.max(rect[3] - rect[1], 20);
-
-      let input: HTMLElement | null = null;
-      const fieldName = annotation.fieldName ? annotation.fieldName.toLowerCase() : '';
-
-      if (annotation.fieldType === 'Tx') {
-        input = document.createElement('input');
-        (input as HTMLInputElement).type = fieldName.includes('fecha') || fieldName.includes('date') ? 'date' :
-                         fieldName.includes('hora') || fieldName.includes('time') ? 'time' : 'text';
-        (input as HTMLInputElement).value = annotation.fieldValue !== undefined ? annotation.fieldValue : '';
-
-        // Configura los campos SUBESTACION, TRANSFORMADOR y UBICACION como readonly
-        if (fieldName.includes('subestacion') || fieldName.includes('transformador') || fieldName.includes('ubicacion')) {
-          (input as HTMLInputElement).readOnly = true;
-        }
-
-        if (fieldName === 'fotocheck_tecnico') {
-          input.addEventListener('change', (event: Event) => this.seleccionarParticipante(event, 'TECNICO'));
-          input.style.border = '1px solid #000'; // Borde para fotocheck_tecnico
-        } else if (fieldName === 'fotocheck_supervisor') {
-          input.addEventListener('change', (event: Event) => this.seleccionarParticipante(event, 'SUPERVISOR'));
-          input.style.border = '1px solid #000'; // Borde para fotocheck_supervisor
-        } else if (fieldName.startsWith('ingresado_')) {
-          input.style.border = '1px solid #000'; // Borde para campos ingresado_1, ingresado_2, etc.
-        } else {
-          input.style.border = 'none'; // Eliminar borde para otros campos de texto
-          input.style.outline = 'none'; // Eliminar resplandor al enfocar para otros campos de texto
-        }
-      } else if (annotation.fieldType === 'Btn' && annotation.checkBox) {
-        input = document.createElement('input');
-        (input as HTMLInputElement).type = 'checkbox';
-        (input as HTMLInputElement).checked = annotation.fieldValue === 'Yes' || annotation.fieldValue === true;
-        input.style.border = 'none'; // Eliminar borde para checkboxes
-        input.style.outline = 'none'; // Eliminar resplandor al enfocar para checkboxes
-      } else if (annotation.fieldType === 'Ch') {
-        input = document.createElement('select');
-
-        // Verificar y añadir las opciones del PDF
-        if (annotation.options && Array.isArray(annotation.options)) {
-          annotation.options.forEach((option: any, index: number) => { // Specify 'any' type for option and 'number' for index
-            const optionElement = document.createElement('option');
-            optionElement.value = option.value !== undefined ? option.value : `value${index}`;
-            optionElement.text = option.displayValue !== undefined ? option.displayValue : `Option ${index}`;
-            input!.appendChild(optionElement); // Add a non-null assertion to 'input'
           });
-        } else {
-          console.warn('No options found for select field:', annotation);
+
+          return resultado.seleccionados.length || (resultado.valorReal?.length || 0) || (resultado.valorTestigo?.length || 0) ? resultado : null;
+
+        };
+
+        const equipos: Equipo[] = [];
+
+        const formulario1 = procesarFormularioAgrupado(this.transformador1?.form1);
+        if (formulario1) equipos.push(formulario1);
+
+        const formulario2 = procesarFormularioAgrupado(this.transformador1?.form2);
+        if (formulario2) equipos.push(formulario2);
+
+        const formulario3 = procesarFormularioAgrupado(this.transformador2?.form3);
+        if (formulario3) equipos.push(formulario3);
+
+        const formulario4 = procesarFormularioAgrupado(this.transformador2?.form4);
+        if (formulario4) equipos.push(formulario4);
+
+        if (equipos.length === 0) {
+          this.alertservice.error('Error', 'Debe completar al menos un formulario correctamente.');
+          this.messageService.remove(loadingMessageId);
+          return;
         }
 
-        // Asegurarse de que una opción esté seleccionada
-        if (annotation.fieldValue !== undefined) {
-          (input as HTMLSelectElement).value = annotation.fieldValue;
+        console.log('Equipos agrupados:', equipos);
+
+
+
+        // Crear el objeto para la API
+        const pm1: PM1 = {
+          hora_inicio: this.horaInicio,
+          hora_fin: this.horaFin,
+          orden_trabajo: this.ordenTrabajo,
+          fecha: fechaFormateada,
+          seguridad_observaciones: this.seguridadObservaciones,
+          patio_observaciones: patioObservaciones,
+          aviso_observaciones: avisoObservaciones,
+          id_transformadores: parseInt(this.id_transformadores, 10),
+          id_usuario: this.idusuario,
+          id_usuario_2: this.idusuario2,
+          potencia_actual: this.potenciaActual,
+          corriente_actual: this.corrienteActual,
+          equipos: equipos,
+        };
+
+        console.log('Objeto PM1 a enviar:', JSON.stringify(pm1, null, 2));
+
+        // Llamar al servicio para guardar los datos
+        const response = await this.pm1Service.postPM1(pm1).toPromise();
+        const idPm1 = response;
+
+        console.log('Respuesta del servicio postPM1:', response);
+
+        if (idPm1) {
+          const notificacion: Notificacion = {
+            supervisor: this.idusuario2,
+            lider: this.idusuario,
+            firmado: false,
+            id_pm1: idPm1,
+          };
+
+          // Crear notificación en la base de datos
+          await this.NotificacionService.insertarNotificacionPm1(notificacion).toPromise();
+          console.log('Notificación PM1 insertada correctamente');
+
+          // Mostrar mensaje de éxito
+          this.messageService.remove(loadingMessageId);
+          this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
         } else {
-          (input as HTMLSelectElement).selectedIndex = 0;
+          console.error('No se pudo obtener el ID de la PM1.');
+          this.alertservice.error('Error', 'No se pudo obtener el ID de la PM1.');
+          this.messageService.remove(loadingMessageId);
         }
-
-        // Añadir event listener para capturar el valor seleccionado
-        input.addEventListener('change', (event: Event) => {
-          const target = event.target as HTMLSelectElement; // Add a type assertion
-          if (target) {
-            annotation.fieldValue = target.value;
-          }
-        });
-
-        // Aplicar borde a los campos select
-        input.style.border = '1px solid #000'; // Borde para los campos select
-      } else {
-        console.warn('Unsupported field type:', annotation.fieldType);
-        return null;
+      } catch (error) {
+        console.error('Error al procesar los datos del formulario', error);
+        this.messageService.remove(loadingMessageId);
+        this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
       }
-
-      Object.assign(input.style, {
-        position: 'absolute',
-        left: `${x}px`,
-        top: `${y}px`,
-        width: `${width}px`,
-        height: `${height}px`,
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        pointerEvents: 'auto'
-      });
-
-      annotation.element = input;
-      return input;
-    }
+    },
+  });
+}
 
 
 
-    extractFormData() {
-      const formData: { [key: string]: string | boolean } = {};  // Explicitly define the type of formData
 
-      this.annotations.forEach(annotation => {
-        if (annotation.subtype === 'Widget' && annotation.fieldType) {
-          const fieldName = annotation.fieldName || '';
-          const element = annotation.element;
 
-          if (element) {
-            if (element.tagName === 'INPUT') {
-              if (element.type === 'checkbox') {
-                formData[fieldName] = element.checked;
-              } else {
-                if (fieldName.includes('fecha') || fieldName.includes('date')) {
-                  // Mantén el valor en formato YYYY-MM-DD
-                  formData[fieldName] = element.value || '';
-                } else {
-                  formData[fieldName] = element.value || '';
-                }
-              }
-            } else if (element.tagName === 'SELECT') {
-              const exportValue = element.value !== '.' ? element.value : '';
-              if (this.opcionesSelect[fieldName] && this.opcionesSelect[fieldName][exportValue]) {
-                formData[fieldName] = this.opcionesSelect[fieldName][exportValue];
-              } else {
-                formData[fieldName] = exportValue;
-              }
-            } else {
-              formData[fieldName] = annotation.fieldValue || '.';
-            }
-          } else {
-            formData[fieldName] = annotation.fieldValue || '.';
-          }
-        }
-      });
 
-      return formData;
-    }
 
-    async saveData() {
-      this.modal.confirm({
-        nzTitle: 'Confirmación',
-        nzContent: '¿Estás seguro de que quieres guardar los datos?',
-        nzOkText: 'Aceptar',
-        nzCancelText: 'Cancelar',
-        nzOnOk: async () => {
-          const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
-          try {
-            const formData = this.extractFormData();
-            console.log("Extracted Form Data en saveData:", formData);
 
-            if (Object.keys(formData).length === 0) {
-              this.alertservice.error('Error', 'El formulario está vacío.');
-              return;
-            }
 
-            const seguridadObservaciones = this.buildObservaciones(formData, 'SeguridadObservacion', 4, ['bueno', 'n', 'observacion']);
-            const patioObservaciones = this.buildObservaciones(formData, 'PatioEstadoObservaciones', 4, ['bueno', 'malo', 'na', 'observacion']);
-            const observacionesAvisoSolicitud = this.buildObservaciones(formData, 'ObservacionesAvisoSolicitud', 5, ['observacion', 'si', 'no', 'solicitud']);
-            const equipos = this.buildEquipos(formData);
-
-            // Formatear la fecha en dd-MM-yyyy
-            const fechaOriginal = formData['fecha'];
-            const fechaFormateada = typeof fechaOriginal === 'string' && fechaOriginal ? this.convertirFechaFormato(fechaOriginal) : '';
-            const pm1 = {
-              hora_inicio: typeof formData['hora_inicio'] === 'string' ? formData['hora_inicio'] : '',
-              hora_fin: typeof formData['hora_fin'] === 'string' ? formData['hora_fin'] : '',
-              orden_trabajo: typeof formData['orden_trabajo'] === 'string' ? formData['orden_trabajo'] : '',
-              fecha: fechaFormateada,
-              seguridad_observaciones: seguridadObservaciones,
-              patio_observaciones: patioObservaciones,
-              aviso_observaciones: observacionesAvisoSolicitud,
-              id_transformadores: parseInt(this.id_transformadores), // Verificación
-              id_usuario: this.idusuario,
-              id_usuario_2: this.idusuario2,
-              potencia_actual: typeof formData['potencia_actual'] === 'string' ? formData['potencia_actual'] : '',
-              corriente_actual: typeof formData['corriente_actual'] === 'string' ? formData['corriente_actual'] : '',
-              equipos: equipos
-            };
-
-            console.log("PM1 Object:", pm1);
-
-            try {
-              const response = await this.pm1Service.postPM1(pm1).toPromise();
-              const idPm1 = response;
-              console.log("Response from postPM1:", response);
-
-              if (idPm1) {
-                console.log("Response from postPM1:", response);
-
-                const notificacion: Notificacion = {
-                  supervisor: this.idusuario2,
-                  lider: this.idusuario,
-                  firmado: false,
-                  id_pm1: idPm1
-                };
-
-                await this.NotificacionService.insertarNotificacionPm1(notificacion).toPromise();
-                console.log("Notificación PM1 insertada correctamente");
-
-                this.messageService.remove(loadingMessageId);
-                this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
-              } else {
-                this.alertservice.error('Error', 'No se pudo obtener el ID de la PM1.');
-                this.messageService.remove(loadingMessageId);
-              }
-            } catch (error) {
-              console.error("Error durante el proceso de guardado", error);
-              this.messageService.remove(loadingMessageId);
-
-              // Verificar si el error tiene la estructura esperada
-              let errorMessage = 'Ha ocurrido un error inesperado al guardar los datos. Por favor, intente nuevamente.';
-
-              if (this.isHttpErrorResponse(error)) {
-                errorMessage = error.error?.details || error.message || errorMessage;
-              }
-
-              this.alertservice.error('Error al Guardar', errorMessage);
-            }
-          } catch (error) {
-            console.error("Error al extraer los datos del formulario", error);
-            this.messageService.remove(loadingMessageId);
-            this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
-          }
-        }
-      });
-    }
 
       // Método para convertir la fecha al formato dd-MM-yyyy
   convertirFechaFormato(fecha: string): string {
@@ -447,101 +350,32 @@ export class Pm1InspectionComponent implements OnInit{
     }
 
 
-    toBoolean(value: any): boolean {
-      return value === 'true' || value === true;
-    }
-
-    buildObservaciones(formData: any, prefix: string, count: number, fields: string[]): any[] {
-      const observacionesArray = [];
-      for (let i = 0; i < count; i++) {
-        const observacion: any = {};  // Utilizar un nombre temporal diferente aquí
-        fields.forEach(field => {
-          const key = `${prefix}_${field}${i + 1}`;
-          const value = formData[key];
-          // Mapea el campo correcto
-          if (field === 'observacion') {
-            observacion['observaciones'] = value; // Asegúrate de mapearlo a "observaciones"
-          } else {
-            observacion[field] = (field === 'na' || field === 'bueno' || field === 'si' || field === 'no') ? this.toBoolean(value) : value;
-          }
-          console.log(`Extraído ${key}: ${value}`);  // Añadir log para depurar
-        });
-        observacionesArray.push(observacion);  // Utilizar el nombre temporal aquí
-      }
-      console.log("Observaciones construidas:", observacionesArray);  // Log built observaciones array
-      return observacionesArray;  // Devolver el array de observaciones
-    }
-
-    buildEquipos(formData: any): any[] {
-      const equipos = [];
-      let i = 1;
-      while (true) {
-        const seleccionado = formData[`caja${i}`];
-        const ingresado = formData[`ingresado_${i}`];
-        if (!seleccionado && !ingresado) break;
-        equipos.push({ seleccionado, ingresado });
-        console.log(`Equipo añadido: seleccionado=${seleccionado}, ingresado=${ingresado}`);  // Log added equipment
-        i++;
-      }
-      console.log("Equipos construidos:", equipos);  // Log built equipos array
-      return equipos;
-    }
-
     seleccionarParticipante(event: any, tipoCargo: string): void {
       const fotocheckSeleccionado = parseInt(event.target.value, 10);
-      const usuarioSeleccionado = this.usuarios.find(usuario => usuario.fotocheck === fotocheckSeleccionado);
 
-      if (usuarioSeleccionado) {
+      if (this.usuariosMap.has(fotocheckSeleccionado)) {
+        const usuarioSeleccionado = this.usuariosMap.get(fotocheckSeleccionado)!;
+
         if (tipoCargo === 'TECNICO' && usuarioSeleccionado.cargo === 'TECNICO') {
           this.idusuario = usuarioSeleccionado.idUsuario;
           this.rutaFirmaSeleccionada = usuarioSeleccionado.firma;
           this.correoSeleccionado = usuarioSeleccionado.usuario;
           const campoCorreoTecnico = this.annotations.find(annotation => annotation.fieldName.toLowerCase() === 'correo_tecnico');
           if (campoCorreoTecnico?.element) campoCorreoTecnico.element.value = this.correoSeleccionado;
-          this.crearCampoImagenFirma(this.rutaFirmaSeleccionada);
         } else if (tipoCargo === 'SUPERVISOR' && usuarioSeleccionado.cargo === 'SUPERVISOR') {
           this.idusuario2 = usuarioSeleccionado.idUsuario;
+          //this.rutaFirmaSeleccionadaSupervisor = usuarioSeleccionado.firma;
           this.correoSeleccionado1 = usuarioSeleccionado.usuario;
           const campoCorreoSupervisor = this.annotations.find(annotation => annotation.fieldName.toLowerCase() === 'correo_supervisor');
           if (campoCorreoSupervisor?.element) campoCorreoSupervisor.element.value = this.correoSeleccionado1;
         } else {
-          console.error("Operación no válida para el cargo.");
+          console.error('Operación no válida para el cargo.');
         }
       } else {
-        console.error("Usuario no encontrado.");
+        console.error('Usuario no encontrado.');
       }
     }
 
-  crearCampoImagenFirma(rutaFirma: string) {
-    const annotationLayerDiv = this.pdfContainer.nativeElement.querySelector('.annotationLayer');
-    const img = document.createElement('img');
-    Object.assign(img.style, { position: 'absolute', left: '100px', top: '119.2rem', width: '90px', height: '50px' });
-    img.src = rutaFirma;
-    annotationLayerDiv.appendChild(img);
-  }
-
-
-  populateFields() {
-    this.annotations.forEach(annotation => {
-      if (annotation.fieldType === 'Tx' && annotation.fieldName) {
-        const fieldName = annotation.fieldName.toLowerCase();
-
-        // Inicializar valores para SUBESTACION, TRANSFORMADOR y UBICACION
-        if (fieldName.includes('subestacion')) {
-          annotation.element.value = this.subestacion;
-          annotation.element.readOnly = true;
-        } else if (fieldName.includes('transformador')) {
-          annotation.element.value = this.transformador;
-          annotation.element.readOnly = true;
-        } else if (fieldName.includes('ubicacion')) {
-          annotation.element.value = this.ubicacion;
-          annotation.element.readOnly = true;
-        }
-
-        // Añadir otros campos según sea necesario
-      }
-    });
-  }
 
 
   VerPlano(): void {
@@ -565,12 +399,5 @@ export class Pm1InspectionComponent implements OnInit{
       }
     );
   }
-
-
-
-
-
-
-
 
 }

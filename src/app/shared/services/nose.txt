@@ -1,0 +1,384 @@
+
+##################################ACID UNLOADING_SS-307
+Relé de presión súbita
+Manovacuómetro / Valor de testigo
+ingreso para sonda de termómetro
+Termómetro de devanado / Valor de testigo
+placa de identificación
+Caja conexiones auxiliares
+Válv. Drenaje/Muestreo
+
+
+
+Termómetro de aceite / Valor de testigo
+Tapa de cuba
+Caja de de TC — Imagen térmica
+Tapa de Inspección lado secundario
+Grapas seguro de tapa
+Tapa ingreso de cables lado secundario
+Tapa de inspección lateral lado secundario
+Indic. magnético nivel de aceite
+Terminal puesta a tierra
+
+
+
+
+
+
+
+
+Válv. Alivio de presión
+Superior de radiador desmontable
+Tapón superior Rad
+Válv. Llenado de gas N
+Válv. Llenado de cuba
+Radiadores Oblea con bridas
+Tapón Inferior Rad
+
+
+
+
+
+Accionamiento dc conmutador S/T
+Tapa de Inspección parte activa
+Tapa de inspección lateral lado primario
+Tapa de Inspección lado primario
+Grapas seguro de tapa
+Tapa ingreso de cables lado primario
+Válv. Inferior de radiador desmontable
+
+
+
+
+
+
+
+
+
+
+
+
+################################################## ADMINISTRATION_SS-402
+Relé de presión súbita
+Válv. Alivio de presión
+Tapa de Inspección lado secundario
+Caja conexiones auxiliares
+Grapas seguro de tapa
+Tapa ingreso de cables lado segundario
+Caja de pase de TC— imagen térmica
+
+
+
+
+
+
+Irgreso para sonda de termómetro
+Tapa de inspección parte activa
+Válv. Llenada de cuba
+Valv. Llenado de gas N.
+Válv. Superior de radiador desmontable
+Válv. inferior de radiador desmontable
+
+
+
+
+Accionamiento de conmutador S/T
+Tapa de Inspección lado primario
+Terminal puesta a tierra
+Grapas seguro de tapa
+Tapa ingreso de cables lado primario
+
+
+
+Tapa de cuba
+Manovacuómaetro / Valor de testigo
+Termómetro de devanado / Valor de testigo
+Placa de identificación
+Termómetro de devanado / Valor de testigo
+Indic. magnético nivel de aceite
+Radiadores Oblea con bridas
+Tapón Inferior Rad.
+Tapon superior Rad
+
+
+
+################################################## CHANCADO_FINO_OXIDOS
+
+Válv. Alivio de presión
+Tapón superior Rad.
+Radiadores Oblea con bridas
+Manovacuómetro / Valor de testigo
+Tapón interior Rad.
+Termómetro de devanado / Valor de testigo
+Termómetro de aceite / Valor de testigo
+Caja conexiones auxiliares
+
+
+
+Indic, magnético nivel de aceite
+Motoventilador
+Válv. drenaje tanque conservador
+Grapas Seguro de tapa
+Tapa ingreso de cables lado secundario
+Caja de pase de TC — Imagen térmica
+Placa de identificación
+Válv. Drenaje / Muestreo tipo gaveta
+
+
+
+
+Válv, Llenado tanque conservador
+Tanque conservador
+Relé detector de gas - Buchholz
+Tapa de la cuba
+Registrador de Impacto
+Tapa de Inspección parte activa
+
+
+
+
+Guarda resistencia puesta a tierra
+Válv- Llenado de cuba
+Grapas seguro de tapa
+Tapa ingreso de cables lado primario
+Terminal puesta a tierra
+Accionamiento de conmutador S/T
+
+
+
+
+
+****************************************************
+
+Tapa deinspeccidn parte activa
+Rele de presión Súbita
+Manovacuómetro / Valor de testigo
+indic. magnético nivel de aceite
+Termómetro de aceite / Valor de testigo
+Ingreso para sonda de termometro
+Termómetro de devanado / Valor de testigo
+Valv. Drenaje / Muestreo
+
+
+
+caja de pase de TC - image termica
+Placa de identificacion
+Grapas seguro de tapa
+Tápa ingreso de cables lado secundario
+caja conexiones auxiliares
+Terminal puesta a tierra
+
+
+
+Tapa de Cubá
+Accionamiento de conmutador S/T
+Valv. Alivio de presion
+Tapón superior Rad
+Valv. Llenado de cuba
+Tapón Inferior Rad
+Válv. Superior de radiador desmontable
+
+
+Válv.  Llenado de gas N
+Grapas seguro de tapa
+Tapa ingreso de cables lado primario
+Válv. Inferior de radiador desmontable
+
+
+##########################################CHANCADO_FINO_SULFUROS
+Válv. Llenado tanque conservador
+Guarda resistencia puesta a tierra
+Válv. Alivio de presion
+Grapas seguro de tapa
+Tapa de cuba
+Tapa ingreso de cables lado primario
+Terminal Puesta a tierra
+
+
+Relé detector de gas - Buchholz
+Indic. magnético nivel de aceite
+Ingreso para sonda de termómetro
+Manovacuómetro
+Caja de pase de TC — Imagen termica
+Placa de identificación
+Termómetro de aceite
+Termómetro de devanado
+Caja conexiones auxiliares
+
+
+Tapa de Inspección parte activa
+Tanque conservador
+Grapas Seguro de tapa
+Tapa ingreso de cables lado secundario
+secador de aire - sílica gel
+Válv. Drenaje/Muestreo tipo gaveta
+Terminal Puesta a tierra
+
+
+
+Válvula de abastecimiento
+Accionamiento de conmutador S/T
+Válv. Superior de radiador
+Tapón superior Rad.
+Tapón inferior Rad
+Válv. Inferior de radiador
+
+
+************************************************
+
+Relé de presión súbita
+Manovacuómaetro
+Indic. magnético nivel de aceite
+Termometro de aceite
+Ingreso para sonda de termómetro
+Termómetro de devanado
+Válv. Drenaje / Muestreo
+
+
+Tapa de Inspección parte activa
+Caja de pase de TC — Imagen térmica
+Placa de identificación
+Grapas seguro de tapa
+Tapa ingreso de cables lado secundario
+Caja conexiones auxiliares
+Terminal Puesta a tierra
+
+
+Tapa de cuba
+Accionamiento de conmutador S/T
+Válv. Alivio de presión
+Tapón superior Rad.
+Válv. Llenado de cuba
+Tapón Inferior Rad.
+Válv. Superior de radiador desmontable
+Válv. Inferior de radiador desmontable
+
+
+Válv. Llenado de gas N.
+Grapas seguro de tapa
+Tapa ingreso de cables lado primario
+
+
+
+
+######################################CHANCADO_PRIMARIO
+
+Accionamiento de conmutador S/T
+Ingreso para sonda de termómetro
+Indic. magnético nivel de aceite
+Valvula de drenaje / muestreo
+Terminal Puesta a tierra
+
+
+
+Guarda resistencia puesta a tierra
+Válv. Llenado de gas N.
+Termómetro de aceite
+Manovacuómetro
+Termómetro de devanado
+Grapas seguro de tapa
+Tapa ingreso de cables lado primario
+Placa de identificación
+Caja conexiones auxiliares
+
+
+Válv. Llenado de cuba
+Válv. Alivio de presión
+Rele de presión súbita
+Válv. Superior de radiador
+Tapón superior Rad.
+Radiadores Oblea con bridas desmontables
+Válv. Inferior de radiador
+Tapón inferior Rad.
+Cuba
+
+
+Tapa de Inspección parte activa
+Tapa de cuba
+Grapas seguro de tapa
+Tapa ingreso de cables lado primario
+Terminal Puesta a tierra
+
+
+################################
+
+Tapa de cuba
+Termómetro de aceite
+Ingreso para sonda de termometro
+Manovacuómetro
+Indic. magnético nivel de aceite
+Valvula de drenaje / muestreo
+Terminal Puesta a tierra
+
+
+Válv. Llenado de gas N.
+Termórnatro de devanado
+Placa de identificación
+Grapas seguro de tapa
+Tapa ingreso de cables lado secundario
+Caja conexiones auxiliares
+
+
+
+Accionamiento de conmutador S/T
+Válv. Alivio de presión
+Relé de presión súbita
+Válv. Llenado de cuba
+Válv. Superior de radiador
+Tapón superior Rad.
+Radiadores Oblea Con bridas desmontables
+Tapón inferior Rad.
+
+
+
+Tapa de Inspección parte activa
+Grapas Seguro de tapa
+Tapa ingreso de cables lado primario
+Válv. Inferior de radiador
+
+
+
+
+################################MINAS
+
+#form1
+Tapa de cuba
+Tapón superior Rad.
+Válv. Alivio de Presión
+Manovacuómetro / Valor de testigo
+Radiadores Oblea con bridas desmontable
+Tapon inferior Rad.
+Monitor digital temperatura devanado / Valor de testigo
+Monitor digital temperatura aceite / Valor de testigo
+Caja conexiones auxiliares
+
+#form2
+Válvula de abastecimiento
+Tanque conservador
+Seguros de tapa, caja bornes L/S
+Placa de identificación
+Tapa ingreso de cables lado secundario
+Secador de aire - salica gel
+Terminal Puesta a tierra
+Válv. Drenaje / Muestreo tipo gaveta
+
+
+#form3
+Válv. Llenado tanque conservador
+Relé detector de gas - Buchholz
+Tapa de Inspección parte activa
+Seguros de tapa, caja de bornes L/P
+Tapa irgreso de cables lado primario
+Accionamiento de conmutador S/T
+cuba
+Terminal Puesta a tierra
+
+
+#form4
+Relé de presión súbita
+Indic. magnético nivel de aceite
+Válv. drenaje tanque conservador
+Caja de pase de TC — Imagen térmica
+Válv. Superior de radiador
+Válv. inferior de radiador
+Motoventilador

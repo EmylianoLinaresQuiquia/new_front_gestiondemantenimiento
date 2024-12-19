@@ -335,15 +335,15 @@
 .dropdownBell {
   box-shadow: 0 6px 16px -8px rgba(0, 0, 0, .08), 0 9px 28px 0 rgba(0, 0, 0, .05), 0 12px 48px 16px rgba(0, 0, 0, .03);
   background-color: #ffffff;
-  width: 336px;
+  width: 386px;
 
   .ant-tabs-nav-scroll {
     text-align: center;
   }
 
   .ant-list-item {
-    padding-left: 24px;
-    padding-right: 24px;
+    padding-left: 12px;
+    padding-right: 12px;
     cursor: pointer;
 
     &:hover {

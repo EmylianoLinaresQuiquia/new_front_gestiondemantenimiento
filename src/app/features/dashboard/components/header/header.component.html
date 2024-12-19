@@ -23,77 +23,90 @@
          [nzTrigger]="'click'"
          [nzPlacement]="'bottomRight'"
          [nzOverlayClassName]="'dropdownBell'"
+         (nzVisibleChange)="cargarNotificaciones($event)"
          nz-tooltip
-         nzTooltipTitle="Notificacion"
+         nzTooltipTitle="Notificación"
          nzTooltipPlacement="bottom">
 
       <i nz-icon nzType="bell" nzTheme="outline"></i>
-      <nz-badge [nzCount]="this.noticeList.length"></nz-badge>
+      <nz-badge [nzCount]="this.noticeList.length "></nz-badge>
 
       <nz-dropdown-menu #menuBell="nzDropdownMenu">
         <div class="bell-container">
-          <nz-tabset [nzSelectedIndex]="0">
 
-            <nz-tab [nzTitle]="'Pendiente' + ( '(' + this.noticeList.length + ')' )">
-              <nz-list nzItemLayout="horizontl">
-                <nz-list-item *ngFor="let item of noticeList" [class.read]="item.read" (click)="read(item)">
-                  <nz-list-item-meta>
-                    <nz-list-item-meta-avatar
-                    (click)="item.id_pm1
-                      ? pm1pdf(item.id_pm1)
-                      : item.id_spt1
-                        ? spt1pdf(item.id_spt1)
-                        : spt2pdf(item.id_spt2)">
-                    <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar" style="color: orange;"></nz-avatar>
-                  </nz-list-item-meta-avatar>
+          <!-- Spinner de carga -->
+          <ng-container *ngIf="loading; else contenidoNotificaciones">
+            <nz-spin nzSimple></nz-spin>
+            <p class="loading-text">Cargando notificaciones...</p>
+          </ng-container>
 
+          <!-- Contenido de notificaciones -->
+          <ng-template #contenidoNotificaciones>
+            <nz-tabset [nzSelectedIndex]="0"  [nzAnimated]="false"style="max-height: 400px; overflow-y: auto;">
 
-                    <nz-list-item-meta-title>{{item.title}}</nz-list-item-meta-title>
-                    <nz-list-item-meta-description>{{item.time}}
+              <!-- Pestaña de Notificaciones Pendientes -->
+              <nz-tab [nzTitle]="'Pendiente' + ( '(' + this.noticeList.length + ')' )">
+                <nz-list nzItemLayout="horizontal">
+                  <nz-list-item *ngFor="let item of noticeList" [class.read]="item.read" (click)="read(item)">
+                    <nz-list-item-meta>
+                      <nz-list-item-meta-avatar
+                        (click)="item.id_pm1
+                          ? pm1pdf(item.id_pm1)
+                          : item.id_spt1
+                            ? spt1pdf(item.id_spt1)
+                            : spt2pdf(item.id_spt2)">
+                        <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar" style="color: orange;"></nz-avatar>
+                        <div class="file-type"><span>{{ getFileType(item) }}</span></div>
+                      </nz-list-item-meta-avatar>
 
-                      <nz-tag [nzColor]="'#108ee9'"  (click)="firmarNotificacion(item)">Firmar</nz-tag>
-                      <nz-tag [nzColor]="'#cd201f'" (click)="eliminarNotificacion(item)">Eliminar</nz-tag>
+                      <nz-list-item-meta-title>{{ item.title }}</nz-list-item-meta-title>
+                      <nz-list-item-meta-description>
+                        {{ item.time }}
+                        <nz-tag [nzColor]="'#108ee9'" (click)="firmarNotificacion(item)">Firmar</nz-tag>
+                        <nz-tag [nzColor]="'#cd201f'" (click)="eliminarNotificacion(item)">Eliminar</nz-tag>
+                      </nz-list-item-meta-description>
+                    </nz-list-item-meta>
+                  </nz-list-item>
+                  <nz-list-empty *ngIf="noticeList.length === 0" [nzNoResult]="noNoticeTpl"></nz-list-empty>
+                </nz-list>
+              </nz-tab>
 
-                    </nz-list-item-meta-description>
-                  </nz-list-item-meta>
+              <!-- Pestaña de Notificaciones Firmadas -->
+              <nz-tab [nzTitle]="'Firmado' + ( '(' + this.FirmadoList.length + ')' )">
+                <nz-list nzItemLayout="horizontal">
+                  <nz-list-item *ngFor="let item of FirmadoList" (click)="read(item)">
+                    <nz-list-item-meta>
+                      <nz-list-item-meta-avatar
+                        (click)="item.id_pm1
+                          ? pm1pdf(item.id_pm1)
+                          : item.id_spt1
+                            ? spt1pdf(item.id_spt1)
+                            : spt2pdf(item.id_spt2)">
+                        <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar" style="color: green;"></nz-avatar>
+                        <div class="file-type"><span>{{ getFileType(item) }}</span></div>
+                      </nz-list-item-meta-avatar>
 
-                </nz-list-item>
-                <nz-list-empty *ngIf="noticeList.length === 0" [nzNoResult]="noNoticeTpl"></nz-list-empty>
-              </nz-list>
-            </nz-tab>
+                      <nz-list-item-meta-title>{{ item.title }}</nz-list-item-meta-title>
+                      <nz-list-item-meta-description>
+                        {{ item.time }}
+                      </nz-list-item-meta-description>
+                    </nz-list-item-meta>
+                  </nz-list-item>
+                  <nz-list-empty *ngIf="FirmadoList.length === 0" [nzNoResult]="noNoticeTpl"></nz-list-empty>
+                </nz-list>
+              </nz-tab>
+            </nz-tabset>
+          </ng-template>
 
-
-
-            <nz-tab [nzTitle]="'Firmado' + ( '(' + this.FirmadoList.length+ ')')">
-              <nz-list nzItemLayout="horizontal">
-                <nz-list-item *ngFor="let item of FirmadoList"  (click)="read(item)">
-                  <nz-list-item-meta>
-                    <nz-list-item-meta-avatar
-                (click)="item.id_pm1
-                  ? pm1pdf(item.id_pm1)
-                  : item.id_spt1
-                    ? spt1pdf(item.id_spt1)
-                    : spt2pdf(item.id_spt2)">
-                <nz-avatar nzIcon="file-pdf" [nzSrc]="item?.avatar" style="color: green;"></nz-avatar>
-              </nz-list-item-meta-avatar>
-
-
-                    <nz-list-item-meta-title>{{item.title}}</nz-list-item-meta-title>
-                    <nz-list-item-meta-description>{{item.time}}</nz-list-item-meta-description>
-                  </nz-list-item-meta>
-                </nz-list-item>
-                <nz-list-empty *ngIf="FirmadoList.length === 0" [nzNoResult]="noNoticeTpl"></nz-list-empty>
-              </nz-list>
-            </nz-tab>
-          </nz-tabset>
         </div>
       </nz-dropdown-menu>
     </div>
 
+    <!-- Icono de Cerrar Sesión -->
     <i nz-icon nzType="logout" nzTheme="outline"
-       nz-tooltip nzTooltipTitle="Cerrar Sesion" nzTooltipPlacement="bottom" (click)="logout()"></i>
+       nz-tooltip nzTooltipTitle="Cerrar Sesión" nzTooltipPlacement="bottom" (click)="logout()"></i>
 
-
+    <!-- Plantillas para mensajes vacíos -->
     <ng-template #noNoticeTpl>
       <ng-container *ngTemplateOutlet="noResultTpl; context: {type: 'Has revisado todas las notificaciones'}"></ng-container>
     </ng-template>
@@ -106,12 +119,14 @@
       <ng-container *ngTemplateOutlet="noResultTpl; context: {type: 'Has revisado todas las tareas'}"></ng-container>
     </ng-template>
 
+    <!-- Plantilla genérica para resultados vacíos -->
     <ng-template #noResultTpl let-type="type">
       <nz-empty [nzNotFoundImage]="'https://gw.alipayobjects.com/zos/rmsportal/sAuJeJzSKbUmHfBQRzmZ.svg'"
                 [nzNotFoundContent]="type"></nz-empty>
     </ng-template>
 
   </div>
+
 </nz-header>
 
 

@@ -12,14 +12,14 @@
 
 <!-- Tabla con datos filtrados -->
 <nz-table #transformadorTable [nzData]="listOfDisplayData"
-[nzPageIndex]="pageIndex"
-  [nzPageSize]="pageSize"
+[nzBordered]="true"
+  [nzFrontPagination]="false" [nzShowPagination]="false"
   [nzTotal]="listOfDisplayData.length"
 
   [nzLoading]="loading"
 
-  [nzFrontPagination]="false"
-  (nzPageIndexChange)="onPageIndexChange($event)">
+
+  >
   <thead>
     <tr>
       <th nzWidth="15%">SUBESTACIÓN
@@ -62,7 +62,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let item of listOfDisplayData.slice((pageIndex - 1) * pageSize, pageIndex * pageSize)">
+    <tr *ngFor="let item of listOfDisplayData.slice()">
       <td>{{ item.subestacion }}</td>
       <td>{{ item.ubicacion }}</td>
       <td>{{ item.transformador }}</td>

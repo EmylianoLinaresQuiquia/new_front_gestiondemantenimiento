@@ -1,452 +1,719 @@
-<div class="w-full max-w-5xl mx-auto font-sans text-xs border border-gray-900">
-  <!-- Header Section -->
-  <div class="grid grid-cols-[1fr,3fr,1fr]">
-    <!-- Left Logo -->
-    <div class="border-r border-gray-900 p-1 flex items-center justify-center">
-      <img src="assets/placeholder.svg" alt="Marcobre logo" class="h-5" />
+<!--<div class="max-w-7xl mx-auto">
+
+  <div class="grid grid-cols-[200px_1fr_200px] gap-4 items-start">
+
+    <div class="p-3 max-w-[250px] rounded-lg space-y-4 text-xs">
+      <div *ngFor="let estado of transformador1?.form1?.estadosGenerales || []" class="space-y-1">
+        <label class="block font-medium text-gray-700">{{ estado.label }}</label>
+        <select
+          class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs"
+          [(ngModel)]="estado.valor"
+          [ngModelOptions]="{ standalone: true }"
+        >
+          <option *ngFor="let opcion of estado.opciones" [value]="opcion">{{ opcion }}</option>
+        </select>
+      </div>
+
+
+      <div class="space-y-3 pt-3 border-t">
+        <div *ngFor="let medicion of transformador1.form1.mediciones; let medicionIndex = index" class="space-y-2">
+          <label class="block font-medium text-gray-700">{{ medicion.label }}</label>
+          <div *ngIf="medicion.valores && medicion.valores.length === 2" class="flex items-center gap-2">
+
+            <div class="text-center">
+              <input
+                [(ngModel)]="medicion.valores[0]"
+                [ngModelOptions]="{ standalone: true }"
+                type="text"
+                class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+              />
+              <div class="text-gray-500 text-xs mt-1">v. real</div>
+            </div>
+
+              <div class="text-center">
+              <input
+                [(ngModel)]="medicion.valores[1]"
+                [ngModelOptions]="{ standalone: true }"
+                type="text"
+                class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+              />
+              <div class="text-gray-500 text-xs mt-1">v. testigo</div>
+            </div>
+
+            <span
+              class="text-gray-500 text-sm"
+              *ngIf="medicion.label.includes('Manovacuómetro')"
+            >
+              KGF/CM²
+            </span>
+            <span
+              class="text-gray-500 text-sm"
+              *ngIf="medicion.label.includes('Termómetro')"
+            >
+              °C
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Center Title and Info -->
-    <div class="border-r border-gray-900">
-      <h1 class="text-center border-b border-gray-900 p-1 text-sm font-bold">
-        MANTENIMIENTO PROGRAMADO DE SUB ESTACIONES TIPO ESTACIÓN - PM1
-      </h1>
-      <div class="grid grid-cols-2">
-        <div class="border-r border-gray-900">
-          <div class="border-b border-gray-900 p-1">Área: Electricidad y Potencia</div>
-          <div class="p-1 whitespace-nowrap">Fecha: 20-09-2023</div>
+
+    <div class="bg-white rounded-lg shadow-lg" style="width: 680px; height: 400px;">
+      <img [src]="transformador1?.imagen || ''" alt="Diagrama técnico del Transformador 1" class="w-full h-auto" />
+    </div>
+
+
+    <div class="p-3 max-w-[250px] rounded-lg space-y-4 text-xs">
+      <div *ngFor="let estado of transformador1?.form2?.estadosGenerales || []" class="space-y-1">
+        <label class="block font-medium text-gray-700">{{ estado.label }}</label>
+        <select
+          class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs"
+          [(ngModel)]="estado.valor"
+          [ngModelOptions]="{ standalone: true }"
+        >
+          <option *ngFor="let opcion of estado.opciones" [value]="opcion">{{ opcion }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="grid grid-cols-[200px_1fr_200px] gap-4 items-start mt-8">
+
+    <div class="p-3 max-w-[250px] rounded-lg space-y-4 text-xs">
+      <div *ngFor="let estado of transformador2?.form3?.estadosGenerales || []" class="space-y-1">
+        <label class="block font-medium text-gray-700">{{ estado.label }}</label>
+        <select
+          class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs"
+          [(ngModel)]="estado.valor"
+          [ngModelOptions]="{ standalone: true }"
+        >
+          <option *ngFor="let opcion of estado.opciones" [value]="opcion">{{ opcion }}</option>
+        </select>
+      </div>
+    </div>
+
+
+    <div class="bg-white rounded-lg shadow-lg" style="width: 680px; height: 400px;">
+      <img [src]="transformador2?.imagen || ''" alt="Diagrama técnico del Transformador 2" class="w-full h-auto" />
+    </div>
+
+
+    <div class="p-3 max-w-[250px] rounded-lg space-y-4 text-xs">
+      <div *ngFor="let estado of transformador2?.form4?.estadosGenerales || []" class="space-y-1">
+        <label class="block font-medium text-gray-700">{{ estado.label }}</label>
+        <select
+          class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs"
+          [(ngModel)]="estado.valor"
+          [ngModelOptions]="{ standalone: true }"
+        >
+          <option *ngFor="let opcion of estado.opciones" [value]="opcion">{{ opcion }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<body class="bg-gray-100">
+  <div class="w-full max-w-[1200px] mx-auto border border-black bg-white">
+    <!-- Header -->
+    <div class="grid grid-cols-[200px_1fr_200px] items-center border-b border-black">
+        <div class="p-4 border-r border-black">
+            <img src="./assets/pdf/logo1.png" alt="Marcobre Logo" class="object-contain w-[150px] h-[50px]">
+        </div>
+        <div class="p-4 text-center">
+            <h1 class="text-lg font-bold">MANTENIMIENTO PROGRAMADO DE SUB ESTACIONES TIPO ESTACIÓN - PM1</h1>
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div class="text-left">
+                    <span class="font-bold">Área: </span>
+                    <span>Electricidad y Potencia</span>
+                </div>
+                <div class="text-right">
+                    <span class="font-bold">Versión: </span>
+                    <span>004</span>
+                </div>
+            </div>
+            <div class="flex justify-between items-center mt-2">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold">Fecha:</span>
+                   <span>20-09-2023</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">Documento:</span>
+                        <span>MJ-EP-MPSETE-001</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">Página:</span>
+                        <span>1 de 1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-l border-black">
+            <img src="./assets/pdf/logo2.png" alt="Mina Justa Logo" class="object-contain w-[150px] h-[50px]">
+        </div>
+    </div>
+    <!-- Substation  -->
+    <div class="grid grid-cols-[1fr_2fr_1fr] border-b border-black mb-4">
+      <div class="p-4 border-r border-black">
+        <div class="flex items-center gap-2">
+          <label for="tag-sub-estacion" class="font-bold">Tag de la sub estación:</label>
+          <span class="flex-grow border border-gray-300 rounded px-2 py-1 w-full max-w-[200px]">{{ this.subestacion }}</span>
+        </div>
+      </div>
+      <div class="p-4 grid gap-2">
+        <div class="grid grid-cols-[auto_1fr] gap-2 items-center">
+          <label for="ubicacion" class="font-bold">Ubicación:</label>
+          <span class="border border-gray-300 rounded px-2 py-1 w-full max-w-[400px]">{{ this.ubicacion }}</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-[auto_1fr] gap-2 items-center">
+            <label for="hora-inicio" class="font-bold">Hora Inicio:</label>
+            <input
+              id="hora-inicio"
+              type="time"
+              class="border border-gray-300 rounded px-2 py-1"
+              [(ngModel)]="horaInicio"
+            >
+          </div>
+          <div class="grid grid-cols-[auto_1fr] gap-2 items-center">
+            <label for="hora-fin" class="font-bold">Hora de Fin:</label>
+            <input
+              id="hora-fin"
+              type="time"
+              class="border border-gray-300 rounded px-2 py-1"
+              [(ngModel)]="horaFin"
+            >
+          </div>
+        </div>
+      </div>
+      <div class="p-4 border-l border-black">
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <label for="orden-trabajo" class="font-bold">Orden de Trabajo:</label>
+            <input
+              id="orden-trabajo"
+              type="text"
+              class="flex-grow border border-gray-300 rounded px-2 py-1 w-full max-w-[150px]"
+              [(ngModel)]="ordenTrabajo"
+            >
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="fecha-orden" class="font-bold">Fecha:</label>
+            <input
+              id="fecha-orden"
+              type="date"
+              class="flex-grow border border-gray-300 rounded px-2 py-1 w-full max-w-[150px]"
+              [(ngModel)]="fechaOrden"
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- SEGURIRDADA IBSERVACIONES -->
+  <div class="border-b border-black">
+    <div class="bg-[#f5e6d3] p-2 text-center font-bold border-b border-black grid grid-cols-[1fr_100px_100px_1fr]">
+      <div>INSTRUCCIONES DE SEGURIDAD</div>
+      <div>"✓"</div>
+      <div>"N/A"</div>
+      <div>OBSERVACIONES</div>
+    </div>
+    <div class="divide-y divide-black">
+      <div
+        *ngFor="let observacion of seguridadObservaciones; let i = index"
+        class="grid grid-cols-[1fr_100px_100px_1fr] items-center"
+      >
+        <div class="p-2">{{ observacion.descripcion }}</div>
+        <div class=" flex justify-center">
+          <input
+            type="checkbox"
+            class="form-checkbox h-5 w-5 text-blue-600"
+            [(ngModel)]="seguridadObservaciones[i].bueno"
+          >
+        </div>
+        <div class="border-r
+         flex justify-center">
+          <input
+            type="checkbox"
+            class="form-checkbox h-5 w-5 text-blue-600"
+            [(ngModel)]="seguridadObservaciones[i].na"
+          >
+        </div>
+        <div class="p-2">
+          <input
+            type="text"
+            class="w-full border border-gray-300 rounded px-2 py-1"
+            [(ngModel)]="seguridadObservaciones[i].observaciones"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activities Section -->
+  <div class="bg-[#f5e6d3] p-2 border-b border-black grid grid-cols-[1fr_1fr]">
+      <div class="font-bold">ACTIVIDADES A DESARROLLAR</div>
+      <div class="text-sm">
+          <span class="text-red-600 font-bold">INSTRUCCIONES: </span>
+          Seleccionar "BUEN ESTADO" si no tiene observaciones, "OBSERVADO" si tiene observaciones, describir acción y solicitar aviso, llenar los valores de los instrumentos (actual / testigo).
+      </div>
+  </div>
+
+  <div class="max-w-[1000px] mx-auto p-4">
+    <div class="grid grid-cols-[1fr_auto] gap-8 items-start">
+      <!-- Lado izquierdo -->
+      <div class="flex items-center gap-2">
+        <label class="font-bold text-sm whitespace-nowrap">TAG DEL TRANSFORMADOR</label>
+        <p  class="border border-black h-6 w-[200px] text-center">{{this.transformador}}</p>
+      </div>
+
+      <!-- Lado derecho -->
+      <div class="space-y-2">
+        <!-- Potencia Actual -->
+        <div class="flex items-center justify-end gap-2">
+          <label class="font-bold text-sm whitespace-nowrap">POTENCIA ACTUAL:</label>
+          <input
+            type="text"
+            class="border border-black h-6 w-[100px]"
+            [(ngModel)]="potenciaActual"
+
+          >
+          <span class="font-bold text-sm">MVA</span>
+        </div>
+
+        <!-- Corriente Actual -->
+        <div class="flex items-center justify-end gap-2">
+          <label class="font-bold text-sm whitespace-nowrap">CORRIENTE ACTUAL:</label>
+          <input
+            type="text"
+            class="border border-black h-6 w-[100px]"
+            [(ngModel)]="corrienteActual"
+
+          >
+          <span class="font-bold text-sm">A</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="max-w-7xl mx-auto">
+    <!-- Transformador 1 -->
+    <div class="grid grid-cols-[200px_1fr_200px] gap-4 items-start" style="align-items: center;">
+      <!-- Formulario 1 -->
+      <div class="p-3 max-w-[250px] rounded-lg space-y-4 text-xs">
+        <div *ngFor="let item of transformador1?.form1?.items || []" class="space-y-3">
+          <label class="block font-medium text-gray-700">{{ item.label }}</label>
+
+          <!-- Opciones -->
+          <ng-container *ngIf="item.tipo === 'opciones'">
+            <select
+            class="border border-gray-300 rounded px-2 py-1"
+              [(ngModel)]="item.valor"
+              [ngModelOptions]="{ standalone: true }"
+            >
+              <option *ngFor="let opcion of item.opciones" [value]="opcion">{{ opcion }}</option>
+            </select>
+          </ng-container>
+
+          <!-- Valores -->
+          <ng-container *ngIf="item.tipo === 'valores'">
+            <div *ngIf="item.valores && item.valores.length === 2" class="flex items-center gap-2">
+              <div class="text-center">
+                <input
+                  [(ngModel)]="item.valores[0]"
+                  [ngModelOptions]="{ standalone: true }"
+                  type="text"
+                  class="border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+                />
+                <div class="text-gray-500 text-xs mt-1">v. real</div>
+              </div>
+              <div class="text-center">
+                <input
+                  [(ngModel)]="item.valores[1]"
+                  [ngModelOptions]="{ standalone: true }"
+                  type="text"
+                  class="border  border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+                />
+                <div class="text-gray-500 text-xs mt-1">v. testigo</div>
+              </div>
+
+              <!-- Agregar "kgf/cm²" solo si el label es "Manovacuómetro" y hay inputs -->
+              <span *ngIf="item.label.trim() === 'Manovacuómetro'" class="text-xs text-gray-500">kgf/cm²</span>
+
+              <!-- Agregar "°C" solo si el label contiene "temperatura" y hay inputs -->
+              <span
+                *ngIf="item.label.toLowerCase().includes('temperatura')"
+                class="text-xs text-gray-500"
+              >
+                °C
+              </span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+
+
+
+
+      <!-- Imagen Técnica -->
+      <div class="bg-white rounded-lg shadow-lg" style="width: 680px; height: 400px;">
+        <img [src]="transformador1?.imagen || ''" alt="Diagrama técnico del Transformador 1" class="w-full h-auto" />
+      </div>
+
+      <!-- Formulario 2 -->
+<div class="p-3 max-w-[250px] rounded-lg space-y-4 text-xs">
+  <div *ngFor="let item of transformador1?.form2?.items || []" class="space-y-3">
+    <label class="block font-medium text-gray-700">{{ item.label }}</label>
+
+    <!-- Opciones -->
+    <ng-container *ngIf="item.tipo === 'opciones'">
+      <select
+      class="border border-gray-300 rounded px-2 py-1"
+        [(ngModel)]="item.valor"
+        [ngModelOptions]="{ standalone: true }"
+      >
+        <option *ngFor="let opcion of item.opciones" [value]="opcion">{{ opcion }}</option>
+      </select>
+    </ng-container>
+
+    <!-- Valores -->
+    <ng-container *ngIf="item.tipo === 'valores'">
+      <div *ngIf="item.valores && item.valores.length === 2" class="flex items-center gap-2">
+        <input
+          [(ngModel)]="item.valores[0]"
+          [ngModelOptions]="{ standalone: true }"
+          type="text"
+          class="border  border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+        />
+        <input
+          [(ngModel)]="item.valores[1]"
+          [ngModelOptions]="{ standalone: true }"
+          type="text"
+          class="border  border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+        />
+
+        <!-- Agregar "kgf/cm²" si el label es "Manovacuómetro" -->
+        <span *ngIf="item.label.trim() === 'Manovacuómetro'" class="text-xs text-gray-500">kgf/cm²</span>
+
+        <!-- Agregar "°C" si el label contiene "temperatura" -->
+        <span
+          *ngIf="item.label.toLowerCase().includes('temperatura')"
+          class="text-xs text-gray-500"
+        >
+          °C
+        </span>
+      </div>
+    </ng-container>
+  </div>
+</div>
+    </div>
+
+    <div className="w-full border-t border-black" style="height: 1px;background-color: black;"></div>
+
+    <!-- Transformador 2 -->
+    <div class="grid grid-cols-[200px_1fr_200px] gap-4 items-start mt-8" style="align-items: center;">
+      <!-- Formulario 3 -->
+<div class="p-3 max-w-[250px] rounded-lg space-y-4 text-xs">
+  <div *ngFor="let item of transformador2?.form3?.items || []" class="space-y-3">
+    <label class="block font-medium text-gray-700">{{ item.label }}</label>
+
+    <!-- Opciones -->
+    <ng-container *ngIf="item.tipo === 'opciones'">
+      <select
+      class="border border-gray-300 rounded px-2 py-1"
+        [(ngModel)]="item.valor"
+        [ngModelOptions]="{ standalone: true }"
+      >
+        <option *ngFor="let opcion of item.opciones" [value]="opcion">{{ opcion }}</option>
+      </select>
+    </ng-container>
+
+    <!-- Valores -->
+    <ng-container *ngIf="item.tipo === 'valores'">
+      <div *ngIf="item.valores && item.valores.length === 2" class="flex items-center gap-2">
+        <input
+          [(ngModel)]="item.valores[0]"
+          [ngModelOptions]="{ standalone: true }"
+          type="text"
+          class="border  border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+        />
+        <input
+          [(ngModel)]="item.valores[1]"
+          [ngModelOptions]="{ standalone: true }"
+          type="text"
+          class="border  border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+        />
+
+        <!-- Agregar "kgf/cm²" si el label es "Manovacuómetro" -->
+        <span *ngIf="item.label.trim() === 'Manovacuómetro'" class="text-xs text-gray-500">kgf/cm²</span>
+
+        <!-- Agregar "°C" si el label contiene "temperatura" -->
+        <span
+          *ngIf="item.label.toLowerCase().includes('temperatura')"
+          class="text-xs text-gray-500"
+        >
+          °C
+        </span>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+      <!-- Imagen Técnica -->
+      <div class="bg-white rounded-lg shadow-lg" style="width: 680px; height: 400px;">
+        <img [src]="transformador2?.imagen || ''" alt="Diagrama técnico del Transformador 2" class="w-full h-auto" />
+      </div>
+
+     <!-- Formulario 4 -->
+<div class="p-3 max-w-[250px] rounded-lg space-y-4 text-xs">
+  <div *ngFor="let item of transformador2?.form4?.items || []" class="space-y-3">
+    <label class="block font-medium text-gray-700">{{ item.label }}</label>
+
+    <!-- Opciones -->
+    <ng-container *ngIf="item.tipo === 'opciones'">
+      <select
+      class="border border-gray-300 rounded px-2 py-1"
+        [(ngModel)]="item.valor"
+        [ngModelOptions]="{ standalone: true }"
+      >
+        <option *ngFor="let opcion of item.opciones" [value]="opcion">{{ opcion }}</option>
+      </select>
+    </ng-container>
+
+    <!-- Valores -->
+    <ng-container *ngIf="item.tipo === 'valores'">
+      <div *ngIf="item.valores && item.valores.length === 2" class="flex items-center gap-2">
+        <input
+          [(ngModel)]="item.valores[0]"
+          [ngModelOptions]="{ standalone: true }"
+          type="text"
+          class="border  border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+        />
+        <input
+          [(ngModel)]="item.valores[1]"
+          [ngModelOptions]="{ standalone: true }"
+          type="text"
+          class="border  border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs text-center w-16"
+        />
+
+        <!-- Agregar "kgf/cm²" si el label es "Manovacuómetro" -->
+        <span *ngIf="item.label.trim() === 'Manovacuómetro'" class="text-xs text-gray-500">kgf/cm²</span>
+
+        <!-- Agregar "°C" si el label contiene "temperatura" -->
+        <span
+          *ngIf="item.label.toLowerCase().includes('temperatura')"
+          class="text-xs text-gray-500"
+        >
+          °C
+        </span>
+      </div>
+    </ng-container>
+  </div>
+</div>
+    </div>
+  </div>
+
+
+
+
+
+
+  <div >
+   <!-- Tabla Principal -->
+   <div class="bg-white">
+    <!--PATIO-->
+      <div class=" bg-[#f5e6d3] grid grid-cols-[1fr_200px_1fr] border-b border-black">
+          <div class="p-2 font-bold">PATIO DE SUB ESTACIÓN</div>
+          <div class="border-x border-black">
+              <div class="text-center font-bold p-2 border-b border-black">ESTADO</div>
+              <div class="grid grid-cols-3 text-center">
+                  <div class="p-1">"✓"</div>
+                  <div class="p-1 border-x border-black">"X"</div>
+                  <div class="p-1">"N/A"</div>
+              </div>
+          </div>
+          <div class="p-2 font-bold text-center">OBSERVACIONES</div>
+      </div>
+
+       <!-- PATIO-->
+       <div class="divide-y divide-black">
+        <div *ngFor="let obs of patioObservaciones; let i = index" class="grid grid-cols-[1fr_200px_1fr]">
+          <div class="p-2">{{ obs.descripcion }}</div>
+          <div class="grid grid-cols-3 border-x border-black">
+            <div class="flex items-center justify-center p-2">
+              <input type="checkbox" class="h-4 w-4" [(ngModel)]="patioObservaciones[i].bueno">
+            </div>
+            <div class="flex items-center justify-center border-x border-black p-2">
+              <input type="checkbox" class="h-4 w-4" [(ngModel)]="patioObservaciones[i].malo">
+            </div>
+            <div class="flex items-center justify-center p-2">
+              <input type="checkbox" class="h-4 w-4" [(ngModel)]="patioObservaciones[i].na">
+            </div>
+          </div>
+          <div class="p-2">
+            <input type="text" class="w-full border border-gray-300 p-1" [(ngModel)]="patioObservaciones[i].observaciones">
+          </div>
+        </div>
+      </div>
+
+
+      <!-- PATIO AVISO -->
+      <div class="border-t border-black">
+          <div class="grid grid-cols-[1fr_200px_100px] bg-[#f5e6d3] border-b border-black">
+              <div class="p-2 font-bold">RECOMENDACIONES - OBSERVACIONES</div>
+              <div class="border-x border-black p-2 text-center font-bold">SOLICITA AVISO SAP</div>
+              <div class="p-2 text-center font-bold">SOLICITUD</div>
+          </div>
+
+          <div *ngFor="let rec of recomendacionesObservaciones; let i = index" class="grid grid-cols-[1fr_200px_100px] border-b border-black">
+            <div class="p-2">
+              <input type="text" class="w-full border border-gray-300 p-1" [(ngModel)]="recomendacionesObservaciones[i].descripcion">
+            </div>
+            <div class="border-x border-black p-2 flex justify-center gap-4">
+              <label class="flex items-center gap-1">
+                <input type="checkbox" class="h-4 w-4" [(ngModel)]="recomendacionesObservaciones[i].si"> SI
+              </label>
+              <label class="flex items-center gap-1">
+                <input type="checkbox" class="h-4 w-4" [(ngModel)]="recomendacionesObservaciones[i].no"> NO
+              </label>
+            </div>
+            <div class="p-2">
+              <input type="text" class="w-full border border-gray-300 p-1" [(ngModel)]="recomendacionesObservaciones[i].solicitud">
+            </div>
+          </div>
+
+
+      </div>
+
+     <!-- Sección de Firmas -->
+     <div class="grid grid-cols-2 p-4 border-t border-black">
+      <div class="space-y-4">
+        <div>
+          <div class="font-bold">RESP. DEL SERVICIO:</div>
+          <span>{{correoSeleccionado}}</span>
         </div>
         <div>
-          <div class="border-b border-gray-900 p-1">Versión: 004</div>
-          <div class="grid grid-cols-[2fr,1fr]">
-            <div class="p-1 border-r border-b border-gray-900 whitespace-nowrap">
-              Documento: MJ-EP-MPSETE-001
-            </div>
-            <div class="p-1 border-b border-gray-900 whitespace-nowrap text-right">
-              Página: 1 de 1
-            </div>
-          </div>
+          <span class="font-bold">N° FOTOCHECK: </span>
+          <input
+            type="text"
+            class="border border-black w-32 p-1"
+            (input)="seleccionarParticipante($event, 'TECNICO')"
+
+          >
+
+
         </div>
+
+        <div>
+          <div class="font-bold">FIRMA:</div>
+          <img
+            [src]="rutaFirmaSeleccionada"
+
+            class="w-20 h-auto border"
+          >
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <div class="font-bold">SUPERVISOR:</div>
+          <span>{{correoSeleccionado1}}</span>
+        </div>
+        <div>
+          <span class="font-bold">N° FOTOCHECK: </span>
+          <input
+            type="text"
+            class="border border-black w-32 p-1"
+            (input)="seleccionarParticipante($event, 'SUPERVISOR')"
+
+          >
+
+
+        </div>
+
+
       </div>
     </div>
 
-    <!-- Right Logo -->
-    <div class="p-1 flex items-center justify-center">
-      <img src="assets/placeholder.svg" alt="Mina Justa logo" class="h-5" />
-    </div>
-  </div>
 
-  <!-- Form Section -->
-  <div class="border-t border-gray-900">
-    <div class="grid grid-cols-[1.5fr,3fr,4fr]">
-      <!-- Substation Tag Row -->
-      <div class="bg-[#fff5cc] font-bold px-2 flex items-center h-8 justify-start border-r border-b border-gray-900 whitespace-nowrap">
-        Substation Tag:
-      </div>
-      <div class="flex items-center h-8 border-r border-b border-gray-900">
-        <input
-          type="text"
-          class="border-0 shadow-none h-7 mx-2 bg-transparent focus:outline-none"
-        />
-      </div>
 
-      <!-- Nested grid for Location, Work Order, etc. -->
-      <div class="grid grid-rows-2 border-b border-gray-900">
-        <div class="grid grid-cols-[1.2fr,2fr,1.2fr,2fr]">
-          <div class="bg-[#fff5cc] font-bold px-2 flex items-center h-8 justify-start border-r border-b border-gray-900 whitespace-nowrap">
-            Location:
-          </div>
-          <div class="flex items-center h-8 border-r border-b border-gray-900">
-            <input
-              type="text"
-              class="border-0 shadow-none h-7 mx-2 bg-transparent focus:outline-none"
-            />
-          </div>
-          <div class="bg-[#fff5cc] font-bold px-2 flex items-center h-8 justify-start border-r border-b border-gray-900 whitespace-nowrap">
-            Work Order:
-          </div>
-          <div class="flex items-center h-8 border-b border-gray-900">
-            <input
-              type="text"
-              class="border-0 shadow-none h-7 mx-2 bg-transparent focus:outline-none"
-            />
-          </div>
-        </div>
-        <div class="grid grid-cols-[1.2fr,2fr,1.2fr,2fr,1.2fr,2fr]">
-          <div class="bg-[#fff5cc] font-bold px-2 flex items-center h-8 justify-start border-r border-gray-900 whitespace-nowrap">
-            Start Time:
-          </div>
-          <div class="flex items-center h-8 border-r border-gray-900">
-            <input
-              type="time"
-              class="border-0 shadow-none h-7 mx-2 bg-transparent focus:outline-none"
-            />
-          </div>
-          <div class="bg-[#fff5cc] font-bold px-2 flex items-center h-8 justify-start border-r border-gray-900 whitespace-nowrap">
-            End Time:
-          </div>
-          <div class="flex items-center h-8 border-r border-gray-900">
-            <input
-              type="time"
-              class="border-0 shadow-none h-7 mx-2 bg-transparent focus:outline-none"
-            />
-          </div>
-          <div class="bg-[#fff5cc] font-bold px-2 flex items-center h-8 justify-start border-r border-gray-900 whitespace-nowrap">
-            Date:
-          </div>
-          <div class="flex items-center h-8">
-            <input
-              type="date"
-              class="border-0 shadow-none h-7 mx-2 bg-transparent focus:outline-none"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
-
-<div class="border border-black rounded-sm max-w-5xl mx-auto font-sans text-xs">
-  <!-- Tabla de instrucciones de seguridad -->
-  <table class="w-full border-collapse">
-    <!-- Encabezado de la tabla -->
-    <thead>
-      <tr class="bg-[#FFFFD4]">
-        <th class="text-center font-bold border border-black py-1 px-1">
-          INSTRUCCIONES DE SEGURIDAD
-        </th>
-        <th class="w-12 text-center font-bold border border-black py-1 px-1">
-          "√"
-        </th>
-        <th class="w-12 text-center font-bold border border-black py-1 px-1">
-          "N/A"
-        </th>
-        <th class="w-[200px] text-center font-bold border border-black py-1 px-1">
-          OBSERVACIONES
-        </th>
-      </tr>
-    </thead>
-    <!-- Cuerpo de la tabla -->
-    <tbody>
-      <tr class="hover:bg-white">
-        <td class="border border-black py-1 px-1 align-top">
-          Completar los permisos de trabajo según la actividad adjuntados a la OT (IPERC - ATS - PETAR PETS)
-        </td>
-        <td class="border border-black text-center p-0 align-middle">
-          <input type="checkbox" class="mx-auto h-4 w-4" />
-        </td>
-        <td class="border border-black text-center p-0 align-middle">
-          <input type="checkbox" class="mx-auto h-4 w-4" />
-        </td>
-        <td class="border border-black p-0">
-          <textarea
-            class="border-0 min-h-[30px] resize-none w-full h-full p-1 focus:outline-none"
-          ></textarea>
-        </td>
-      </tr>
-      <tr class="hover:bg-white">
-        <td class="border border-black py-1 px-1 align-top">
-          Inspección de herramientas y evitar exceso de carga (>25 kg)
-        </td>
-        <td class="border border-black text-center p-0 align-middle">
-          <input type="checkbox" class="mx-auto h-4 w-4" />
-        </td>
-        <td class="border border-black text-center p-0 align-middle">
-          <input type="checkbox" class="mx-auto h-4 w-4" />
-        </td>
-        <td class="border border-black p-0">
-          <textarea
-            class="border-0 min-h-[30px] resize-none w-full h-full p-1 focus:outline-none"
-          ></textarea>
-        </td>
-      </tr>
-      <tr class="hover:bg-white">
-        <td class="border border-black py-1 px-1 align-top">
-          Usar implementos de seguridad personal de acuerdo al tipo de trabajo (EPP's).
-        </td>
-        <td class="border border-black text-center p-0 align-middle">
-          <input type="checkbox" class="mx-auto h-4 w-4" />
-        </td>
-        <td class="border border-black text-center p-0 align-middle">
-          <input type="checkbox" class="mx-auto h-4 w-4" />
-        </td>
-        <td class="border border-black p-0">
-          <textarea
-            class="border-0 min-h-[30px] resize-none w-full h-full p-1 focus:outline-none"
-          ></textarea>
-        </td>
-      </tr>
-      <tr class="hover:bg-white">
-        <td class="border border-black py-1 px-1 align-top">
-          Realizar el aislamiento, bloqueo y confirmación energía cero de la sub estación eléctrica. Evaluar.
-        </td>
-        <td class="border border-black text-center p-0 align-middle">
-          <input type="checkbox" class="mx-auto h-4 w-4" />
-        </td>
-        <td class="border border-black text-center p-0 align-middle">
-          <input type="checkbox" class="mx-auto h-4 w-4" />
-        </td>
-        <td class="border border-black p-0">
-          <textarea
-            class="border-0 min-h-[30px] resize-none w-full h-full p-1 focus:outline-none"
-          ></textarea>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- Sección de actividades -->
-  <div class="grid grid-cols-[150px_1fr] border-t border-black text-[10px]">
-    <div class="border-r border-black p-1 font-bold bg-[#FFFFD4]">
-      ACTIVIDADES A DESARROLLAR
-    </div>
-    <div class="p-1 bg-[#FFFFD4]">
-      <span class="font-bold text-red-600">INSTRUCCIONES:</span> Seleccionar
-      <span class="font-bold">"BUEN ESTADO"</span> si no tiene observaciones,
-      <span class="font-bold">"OBSERVADO"</span> si tiene observaciones, describir la acción y solicitar aviso, llenar los valores de los instrumentos (actual / testigo).
-    </div>
-  </div>
 </div>
 
 
+<ng-template #pdfModal>
 
-<div class="max-w-5xl mx-auto border border-black text-sm font-sans">
-  <!-- Main Inspection Table -->
-<table class="w-full border-collapse text-xs">
-  <!-- Table Header -->
-  <thead>
-    <tr>
-      <th class="font-bold border border-black py-1 px-2 bg-[#FFEFD5]" rowspan="1">
-        PATIO DE SUB ESTACIÓN
-      </th>
-      <th class="text-center font-bold border border-black bg-[#FFEFD5]" colspan="3">
-        ESTADO
-      </th>
-      <th class="w-[200px] text-center font-bold border border-black bg-[#FFEFD5]" rowspan="1">
-        OBSERVACIONES
-      </th>
-    </tr>
-    <tr>
-      <th class="border border-black bg-[#FFEFD5]"></th>
-      <th class="w-12 text-center border border-black bg-[#FFEFD5]">√</th>
-      <th class="w-12 text-center border border-black bg-[#FFEFD5]">x</th>
-      <th class="w-12 text-center border border-black bg-[#FFEFD5]">N/A</th>
-      <th class="border border-black bg-[#FFEFD5]"></th>
-    </tr>
-  </thead>
-  <!-- Table Body -->
-  <tbody>
-    <tr>
-      <td class="border border-black py-1 px-2">Candados y manijas de puertas de acceso</td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black p-0">
-        <textarea class="border-0 min-h-[36px] resize-none w-full h-full p-1 text-xs focus:outline-none"></textarea>
-      </td>
-    </tr>
-    <tr>
-      <td class="border border-black py-1 px-2">Señalización de seguridad en cerco, transformador, bandejas</td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black p-0">
-        <textarea class="border-0 min-h-[36px] resize-none w-full h-full p-1 text-xs focus:outline-none"></textarea>
-      </td>
-    </tr>
-    <tr>
-      <td class="border border-black py-1 px-2">Bandejas porta cables</td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black p-0">
-        <textarea class="border-0 min-h-[36px] resize-none w-full h-full p-1 text-xs focus:outline-none"></textarea>
-      </td>
-    </tr>
-    <tr>
-      <td class="border border-black py-1 px-2">Sistema de iluminación y luces de emergencia en patio</td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black text-center">
-        <input type="checkbox" class="mx-auto h-4 w-4" />
-      </td>
-      <td class="border border-black p-0">
-        <textarea class="border-0 min-h-[36px] resize-none w-full h-full p-1 text-xs focus:outline-none"></textarea>
-      </td>
-    </tr>
-  </tbody>
-</table>
+  <div class="pdf-container">
+    <iframe
+      [src]="pdfUrl"
 
-  <div class="border-t border-black text-xs">
-    <!-- Recommendations Section -->
-    <div class="grid grid-cols-[1fr_180px_130px] bg-[#FFEFD5] border-b border-black">
-      <div class="p-1 font-bold border-r border-black">RECOMENDACIONES - OBSERVACIONES</div>
-      <div class="p-1 font-bold text-center border-r border-black">SOLICITA AVISO SAP</div>
-      <div class="p-1 font-bold text-center"># SOLICITUD</div>
-    </div>
-    <!-- Rows -->
-    <div class="grid grid-cols-[1fr_180px_130px] border-b border-black">
-      <div class="border-r border-black p-1">
-        <!-- Reduced textarea height -->
-        <textarea class="border-0 min-h-[16px] resize-none w-full h-full p-0.5 focus:outline-none text-xs"></textarea>
-      </div>
-      <div class="border-r border-black p-1 flex items-center justify-center gap-2">
-        <label class="flex items-center gap-1">
-          SI
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-        <label class="flex items-center gap-1">
-          NO
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-      </div>
-      <div class="p-1 flex items-center">
-        <!-- Full width & height adjustment -->
-        <input type="text" class="border-0 w-full h-full focus:outline-none text-xs p-0.5" />
-      </div>
-    </div>
-    <!-- Additional Rows (Repetitive, same structure) -->
-    <div class="grid grid-cols-[1fr_180px_130px] border-b border-black">
-      <div class="border-r border-black p-1">
-        <textarea class="border-0 min-h-[16px] resize-none w-full h-full p-0.5 focus:outline-none text-xs"></textarea>
-      </div>
-      <div class="border-r border-black p-1 flex items-center justify-center gap-2">
-        <label class="flex items-center gap-1">
-          SI
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-        <label class="flex items-center gap-1">
-          NO
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-      </div>
-      <div class="p-1 flex items-center">
-        <input type="text" class="border-0 w-full h-full focus:outline-none text-xs p-0.5" />
-      </div>
-    </div>
-    <!-- Repeat structure for additional rows -->
-    <div class="grid grid-cols-[1fr_180px_130px] border-b border-black">
-      <div class="border-r border-black p-1">
-        <textarea class="border-0 min-h-[16px] resize-none w-full h-full p-0.5 focus:outline-none text-xs"></textarea>
-      </div>
-      <div class="border-r border-black p-1 flex items-center justify-center gap-2">
-        <label class="flex items-center gap-1">
-          SI
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-        <label class="flex items-center gap-1">
-          NO
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-      </div>
-      <div class="p-1 flex items-center">
-        <input type="text" class="border-0 w-full h-full focus:outline-none text-xs p-0.5" />
-      </div>
-    </div>
-    <div class="grid grid-cols-[1fr_180px_130px] border-b border-black">
-      <div class="border-r border-black p-1">
-        <textarea class="border-0 min-h-[16px] resize-none w-full h-full p-0.5 focus:outline-none text-xs"></textarea>
-      </div>
-      <div class="border-r border-black p-1 flex items-center justify-center gap-2">
-        <label class="flex items-center gap-1">
-          SI
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-        <label class="flex items-center gap-1">
-          NO
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-      </div>
-      <div class="p-1 flex items-center">
-        <input type="text" class="border-0 w-full h-full focus:outline-none text-xs p-0.5" />
-      </div>
-    </div>
-    <div class="grid grid-cols-[1fr_180px_130px] border-b border-black">
-      <div class="border-r border-black p-1">
-        <textarea class="border-0 min-h-[16px] resize-none w-full h-full p-0.5 focus:outline-none text-xs"></textarea>
-      </div>
-      <div class="border-r border-black p-1 flex items-center justify-center gap-2">
-        <label class="flex items-center gap-1">
-          SI
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-        <label class="flex items-center gap-1">
-          NO
-          <input type="checkbox" class="h-3 w-3" />
-        </label>
-      </div>
-      <div class="p-1 flex items-center">
-        <input type="text" class="border-0 w-full h-full focus:outline-none text-xs p-0.5" />
-      </div>
-    </div>
+      frameborder="0">
+    </iframe>
   </div>
+</ng-template>
 
-  <!-- Footer Section -->
-  <div class="grid grid-cols-2 text-xs">
-    <div class="border-r border-black p-3 space-y-3">
-      <div>
-        <div class="font-bold">RESP. DEL SERVICIO:</div>
-        <div class="mt-3 space-y-1">
-          <div class="flex items-center gap-2">
-            <div>N° FOTOCHECK:</div>
-            <input type="text" class="w-28 h-6 border border-gray-300 text-xs" />
-          </div>
-          <div>
-            <div>FIRMA:</div>
-            <div class="h-12 border-b border-black mt-1"></div>
-          </div>
+
+
+    <div>
+
+      <div style="  left: 101.4682em;top: 7.331em;position: absolute;">
+        <h6>GUARDAR</h6>
+        <a style="cursor: pointer;" (click)="saveData()">
+        <span nz-icon nzType="save" nzTheme="outline" style="font-size: 24px;"></span>
+        </a>
+
         </div>
-      </div>
-    </div>
-    <div class="p-3 space-y-3">
-      <div>
-        <div class="font-bold">SUPERVISOR:</div>
-        <div class="mt-3 space-y-1">
-          <div class="flex items-center gap-2">
-            <div>N° FOTOCHECK:</div>
-            <input type="text" class="w-28 h-6 border border-gray-300 text-xs" />
-          </div>
-          <div>
-            <div>FIRMA:</div>
-            <div class="h-12 border-b border-black mt-1"></div>
-          </div>
+
+        <div style="  left: 101.4682em;top: 12.331em;position: absolute;">
+        <h6>PLANO</h6>
+        <a (click)="VerPlano()" style="cursor: pointer;">
+        <span nz-icon nzType="file-pdf" nzTheme="outline" style="font-size: 24px;"></span>
+        </a>
         </div>
-      </div>
     </div>
-  </div>
-
-</div>
 
 
+</body>
 
 
 
-<div #pdfContainer style="position: relative;">
+
+
+
+
+
+<!--<div #pdfContainer style="position: relative;">
 	<canvas></canvas>
 	<div class="annotationLayer"></div>
-  </div>
+  </div>-->
 
 
 
@@ -459,31 +726,5 @@
   <p-toast></p-toast>-->
 
 
-  <ng-template #pdfModal>
 
-    <div class="pdf-container">
-      <iframe
-        [src]="pdfUrl"
-
-        frameborder="0">
-      </iframe>
-    </div>
-  </ng-template>
-
-
-
-
-<div style="  left: 101.4682em;top: 7.331em;position: absolute;">
-	<h6>GUARDAR</h6>
-<a (click)="saveData()" style="cursor: pointer;">
-	<span nz-icon nzType="save" nzTheme="outline" style="font-size: 24px;"></span>
-</a>
-
-</div>
-
-<div style="  left: 101.4682em;top: 12.331em;position: absolute;">
-	<h6>PLANO</h6>
-<a (click)="VerPlano()" style="cursor: pointer;">
-	<span nz-icon nzType="file-pdf" nzTheme="outline" style="font-size: 24px;"></span>
-</a>
 

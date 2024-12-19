@@ -16,6 +16,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzModalRef } from 'ng-zorro-antd/modal/modal-ref';
+import { AlertService } from 'src/app/features/sistemas/services/alert.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { ChangeDetectorRef } from '@angular/core';
@@ -33,6 +34,9 @@ interface NotificationItem {
   desc: string;
   read: boolean;
   title: string;
+  id_pm1?: number; // Propiedad opcional
+  id_spt1?: number; // Propiedad opcional
+  id_spt2?: number; // Propiedad opcional
 }
 
 
@@ -55,7 +59,7 @@ export class HeaderComponent {
 
 
   userEmail?: string;
-
+  loading: boolean = false;
 
     //spt2Firmados: Spt2[] = [];
     itemss!: string[];
@@ -97,7 +101,9 @@ export class HeaderComponent {
       private sanitizer: DomSanitizer,
       private pm1Service: PM1Service,
       private Pdfspt1service :PdfGeneratorServicespt1Service,
-      private PdfPm1Service:PdfPm1Service
+      private PdfPm1Service:PdfPm1Service,
+      private cdr: ChangeDetectorRef,
+      private alertservice:AlertService,
   ){
 
   }
@@ -153,7 +159,7 @@ export class HeaderComponent {
     });
 
     // Cargar otras notificaciones
-
+    this.cargarNotificaciones
 
      // Recuperar el ID de usuario desde localStorage
      const storedUserId = localStorage.getItem('userId');
@@ -183,8 +189,17 @@ export class HeaderComponent {
     this.bellInfo.total = this.bellInfo.notice + this.bellInfo.message + this.bellInfo.task;
   }
 
-
-
+  cargarNotificaciones(isVisible: boolean): void {
+    if (isVisible && !this.noticeList.length && !this.FirmadoList.length) {
+      this.loading = true; // Mostrar spinner
+      this.obtenerNotificacionesPendientes();
+      this.obtenerNotificacionesFirmadas();
+    }
+  }
+  finalizarCarga(): void {
+    this.loading = false; // Detener el spinner
+    this.cdr.detectChanges(); // Forzar actualización de la vista
+  }
   obtenerNotificacionesFirmadas() {
     this.notificacionService.obtenerNotificacionesFirmadas(this.userId)
       .subscribe(
@@ -209,6 +224,7 @@ export class HeaderComponent {
 
             } as NotificationItem;
           });
+          this.finalizarCarga();
 
           // Actualiza la cantidad de mensajes firmados pendientes
           this.bellInfo.notice = this.FirmadoList.length;
@@ -218,6 +234,7 @@ export class HeaderComponent {
         },
         error => {
           console.error('Error al obtener las notificaciones firmadas:', error);
+          this.finalizarCarga();
         }
       );
   }
@@ -245,7 +262,7 @@ export class HeaderComponent {
               desc: 'Descripción no disponible' ,
             } as NotificationItem;
           });
-
+          this.finalizarCarga();
           // Actualiza bellInfo.notice con la cantidad de notificaciones pendientes
           this.bellInfo.notice = this.noticeList.length;
 
@@ -254,56 +271,101 @@ export class HeaderComponent {
         },
         error => {
           console.error('Error al obtener las notificaciones pendientes:', error);
+          this.finalizarCarga();
         }
       );
   }
 
+  getFileType(item: NotificationItem): string {
+    if (item.id_pm1) {
+      return 'PM1';
+    } else if (item.id_spt1) {
+      return 'SPT1';
+    } else if (item.id_spt2) {
+      return 'SPT2';
+    } else {
+      return 'Desconocido';
+    }
+  }
+
+
+
 
   firmarNotificacion(item: NotificationItem): void {
-    const idNotificacion = item.id; // Asegúrate de tener el `id` de la notificación
-    const firmado = true;
+    this.modal.confirm({
+      nzTitle: 'Confirmación',
+      nzContent: '¿Estás seguro de que quieres firmar esta notificación?',
+      nzOkText: 'Aceptar',
+      nzCancelText: 'Cancelar',
+      nzOnOk: () => {
+        const idNotificacion = item.id; // Asegúrate de tener el `id` de la notificación
+        const firmado = true;
 
-    this.notificacionService.actualizarFirmaNotificacion(idNotificacion, firmado).subscribe(
-      (response) => {
-        console.log('Notificación firmada con éxito:', response);
+        this.notificacionService.actualizarFirmaNotificacion(idNotificacion, firmado).subscribe(
+          (response) => {
+            console.log('Notificación firmada con éxito:', response);
 
-        // Actualizar el estado de la notificación y moverla a la lista de firmadas
-        this.noticeList = this.noticeList.filter(notice => notice.id !== item.id);
-        item.read = true; // Marcar como leído
+            // Actualizar el estado de la notificación y moverla a la lista de firmadas
+            this.noticeList = this.noticeList.filter(notice => notice.id !== item.id);
+            item.read = true; // Marcar como leído
 
-        // Agregar la notificación firmada a FirmadoList
-        this.FirmadoList.push(item);
+            // Agregar la notificación firmada a FirmadoList
+            this.FirmadoList.push(item);
 
-        // Actualizar la cantidad de notificaciones pendientes y firmadas
-        this.bellInfo.notice = this.noticeList.length;
-        this.bellInfo.total = this.bellInfo.notice + this.bellInfo.message + this.bellInfo.task;
-      },
-      (error) => {
-        console.error('Error al firmar la notificación:', error);
+            // Actualizar la cantidad de notificaciones pendientes y firmadas
+            this.bellInfo.notice = this.noticeList.length;
+            this.bellInfo.total = this.bellInfo.notice + this.bellInfo.message + this.bellInfo.task;
+
+            // Mostrar alerta de éxito
+            this.alertservice.success('Notificación Firmada', 'La notificación se ha firmado con éxito.');
+          },
+          (error) => {
+            console.error('Error al firmar la notificación:', error);
+
+            // Mostrar alerta de error
+            this.alertservice.error('Error', 'No se pudo firmar la notificación.');
+          }
+        );
       }
-    );
+    });
   }
 
 
   eliminarNotificacion(item: NotificationItem): void {
-    const idNotificacion = item.id;
+    this.modal.confirm({
+      nzTitle: 'Confirmación',
+      nzContent: '¿Estás seguro de que quieres eliminar esta notificación?',
+      nzOkText: 'Aceptar',
+      nzCancelText: 'Cancelar',
+      nzOnOk: () => {
+        const idNotificacion = item.id;
 
-    this.notificacionService.eliminarNotificacion(idNotificacion).subscribe(
-      (response) => {
-        console.log('Notificación eliminada con éxito:', response);
+        this.notificacionService.eliminarNotificacion(idNotificacion).subscribe(
+          (response) => {
+            console.log('Notificación eliminada con éxito:', response);
 
-        // Eliminar la notificación de la lista de pendientes
-        this.noticeList = this.noticeList.filter(notice => notice.id !== item.id);
+            // Eliminar la notificación de la lista de pendientes
+            this.noticeList = this.noticeList.filter(notice => notice.id !== item.id);
 
-        // Actualizar la cantidad de notificaciones pendientes
-        this.bellInfo.notice = this.noticeList.length;
-        this.bellInfo.total = this.bellInfo.notice + this.bellInfo.message + this.bellInfo.task;
-      },
-      (error) => {
-        console.error('Error al eliminar la notificación:', error);
+            // Actualizar la cantidad de notificaciones pendientes
+            this.bellInfo.notice = this.noticeList.length;
+            this.bellInfo.total = this.bellInfo.notice + this.bellInfo.message + this.bellInfo.task;
+
+            // Mostrar alerta de éxito
+            this.alertservice.success('Notificación Eliminada', 'La notificación se ha eliminado con éxito.');
+          },
+          (error) => {
+            console.error('Error al eliminar la notificación:', error);
+
+            // Mostrar alerta de error
+            this.alertservice.error('Error', 'No se pudo eliminar la notificación.');
+          }
+        );
       }
-    );
+    });
   }
+
+
 
 
 
@@ -334,7 +396,7 @@ spt2pdf(id_spt2: number): void {
 
 
 pm1pdf(id_pm1: number): void {
-  console.log("enviando id_pm1",id_pm1)
+  console.log("enviando id_pm1", id_pm1);
   this.PdfPm1Service.fillPdf(id_pm1).then((pdfBlob: Blob | undefined) => {
     if (pdfBlob) {
       const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
@@ -348,8 +410,8 @@ pm1pdf(id_pm1: number): void {
   }).catch(error => {
     console.error('Error al abrir el PDF:', error);
   });
-
 }
+
 
 
 spt1pdf(id_spt1: number): void {

@@ -76,8 +76,9 @@ export interface AvisoObservacion {
 }
 
 export interface Equipo {
-  seleccionado: string;
-  ingresado: string;
+  seleccionados: string[]; // Ahora es una lista de seleccionados
+  valor_real?: number[];
+  valor_testigo?: number[];
 }
 
 export interface PM1 {
@@ -95,23 +96,8 @@ export interface PM1 {
 
   potencia_actual: string; // Nueva propiedad
   corriente_actual: string;
-  equipos: Equipo[];
+  equipos?: Equipo[];
 }
-
-
-export interface MOSTRARPM1{
-  id_pm1?:number;
-
-  orden_trabajo: string;
-  firma:boolean;
-  fecha: string;
-
-  usuario: string;
-  usuario_2: string;
-  subestacion:string;
-  transformador:string
-}
-
 export interface BuscarPM1PorId {
   id_pm1: number;
   hora_inicio: string;
@@ -134,5 +120,23 @@ export interface BuscarPM1PorId {
   seguridad_observaciones: string;
   patio_observaciones: string;
   aviso_observaciones: string;
-  equipos: string;
+  equipo_item1?: string;
+  equipo_item2?: string;
+  equipo_item3?: string;
+  equipo_item4?: string;
 }
+
+export interface MOSTRARPM1{
+  id_pm1?:number;
+
+  orden_trabajo: string;
+  firma:boolean;
+  fecha: string;
+
+  usuario: string;
+  usuario_2: string;
+  subestacion:string;
+  transformador:string
+}
+
+

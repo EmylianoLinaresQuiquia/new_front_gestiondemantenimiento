@@ -24,9 +24,10 @@
 <nz-table
   #basicTable
   [nzData]="filteredSpt2List"
-  [nzFrontPagination]="false"
 
-  [nzScroll]="{ x: '1700px' }"
+  [nzBordered]="true"
+  [nzFrontPagination]="false" [nzShowPagination]="false"
+
   [nzLoading]="loading"
   [nzTotal]="filteredSpt2List.length"
   class="small-text-table">
