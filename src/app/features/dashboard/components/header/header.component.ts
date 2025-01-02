@@ -396,21 +396,35 @@ spt2pdf(id_spt2: number): void {
 
 
 pm1pdf(id_pm1: number): void {
-  console.log("enviando id_pm1", id_pm1);
-  this.PdfPm1Service.fillPdf(id_pm1).then((pdfBlob: Blob | undefined) => {
-    if (pdfBlob) {
-      const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-        URL.createObjectURL(pdfBlob) + '#toolbar=0'
-      );
-      const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
-    } else {
-      console.error('No se pudo generar el PDF.');
-    }
-  }).catch(error => {
-    console.error('Error al abrir el PDF:', error);
-  });
+  console.log('Enviando id_pm1', id_pm1);
+
+  // Obtén el pdfData primero
+  this.PdfPm1Service.fetchAndSetPdf(id_pm1)
+    .then((pdfData: ArrayBuffer | null) => {
+      if (!pdfData) {
+        console.error('No se pudo obtener el PDF data.');
+        return;
+      }
+
+      // Llama a fillPdf con los argumentos necesarios
+      return this.PdfPm1Service.fillPdf(id_pm1, pdfData);
+    })
+    .then((pdfBlob: Blob | undefined) => {
+      if (pdfBlob) {
+        const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+          URL.createObjectURL(pdfBlob) + '#toolbar=0'
+        );
+        const url = URL.createObjectURL(pdfBlob);
+        window.open(url, '_blank');
+      } else {
+        console.error('No se pudo generar el PDF.');
+      }
+    })
+    .catch(error => {
+      console.error('Error al abrir el PDF:', error);
+    });
 }
+
 
 
 

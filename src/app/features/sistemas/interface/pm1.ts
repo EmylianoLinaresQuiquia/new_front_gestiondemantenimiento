@@ -96,7 +96,10 @@ export interface PM1 {
 
   potencia_actual: string; // Nueva propiedad
   corriente_actual: string;
-  equipos?: Equipo[];
+  item1: { [key: string]: string }[] | null;
+  item2: { [key: string]: string }[] | null;
+  item3: { [key: string]: string }[] | null;
+  item4: { [key: string]: string }[] | null;
 }
 export interface BuscarPM1PorId {
   id_pm1: number;

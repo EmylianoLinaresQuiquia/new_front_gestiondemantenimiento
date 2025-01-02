@@ -40,8 +40,14 @@ export class SidebarComponent {
   // Menú de ejemplo
   menuList: MenuItem[] = [
     {
-      title: 'Mantenimiento',
+      title: 'Quienes Somos?',
       link: '/dashboard',
+      icon: 'bulb',
+    },
+    {
+
+      title: 'Mantenimiento',
+      link: '',
       icon: 'book',
       children: [
         {

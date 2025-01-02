@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100vh;
   overflow: auto;
-  background: #f0f2f5;
+
 }
 
 
@@ -134,81 +134,57 @@
 }
 
 /***my css*/
-.relative {
-  position: relative;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
 }
 
-.absolute {
-  position: absolute;
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  justify-content: space-evenly;
 }
 
-.min-h-screen {
-  min-height: 100vh;
+.header {
+  text-align: center;
+  margin-bottom: 30px;
 }
 
-.w-full {
-  width: 100%;
+.header h1 {
+  color: #0066a1;
+  font-size: 32px;
+  font-weight: bold;
 }
 
-.overflow-hidden {
-  overflow: hidden;
+.d-flex {
+  display: flex;
+
 }
 
-.h-24 {
-  height: 6rem;
+
+.hex-grid {
+  display: grid;
+  grid-template-columns: 20% 20%;
+  justify-items: center;
+  align-items: center;
+  justify-content: center;
 }
 
-.w-24 {
-  width: 6rem;
-}
-
-.z-10 {
-  z-index: 10;
-}
-
-.p-8 {
-  padding: 2rem;
-}
-
-/* Common styles for triangles */
-.triangle {
-  position: absolute;
+.hex img {
   width: 100%;
   height: 100%;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
+
 }
 
-.triangle.smaller {
-  width: 75%;
-  height: 75%;
-}
-
-.triangle.smallest {
+.marcobre-logo{
   width: 50%;
-  height: 50%;
+}
+.mina-logo{
+  width: 50%;
 }
 
-.triangle.blue {
-  background-color: #2563eb; /* blue-600 */
-}
 
-.triangle.red {
-  background-color: #dc2626; /* red-600 */
-}
-
-.triangle.white {
-  background-color: white;
-}
-
-/* Adjust clip-path for different corners */
-.triangle.top-right {
-  clip-path: polygon(100% 0, 0 0, 100% 100%);
-}
-
-.triangle.bottom-left {
-  clip-path: polygon(0 100%, 100% 100%, 0 0);
-}
-
-.triangle.bottom-right {
-  clip-path: polygon(100% 100%, 0% 100%, 100% 0);
-}

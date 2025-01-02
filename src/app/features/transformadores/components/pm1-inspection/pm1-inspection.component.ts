@@ -224,82 +224,83 @@ async saveData() {
           solicitud: obs.solicitud,
         }));
 
-        // Función para procesar cada formulario
-        const procesarFormularioAgrupado = (formulario: Formulario | undefined): Equipo | null => {
-          if (!formulario) return null;
 
-          const resultado: Equipo = {
-            seleccionados: [],
-            valorReal: [],
-            valorTestigo: []
-          };
+// Función para procesar cada formulario y extraer los datos en formato { descripcion, estado }
+const procesarFormularioAgrupado = (
+  formulario: Formulario | undefined
+): { descripcion: string; estado: string }[] | null => {
+  if (!formulario) return null;
 
-          formulario.items.forEach((item: Item) => {
-            if (item.tipo === 'valores' && item.valores?.length === 2) {
-              const valorReal = item.valores[0];
-              const valorTestigo = item.valores[1];
+  const resultado: { descripcion: string; estado: string }[] = [];
 
-              if (valorReal !== null && valorTestigo !== null) {
-                resultado.valorReal?.push(Number(valorReal));
-                resultado.valorTestigo?.push(Number(valorTestigo));
-              }
-            } else if (item.tipo === 'opciones' && item.valor) {
-              resultado.seleccionados.push(item.valor.trim());
-            }
-          });
+  formulario.items.forEach((item: Item) => {
+    const labelClave = item.label?.trim(); // Tomar el label tal cual está
+    if (!labelClave) return; // Saltar si no hay un label válido
 
-          return resultado.seleccionados.length || (resultado.valorReal?.length || 0) || (resultado.valorTestigo?.length || 0) ? resultado : null;
+    let estado: string | null = null;
 
-        };
+    // Procesar valores
+    if (item.tipo === 'valores' && item.valores?.length === 2) {
+      const valorReal = item.valores[0];
+      const valorTestigo = item.valores[1];
+      estado = valorReal !== null && valorTestigo !== null
+        ? `${valorReal},${valorTestigo}`
+        : null;
+    }
+    // Procesar opciones
+    else if (item.tipo === 'opciones' && item.valor) {
+      estado = item.valor.trim();
+    }
 
-        const equipos: Equipo[] = [];
+    if (estado !== null) {
+      resultado.push({ descripcion: labelClave, estado });
+    }
+  });
 
-        const formulario1 = procesarFormularioAgrupado(this.transformador1?.form1);
-        if (formulario1) equipos.push(formulario1);
+  return resultado.length > 0 ? resultado : null;
+};
 
-        const formulario2 = procesarFormularioAgrupado(this.transformador1?.form2);
-        if (formulario2) equipos.push(formulario2);
+// Procesar formularios y asignar a cada campo correspondiente
+const item1 = procesarFormularioAgrupado(this.transformador1?.form1);
+const item2 = procesarFormularioAgrupado(this.transformador1?.form2);
+const item3 = procesarFormularioAgrupado(this.transformador2?.form3);
+const item4 = procesarFormularioAgrupado(this.transformador2?.form4);
 
-        const formulario3 = procesarFormularioAgrupado(this.transformador2?.form3);
-        if (formulario3) equipos.push(formulario3);
+// Validar que al menos un formulario esté completo
+if (!item1 && !item2 && !item3 && !item4) {
+  this.alertservice.error('Error', 'Debe completar al menos un formulario correctamente.');
+  this.messageService.remove(loadingMessageId);
+  return;
+}
 
-        const formulario4 = procesarFormularioAgrupado(this.transformador2?.form4);
-        if (formulario4) equipos.push(formulario4);
+// Crear el objeto para la API
+const pm1: PM1 = {
+  hora_inicio: this.horaInicio,
+  hora_fin: this.horaFin,
+  orden_trabajo: this.ordenTrabajo,
+  fecha: fechaFormateada,
+  seguridad_observaciones: this.seguridadObservaciones,
+  patio_observaciones: patioObservaciones,
+  aviso_observaciones: avisoObservaciones,
+  id_transformadores: parseInt(this.id_transformadores, 10),
+  id_usuario: this.idusuario,
+  id_usuario_2: this.idusuario2,
+  potencia_actual: this.potenciaActual,
+  corriente_actual: this.corrienteActual,
+  item1: item1 ?? [], // Arreglo vacío si es null
+  item2: item2 ?? [],
+  item3: item3 ?? [],
+  item4: item4 ?? [],
+};
 
-        if (equipos.length === 0) {
-          this.alertservice.error('Error', 'Debe completar al menos un formulario correctamente.');
-          this.messageService.remove(loadingMessageId);
-          return;
-        }
+console.log('Objeto PM1 a enviar:', JSON.stringify(pm1, null, 2));
 
-        console.log('Equipos agrupados:', equipos);
+// Llamar al servicio para guardar los datos
+const response = await this.pm1Service.postPM1(pm1).toPromise();
+const idPm1 = response;
 
+console.log('Respuesta del servicio postPM1:', response);
 
-
-        // Crear el objeto para la API
-        const pm1: PM1 = {
-          hora_inicio: this.horaInicio,
-          hora_fin: this.horaFin,
-          orden_trabajo: this.ordenTrabajo,
-          fecha: fechaFormateada,
-          seguridad_observaciones: this.seguridadObservaciones,
-          patio_observaciones: patioObservaciones,
-          aviso_observaciones: avisoObservaciones,
-          id_transformadores: parseInt(this.id_transformadores, 10),
-          id_usuario: this.idusuario,
-          id_usuario_2: this.idusuario2,
-          potencia_actual: this.potenciaActual,
-          corriente_actual: this.corrienteActual,
-          equipos: equipos,
-        };
-
-        console.log('Objeto PM1 a enviar:', JSON.stringify(pm1, null, 2));
-
-        // Llamar al servicio para guardar los datos
-        const response = await this.pm1Service.postPM1(pm1).toPromise();
-        const idPm1 = response;
-
-        console.log('Respuesta del servicio postPM1:', response);
 
         if (idPm1) {
           const notificacion: Notificacion = {
@@ -327,6 +328,7 @@ async saveData() {
         this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
       }
     },
+
   });
 }
 

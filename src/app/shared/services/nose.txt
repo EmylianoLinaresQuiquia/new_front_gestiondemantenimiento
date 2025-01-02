@@ -186,6 +186,7 @@ Válv. Inferior de radiador desmontable
 
 
 ##########################################CHANCADO_FINO_SULFUROS
+#FORM1
 Válv. Llenado tanque conservador
 Guarda resistencia puesta a tierra
 Válv. Alivio de presion
@@ -194,7 +195,7 @@ Tapa de cuba
 Tapa ingreso de cables lado primario
 Terminal Puesta a tierra
 
-
+#FORM2
 Relé detector de gas - Buchholz
 Indic. magnético nivel de aceite
 Ingreso para sonda de termómetro
@@ -205,7 +206,7 @@ Termómetro de aceite
 Termómetro de devanado
 Caja conexiones auxiliares
 
-
+#FORM3
 Tapa de Inspección parte activa
 Tanque conservador
 Grapas Seguro de tapa
@@ -215,7 +216,7 @@ Válv. Drenaje/Muestreo tipo gaveta
 Terminal Puesta a tierra
 
 
-
+#FORM4
 Válvula de abastecimiento
 Accionamiento de conmutador S/T
 Válv. Superior de radiador
@@ -225,7 +226,7 @@ Válv. Inferior de radiador
 
 
 ************************************************
-
+#FORM1
 Relé de presión súbita
 Manovacuómaetro
 Indic. magnético nivel de aceite
@@ -234,7 +235,7 @@ Ingreso para sonda de termómetro
 Termómetro de devanado
 Válv. Drenaje / Muestreo
 
-
+#FORM2
 Tapa de Inspección parte activa
 Caja de pase de TC — Imagen térmica
 Placa de identificación
@@ -244,6 +245,7 @@ Caja conexiones auxiliares
 Terminal Puesta a tierra
 
 
+#FORM3
 Tapa de cuba
 Accionamiento de conmutador S/T
 Válv. Alivio de presión
@@ -253,7 +255,7 @@ Tapón Inferior Rad.
 Válv. Superior de radiador desmontable
 Válv. Inferior de radiador desmontable
 
-
+#FORM4
 Válv. Llenado de gas N.
 Grapas seguro de tapa
 Tapa ingreso de cables lado primario
@@ -263,6 +265,7 @@ Tapa ingreso de cables lado primario
 
 ######################################CHANCADO_PRIMARIO
 
+#FORM1
 Accionamiento de conmutador S/T
 Ingreso para sonda de termómetro
 Indic. magnético nivel de aceite
@@ -271,6 +274,7 @@ Terminal Puesta a tierra
 
 
 
+#FORM2
 Guarda resistencia puesta a tierra
 Válv. Llenado de gas N.
 Termómetro de aceite
@@ -282,6 +286,7 @@ Placa de identificación
 Caja conexiones auxiliares
 
 
+#FORM3
 Válv. Llenado de cuba
 Válv. Alivio de presión
 Rele de presión súbita
@@ -292,7 +297,7 @@ Válv. Inferior de radiador
 Tapón inferior Rad.
 Cuba
 
-
+#FORM4
 Tapa de Inspección parte activa
 Tapa de cuba
 Grapas seguro de tapa
@@ -302,6 +307,8 @@ Terminal Puesta a tierra
 
 ################################
 
+
+#FORM1
 Tapa de cuba
 Termómetro de aceite
 Ingreso para sonda de termometro
@@ -311,6 +318,7 @@ Valvula de drenaje / muestreo
 Terminal Puesta a tierra
 
 
+#FORM2
 Válv. Llenado de gas N.
 Termórnatro de devanado
 Placa de identificación
@@ -319,7 +327,7 @@ Tapa ingreso de cables lado secundario
 Caja conexiones auxiliares
 
 
-
+#FORM3
 Accionamiento de conmutador S/T
 Válv. Alivio de presión
 Relé de presión súbita
@@ -331,6 +339,7 @@ Tapón inferior Rad.
 
 
 
+#FORM4
 Tapa de Inspección parte activa
 Grapas Seguro de tapa
 Tapa ingreso de cables lado primario
@@ -382,3 +391,99 @@ Caja de pase de TC — Imagen térmica
 Válv. Superior de radiador
 Válv. inferior de radiador
 Motoventilador
+
+
+
+
+
+
+############CONCENTRADO
+
+
+
+Accionamiento de conmutador S/T
+Tapa de Cuba
+Relé de presión súbita
+Manovacuómetro / Valor de testigo
+Indic. Magnético nivel de aceite
+Termómetro de aceite / Valor de testigo
+Ingreso para sonda de termómetro
+Termúnetro de devanado / Valor de testigo
+
+
+
+
+
+Caja de pase de TC — imagen térmica
+Placa de identificación
+Grapas seguro de tapa
+Tapa ingreso de cables lado secundario
+Caja conexiones auxiliares
+Terminal Puesta a tierra
+Válv. Drenaje/Muestreo
+
+
+
+
+Válv Llenado de gas N
+Tana de Inspección parte activa
+Válv. Alivio de presión
+Tapón superior Rad.
+Radiadores Oblea con bridas desmontables
+Válv. Llenado de cuba
+Tapón Inferior Rad.
+Válv. Inferior de radiador desmontable
+
+
+
+Grapas seguro de tapa
+Tapa ingreso de cables lado primario
+Válv. Superior de radiador desmontable
+
+
+
+#################ElECTROWINING_SS-308
+
+Tapa de inspección lado primario
+Ingreso para sonda de termómetro
+Manovacuometro / valor de testigo
+Tapa de inspección lateral lado primario
+Tapon superior Rad.
+Termómetro de accite / Valor de testigo
+Radiadores Oblea Con bridas
+Tapon inferior Rad.
+Caja de pase de TC — Imagen térmica
+Válv. Drenaje/Muestreo
+Caja conexiones auxiliares
+
+
+
+
+Relé de presión súbita
+Indic. magnético nivel de aceite
+Termómetro de devanado / Valor de testigo
+Grapas seguro de tapa
+Tapa ingreso de cables lado secundario
+Placa de identificación
+
+
+
+
+Tapa de Inspección lado secundario
+Válv. Alivio de presión
+Válv. Llenado de N.
+Tapa de inspección lateral lado primario
+Válv.Superior de radiador desmontable
+Válv. Llenado de cuba
+Radiadores Oblea con bridas
+Válv. Inferior de radiador desmontable
+Terminal Puesta a tierra
+
+
+
+
+Accionamiento de conmutador S/T
+Tapa de Inspección parte activa
+Grapas Seguro de tapa
+Tapa ingreso de cables lado primario
+Pernos de anclaje

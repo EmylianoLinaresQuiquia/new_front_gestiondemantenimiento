@@ -172,8 +172,16 @@ abrirpdf(id: number): void {
 
       if (this.pm1) {
         try {
+          // Obtener el pdfData antes de llamar a fillPdf
+          const pdfData = await this.PdfPm1Service.fetchAndSetPdf(id);
+
+          if (!pdfData) {
+            console.error('No se pudo obtener el PDF data.');
+            return;
+          }
+
           // Llamar al método que genera el PDF
-          const pdfBlob = await this.PdfPm1Service.fillPdf(id);
+          const pdfBlob = await this.PdfPm1Service.fillPdf(id, pdfData);
 
           if (pdfBlob) {
             const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -194,6 +202,7 @@ abrirpdf(id: number): void {
     }
   );
 }
+
 
 
 
