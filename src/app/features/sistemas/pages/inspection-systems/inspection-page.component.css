@@ -4,3 +4,19 @@
   min-width: 0;
   justify-content: space-around !important;
 }
+
+.img-sistemas{
+  max-width: 200px; height: 300px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ant-row {
+  display: grid
+  ;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;}
+  .img-sistemas{
+    max-width: 150px;
+  }
+}
