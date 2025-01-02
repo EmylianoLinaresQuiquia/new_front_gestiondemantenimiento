@@ -51,7 +51,7 @@ export class SidebarComponent {
       icon: 'book',
       children: [
         {
-          title: 'Sistemas',
+          title: 'Sistemas pt',
           link: '/sistemas',
           icon: 'book'
         },

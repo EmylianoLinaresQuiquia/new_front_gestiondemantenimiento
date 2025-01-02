@@ -162,17 +162,11 @@ body {
 
 .d-flex {
   display: flex;
+  gap: 100px;
 
 }
 
 
-.hex-grid {
-  display: grid;
-  grid-template-columns: 20% 20%;
-  justify-items: center;
-  align-items: center;
-  justify-content: center;
-}
 
 .hex img {
   width: 100%;
@@ -188,3 +182,28 @@ body {
 }
 
 
+
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1.2rem;
+    padding: 5px;
+  }
+
+  .container {
+    padding: 10px;
+  }
+
+  .d-flex {
+    gap: 5px;
+    flex-direction: column;
+  }
+
+  .login-container {
+    padding: 10px;
+  }
+
+  .mina-logo {
+    width: 20%;
+  }
+}
