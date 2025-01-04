@@ -25,6 +25,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import * as XLSX from 'xlsx';
+
+
 @Component({
   selector: 'app-history-spt2',
   standalone: true,
@@ -33,6 +35,8 @@ import * as XLSX from 'xlsx';
   styleUrl: './history-spt2.component.css'
 })
 export class HistorySpt2Component implements OnInit{
+
+
   spt2List: MostrarSpt2[] = [];
   filteredSpt2List: MostrarSpt2[] = [];
 

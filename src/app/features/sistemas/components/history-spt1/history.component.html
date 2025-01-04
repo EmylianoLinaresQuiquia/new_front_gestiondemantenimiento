@@ -1,20 +1,72 @@
 <nz-table
   [nzData]="filteredData"
   [nzBordered]="true"
-  [nzFrontPagination]="false" [nzShowPagination]="false"
+  [nzFrontPagination]="false"
+  [nzShowPagination]="false"
   [nzLoading]="loading"
 >
   <thead>
     <tr>
-      <th nzWidth="19%">Tag Subestacion</th>
-      <th nzWidth="18%">OT</th>
-      <th nzWidth="18%">Fecha</th>
+      <th nzWidth="19%">
+        Tag Subestacion
+        <nz-input-group>
+          <input
+            nz-input
+            [(ngModel)]="filterTagSubestacion"
+            placeholder="Filtrar Subestación"
+            (ngModelChange)="applyFilter()"
+          />
+        </nz-input-group>
+      </th>
+      <th nzWidth="18%">
+        OT
+        <nz-input-group>
+          <input
+            nz-input
+            [(ngModel)]="filterOt"
+            placeholder="Filtrar OT"
+            (ngModelChange)="applyFilter()"
+          />
+        </nz-input-group>
+      </th>
+      <th nzWidth="18%">
+        Fecha
+        <nz-input-group>
+          <input
+            nz-input
+            type="date"
+            [(ngModel)]="filterFecha"
+            placeholder="Filtrar Fecha"
+            (ngModelChange)="applyFilter()"
+          />
+        </nz-input-group>
+      </th>
       <th nzWidth="5%">PAT1</th>
       <th nzWidth="5%">PAT2</th>
       <th nzWidth="5%">PAT3</th>
       <th nzWidth="5%">PAT4</th>
-      <th nzWidth="18%">Líder</th>
-      <th nzWidth="18%">Supervisor</th>
+      <th nzWidth="18%">
+        Líder
+        <nz-input-group>
+          <input
+            nz-input
+            [(ngModel)]="filterLider"
+            placeholder="Filtrar Líder"
+            (ngModelChange)="applyFilter()"
+          />
+        </nz-input-group>
+      </th>
+      <th nzWidth="18%">
+        Supervisor
+        <nz-input-group>
+          <input
+            nz-input
+            [(ngModel)]="filterSupervisor"
+            placeholder="Filtrar Supervisor"
+            (ngModelChange)="applyFilter()"
+          />
+        </nz-input-group>
+      </th>
       <th nzWidth="5%">Documento</th>
       <th *ngIf="mostrarHerramientas" nzWidth="50%">Herramientas</th>
     </tr>
@@ -25,34 +77,50 @@
       <td>{{ item.ot }}</td>
       <td>{{ item.fecha }}</td>
       <td>
-        <i [ngClass]="getPatIconClass(item.pat1)"
-           [ngStyle]="{ color: getPatIconColor(item.pat1) }"
-           (click)="openPatDetails(item.pat1, 'PAT1')"></i>
+        <i
+          [ngClass]="getPatIconClass(item.pat1)"
+          [ngStyle]="{ color: getPatIconColor(item.pat1) }"
+          (click)="openPatDetails(item.pat1, 'PAT1')"
+        ></i>
       </td>
       <td>
-        <i [ngClass]="getPatIconClass(item.pat2)"
-           [ngStyle]="{ color: getPatIconColor(item.pat2) }"
-           (click)="openPatDetails(item.pat2, 'PAT2')"></i>
+        <i
+          [ngClass]="getPatIconClass(item.pat2)"
+          [ngStyle]="{ color: getPatIconColor(item.pat2) }"
+          (click)="openPatDetails(item.pat2, 'PAT2')"
+        ></i>
       </td>
       <td>
-        <i [ngClass]="getPatIconClass(item.pat3)"
-           [ngStyle]="{ color: getPatIconColor(item.pat3) }"
-           (click)="openPatDetails(item.pat3, 'PAT3')"></i>
+        <i
+          [ngClass]="getPatIconClass(item.pat3)"
+          [ngStyle]="{ color: getPatIconColor(item.pat3) }"
+          (click)="openPatDetails(item.pat3, 'PAT3')"
+        ></i>
       </td>
       <td>
-        <i [ngClass]="getPatIconClass(item.pat4)"
-           [ngStyle]="{ color: getPatIconColor(item.pat4) }"
-           (click)="openPatDetails(item.pat4, 'PAT4')"></i>
+        <i
+          [ngClass]="getPatIconClass(item.pat4)"
+          [ngStyle]="{ color: getPatIconColor(item.pat4) }"
+          (click)="openPatDetails(item.pat4, 'PAT4')"
+        ></i>
       </td>
       <td>{{ item.lider }}</td>
       <td>{{ item.supervisor }}</td>
       <td>
         <a (click)="openPdf(item.idSpt1)">
-          <i class="fas fa-file-pdf" [style.color]="item.firma ? 'green' : 'orange'"></i>
+          <i
+            class="fas fa-file-pdf"
+            [style.color]="item.firma ? 'green' : 'orange'"
+          ></i>
         </a>
       </td>
       <td *ngIf="mostrarHerramientas">
-        <button nz-button nzType="danger" nzSize="small" (click)="eliminarRegistro(item.idSpt1)">
+        <button
+          nz-button
+          nzType="danger"
+          nzSize="small"
+          (click)="eliminarRegistro(item.idSpt1)"
+        >
           <i class="fas fa-trash-alt"></i>
         </button>
       </td>

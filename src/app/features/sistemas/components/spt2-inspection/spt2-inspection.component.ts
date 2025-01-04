@@ -222,26 +222,22 @@ esquema_selectivo: File | null = null;
 
 
   caidagrafico(): void {
-
-
     if (JSON.stringify(this.prevCaidaValues) === JSON.stringify(this.caidaValues)) {
-
-        return;
+      return;
     }
 
     this.prevCaidaValues = [...this.caidaValues];
 
     const chartContainer = document.getElementById('caida-chart');
     if (!chartContainer) {
-        console.error('Chart container "caida-chart" not found in DOM.');
-        return;
+      console.error('Chart container "caida-chart" not found in DOM.');
+      return;
     }
 
     if (this.chart) {
-        console.log('Disposing of existing chart');
-
-        this.chart.dispose();
-        this.chart = null;
+      console.log('Disposing of existing chart');
+      this.chart.dispose();
+      this.chart = null;
     }
 
     am4core.useTheme(am4themes_animated);
@@ -253,38 +249,34 @@ esquema_selectivo: File | null = null;
     if (this.chart && this.chart.logo) {
       this.chart.logo.disabled = true;
     }
+
     if (!this.chart) {
-        console.error('Failed to create chart instance.');
-        return;
+      console.error('Failed to create chart instance.');
+      return;
     }
 
-    const valuesPerCategory = 3;  // Número de valores por cada PAT
+    const valuesPerCategory = 3; // Número de valores por cada PAT
     const categories: string[] = [];
 
     const cantidad_spt = this.cantidad_spt ?? 0;
-    // Generar dinámicamente las categorías en función de this.cantidad_spt
     for (let i = 1; i <= cantidad_spt; i++) {
-        categories.push(`PAT${i}`);
+      categories.push(`PAT${i}`);
     }
 
     const chartData: Array<Record<string, any>> = [];
-
-    // Reestructurar chartData para que cada entrada represente una categoría PAT
     for (let i = 0; i < valuesPerCategory; i++) {
-        const dataPoint: Record<string, any> = { category: `Value ${i + 1}` };
-        categories.forEach((category, index) => {
-            dataPoint[category] = this.caidaValues[index * valuesPerCategory + i];
-        });
-        chartData.push(dataPoint);
+      const dataPoint: Record<string, any> = { category: `Value ${i + 1}` };
+      categories.forEach((category, index) => {
+        dataPoint[category] = this.caidaValues[index * valuesPerCategory + i];
+      });
+      chartData.push(dataPoint);
     }
 
     console.log('Chart data:', chartData);
     this.chart.data = chartData;
 
     const categoryAxis = this.chart.xAxes.push(new am4charts.CategoryAxis());
-    categoryAxis.dataFields.category = 'category';  // Categorías del eje X ahora son 'Value 1', 'Value 2', etc.
-
-    // Deshabilitar etiquetas del eje X
+    categoryAxis.dataFields.category = 'category';
     categoryAxis.renderer.labels.template.disabled = true;
 
     const valueAxis = this.chart.yAxes.push(new am4charts.ValueAxis());
@@ -297,43 +289,69 @@ esquema_selectivo: File | null = null;
     range.grid.strokeOpacity = 1;
 
     const patColors: { [key: string]: string } = {
-        'PAT1': 'blue',
-        'PAT2': 'green',
-        'PAT3': 'orange',
-        'PAT4': 'purple'
+      'PAT1': 'rgb(201, 201, 52)',   // Color personalizado para PAT1
+      'PAT2': 'rgb(0, 0, 49)',      // Color personalizado para PAT2
+      'PAT3': 'rgb(69, 167, 167)',  // Color personalizado para PAT3
+      'PAT4': 'rgb(189, 118, 31)'   // Color personalizado para PAT4
     };
 
-    // Crear series dinámicamente para cada categoría (PAT)
-    if (this.chart) {
-        categories.forEach((category) => {
-            const series = this.chart!.series.push(new am4charts.LineSeries());
-            series.name = category;
-            series.dataFields.valueY = category;
-            series.dataFields.categoryX = 'category';
-            series.strokeWidth = 3;
-            series.tooltipText = `{name}: {valueY}`;
+    categories.forEach((category) => {
+      const series = this.chart!.series.push(new am4charts.LineSeries());
+      series.name = category;
+      series.dataFields.valueY = category;
+      series.dataFields.categoryX = 'category';
+      series.strokeWidth = 3;
+      series.tooltipText = `{name}: {valueY}`;
 
-            // Usar color correspondiente a la categoría PAT
-            series.stroke = am4core.color(patColors[category]);
+      const lineColor = am4core.color(patColors[category]);
+      series.stroke = lineColor;
 
-            const bullet = series.bullets.push(new am4charts.CircleBullet());
-            bullet.circle.stroke = am4core.color('#fff');
-            bullet.circle.strokeWidth = 2;
+      const bullet = series.bullets.push(new am4charts.CircleBullet());
+      bullet.circle.fill = lineColor; // Color de relleno del punto
+      bullet.circle.stroke = am4core.color('#fff'); // Color del borde del punto
+      bullet.circle.strokeWidth = 2;
 
-            const labelBullet = series.bullets.push(new am4charts.LabelBullet());
-            labelBullet.label.text = '{valueY}';
-            labelBullet.label.dy = -10;
-            labelBullet.label.fontSize = 12;
-        });
-    }
+      const labelBullet = series.bullets.push(new am4charts.LabelBullet());
+      labelBullet.label.text = '{valueY}';
+      labelBullet.label.dy = -10;
+      labelBullet.label.fontSize = 12;
+    });
 
-    // Agregar leyenda al gráfico
-    this.chart.legend = new am4charts.Legend();
+    const legend = this.chart.legend = new am4charts.Legend();
+    legend.itemContainers.template.events.on("over", (event) => {
+      if (event.target.dataItem) {
+        const series = event.target.dataItem.dataContext as am4charts.LineSeries;
+        series.strokeWidth = 4;
+      }
+    });
+
+    legend.itemContainers.template.events.on("out", (event) => {
+      if (event.target.dataItem) {
+        const series = event.target.dataItem.dataContext as am4charts.LineSeries;
+        series.strokeWidth = 3;
+      }
+    });
+
+    // Personalizar los marcadores de la leyenda directamente
+    legend.markers.template.width = 15;
+    legend.markers.template.height = 15;
+   // Personalizar los marcadores de la leyenda directamente
+if (legend.markers.template.children) {
+  const markerChild = legend.markers.template.children.getIndex(0);
+  if (markerChild) {
+    markerChild.adapter.add('fill', (fill, target) => {
+      const series = target.dataItem?.dataContext as am4charts.LineSeries;
+      return series ? am4core.color(patColors[series.name]) : fill;
+    });
+  }
+}
+
 
     this.chart.cursor = new am4charts.XYCursor();
-
     console.log('Chart created successfully');
-}
+  }
+
+
 
 
 
@@ -397,14 +415,10 @@ if (valoresFiltrados.length > 0) {
 
 
 
-
 selectivografico(): void {
-
-
   // Verificar si los valores han cambiado antes de actualizar el gráfico
   if (JSON.stringify(this.prevSelectivoValues) === JSON.stringify(this.selectivoValues)) {
-
-      return;
+    return;
   }
 
   // Actualizar valores previos
@@ -412,15 +426,15 @@ selectivografico(): void {
 
   const chartContainer = document.getElementById('selectivo-chart');
   if (!chartContainer) {
-      console.error('Chart container "selectivo-chart" not found in DOM.');
-      return;
+    console.error('Chart container "selectivo-chart" not found in DOM.');
+    return;
   }
 
   // Eliminar el gráfico existente antes de crear uno nuevo
   if (this.selectivochart) {
-      console.log('Disposing of existing chart');
-      this.selectivochart.dispose();
-      this.selectivochart = null;
+    console.log('Disposing of existing chart');
+    this.selectivochart.dispose();
+    this.selectivochart = null;
   }
 
   // Crear un nuevo gráfico
@@ -429,9 +443,9 @@ selectivografico(): void {
   this.selectivochart = am4core.create('selectivo-chart', am4charts.XYChart);
 
   // Desactivar el logo inmediatamente después de crear la instancia del gráfico
-    if (this.selectivochart && this.selectivochart.logo) {
-        this.selectivochart.logo.disabled = true;
-    }
+  if (this.selectivochart && this.selectivochart.logo) {
+    this.selectivochart.logo.disabled = true;
+  }
 
   const valuesPerCategory = 3; // Número de valores por cada PAT
   const categories: string[] = [];
@@ -439,18 +453,18 @@ selectivografico(): void {
   const cantidad_spt = this.cantidad_spt ?? 0;
   // Generar dinámicamente las categorías en función de this.cantidad_spt
   for (let i = 1; i <= cantidad_spt; i++) {
-      categories.push(`PAT${i}`);
+    categories.push(`PAT${i}`);
   }
 
   const chartData: Array<Record<string, any>> = [];
 
   // Reestructurar chartData para que cada entrada represente una categoría PAT
   for (let i = 0; i < valuesPerCategory; i++) {
-      const dataPoint: Record<string, any> = { category: `Value ${i + 1}` };
-      categories.forEach((category, index) => {
-          dataPoint[category] = this.selectivoValues[index * valuesPerCategory + i];
-      });
-      chartData.push(dataPoint);
+    const dataPoint: Record<string, any> = { category: `Value ${i + 1}` };
+    categories.forEach((category, index) => {
+      dataPoint[category] = this.selectivoValues[index * valuesPerCategory + i];
+    });
+    chartData.push(dataPoint);
   }
 
   console.log('Chart data:', chartData);
@@ -464,7 +478,6 @@ selectivografico(): void {
   const valueAxis = this.selectivochart.yAxes.push(new am4charts.ValueAxis());
   valueAxis.min = 0;
 
-
   // Añadir una línea horizontal en el valor Y=25
   const range = valueAxis.axisRanges.create();
   range.value = 25;
@@ -473,43 +486,59 @@ selectivografico(): void {
   range.grid.strokeOpacity = 1;
 
   const patColors: { [key: string]: string } = {
-      'PAT1': 'blue',
-        'PAT2': 'green',
-        'PAT3': 'orange',
-        'PAT4': 'purple'
+    'PAT1': 'rgb(201, 201, 52)',   // Color personalizado para PAT1
+    'PAT2': 'rgb(0, 0, 49)',      // Color personalizado para PAT2
+    'PAT3': 'rgb(69, 167, 167)',  // Color personalizado para PAT3
+    'PAT4': 'rgb(189, 118, 31)'   // Color personalizado para PAT4
   };
 
   // Crear series dinámicamente para cada categoría (PAT)
   if (this.selectivochart) {
-      categories.forEach((category) => {
-          const series = this.selectivochart!.series.push(new am4charts.LineSeries());
-          series.name = category;
-          series.dataFields.valueY = category;
-          series.dataFields.categoryX = 'category';
-          series.strokeWidth = 3;
-          series.tooltipText = `{name}: {valueY}`;
+    categories.forEach((category) => {
+      const series = this.selectivochart!.series.push(new am4charts.LineSeries());
+      series.name = category;
+      series.dataFields.valueY = category;
+      series.dataFields.categoryX = 'category';
+      series.strokeWidth = 3;
+      series.tooltipText = `{name}: {valueY}`;
 
-          // Usar color correspondiente a la categoría PAT
-          series.stroke = am4core.color(patColors[category]);
+      // Usar color correspondiente a la categoría PAT
+      series.stroke = am4core.color(patColors[category]);
 
-          const bullet = series.bullets.push(new am4charts.CircleBullet());
-          bullet.circle.stroke = am4core.color('#fff');
-          bullet.circle.strokeWidth = 2;
+      const bullet = series.bullets.push(new am4charts.CircleBullet());
+      bullet.circle.stroke = am4core.color('#fff');
+      bullet.circle.strokeWidth = 2;
 
-          const labelBullet = series.bullets.push(new am4charts.LabelBullet());
-          labelBullet.label.text = '{valueY}';
-          labelBullet.label.dy = -10;
-          labelBullet.label.fontSize = 11;
-      });
+      // Aplicar color personalizado al relleno del punto
+      bullet.circle.fill = am4core.color(patColors[category]);
+
+      const labelBullet = series.bullets.push(new am4charts.LabelBullet());
+      labelBullet.label.text = '{valueY}';
+      labelBullet.label.dy = -10;
+      labelBullet.label.fontSize = 11;
+    });
   }
 
   // Agregar leyenda al gráfico
   this.selectivochart.legend = new am4charts.Legend();
 
+  // Personalizar los marcadores de la leyenda
+  const legend = this.selectivochart.legend;
+  if (legend.markers.template.children) {
+    const markerChild = legend.markers.template.children.getIndex(0);
+    if (markerChild) {
+      markerChild.adapter.add('fill', (fill, target) => {
+        const series = target.dataItem?.dataContext as am4charts.LineSeries;
+        return series ? am4core.color(patColors[series.name]) : fill;
+      });
+    }
+  }
+
   this.selectivochart.cursor = new am4charts.XYCursor();
 
   console.log('Chart created successfully');
 }
+
 ngOnDestroy(): void {
   if (this.chart) {
     console.log('Disposing chart on component destroy');

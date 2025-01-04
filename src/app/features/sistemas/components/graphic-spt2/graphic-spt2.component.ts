@@ -24,7 +24,7 @@ export class GraphicSpt2Component {
 
   constructor(
     private Spt2Service: Spt2Service,
-    private route: ActivatedRoute // Inyectamos ActivatedRoute
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -126,7 +126,6 @@ export class GraphicSpt2Component {
   }
 
 
-
   // Verificar si todas las series de datos están vacías
   private areSeriesDataEmpty(seriesData: (number | null)[][]): boolean {
     return seriesData.every(serie => serie.every(value => value === null || isNaN(value)));
@@ -163,16 +162,17 @@ export class GraphicSpt2Component {
     valueAxis.strictMinMax = false;
     valueAxis.min = 0;
 
-    // Paleta de colores llamativos
+    const range = valueAxis.axisRanges.create();
+    range.value = 25;
+    range.grid.stroke = am4core.color("red");
+    range.grid.strokeWidth = 2;
+    range.grid.strokeOpacity = 1;
+
     const colorPalette = [
-      am4core.color("#e6194B"), // Rojo brillante
-      am4core.color("#3cb44b"), // Verde brillante
-      am4core.color("#ffe119"), // Amarillo brillante
-      am4core.color("#4363d8"), // Azul brillante
-      am4core.color("#f58231"), // Naranja
-      am4core.color("#911eb4"), // Púrpura
-      am4core.color("#42d4f4"), // Cian
-      am4core.color("#f032e6"), // Rosa
+      am4core.color("rgb(201, 201, 52)"),
+      am4core.color("rgb(0, 0, 49)"),
+      am4core.color("rgb(69, 167, 167)"),
+      am4core.color("rgb(189, 118, 31)"),
     ];
 
     seriesData.forEach((serie, index) => {
@@ -186,40 +186,58 @@ export class GraphicSpt2Component {
       series.strokeWidth = 2;
       series.minBulletDistance = 10;
 
-      // Asignar color de la paleta
       const color = colorPalette[index % colorPalette.length];
       series.stroke = color;
 
-      // Configuración del tooltip (verificación para evitar error TS18048)
+      // Verificar tooltip antes de asignar
       if (series.tooltip) {
-        series.tooltip.getFillFromObject = false; // Desvincular el color por defecto
-        series.tooltip.background.fill = color; // Fondo del tooltip del color de la serie
-        series.tooltip.label.fill = am4core.color("#fff"); // Texto blanco para contraste
+        series.tooltip.getFillFromObject = false;
+        series.tooltip.background.fill = color;
+        series.tooltip.label.fill = am4core.color("#fff");
         series.tooltipText = "{name}: [bold]{valueY}[/]";
       }
 
-      // Configuración de los puntos (bullets)
       const bullet = series.bullets.push(new am4charts.CircleBullet());
-      bullet.circle.radius = 6; // Tamaño aumentado para mayor impacto
+      bullet.circle.radius = 6;
       bullet.circle.strokeWidth = 2;
-      bullet.circle.fill = color; // Fondo del punto
-      bullet.circle.stroke = am4core.color("#000"); // Bordes negros para contraste
+      bullet.circle.fill = color;
 
-      // Etiqueta de valor en el punto
+
       const label = bullet.createChild(am4core.Label);
       label.text = "{valueY}";
       label.verticalCenter = "bottom";
       label.dy = -10;
+
+      series.adapter.add("dy", (dy = 0, target) => {
+        const index = target.dataItem?.index;
+        const prevValue = index > 0 ? serie[index - 1] : null;
+        if (prevValue !== null && Math.abs(prevValue - serie[index]!) < 0.5) {
+          return dy + 10;
+        }
+        return dy;
+      });
     });
 
-    // Configurar cursor, leyenda y menú de exportación
     chartElement.cursor = new am4charts.XYCursor();
     chartElement.legend = new am4charts.Legend();
-    chartElement.legend.itemContainers.template.dy = 5; // Espaciado
-    chartElement.legend.markers.template.width = 18; // Tamaño de marcador
+    chartElement.legend.itemContainers.template.dy = 5;
+    chartElement.legend.markers.template.width = 18;
     chartElement.legend.markers.template.height = 18;
+
+    // Usar adapter para los colores en la leyenda
+    chartElement.legend.markers.template.adapter.add("fill", (fill, target) => {
+      const dataContext = target.dataItem?.dataContext;
+      const seriesIndex = dataContext && typeof dataContext === "object" && "index" in dataContext
+        ? (dataContext as { index: number }).index
+        : 0;
+      return colorPalette[seriesIndex % colorPalette.length];
+    });
+
+
     chartElement.exporting.menu = new am4core.ExportMenu();
   }
+
+
 
 
 }

@@ -147,7 +147,6 @@ export class HistoryComponent implements OnInit {
     this.pageIndex = newPageIndex;
   }
 
-
   eliminarRegistro(id_spt1: number): void {
     this.modal.confirm({
       nzTitle: 'Confirmación',
