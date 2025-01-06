@@ -45,24 +45,51 @@ export class SidebarComponent {
       icon: 'bulb',
     },
     {
-
       title: 'Mantenimiento',
       link: '',
       icon: 'book',
       children: [
         {
-          title: 'Sistemas pt',
-          link: '/sistemas',
-          icon: 'book'
+          title: 'Subestaciones',
+          link: '',
+          icon: '',
+          children: [
+            {
+              title: 'Sistemas pt',
+              link: '/sistemas',
+              icon: '',
+            },
+            {
+              title: 'Transformadores',
+              link: '/transformadores',
+              icon: '',
+            },
+            {
+              title: 'Celdas',
+              link: '/celdas', // Ruta actualizada
+              icon: '',
+            },
+            {
+              title: 'Reles',
+              link: '/reles', // Ruta actualizada
+              icon: '',
+            },
+          ],
         },
         {
-          title: 'Transformadores',
-          link: '/transformadores',
-          icon: 'book'
-        }
-      ]
-    }
+          title: 'Lineas Electricas',
+          link: '/lineas-electricas', // Ruta actualizada
+          icon: '',
+        },
+      ],
+    },
+    {
+      title: 'Operacion',
+      link: '/operacion', // Ruta actualizada
+      icon: 'book',
+    },
   ];
+
 
   // Variable para almacenar el correo electrónico del usuario
   userEmail?: string;
