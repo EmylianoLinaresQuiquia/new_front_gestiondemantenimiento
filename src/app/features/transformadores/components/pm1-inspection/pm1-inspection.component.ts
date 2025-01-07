@@ -228,10 +228,10 @@ async saveData() {
 // Función para procesar cada formulario y extraer los datos en formato { descripcion, estado }
 const procesarFormularioAgrupado = (
   formulario: Formulario | undefined
-): { descripcion: string; estado: string }[] | null => {
+): { descripcion: string; [key: string]: string }[] | null => {
   if (!formulario) return null;
 
-  const resultado: { descripcion: string; estado: string }[] = [];
+  const resultado: { descripcion: string; [key: string]: string }[] = [];
 
   formulario.items.forEach((item: Item) => {
     const labelClave = item.label?.trim(); // Tomar el label tal cual está
@@ -243,9 +243,10 @@ const procesarFormularioAgrupado = (
     if (item.tipo === 'valores' && item.valores?.length === 2) {
       const valorReal = item.valores[0];
       const valorTestigo = item.valores[1];
-      estado = valorReal !== null && valorTestigo !== null
-        ? `${valorReal},${valorTestigo}`
-        : null;
+      estado =
+        valorReal !== null && valorTestigo !== null
+          ? `${valorReal},${valorTestigo}`
+          : null;
     }
     // Procesar opciones
     else if (item.tipo === 'opciones' && item.valor) {
@@ -253,12 +254,40 @@ const procesarFormularioAgrupado = (
     }
 
     if (estado !== null) {
-      resultado.push({ descripcion: labelClave, estado });
+      // Verificar si la descripción corresponde a "Manovacuómetro"
+      if (labelClave.toLowerCase().includes('manovacuómetro')) {
+        resultado.push({
+          descripcion: labelClave,
+          Manovacuómetro: estado,
+        });
+      }
+      // Verificar si corresponde a "Temperatura" o "Termómetro"
+      else if (
+        labelClave.toLowerCase().includes('temperatura devanado')
+      ) {
+        resultado.push({
+          descripcion: labelClave,
+          temperatura_devanado: estado,
+        });
+      }
+      else if (
+        labelClave.toLowerCase().includes('temperatura')
+      ) {
+        resultado.push({
+          descripcion: labelClave,
+          Temperatura: estado,
+        });
+      }
+      else {
+        // Si no corresponde, agregar con estado
+        resultado.push({ descripcion: labelClave, estado });
+      }
     }
   });
 
   return resultado.length > 0 ? resultado : null;
 };
+
 
 // Procesar formularios y asignar a cada campo correspondiente
 const item1 = procesarFormularioAgrupado(this.transformador1?.form1);
@@ -294,6 +323,7 @@ const pm1: PM1 = {
 };
 
 console.log('Objeto PM1 a enviar:', JSON.stringify(pm1, null, 2));
+
 
 // Llamar al servicio para guardar los datos
 const response = await this.pm1Service.postPM1(pm1).toPromise();

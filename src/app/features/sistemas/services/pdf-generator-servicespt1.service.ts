@@ -60,6 +60,27 @@ async generarPDF(id_spt1: number): Promise<Blob> {
 
     console.log("resultados",resultados)
 
+     // Cargar la imagen desde los activos
+     const imgPozo1Bytes = await fetch('assets/pdf/spt1/img_pozo_1.png').then(res => res.arrayBuffer());
+     const imgPozo1 = await pdfDoc.embedPng(imgPozo1Bytes); // Usa embedJpg para imágenes JPG
+
+     newPage.drawImage(imgPozo1, {
+       x: 110,
+       y: 740,
+       width: 100,
+       height: 65,
+     });
+
+     const imgPozo2Bytes = await fetch('assets/pdf/spt1/img_pozo_2.png').then(res => res.arrayBuffer());
+     const imgPozo2 = await pdfDoc.embedPng(imgPozo2Bytes); // Usa embedJpg para imágenes JPG
+
+     newPage.drawImage(imgPozo2, {
+       x: 190,
+       y: 690,
+       width: 60,
+       height: 50,
+     });
+
     // Dibujar texto en el PDF
     newPage.drawText(resultados.ot, { font, size: textSize, x: 385, y: height - 110 });
     newPage.drawText(resultados.fecha, { font, size: textSize, x: 385, y: height - 130 });
@@ -294,7 +315,11 @@ const pozosLimpios = JSON.parse(resultados.pozos_a_tierra)
 this.drawValuesWithCoordinates(
 pozosLimpios,
 [
-  { x: 150, y: height - 540 }, { x: 75, y: height - 475 }, { x: 150, y: height - 460 },
+  { x: 150, y: height - 540 },
+  { x: 75, y: height - 475 },
+   { x: 150, y: height - 460 },
+
+
   { x: 218, y: height - 495 }, { x: 215, y: height - 525 }, { x: 175, y: height - 595 },
   { x: 330, y: height - 540 }, { x: 255, y: height - 475 }, { x: 330, y: height - 460 },
   { x: 405, y: height - 495 }, { x: 415, y: height - 525 }, { x: 345, y: height - 595 },

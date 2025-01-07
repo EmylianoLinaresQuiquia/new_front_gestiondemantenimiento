@@ -20,6 +20,8 @@ private chartCorrientePotencia2: am4charts.XYChart = null!;
 
 private chartTestigo: am4charts.XYChart = null!;
   datos: any[] = [];
+  temperaturaValores: Array<number | null> = [null, null];
+temperaturaSegundos: Array<number | null> = [null, null];
 
   constructor(
     private zone: NgZone,
@@ -38,19 +40,32 @@ private chartTestigo: am4charts.XYChart = null!;
   }
 
   getDashboardData(subestacion: string, transformador: string): void {
-    this.pm1Service.mostrarDashboarPM1(subestacion, transformador)
+    this.pm1Service.mostrarDashboardPM1Reales(subestacion, transformador)
       .subscribe(
         data => {
           console.log('Datos del dashboard:', data);
           this.datos = data;
-          this.tendencia_testigo(data);
           this.tendencia_potencia(data);
         },
         error => {
           console.error('Error al obtener los datos del dashboard:', error);
         }
       );
+
+      this.pm1Service.mostrarDashboardPM1Testigos(subestacion, transformador)
+      .subscribe(
+        data => {
+          console.log('Datos del dashboard:', data);
+          this.datos = data;
+          this.tendencia_testigo(data);
+
+        },
+        error => {
+          console.error('Error al obtener los datos del dashboard:', error);
+        }
+      );
   }
+
   //CREACION DEL GRAFICO TENDENDIA POTENCIA
   tendencia_potencia(data: any[]): void {
     this.zone.runOutsideAngular(() => {
@@ -73,12 +88,12 @@ private chartTestigo: am4charts.XYChart = null!;
                 : new Date(item.fecha);
 
             const processedItem = {
-                date: item.fecha,  // Usar la fecha original como categoría
-                corriente_actual: parseInt(item.corriente_actual, 10),
-                potencia_actual: parseInt(item.potencia_actual, 10),
-                manovacuometro: valores[0] || null,
-                temperatura_devanado: valores[2] || null,
-                temperatura_aceite: valores[4] || null
+              date: item.fecha,  // Fecha como categoría
+              corriente_actual: parseFloat(item.corriente_actual),
+              potencia_actual: parseFloat(item.potencia_actual),
+              manovacuometro: parseFloat(item.manovacuometro_valores),
+              temperatura_devanado: this.temperaturaValores[0] || null,
+              temperatura_aceite: this.temperaturaValores[1] || null
             };
 
             console.log("Processed Item: ", processedItem);
@@ -179,8 +194,6 @@ private chartTestigo: am4charts.XYChart = null!;
         console.log("Export menu created");
     });
 }
-
-
   //CREACION DEL GRAFICO TENDENDIA TESTIGO
   tendencia_testigo(data: any[]): void {
     this.zone.runOutsideAngular(() => {
@@ -203,10 +216,10 @@ private chartTestigo: am4charts.XYChart = null!;
           : new Date(item.fecha);
 
         return {
-          date: item.fecha,  // Usar la fecha original como categoría
-          manovacuometro: valores[0] || null,
-          temperatura_devanado: valores[2] || null,
-          temperatura_aceite: valores[4] || null
+        date: item.fecha,
+        manovacuometro: parseFloat(item.manovacuometro_segundos),
+        temperatura_devanado: this.temperaturaSegundos[0] || null,
+        temperatura_aceite: this.temperaturaSegundos[1] || null
         };
       });
 

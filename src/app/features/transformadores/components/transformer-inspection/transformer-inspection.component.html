@@ -405,7 +405,7 @@
     <div class="grid-container">
       <!-- Sección de Análisis Cromatográfico -->
     <nz-card class="custom-card">
-       <div (click)="abrirDashboard()">
+       <div >
          <i class="fa-solid fa-syringe" style="margin-right: 8px;"></i>
          <span>PM1</span>
        </div>
@@ -457,6 +457,9 @@
               <button nz-button nzType="danger" class="eliminar-btn" (click)="eliminarRegistro(dato.id_pm1)">
                 <i class="fas fa-trash-alt"></i>
               </button>
+              <button nz-button nzType="link" (click)="abrirDashboard()">
+                <i nz-icon nzType="line-chart"></i>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -464,71 +467,7 @@
     </nz-card>
 
     <!-- Sección de Análisis Físico Químico -->
-    <nz-card class="custom-card">
-     <div>
-       <i class="fa fa-bong" style="margin-right: 8px;"></i>
-       <span>PM2</span>
-     </div>
-     <!--<table class="table table-striped">
-       <thead>
-         <tr>
-           <th>Parámetro</th>
-           <th>Límite</th>
-           <th>Valor</th>
-           <th>Estado</th>
-         </tr>
-       </thead>
-       <tbody>
-         <tr>
-           <td>Número Ácido ASTM D974</td>
-           <td>Máx. 0.15 mgKOH/g</td>
-           <td>0.01</td>
-           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
-         </tr>
-         <tr>
-           <td>Factor de Potencia ASTM D924 (25°C)</td>
-           <td>Máx. 0.5 %</td>
-           <td>0.002</td>
-           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
-         </tr>
-         <tr>
-           <td>Factor de Potencia ASTM D924 (100°C)</td>
-           <td>Máx. 5 %</td>
-           <td>0.09</td>
-           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
-         </tr>
-         <tr>
-           <td>Rigidez Dieléctrica ASTM D1816</td>
-           <td>Min. 47 kV/2.0mm</td>
-           <td>73.0</td>
-           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
-         </tr>
-         <tr>
-           <td>Tensión Interfacial ASTM D971</td>
-           <td>Min. 30 mN/m</td>
-           <td>47.0</td>
-           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
-         </tr>
-         <tr>
-           <td>Contenido de Agua ASTM D1533</td>
-           <td>Máx. 25 ppm</td>
-           <td>15</td>
-           <td><nz-tag nzColor="green">Bueno</nz-tag></td>
-         </tr>
-       </tbody>
-     </table>-->
-    </nz-card>
 
-    <nz-card nzTitle="" class="custom-card"> <i class="fa-solid fa-hourglass"></i>
-
-    </nz-card>
-
-    <nz-card class="custom-card">
-     <div>
-       <i class="fa-solid fa-bolt" style="margin-right: 8px;"></i>
-       <span>Pruebas Eléctricas</span>
-     </div>
-    </nz-card>
 
     </div>
   </nz-tab>

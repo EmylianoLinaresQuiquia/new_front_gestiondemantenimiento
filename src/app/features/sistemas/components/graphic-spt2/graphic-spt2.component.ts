@@ -169,12 +169,25 @@ export class GraphicSpt2Component {
     valueAxis.title.text = "Resistencia (Ω)";
     valueAxis.min = 0;
 
+   // Calcular el valor máximo entre las series
+const maxValueInData = Math.max(
+  25, // Valor predeterminado
+  ...seriesData
+      .flat()
+      .filter((value): value is number => value !== null && !isNaN(value)) // Asegurar que los valores sean numéricos
+);
+
+// Configurar el valor máximo dinámicamente
+valueAxis.max = maxValueInData;
+valueAxis.strictMinMax = true; // Forzar que el eje use estos valores
+
     // Línea roja en el eje Y (Target)
     const range = valueAxis.axisRanges.create();
     range.value = 25;
     range.grid.stroke = am4core.color("red");
     range.grid.strokeWidth = 2;
     range.grid.strokeOpacity = 1;
+    range.grid.strokeDasharray = "4,4"; // Línea discontinua
 
     // Paleta de colores para las series
     const patColors: { [key: string]: string } = {

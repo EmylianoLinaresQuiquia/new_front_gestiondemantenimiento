@@ -15,6 +15,31 @@ export class PM1Service {
 
   constructor(private http: HttpClient) {}
 
+
+
+  // Método para mostrar datos reales
+  mostrarDashboardPM1Reales(subestacion: string, transformador: string): Observable<any> {
+    const params = new HttpParams()
+      .set('subestacion', subestacion)
+      .set('transformador', transformador);
+
+    return this.http.get<any>(`${this.apiUrl}/MostrarDashboardPM1Reales`, { params })
+      .pipe(
+        catchError(this.handleError('mostrarDashboardPM1Reales'))
+      );
+  }
+
+  // Método para mostrar datos testigos
+  mostrarDashboardPM1Testigos(subestacion: string, transformador: string): Observable<any> {
+    const params = new HttpParams()
+      .set('subestacion', subestacion)
+      .set('transformador', transformador);
+
+    return this.http.get<any>(`${this.apiUrl}/MostrarDashboardPM1Testigos`, { params })
+      .pipe(
+        catchError(this.handleError('mostrarDashboardPM1Testigos'))
+      );
+  }
    // Método para eliminar un registro de PM1
    eliminarPM1(id_pm1: number): Observable<any> {
     const url = `${this.apiUrl}/Eliminar/${id_pm1}`;  // Define la URL para el DELETE
@@ -49,16 +74,6 @@ export class PM1Service {
       );
   }
 
-  mostrarDashboarPM1(subestacion: string, transformador: string): Observable<any> {
-    const params = new HttpParams()
-      .set('subestacion', subestacion)
-      .set('transformador', transformador);
-
-    return this.http.get<any>(`${this.apiUrl}/MostrarDashboarPM1`, { params })
-      .pipe(
-        catchError(this.handleError('mostrarDashboarPM1'))
-      );
-  }
 
   getPM1(): Observable<PM1[]> {
     return this.http.get<PM1[]>(this.apiUrl).pipe(
