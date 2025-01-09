@@ -12,8 +12,10 @@
       </a>
     </ng-template>
 
-    <div class="container">
-      <div id="chartCorrientePotenciaDiv" style="width: 100%; height: 500px;"></div>
+    <div id="chart-container" class="container">
+      <div id="chart-subtitles-top" class="chart-subtitles-top"></div>
+      <div id="chart_valor_real" style="width: 100%; height: 485px;"></div>
+      <div id="chart-subtitles-bottom" class="chart-subtitles-bottom"></div>
     </div>
   </nz-collapse-panel>
 
@@ -26,12 +28,14 @@
   >
     <ng-template #headerTemplateTestigo>
       <a title="Ir a Tendencias">
-        TENDENCIAS DE TESTIGOS TEMPERATURAS- MANOVACUOMETRO <i class="fa fa-chart-line"></i>
+        TENDENCIAS DE TESTIGOS TEMPERATURAS- MANOVACUOMETRO <i class="fa fa-chart-line"></i>(VALORES TESTIGOS)
       </a>
     </ng-template>
 
-    <div class="container">
-      <div id="chartTestigoDiv" style="width: 100%; height: 500px;"></div>
+    <div id="chart-container-testigo"  class="container">
+      <div id="chart-subtitles-top-testigo" class="chart-subtitles-top"></div>
+      <div id="chart_valor_testigo" style="width: 100%; height: 500px;"></div>
+      <div id="chart-subtitles-bottom-testigo" class="chart-subtitles-bottom"></div>
     </div>
   </nz-collapse-panel>
 </nz-collapse>

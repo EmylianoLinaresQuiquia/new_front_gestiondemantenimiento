@@ -65,11 +65,7 @@
 }
 
 /* Espaciado entre las tarjetas de análisis */
-.grid-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
+
 
 .ant-card {
   margin-bottom: 16px;

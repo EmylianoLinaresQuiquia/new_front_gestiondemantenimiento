@@ -9,3 +9,80 @@ a{
   gap: 10px;
   align-items: center;
 }
+
+
+
+.chart-subtitles-top {
+  display: grid;
+  grid-template-columns: 4.5% 78% 8% 5% 3%;
+  align-items: center;
+  margin-left: 10px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.chart-subtitles-top span {
+  padding: 0 5px;
+}
+
+
+.chart-subtitles-bottom {
+  display: grid;
+  grid-template-columns: 20% 20% 17% 16% 4%;
+
+  align-items: center;
+  margin-left: 200px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.chart-subtitles-bottom span {
+  padding: 0 5px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#chart-subtitles-top-testigo {
+  display: grid;
+  grid-template-columns: 91% 4% 3%;
+  align-items: center;
+  margin-left: 10px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+#chart-subtitles-top-testigo span {
+  padding: 0 5px;
+}
+
+
+#chart-subtitles-bottom-testigo {
+  display: grid;
+  grid-template-columns: 20% 25% 5%;
+
+  align-items: center;
+  margin-left: 350px;
+  font-size: 14px;
+  font-weight: bold;
+}
+#chart-subtitles-bottom-testigo span {
+  padding: 0 5px;
+}
+
+

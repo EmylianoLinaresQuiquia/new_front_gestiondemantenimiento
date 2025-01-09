@@ -6,6 +6,8 @@ import * as am4plugins_forceDirected from "@amcharts/amcharts4/plugins/forceDire
 import { ActivatedRoute } from '@angular/router';
 import { PM1Service } from 'src/app/features/sistemas/services/pm1.service';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { forkJoin } from 'rxjs';
+
 am4core.useTheme(am4themes_animated);
 @Component({
   selector: 'app-graphic-pm1',
@@ -15,11 +17,12 @@ am4core.useTheme(am4themes_animated);
   styleUrl: './graphic-pm1.component.css'
 })
 export class GraphicPm1Component {
-  private chartCorrientePotencia: am4charts.XYChart = null!;
-private chartCorrientePotencia2: am4charts.XYChart = null!;
+  private chart_valor_real: am4charts.XYChart = null!;
+private chart_valor_testigo: am4charts.XYChart = null!;
 
-private chartTestigo: am4charts.XYChart = null!;
-  datos: any[] = [];
+
+datosReales: any[] = [];
+datosTestigos: any[] = [];
   temperaturaValores: Array<number | null> = [null, null];
 temperaturaSegundos: Array<number | null> = [null, null];
 
@@ -40,82 +43,120 @@ temperaturaSegundos: Array<number | null> = [null, null];
   }
 
   getDashboardData(subestacion: string, transformador: string): void {
-    this.pm1Service.mostrarDashboardPM1Reales(subestacion, transformador)
-      .subscribe(
-        data => {
-          console.log('Datos del dashboard:', data);
-          this.datos = data;
-          this.tendencia_potencia(data);
-        },
-        error => {
-          console.error('Error al obtener los datos del dashboard:', error);
-        }
-      );
+    forkJoin({
+      reales: this.pm1Service.mostrarDashboardPM1Reales(subestacion, transformador),
+      testigos: this.pm1Service.mostrarDashboardPM1Testigos(subestacion, transformador),
+    }).subscribe({
+      next: ({ reales, testigos }) => {
+        console.log('Datos Reales:', reales);
+        console.log('Datos Testigos:', testigos);
 
-      this.pm1Service.mostrarDashboardPM1Testigos(subestacion, transformador)
-      .subscribe(
-        data => {
-          console.log('Datos del dashboard:', data);
-          this.datos = data;
-          this.tendencia_testigo(data);
+        this.datosReales = reales || [];
+        this.datosTestigos = testigos || [];
 
-        },
-        error => {
-          console.error('Error al obtener los datos del dashboard:', error);
-        }
-      );
+        this.procesarDatos();
+      },
+      error: err => {
+        console.error('Error al obtener datos del dashboard:', err);
+      },
+    });
+  }
+
+  procesarDatos(): void {
+    if (this.datosReales.length > 0) {
+      this.tendencia_real(this.datosReales);
+    }
+
+    if (this.datosTestigos.length > 0) {
+      this.tendencia_testigo(this.datosTestigos);
+    }
   }
 
   //CREACION DEL GRAFICO TENDENDIA POTENCIA
-  tendencia_potencia(data: any[]): void {
+  tendencia_real(data: any[]): void {
     this.zone.runOutsideAngular(() => {
-        if (this.chartCorrientePotencia) {
-            this.chartCorrientePotencia.dispose();
+        if (this.chart_valor_real) {
+            this.chart_valor_real.dispose();
         }
 
         // Crear el gráfico
-        this.chartCorrientePotencia = am4core.create("chartCorrientePotenciaDiv", am4charts.XYChart);
+        this.chart_valor_real = am4core.create("chart_valor_real", am4charts.XYChart);
         console.log("Chart created");
 
         let dateFormatter = new am4core.DateFormatter();
-        this.chartCorrientePotencia.logo.disabled = true;  // Desactivar el logo en el gráfico
+        this.chart_valor_real.logo.disabled = true;  // Desactivar el logo en el gráfico
+
+        // Crear subtítulos en la parte superior
+        const chartContainer = document.getElementById("chart-container");
+        if (chartContainer) {
+            const subtitleTopContainer = document.getElementById("chart-subtitles-top");
+            if (subtitleTopContainer) {
+                subtitleTopContainer.innerHTML = `
+                    <span>(A)</span>
+                    <span>(MW)</span>
+                    <span>(kgf/CM²)</span>
+                    <span>(°C)</span>
+                    <span>(°C)</span>
+                `;
+                console.log("Subtítulos superiores agregados");
+            }
+
+            // Crear subtítulos en la parte inferior
+            const subtitleBottomContainer = document.getElementById("chart-subtitles-bottom");
+            if (subtitleBottomContainer) {
+                subtitleBottomContainer.innerHTML = `
+                    <span>(A)</span>
+                    <span>(MW)</span>
+                    <span>(kgf/CM²)</span>
+                    <span>(°C)</span>
+                    <span>(°C)</span>
+                `;
+                console.log("Subtítulos inferiores agregados");
+            } else {
+                console.error("No se encontró el contenedor de subtítulos inferiores");
+            }
+        } else {
+            console.error("No se encontró el contenedor principal del gráfico");
+        }
+
+
 
         // Procesar los datos y agregar mensajes de depuración
-        this.chartCorrientePotencia.data = data.map(item => {
+        this.chart_valor_real.data = data.map(item => {
             const valores: number[] = item.valores_ingresados ? item.valores_ingresados.split(',').map((v: string) => parseInt(v.trim(), 10)) : [];
             const date = item.fecha.includes('/')
                 ? dateFormatter.parse(item.fecha, "dd/MM/yyyy")
                 : new Date(item.fecha);
 
-            const processedItem = {
-              date: item.fecha,  // Fecha como categoría
-              corriente_actual: parseFloat(item.corriente_actual),
-              potencia_actual: parseFloat(item.potencia_actual),
-              manovacuometro: parseFloat(item.manovacuometro_valores),
-              temperatura_devanado: this.temperaturaValores[0] || null,
-              temperatura_aceite: this.temperaturaValores[1] || null
-            };
+                const processedItem = {
+                  date: item.fecha,  // Fecha como categoría
+                  corriente_actual: parseFloat(item.corriente_actual) || null,
+                  potencia_actual: parseFloat(item.potencia_actual) || null,
+                  manovacuometro: item.manovacuometro_valores ? parseFloat(item.manovacuometro_valores) : null,
+                  temperatura_devanado: item.temperatura_devanado_valores ? parseFloat(item.temperatura_devanado_valores) : null,
+                  temperatura_aceite: item.temperatura_aceite_valores ? parseFloat(item.temperatura_aceite_valores) : null,
+                };
 
             console.log("Processed Item: ", processedItem);
 
             return processedItem;
         });
 
-        let categoryAxis = this.chartCorrientePotencia.xAxes.push(new am4charts.CategoryAxis());
+        let categoryAxis = this.chart_valor_real.xAxes.push(new am4charts.CategoryAxis());
         categoryAxis.dataFields.category = "date";
-        categoryAxis.renderer.minGridDistance = 70;  // Aumentar la distancia mínima de la cuadrícula
+        categoryAxis.renderer.minGridDistance = 200;  // Aumentar la distancia mínima de la cuadrícula
         categoryAxis.renderer.grid.template.location = 0.5;
 
         let createAxisAndSeries = (field: string, name: string, opposite: boolean, color: string, unit: string) => {
-            let valueAxis = this.chartCorrientePotencia.yAxes.push(new am4charts.ValueAxis<am4charts.AxisRendererY>());
-            if (this.chartCorrientePotencia.yAxes.indexOf(valueAxis) !== 0) {
-                valueAxis.syncWithAxis = this.chartCorrientePotencia.yAxes.getIndex(0) as am4charts.ValueAxis<am4charts.AxisRendererY>;
+            let valueAxis = this.chart_valor_real.yAxes.push(new am4charts.ValueAxis<am4charts.AxisRendererY>());
+            if (this.chart_valor_real.yAxes.indexOf(valueAxis) !== 0) {
+                valueAxis.syncWithAxis = this.chart_valor_real.yAxes.getIndex(0) as am4charts.ValueAxis<am4charts.AxisRendererY>;
             }
             valueAxis.renderer.opposite = opposite;
             valueAxis.renderer.grid.template.stroke = am4core.color(color);
             valueAxis.renderer.grid.template.disabled = true;  // Deshabilitar la cuadrícula del eje Y
 
-            let series = this.chartCorrientePotencia.series.push(new am4charts.LineSeries());
+            let series = this.chart_valor_real.series.push(new am4charts.LineSeries());
             series.dataFields.valueY = field;
             series.dataFields.categoryX = "date";
             series.stroke = am4core.color(color);
@@ -145,42 +186,28 @@ temperaturaSegundos: Array<number | null> = [null, null];
         };
 
         // Crear todas las series y agregar mensajes de depuración
-        createAxisAndSeries("corriente_actual", "Corriente Actual", false, "#C767DC", "A");
-        createAxisAndSeries("potencia_actual", "Potencia Actual", false, "#808080", "MW");
-        createAxisAndSeries("manovacuometro", "Manovacuómetro", false, "#B3DBEE", "kgf/CM²");
-        createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "°C");
-        createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", false, "#EDB2C3", "°C");
+        // Series en el lado izquierdo
 
-        // Función para agregar etiquetas estáticas encima del gráfico
-        let addUnitLabel = (text: string, color: string, relativeX: number, relativeY: number) => {
-            let label = this.chartCorrientePotencia.plotContainer.createChild(am4core.Label);
-            label.text = text;
-            label.fill = am4core.color(color); // Color de la etiqueta
-            label.fontSize = 14; // Tamaño de la fuente
-            label.fontWeight = "bold";
-            label.align = "center";
-            label.isMeasured = false; // Permite usar coordenadas personalizadas
-            label.x = this.chartCorrientePotencia.plotContainer.pixelWidth * relativeX; // Posición horizontal
-            label.y = this.chartCorrientePotencia.plotContainer.pixelHeight * relativeY; // Posición vertical
-        };
+createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "°C");
+createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", true, "#EDB2C3", "°C");
+createAxisAndSeries("manovacuometro", "Manovacuómetro", true, "#B3DBEE", "kgf/CM²");
+// Series en el lado derecho
+createAxisAndSeries("corriente_actual", "Corriente Actual", false, "#C767DC", "A");
+createAxisAndSeries("potencia_actual", "Potencia Actual", false, "#808080", "MW");
 
-        // Agregar etiquetas para cada serie
-        addUnitLabel("Corriente Actual (A)", "#C767DC", 0.1, -0.05); // Púrpura
-        addUnitLabel("Potencia Actual (MW)", "#808080", 0.3, -0.05); // Gris
-        addUnitLabel("Manovacuómetro (kgf/CM²)", "#B3DBEE", 0.5, -0.05); // Azul claro
-        addUnitLabel("Temperatura Devanado (°C)", "#67B7DC", 0.7, -0.05); // Azul
-        addUnitLabel("Temperatura Aceite (°C)", "#EDB2C3", 0.9, -0.05); // Rosado
 
-        this.chartCorrientePotencia.legend = new am4charts.Legend();
-        this.chartCorrientePotencia.legend.position = "bottom";
-        console.log("Legend created");
 
-        this.chartCorrientePotencia.cursor = new am4charts.XYCursor();
-        this.chartCorrientePotencia.cursor.xAxis = categoryAxis;
+
+         // Configurar leyenda y cursor
+         this.chart_valor_real.legend = new am4charts.Legend();
+         this.chart_valor_real.legend.position = "bottom";
+
+         this.chart_valor_real.cursor = new am4charts.XYCursor();
+         this.chart_valor_real.cursor.xAxis = categoryAxis;
         console.log("Cursor created");
 
-        this.chartCorrientePotencia.exporting.menu = new am4core.ExportMenu();
-        this.chartCorrientePotencia.exporting.menu.items = [
+        this.chart_valor_real.exporting.menu = new am4core.ExportMenu();
+        this.chart_valor_real.exporting.menu.items = [
             {
                 "label": "...",
                 "menu": [
@@ -197,49 +224,85 @@ temperaturaSegundos: Array<number | null> = [null, null];
   //CREACION DEL GRAFICO TENDENDIA TESTIGO
   tendencia_testigo(data: any[]): void {
     this.zone.runOutsideAngular(() => {
-      if (this.chartTestigo) {
-        this.chartTestigo.dispose(); // Limpiar gráfico previo si existe
+      if (this.chart_valor_testigo) {
+        this.chart_valor_testigo.dispose(); // Limpiar gráfico previo si existe
       }
 
       // Crear el gráfico testigo
-      this.chartTestigo = am4core.create("chartTestigoDiv", am4charts.XYChart);
+      this.chart_valor_testigo = am4core.create("chart_valor_testigo", am4charts.XYChart);
       console.log("Gráfico testigo creado");
 
       let dateFormatter = new am4core.DateFormatter();
-      this.chartTestigo.logo.disabled = true;  // Desactivar el logo en el gráfico testigo
+      this.chart_valor_testigo.logo.disabled = true;  // Desactivar el logo en el gráfico testigo
+
+
+      // Crear subtítulos en la parte superior
+      const chartContainer = document.getElementById("chart-container-testigo");
+      if (chartContainer) {
+          const subtitleTopContainer = document.getElementById("chart-subtitles-top-testigo");
+          if (subtitleTopContainer) {
+              subtitleTopContainer.innerHTML = `
+
+                  <span>(kgf/CM²)</span>
+                  <span>(°C)</span>
+                  <span>(°C)</span>
+              `;
+              console.log("Subtítulos superiores agregados");
+          }
+
+          // Crear subtítulos en la parte inferior
+          const subtitleBottomContainer = document.getElementById("chart-subtitles-bottom-testigo");
+          if (subtitleBottomContainer) {
+              subtitleBottomContainer.innerHTML = `
+
+                  <span>(kgf/CM²)</span>
+                  <span>(°C)</span>
+                  <span>(°C)</span>
+              `;
+              console.log("Subtítulos inferiores agregados");
+          } else {
+              console.error("No se encontró el contenedor de subtítulos inferiores");
+          }
+      } else {
+          console.error("No se encontró el contenedor principal del gráfico");
+      }
 
       // Procesar los datos
-      this.chartTestigo.data = data.map(item => {
+      this.chart_valor_testigo.data = data.map(item => {
         const valores: number[] = item.valores_ingresados ? item.valores_ingresados.split(',').map((v: string) => parseInt(v.trim(), 10)) : [];
         const date = item.fecha.includes('/')
-          ? dateFormatter.parse(item.fecha, "dd/MM/yyyy")
-          : new Date(item.fecha);
+        ? dateFormatter.parse(item.fecha, "dd/MM/yyyy")
+        : new Date(item.fecha);
 
-        return {
-        date: item.fecha,
-        manovacuometro: parseFloat(item.manovacuometro_segundos),
-        temperatura_devanado: this.temperaturaSegundos[0] || null,
-        temperatura_aceite: this.temperaturaSegundos[1] || null
+        const processedItem = {
+          date: item.fecha,  // Fecha como categoría
+          manovacuometro: item.manovacuometro ? parseFloat(item.manovacuometro) : null,
+          temperatura_devanado: item.temperatura_devanado ? parseFloat(item.temperatura_devanado) : null,
+          temperatura_aceite: item.temperatura_aceite ? parseFloat(item.temperatura_aceite) : null,
         };
-      });
+
+    console.log("Processed Item: ", processedItem);
+
+    return processedItem;
+    });
 
       // Crear eje X (fecha)
-      let categoryAxis = this.chartTestigo.xAxes.push(new am4charts.CategoryAxis());
+      let categoryAxis = this.chart_valor_testigo.xAxes.push(new am4charts.CategoryAxis());
       categoryAxis.dataFields.category = "date";
       categoryAxis.renderer.minGridDistance = 70;
       categoryAxis.renderer.grid.template.location = 0.5;
 
       // Función para crear las series
       let createAxisAndSeries = (field: string, name: string, opposite: boolean, color: string, unit: string) => {
-        let valueAxis = this.chartTestigo.yAxes.push(new am4charts.ValueAxis<am4charts.AxisRendererY>());
-        if (this.chartTestigo.yAxes.indexOf(valueAxis) !== 0) {
-          valueAxis.syncWithAxis = this.chartTestigo.yAxes.getIndex(0) as am4charts.ValueAxis<am4charts.AxisRendererY>;
+        let valueAxis = this.chart_valor_testigo.yAxes.push(new am4charts.ValueAxis<am4charts.AxisRendererY>());
+        if (this.chart_valor_testigo.yAxes.indexOf(valueAxis) !== 0) {
+          valueAxis.syncWithAxis = this.chart_valor_testigo.yAxes.getIndex(0) as am4charts.ValueAxis<am4charts.AxisRendererY>;
         }
         valueAxis.renderer.opposite = opposite;
         valueAxis.renderer.grid.template.stroke = am4core.color(color);
         valueAxis.renderer.grid.template.disabled = true;
 
-        let series = this.chartTestigo.series.push(new am4charts.LineSeries());
+        let series = this.chart_valor_testigo.series.push(new am4charts.LineSeries());
         series.dataFields.valueY = field;
         series.dataFields.categoryX = "date";
         series.stroke = am4core.color(color);
@@ -267,16 +330,16 @@ temperaturaSegundos: Array<number | null> = [null, null];
       // Crear las series para el gráfico testigo
       createAxisAndSeries("manovacuometro", "Manovacuómetro", false, "#B3DBEE", "MVA");
       createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "°C");
-      createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", false, "#EDB2C3", "°C");
+      createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", true, "#EDB2C3", "°C");
 
       // Añadir leyenda, cursor y menú de exportación
-      this.chartTestigo.legend = new am4charts.Legend();
-      this.chartTestigo.legend.position = "bottom";
-      this.chartTestigo.cursor = new am4charts.XYCursor();
-      this.chartTestigo.cursor.xAxis = categoryAxis;
+      this.chart_valor_testigo.legend = new am4charts.Legend();
+      this.chart_valor_testigo.legend.position = "bottom";
+      this.chart_valor_testigo.cursor = new am4charts.XYCursor();
+      this.chart_valor_testigo.cursor.xAxis = categoryAxis;
 
-      this.chartTestigo.exporting.menu = new am4core.ExportMenu();
-      this.chartTestigo.exporting.menu.items = [
+      this.chart_valor_testigo.exporting.menu = new am4core.ExportMenu();
+      this.chart_valor_testigo.exporting.menu.items = [
         {
           "label": "...",
           "menu": [
@@ -295,11 +358,11 @@ temperaturaSegundos: Array<number | null> = [null, null];
 
   ngOnDestroy() {
     this.zone.runOutsideAngular(() => {
-      if (this.chartCorrientePotencia) {
-        this.chartCorrientePotencia.dispose();
+      if (this.chart_valor_real) {
+        this.chart_valor_real.dispose();
       }
-      if (this.chartCorrientePotencia2) {
-        this.chartCorrientePotencia2.dispose();
+      if (this.chart_valor_testigo) {
+        this.chart_valor_testigo.dispose();
       }
     });
 

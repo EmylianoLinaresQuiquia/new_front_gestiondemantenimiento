@@ -245,25 +245,30 @@ async fetchAndSetPdf(id: number): Promise<ArrayBuffer | null> {
   }*/
 
 
-    // Asignar valores manuales para equipos con coordenadas dinámicas
   // Comprueba si hay algún equipo disponible
   if (this.pm1.equipo_item1 || this.pm1.equipo_item2 || this.pm1.equipo_item3 || this.pm1.equipo_item4) {
-    const parseEquipo = (item: string | undefined | null): { descripcion: string; estado: string }[] | null => {
-      if (!item) return null;
-      try {
-        return JSON.parse(item.replace(/\\"/g, '"'));
-      } catch (e) {
-        console.error('Error al parsear el equipo:', e);
-        return null;
-      }
+    const parseEquipo = (
+        item: string | undefined | null
+    ): { descripcion: string; estado?: string; Manovacuómetro?: string; temperatura_aceite?: string; temperatura_devanado?: string }[] | null => {
+        if (!item) return null;
+        try {
+            return JSON.parse(item.replace(/\\"/g, '"'));
+        } catch (e) {
+            console.error('Error al parsear el equipo:', e);
+            return null;
+        }
     };
+
 
     const equipos = [
       parseEquipo(this.pm1.equipo_item1),
       parseEquipo(this.pm1.equipo_item2),
       parseEquipo(this.pm1.equipo_item3),
       parseEquipo(this.pm1.equipo_item4),
-    ].filter((equipo): equipo is { descripcion: string; estado: string }[] => equipo !== null);
+    ].filter(
+      (equipo): equipo is { descripcion: string; estado?: string; Manovacuómetro?: string; temperatura_aceite?: string; temperatura_devanado?: string }[] =>
+          equipo !== null
+    );
 
     if (equipos.length === 0) {
       console.error('No se encontraron equipos válidos para procesar.');
@@ -285,7 +290,7 @@ async fetchAndSetPdf(id: number): Promise<ArrayBuffer | null> {
       let yActual = inicio.y;
 
       for (const elemento of equipo) {
-        // Dividir descripción larga en líneas
+        // Dividir descripción en líneas
         const lineasDescripcion = dividirTextoEnLineas(elemento.descripcion, 25);
 
         for (const linea of lineasDescripcion) {
@@ -298,81 +303,146 @@ async fetchAndSetPdf(id: number): Promise<ArrayBuffer | null> {
             page,
             pdfDoc,
           });
-          yActual -= 4.5; // Espacio entre descripcion y rectangulo
+          yActual -= 4.5; // Espacio entre líneas
         }
 
-        yActual -= 5; // Espacio adicional antes de dibujar el estado
+        yActual -= 5; // Espacio adicional antes de dibujar contenido específico
 
-        if (elemento.estado.includes(',')) {
-          const [real, testigo] = elemento.estado.split(',').map(v => v.trim());
+        // Verificar si el elemento tiene un estado o atributos específicos
+        if (elemento.estado) {
+          if (elemento.estado.includes(',')) {
+            const [real, testigo] = elemento.estado.split(',').map((v) => v.trim());
 
-          // Dibujar valor real
-          await drawRectangleAndText({
-            x: inicio.x,
-            y: yActual,
-            width: 15,
-            height: 8,
-            borderColor: 'black',
-            text: real,
-            label: 'v. real',
-            fontSize: 5,
-            page,
-            pdfDoc,
-            labelYOffset: 6,
-          });
+            // Dibujar valor real
+            await drawRectangleAndText({
+              x: inicio.x,
+              y: yActual,
+              width: 15,
+              height: 8,
+              borderColor: 'black',
+              text: real,
+              label: 'v. real',
+              fontSize: 5,
+              page,
+              pdfDoc,
+              labelYOffset: 6,
+            });
 
-          // Dibujar valor testigo
-          await drawRectangleAndText({
-            x: inicio.x + 13 + ESPACIADO_HORIZONTAL,
-            y: yActual,
-            width: 15,
-            height: 8,
-            borderColor: 'black',
-            text: testigo,
-            label: 'v. testigo',
-            fontSize: 4,
-            page,
-            pdfDoc,
-            labelYOffset: 6,
-          });
+            // Dibujar valor testigo
+            await drawRectangleAndText({
+              x: inicio.x + 13 + ESPACIADO_HORIZONTAL,
+              y: yActual,
+              width: 15,
+              height: 8,
+              borderColor: 'black',
+              text: testigo,
+              label: 'v. testigo',
+              fontSize: 4,
+              page,
+              pdfDoc,
+              labelYOffset: 6,
+            });
 
-          // Determinar unidades basadas en descripción
-          const unidades =
-            elemento.descripcion.includes('Manovacuómetro') && !isNaN(Number(testigo))
-              ? 'kgf/cm²'
-              : elemento.descripcion.includes('temperatura') && !isNaN(Number(testigo))
-              ? '°C'
-              : null;
+            // Determinar y mostrar las unidades basadas en descripción
+            const unidades = (() => {
+              if (elemento.descripcion.includes('Manovacuómetro')) return 'kgf/cm²';
+              if (elemento.descripcion.includes('Termómetro') || elemento.descripcion.includes('temperatura')) return '°C';
+              return null;
+            })();
 
-          if (unidades) {
-            await drawText({
-              x: inicio.x + 31 + ESPACIADO_HORIZONTAL, // Ajustar posición horizontal junto a "v. testigo"
-              y: yActual + 5, // Ajustar posición vertical
-              text: unidades,
+            if (unidades) {
+              await drawText({
+                x: inicio.x + 31 + ESPACIADO_HORIZONTAL,
+                y: yActual + 5,
+                text: unidades,
+                fontSize: 4,
+                page,
+                pdfDoc,
+              });
+            }
+
+            yActual -= ESPACIADO_VERTICAL;
+          } else {
+            // Dibujar estado único si no contiene coma
+            await drawRectangleAndText({
+              x: inicio.x,
+              y: yActual,
+              width: 35,
+              height: 8,
+              borderColor: 'black',
+              text: elemento.estado,
               fontSize: 4,
               page,
               pdfDoc,
             });
+
+            yActual -= ESPACIADO_VERTICAL;
           }
+        } else if (elemento.Manovacuómetro || elemento.temperatura_aceite || elemento.temperatura_devanado) {
+          // Manejar atributos específicos si no hay estado
+          const valores =
+            elemento.Manovacuómetro ||
+            elemento.temperatura_aceite ||
+            elemento.temperatura_devanado;
 
-          yActual -= ESPACIADO_VERTICAL;
+          if (valores) {
+            const [real, testigo] = valores.split(',').map((v) => v.trim());
+
+            // Dibujar valor real
+            await drawRectangleAndText({
+              x: inicio.x,
+              y: yActual,
+              width: 15,
+              height: 8,
+              borderColor: 'black',
+              text: real,
+              label: 'v. real',
+              fontSize: 5,
+              page,
+              pdfDoc,
+              labelYOffset: 6,
+            });
+
+            // Dibujar valor testigo
+            await drawRectangleAndText({
+              x: inicio.x + 13 + ESPACIADO_HORIZONTAL,
+              y: yActual,
+              width: 15,
+              height: 8,
+              borderColor: 'black',
+              text: testigo,
+              label: 'v. testigo',
+              fontSize: 4,
+              page,
+              pdfDoc,
+              labelYOffset: 6,
+            });
+
+            // Determinar y mostrar las unidades
+            const unidades = (() => {
+              if (elemento.descripcion.includes('Manovacuómetro')) return 'kgf/cm²';
+              if (elemento.descripcion.includes('Termómetro') || elemento.descripcion.includes('temperatura')) return '°C';
+              return null;
+            })();
+
+            if (unidades) {
+              await drawText({
+                x: inicio.x + 31 + ESPACIADO_HORIZONTAL,
+                y: yActual + 5,
+                text: unidades,
+                fontSize: 4,
+                page,
+                pdfDoc,
+              });
+            }
+
+            yActual -= ESPACIADO_VERTICAL;
+          }
         } else {
-          // Dibujar estado en un cuadro único si no contiene coma
-          await drawRectangleAndText({
-            x: inicio.x,
-            y: yActual,
-            width: 35,
-            height: 8,
-            borderColor: 'black',
-            text: elemento.estado,
-            fontSize: 4,
-            page,
-            pdfDoc,
-          });
-
-          yActual -= ESPACIADO_VERTICAL;
+          console.warn('Elemento sin estado ni atributos específicos:', elemento);
         }
       }
+
     }
   }
 

@@ -263,7 +263,8 @@ const procesarFormularioAgrupado = (
       }
       // Verificar si corresponde a "Temperatura" o "Termómetro"
       else if (
-        labelClave.toLowerCase().includes('temperatura devanado')
+        labelClave.toLowerCase().includes('monitor digital temperatura devanado') ||
+        labelClave.toLowerCase().includes('termómetro de devanado')
       ) {
         resultado.push({
           descripcion: labelClave,
@@ -271,11 +272,12 @@ const procesarFormularioAgrupado = (
         });
       }
       else if (
-        labelClave.toLowerCase().includes('temperatura')
+        labelClave.toLowerCase().includes('monitor digital temperatura aceite') ||
+        labelClave.toLowerCase().includes('termómetro de aceite')
       ) {
         resultado.push({
           descripcion: labelClave,
-          Temperatura: estado,
+          temperatura_aceite: estado,
         });
       }
       else {
