@@ -8,6 +8,11 @@ import { PM1Service } from 'src/app/features/sistemas/services/pm1.service';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { forkJoin } from 'rxjs';
 
+
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import * as am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import * as am5plugins_exporting from "@amcharts/amcharts5/plugins/exporting";
 am4core.useTheme(am4themes_animated);
 @Component({
   selector: 'app-graphic-pm1',
@@ -17,9 +22,11 @@ am4core.useTheme(am4themes_animated);
   styleUrl: './graphic-pm1.component.css'
 })
 export class GraphicPm1Component {
-  private chart_valor_real: am4charts.XYChart = null!;
+
 private chart_valor_testigo: am4charts.XYChart = null!;
 
+private root!: am5.Root; // Root instance for the chart
+  private chart_valor_real: am5xy.XYChart | null = null;
 
 datosReales: any[] = [];
 datosTestigos: any[] = [];
@@ -68,161 +75,188 @@ temperaturaSegundos: Array<number | null> = [null, null];
     }
 
     if (this.datosTestigos.length > 0) {
-      this.tendencia_testigo(this.datosTestigos);
+      //this.tendencia_testigo(this.datosTestigos);
     }
   }
 
   //CREACION DEL GRAFICO TENDENDIA POTENCIA
+
   tendencia_real(data: any[]): void {
     this.zone.runOutsideAngular(() => {
-        if (this.chart_valor_real) {
-            this.chart_valor_real.dispose();
+      // Limpiar gráfico previo
+      if (this.root) {
+        this.root.dispose();
+      }
+
+      // Crear raíz y aplicar tema
+      this.root = am5.Root.new('chart_valor_real');
+      this.root.setThemes([am5themes_Animated.default.new(this.root)]);
+
+      // Crear gráfico XY
+      const chart = this.root.container.children.push(
+        am5xy.XYChart.new(this.root, {
+          panX: true,
+          panY: true,
+          wheelX: 'panX',
+          wheelY: 'zoomX',
+          pinchZoomX: true,
+          layout: this.root.verticalLayout
+        })
+      );
+
+      // Configuración de colores
+      chart.get('colors')!.set('step', 2);
+
+      // Procesar datos
+      const processedData = data.map(item => ({
+        date: item.fecha, // Categoría en eje X
+        corriente_actual: parseFloat(item.corriente_actual) || null,
+        potencia_actual: parseFloat(item.potencia_actual) || null,
+        manovacuometro: item.manovacuometro_valores ? parseFloat(item.manovacuometro_valores) : null,
+        temperatura_devanado: item.temperatura_devanado_valores ? parseFloat(item.temperatura_devanado_valores) : null,
+        temperatura_aceite: item.temperatura_aceite_valores ? parseFloat(item.temperatura_aceite_valores) : null
+      }));
+
+      // Configurar eje X (categorías)
+      const xAxis = chart.xAxes.push(
+        am5xy.CategoryAxis.new(this.root, {
+          categoryField: 'date',
+          renderer: am5xy.AxisRendererX.new(this.root, { minGridDistance: 30 })
+        })
+      );
+      xAxis.data.setAll(processedData);
+
+      // Configurar ejes Y (valores)
+      const yAxisLeft = chart.yAxes.push(
+        am5xy.ValueAxis.new(this.root, {
+          renderer: am5xy.AxisRendererY.new(this.root, {})
+        })
+      );
+
+      const yAxisRight = chart.yAxes.push(
+        am5xy.ValueAxis.new(this.root, {
+          renderer: am5xy.AxisRendererY.new(this.root, { opposite: true })
+        })
+      );
+
+      // Función para crear series
+      const createSeries = (
+        field: string,
+        name: string,
+        yAxis: am5xy.ValueAxis<any>,
+        color: string
+      ) => {
+        const series = chart.series.push(
+          am5xy.LineSeries.new(this.root, {
+            name,
+            xAxis,
+            yAxis,
+            valueYField: field,
+            categoryXField: 'date',
+            stroke: am5.color(color),
+            tooltip: am5.Tooltip.new(this.root, {
+              labelText: '{name}: {valueY}'
+            })
+          })
+        );
+
+        series.strokes.template.setAll({ strokeWidth: 2 });
+        series.bullets.push(() =>
+          am5.Bullet.new(this.root, {
+            sprite: am5.Circle.new(this.root, {
+              radius: 5,
+              fill: am5.color(color),
+              stroke: this.root.interfaceColors.get('background'),
+              strokeWidth: 2
+            })
+          })
+        );
+        series.data.setAll(processedData);
+      };
+
+      // Agregar subtítulos
+      const chartContainerlabel = document.getElementById('chart-container');
+      if (chartContainerlabel) {
+        const subtitleTopContainer = document.getElementById('chart-subtitles-top');
+        if (subtitleTopContainer) {
+          subtitleTopContainer.innerHTML = `
+            <span>(A)</span>
+            <span>(MW)</span>
+            <span>(kgf/CM²)</span>
+            <span>(°C)</span>
+            <span>(°C)</span>
+          `;
         }
 
-        // Crear el gráfico
-        this.chart_valor_real = am4core.create("chart_valor_real", am4charts.XYChart);
-        console.log("Chart created");
-
-        let dateFormatter = new am4core.DateFormatter();
-        this.chart_valor_real.logo.disabled = true;  // Desactivar el logo en el gráfico
-
-        // Crear subtítulos en la parte superior
-        const chartContainer = document.getElementById("chart-container");
-        if (chartContainer) {
-            const subtitleTopContainer = document.getElementById("chart-subtitles-top");
-            if (subtitleTopContainer) {
-                subtitleTopContainer.innerHTML = `
-                    <span>(A)</span>
-                    <span>(MW)</span>
-                    <span>(kgf/CM²)</span>
-                    <span>(°C)</span>
-                    <span>(°C)</span>
-                `;
-                console.log("Subtítulos superiores agregados");
-            }
-
-            // Crear subtítulos en la parte inferior
-            const subtitleBottomContainer = document.getElementById("chart-subtitles-bottom");
-            if (subtitleBottomContainer) {
-                subtitleBottomContainer.innerHTML = `
-                    <span>(A)</span>
-                    <span>(MW)</span>
-                    <span>(kgf/CM²)</span>
-                    <span>(°C)</span>
-                    <span>(°C)</span>
-                `;
-                console.log("Subtítulos inferiores agregados");
-            } else {
-                console.error("No se encontró el contenedor de subtítulos inferiores");
-            }
-        } else {
-            console.error("No se encontró el contenedor principal del gráfico");
+        const subtitleBottomContainer = document.getElementById('chart-subtitles-bottom');
+        if (subtitleBottomContainer) {
+          subtitleBottomContainer.innerHTML = `
+            <span>(A)</span>
+            <span>(MW)</span>
+            <span>(kgf/CM²)</span>
+            <span>(°C)</span>
+            <span>(°C)</span>
+          `;
         }
+      }
+
+      // Crear series
+      createSeries('corriente_actual', 'Corriente Actual', yAxisLeft, '#C767DC');
+      createSeries('potencia_actual', 'Potencia Actual', yAxisLeft, '#808080');
+      createSeries('manovacuometro', 'Manovacuómetro', yAxisRight, '#B3DBEE');
+      createSeries('temperatura_devanado', 'Temperatura Devanado', yAxisRight, '#67B7DC');
+      createSeries('temperatura_aceite', 'Temperatura Aceite', yAxisRight, '#EDB2C3');
+
+      // Agregar leyenda
+      const legend = chart.children.push(am5.Legend.new(this.root, {}));
+      legend.data.setAll(chart.series.values);
+
+      // Configurar cursor
+      chart.set('cursor', am5xy.XYCursor.new(this.root, {}));
+
+      // Agregar exportación
+      // Crear exportación personalizada
+const exporting = am5plugins_exporting.Exporting.new(this.root, {});
+
+// Crear un menú manualmente
+const menuContainer = document.createElement("div");
+menuContainer.className = "export-menu";
+
+// Agregar opciones al menú
+const options = [
+  { label: "PNG Image", format: "png" },
+  { label: "JPG Image", format: "jpg" },
+  { label: "PDF Document", format: "pdf" },
+  { label: "Print", action: () => window.print() }
+];
+
+options.forEach(option => {
+  const button = document.createElement("button");
+  button.innerText = option.label;
+  button.onclick = () => {
+    if (option.format) {
+      exporting.download(option.format as any); // Tipo `any` para evitar errores de tipo
+    } else if (option.action) {
+      option.action();
+    }
+  };
+  menuContainer.appendChild(button);
+});
 
 
-
-        // Procesar los datos y agregar mensajes de depuración
-        this.chart_valor_real.data = data.map(item => {
-            const valores: number[] = item.valores_ingresados ? item.valores_ingresados.split(',').map((v: string) => parseInt(v.trim(), 10)) : [];
-            const date = item.fecha.includes('/')
-                ? dateFormatter.parse(item.fecha, "dd/MM/yyyy")
-                : new Date(item.fecha);
-
-                const processedItem = {
-                  date: item.fecha,  // Fecha como categoría
-                  corriente_actual: parseFloat(item.corriente_actual) || null,
-                  potencia_actual: parseFloat(item.potencia_actual) || null,
-                  manovacuometro: item.manovacuometro_valores ? parseFloat(item.manovacuometro_valores) : null,
-                  temperatura_devanado: item.temperatura_devanado_valores ? parseFloat(item.temperatura_devanado_valores) : null,
-                  temperatura_aceite: item.temperatura_aceite_valores ? parseFloat(item.temperatura_aceite_valores) : null,
-                };
-
-            console.log("Processed Item: ", processedItem);
-
-            return processedItem;
-        });
-
-        let categoryAxis = this.chart_valor_real.xAxes.push(new am4charts.CategoryAxis());
-        categoryAxis.dataFields.category = "date";
-        categoryAxis.renderer.minGridDistance = 200;  // Aumentar la distancia mínima de la cuadrícula
-        categoryAxis.renderer.grid.template.location = 0.5;
-
-        let createAxisAndSeries = (field: string, name: string, opposite: boolean, color: string, unit: string) => {
-            let valueAxis = this.chart_valor_real.yAxes.push(new am4charts.ValueAxis<am4charts.AxisRendererY>());
-            if (this.chart_valor_real.yAxes.indexOf(valueAxis) !== 0) {
-                valueAxis.syncWithAxis = this.chart_valor_real.yAxes.getIndex(0) as am4charts.ValueAxis<am4charts.AxisRendererY>;
-            }
-            valueAxis.renderer.opposite = opposite;
-            valueAxis.renderer.grid.template.stroke = am4core.color(color);
-            valueAxis.renderer.grid.template.disabled = true;  // Deshabilitar la cuadrícula del eje Y
-
-            let series = this.chart_valor_real.series.push(new am4charts.LineSeries());
-            series.dataFields.valueY = field;
-            series.dataFields.categoryX = "date";
-            series.stroke = am4core.color(color);
-            series.name = name;
-            series.tooltipText = `{name}: [bold]{valueY}${unit}[/]`;
-            series.tensionX = 0.8;
-            series.yAxis = valueAxis;  // Asociar la serie con el eje Y correspondiente
-
-            let bullet = series.bullets.push(new am4charts.CircleBullet());
-            bullet.circle.stroke = am4core.color(color);
-            bullet.circle.fill = am4core.color(color);
-
-            valueAxis.renderer.line.strokeOpacity = 1;
-            valueAxis.renderer.line.strokeWidth = 2;
-            valueAxis.renderer.line.stroke = am4core.color(color);
-
-            // Agregar etiqueta de unidad al eje
-            valueAxis.renderer.labels.template.adapter.add("text", function (value: string | undefined) {
-                if (value) {
-                    return value + unit;
-                } else {
-                    return ""; // O manejar el caso de 'undefined' de otra forma, según lo necesites
-                }
-            });
-
-            console.log(`Created series for ${name} with field ${field} and color ${color}`);
-        };
-
-        // Crear todas las series y agregar mensajes de depuración
-        // Series en el lado izquierdo
-
-createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "°C");
-createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", true, "#EDB2C3", "°C");
-createAxisAndSeries("manovacuometro", "Manovacuómetro", true, "#B3DBEE", "kgf/CM²");
-// Series en el lado derecho
-createAxisAndSeries("corriente_actual", "Corriente Actual", false, "#C767DC", "A");
-createAxisAndSeries("potencia_actual", "Potencia Actual", false, "#808080", "MW");
-
-
-
-
-         // Configurar leyenda y cursor
-         this.chart_valor_real.legend = new am4charts.Legend();
-         this.chart_valor_real.legend.position = "bottom";
-
-         this.chart_valor_real.cursor = new am4charts.XYCursor();
-         this.chart_valor_real.cursor.xAxis = categoryAxis;
-        console.log("Cursor created");
-
-        this.chart_valor_real.exporting.menu = new am4core.ExportMenu();
-        this.chart_valor_real.exporting.menu.items = [
-            {
-                "label": "...",
-                "menu": [
-                    { "type": "png", "label": "PNG Image" },
-                    { "type": "jpg", "label": "JPG Image" },
-                    { "type": "pdf", "label": "PDF Image" },
-                    { "type": "print", "label": "Print" }
-                ]
-            }
-        ];
-        console.log("Export menu created");
-    });
+// Agregar el menú al DOM
+const chartContainer = document.getElementById("chart-container");
+if (chartContainer) {
+  chartContainer.appendChild(menuContainer);
 }
+
+
+
+    });
+  }
+
   //CREACION DEL GRAFICO TENDENDIA TESTIGO
-  tendencia_testigo(data: any[]): void {
+  /*tendencia_testigo(data: any[]): void {
     this.zone.runOutsideAngular(() => {
       if (this.chart_valor_testigo) {
         this.chart_valor_testigo.dispose(); // Limpiar gráfico previo si existe
@@ -353,7 +387,7 @@ createAxisAndSeries("potencia_actual", "Potencia Actual", false, "#808080", "MW"
 
       console.log("Export menu para gráfico testigo creado");
     });
-  }
+  }*/
 
 
   ngOnDestroy() {

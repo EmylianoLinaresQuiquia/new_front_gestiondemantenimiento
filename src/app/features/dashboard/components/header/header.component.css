@@ -215,3 +215,28 @@ nz-footer {
   text-align: center;
   margin-top: 4px; /* Espacio entre el avatar y el texto */
 }
+
+
+
+::ng-deep .ant-card-head{
+  border-radius: 4px 4px 0px 0px;
+  background-color: #4d4d4d;
+  color: #fff;
+}
+::ng-deep .ant-card-body {
+  padding: 0px;
+}
+::ng-deep .ant-tabs-nav-wrap{
+  border-radius: 4px 4px 0px 0px;
+  background-color: #4d4d4d;
+
+
+}
+::ng-deep .ant-tabs-tab {
+  background-color: #4d4d4d !important;
+  border:none !important;
+  color: #fff;
+}
+::ng-deep .ant-tabs-tab button {
+  padding: 0px !important;
+}

@@ -1,3 +1,4 @@
+import { DashboardService } from './../../features/dashboard/services/dashboard.service';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../features/dashboard/components/header/header.component';
@@ -11,5 +12,7 @@ import { SharedModule } from '../../shared/shared.module';
   styleUrl: './main-layout.component.css'
 })
 export class MainLayoutComponent {
-
+  constructor(
+    public DashboardService:DashboardService
+  ){}
 }

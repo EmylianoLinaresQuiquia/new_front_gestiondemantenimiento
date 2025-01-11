@@ -38,76 +38,76 @@
   class="small-text-table">
   <thead>
     <tr>
-      <th nzColumnKey="tag_subestacion">
+      <th nzColumnKey="tag_subestacion" class="column-color">
         Subestación
         <nz-input-group>
-          <input nz-input [(ngModel)]="filterSubestacion" placeholder="Filtrar Subestación" (ngModelChange)="applyFilter()" />
+          <input nz-input [(ngModel)]="filterSubestacion"  (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
-      <th nzColumnKey="ot">
+      <th nzColumnKey="ot" class="column-color">
         Ot
         <nz-input-group>
-          <input nz-input [(ngModel)]="filterOt" placeholder="Filtrar Ot" (ngModelChange)="applyFilter()" />
+          <input nz-input [(ngModel)]="filterOt"  (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
-      <th nzColumnKey="fecha">
+      <th nzColumnKey="fecha" class="column-color">
         Fecha
         <nz-input-group>
-          <input nz-input [(ngModel)]="filterFecha" placeholder="Filtrar Fecha" (ngModelChange)="applyFilter()" />
+          <input nz-input [(ngModel)]="filterFecha"  (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
-      <th nzColumnKey="tipo_metodo">
+      <th nzColumnKey="tipo_metodo" class="column-color">
         Tipo de Método
         <nz-input-group>
-          <input nz-input placeholder="Filtrar Método" (ngModelChange)="applyFilter()" />
+          <input nz-input  (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
       <!-- Pat1 to Pat4 columns with dynamic labels based on selected method -->
-      <th nzColumnKey="pat1_sujecion">
+      <th nzColumnKey="pat1_sujecion" class="column-color">
         Pat1
         <nz-input-group>
           <input nz-input [(ngModel)]="filterohm_sujecion" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
-      <th nzColumnKey="pat2_sujecion">
+      <th nzColumnKey="pat2_sujecion" class="column-color">
         Pat2
         <nz-input-group>
           <input nz-input [(ngModel)]="filterohm_sujecion" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
-      <th nzColumnKey="pat3_sujecion">
+      <th nzColumnKey="pat3_sujecion" class="column-color">
         Pat3
         <nz-input-group>
           <input nz-input [(ngModel)]="filterohm_sujecion" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
-      <th nzColumnKey="pat4_sujecion">
+      <th nzColumnKey="pat4_sujecion" class="column-color">
         Pat4
         <nz-input-group>
           <input nz-input [(ngModel)]="filterohm_sujecion" (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
-      <th nzColumnKey="lider">
+      <th nzColumnKey="lider" class="column-color">
         Líder
         <nz-input-group>
-          <input nz-input [(ngModel)]="filterLider" placeholder="Filtrar Líder" (ngModelChange)="applyFilter()" />
+          <input nz-input [(ngModel)]="filterLider"  (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
-      <th nzColumnKey="supervisor">
+      <th nzColumnKey="supervisor" class="column-color">
         Supervisor
         <nz-input-group>
-          <input nz-input [(ngModel)]="filterSupervisor" placeholder="Filtrar Supervisor" (ngModelChange)="applyFilter()" />
+          <input nz-input [(ngModel)]="filterSupervisor"  (ngModelChange)="applyFilter()" />
         </nz-input-group>
       </th>
 
-      <th nzColumnKey="tendencia">Tendencia</th>
-      <th nzColumnKey="firma">Documentos</th>
-      <th *ngIf="mostrarHerramientas" nzColumnKey="herramientas">Herramientas</th>
+
+      <th nzColumnKey="firma" class="column-color">Acciones</th>
+      <th *ngIf="mostrarHerramientas" nzColumnKey="herramientas" class="column-color">Herramientas</th>
     </tr>
   </thead>
 
@@ -180,10 +180,8 @@
         <button nz-button nzType="link" (click)="verTendencia(item)">
           <i nz-icon nzType="line-chart"></i>
         </button>
-      </td>
 
        <!-- Icono de documentos con lógica de color -->
-       <td>
         <button nz-button nzType="link" (click)="verDocumentos(item.id_spt2)">
           <i nz-icon nzType="file-pdf" nzTheme="twotone" [nzTwotoneColor]="item.firma === true ? 'green' : 'orange'"></i>
         </button>

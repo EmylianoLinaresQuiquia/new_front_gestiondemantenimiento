@@ -1,6 +1,17 @@
-<div class="d-flex align-items-center mb-2">
-  <img src="assets/icons/transformer-bolt-64.webp" alt="Icono Transformer" class="icon-class" />
-  <h4>Transformadores</h4>
+<div style="display: flex;justify-content: space-between;">
+  <div style="display: flex;align-items: end;">
+      <img src="assets/pdf/pm1/img/icono_transformador_white.avif" alt="Icono Transformer" class="icon-class" width="30" height="30"/>
+
+    <h2 nz-typography style="    margin-bottom: 0em;">Transformador</h2>
+  </div>
+
+
+
+  <div class="actions">
+    <button nz-button class="icon-pdf"  (click)="exportToPDF()" ><i nz-icon  nzType="file-pdf" nzTheme="outline" ></i></button>
+    <button nz-button  class="icon-excel" (click)="exportToExcel()"><i nz-icon  nzType="file-excel" nzTheme="outline"  ></i></button>
+    <button nz-button class="icon-print" (click)="printTable()"><i nz-icon  nzType="printer" nzTheme="outline"  ></i></button>
+  </div>
 </div>
 
 
@@ -8,73 +19,74 @@
 
 
 
+<!-- Contenedor que envuelve la tabla -->
+<div id="transformadorTableContainer">
+  <!-- Tabla con datos filtrados -->
+  <nz-table #transformadorTable [nzData]="listOfDisplayData"
+  [nzBordered]="true"
+    [nzFrontPagination]="false" [nzShowPagination]="false"
+    [nzTotal]="listOfDisplayData.length"
+
+    [nzLoading]="loading"
 
 
-<!-- Tabla con datos filtrados -->
-<nz-table #transformadorTable [nzData]="listOfDisplayData"
-[nzBordered]="true"
-  [nzFrontPagination]="false" [nzShowPagination]="false"
-  [nzTotal]="listOfDisplayData.length"
+    >
+    <thead>
+      <tr>
+        <th nzWidth="15%" class="column-color">SUBESTACIÓN
+          <nz-input-group  style="margin-bottom: 10px;">
+            <input nz-input [(ngModel)]="filterSubestacion" (ngModelChange)="applyFilters()"  />
+          </nz-input-group>
+        </th>
+        <th nzWidth="15%" class="column-color">UBICACIÓN
+          <nz-input-group  style="margin-bottom: 10px;">
+            <input nz-input [(ngModel)]="filterUbicacion" (ngModelChange)="applyFilters()"  />
+          </nz-input-group>
+        </th>
+        <th nzWidth="15%" class="column-color">TRANSFORMADOR
+          <nz-input-group  style="margin-bottom: 10px;">
+            <input nz-input [(ngModel)]="filterTransformador" (ngModelChange)="applyFilters()" />
+          </nz-input-group>
+        </th>
+        <th nzWidth="10%" class="column-color">TIPO
+          <nz-input-group  style="margin-bottom: 10px;">
+            <input nz-input [(ngModel)]="filterTipo" (ngModelChange)="applyFilters()"  />
+          </nz-input-group>
+        </th>
+        <th nzWidth="10%" class="column-color">MARCA
+          <nz-input-group  style="margin-bottom: 10px;">
+            <input nz-input [(ngModel)]="filterMarca" (ngModelChange)="applyFilters()"  />
+          </nz-input-group>
+        </th>
+        <th nzWidth="10%" class="column-color">TENSIÓN (Kv)
+          <nz-input-group  style="margin-bottom: 10px;">
+            <input nz-input [(ngModel)]="filterVoltage" (ngModelChange)="applyFilters()"  />
+          </nz-input-group>
+        </th>
+        <th nzWidth="15%" class="column-color">POTENCIA (MVA)
 
-  [nzLoading]="loading"
-
-
-  >
-  <thead>
-    <tr>
-      <th nzWidth="15%">SUBESTACIÓN
         <nz-input-group  style="margin-bottom: 10px;">
-          <input nz-input [(ngModel)]="filterSubestacion" (ngModelChange)="applyFilters()" placeholder="Filtrar por Subestación" />
+          <input nz-input [(ngModel)]="filterPotencia" (ngModelChange)="applyFilters()"  />
         </nz-input-group>
-      </th>
-      <th nzWidth="15%">UBICACIÓN
-        <nz-input-group  style="margin-bottom: 10px;">
-          <input nz-input [(ngModel)]="filterUbicacion" (ngModelChange)="applyFilters()" placeholder="Filtrar por Ubicación" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="15%">TRANSFORMADOR
-        <nz-input-group  style="margin-bottom: 10px;">
-          <input nz-input [(ngModel)]="filterTransformador" (ngModelChange)="applyFilters()" placeholder="Filtrar por Transformador" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="10%">TIPO
-        <nz-input-group  style="margin-bottom: 10px;">
-          <input nz-input [(ngModel)]="filterTipo" (ngModelChange)="applyFilters()" placeholder="Filtrar por Tipo" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="10%">MARCA
-        <nz-input-group  style="margin-bottom: 10px;">
-          <input nz-input [(ngModel)]="filterMarca" (ngModelChange)="applyFilters()" placeholder="Filtrar por Marca" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="10%">TENSIÓN (Kv)
-        <nz-input-group  style="margin-bottom: 10px;">
-          <input nz-input [(ngModel)]="filterVoltage" (ngModelChange)="applyFilters()" placeholder="Filtrar por Tensión" />
-        </nz-input-group>
-      </th>
-      <th nzWidth="15%">POTENCIA (MVA)
-
-      <nz-input-group  style="margin-bottom: 10px;">
-        <input nz-input [(ngModel)]="filterPotencia" (ngModelChange)="applyFilters()" placeholder="Filtrar por Potencia" />
-      </nz-input-group>
-      </th>
-      <th nzWidth="5%">ACCIONES</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let item of listOfDisplayData.slice()">
-      <td>{{ item.subestacion }}</td>
-      <td>{{ item.ubicacion }}</td>
-      <td>{{ item.transformador }}</td>
-      <td>{{ item.tipo }}</td>
-      <td>{{ item.marca }}</td>
-      <td>{{ item.voltage }}</td>
-      <td>{{ item.potencia }}</td>
-      <td>
-        <button nz-button nzType="default" nzSize="small" (click)="abrirpruebas(item.transformador, item.subestacion, item.voltage, item.potencia)">
-          <i nz-icon nzType="eye"></i>
-        </button>
-      </td>
-    </tr>
-  </tbody>
-</nz-table>
+        </th>
+        <th nzWidth="5%" class="column-color">ACCIONES</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of listOfDisplayData.slice()">
+        <td>{{ item.subestacion }}</td>
+        <td>{{ item.ubicacion }}</td>
+        <td>{{ item.transformador }}</td>
+        <td>{{ item.tipo }}</td>
+        <td>{{ item.marca }}</td>
+        <td>{{ item.voltage }}</td>
+        <td>{{ item.potencia }}</td>
+        <td>
+          <button nz-button nzType="default" nzSize="small" (click)="abrirpruebas(item.transformador, item.subestacion, item.voltage, item.potencia)">
+            <i nz-icon nzType="eye"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>

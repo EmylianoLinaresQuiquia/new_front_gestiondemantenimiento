@@ -18,20 +18,7 @@
     border-radius: 10px 10px 0px 0px;
   }
 
-  h1 {
-    height: 32px;
-    margin: 0 0 0 12px;
-    color: #fff;
-    font-weight: 600;
-    font-size: 18px;
-    line-height: 32px;
-    vertical-align: middle;
 
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
 }
 
 .ant-layout-sider-dark {
@@ -64,17 +51,7 @@
       flex-direction: column;
       height: 100%;
 
-      /*.left-menu {
-        flex: 1;
-        overflow: auto;
 
-
-        scrollbar-width: none;
-
-        &::-webkit-scrollbar {
-          display: none;
-        }
-      }*/
     }
   }
 }

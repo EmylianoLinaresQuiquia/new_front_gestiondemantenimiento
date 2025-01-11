@@ -7,68 +7,104 @@
 >
   <thead>
     <tr>
-      <th nzWidth="19%">
-        Tag Subestacion
+      <th nzWidth="19%" class="column-color">
+        Subestacion
         <nz-input-group>
           <input
             nz-input
             [(ngModel)]="filterTagSubestacion"
-            placeholder="Filtrar Subestación"
+
             (ngModelChange)="applyFilter()"
           />
         </nz-input-group>
       </th>
-      <th nzWidth="18%">
+      <th nzWidth="18%" class="column-color">
         OT
         <nz-input-group>
           <input
             nz-input
             [(ngModel)]="filterOt"
-            placeholder="Filtrar OT"
+
             (ngModelChange)="applyFilter()"
           />
         </nz-input-group>
       </th>
-      <th nzWidth="18%">
+      <th nzWidth="18%" class="column-color">
         Fecha
         <nz-input-group>
           <input
             nz-input
-            type="date"
             [(ngModel)]="filterFecha"
-            placeholder="Filtrar Fecha"
+
             (ngModelChange)="applyFilter()"
           />
         </nz-input-group>
       </th>
-      <th nzWidth="5%">PAT1</th>
-      <th nzWidth="5%">PAT2</th>
-      <th nzWidth="5%">PAT3</th>
-      <th nzWidth="5%">PAT4</th>
-      <th nzWidth="18%">
+      <th nzWidth="5%" class="column-color">
+        PAT1
+        <nz-input-group>
+          <input
+            nz-input
+            [(ngModel)]="filterPat1"
+
+            (ngModelChange)="applyFilter()"
+          />
+        </nz-input-group>
+      </th>
+      <th nzWidth="5%" class="column-color">PAT2
+        <nz-input-group>
+          <input
+            nz-input
+            [(ngModel)]="filterPat2"
+
+            (ngModelChange)="applyFilter()"
+          />
+        </nz-input-group>
+      </th>
+      <th nzWidth="5%" class="column-color">PAT3
+        <nz-input-group>
+          <input
+            nz-input
+            [(ngModel)]="filterPat3"
+
+            (ngModelChange)="applyFilter()"
+          />
+        </nz-input-group>
+      </th>
+      <th nzWidth="5%" class="column-color">PAT4
+        <nz-input-group>
+          <input
+            nz-input
+            [(ngModel)]="filterPat4"
+
+            (ngModelChange)="applyFilter()"
+          />
+        </nz-input-group>
+      </th>
+      <th nzWidth="18%" class="column-color">
         Líder
         <nz-input-group>
           <input
             nz-input
             [(ngModel)]="filterLider"
-            placeholder="Filtrar Líder"
+
             (ngModelChange)="applyFilter()"
           />
         </nz-input-group>
       </th>
-      <th nzWidth="18%">
+      <th nzWidth="18%" class="column-color">
         Supervisor
         <nz-input-group>
           <input
             nz-input
             [(ngModel)]="filterSupervisor"
-            placeholder="Filtrar Supervisor"
+
             (ngModelChange)="applyFilter()"
           />
         </nz-input-group>
       </th>
-      <th nzWidth="5%">Documento</th>
-      <th *ngIf="mostrarHerramientas" nzWidth="50%">Herramientas</th>
+      <th nzWidth="5%" class="column-color">Documento</th>
+      <th *ngIf="mostrarHerramientas" nzWidth="50%" class="column-color">Herramientas</th>
     </tr>
   </thead>
   <tbody>

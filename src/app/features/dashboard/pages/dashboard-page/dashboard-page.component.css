@@ -105,18 +105,7 @@
 
 
 
-::ng-deep .ant-tabs-nav-wrap {
-  margin-left: 450px !important;
-}
 
-::ng-deep .ant-tabs-content-holder {
-
-  padding-left: 50px;
-  padding-top: 20px;
-}
-::ng-deep .ant-tabs-tab-btn{
-  font-size: 16px;
-}
 
 
 
@@ -136,3 +125,29 @@
   }
 
 }
+
+
+/*
+::ng-deep .ant-card-head{
+  border-radius: 4px 4px 0px 0px;
+  background-color: #4d4d4d;
+  color: #fff;
+}
+::ng-deep .ant-card-body {
+  padding: 0px;
+}
+::ng-deep .ant-tabs-nav-wrap{
+  border-radius: 4px 4px 0px 0px;
+  background-color: #4d4d4d;
+
+
+}
+::ng-deep .ant-tabs-tab {
+  background-color: #4d4d4d !important;
+  border:none !important;
+  color: #fff;
+}
+::ng-deep .ant-tabs-tab button {
+  padding: 0px !important;
+}
+*/

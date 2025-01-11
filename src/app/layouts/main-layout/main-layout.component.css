@@ -1,3 +1,6 @@
+nz-layout{
+  background: #fff;
+}
 
 .trigger {
   font-size: 18px;
@@ -23,26 +26,30 @@ nz-header {
   text-align: center;
 }
 
-.main-layout {
-  background: #fff;
-  display: flex; /* Utilizamos Flexbox para organizar el Sidebar y el Content */
-  margin-top: 60px;
 
+
+/* Asegúrate de que el layout tenga suficiente espacio para el sidebar */
+.main-layout {
+  margin-top: 60px;
+  display: flex;
 }
-.main-content{
-  background: #fff;
+
+/* Sidebar con posición fija */
+app-sidebar {
+  position: fixed; /* Fija el sidebar en la pantalla */
+  height: calc(100vh - 60px); /* Altura total menos el header */
+
+  z-index: 1000; /* Para asegurarte de que esté encima de otros elementos si es necesario */
+}
+
+/* Ajuste del contenido principal */
+.main-content {
   width: 100%;
   padding: 16px;
-  height: calc(100vh - 64px);
-
+  background: #fff;
+  height: calc(100vh - 64px); /* Ajusta el espacio restante */
+  transition: margin-left 0.3s ease;
 }
-
-nz-sider {
-  background: #001529;
-
-}
-
-
 
 
 

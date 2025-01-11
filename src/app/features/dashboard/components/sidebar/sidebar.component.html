@@ -1,6 +1,11 @@
-<nz-sider *ngIf="drawerInfo.content.menu" [nzTheme]="siteStyle == 'menu' ? 'light' : 'light'"
-    [ngClass]="{'fixed': navigationInfo.menu}"
-    nzCollapsible [(nzCollapsed)]="DashboardService.isCollapsed" [nzTrigger]="null" style="margin-top: 16px; display: flow-root; overflow: hidden; transition: height .3s ease">
+<nz-sider
+  *ngIf="drawerInfo.content.menu"
+  [nzTheme]="siteStyle === 'menu' ? 'light' : 'light'"
+  [ngClass]="{'fixed': navigationInfo.menu}"
+  nzCollapsible
+  [(nzCollapsed)]="DashboardService.isCollapsed"
+  [nzTrigger]="null"
+  style="display: flow-root; overflow: hidden; transition: height .3s ease">
     <!-- Ocultar la imagen cuando el sidebar está colapsado -->
     <img *ngIf="!DashboardService.isCollapsed" src="assets/img-menu.webp" class="w-full" height="80px"
          style="border-radius: 10px 10px 0px 0px;width:100%" />
