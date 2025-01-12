@@ -62,24 +62,23 @@ export class UsuarioService {
     return this.http.get<Usuario[]>(`${this.apiUrl}`);
   }
 
-  validarCodigo(validacionDto: ValidacionCodigoDTO): Observable<any> {
-    return this.http.post(`${this.apiUrl}/validarCodigo`, validacionDto)
-      .pipe(
-        catchError(this.handleError)
-      );
+  // Método para solicitar recuperación de contraseña
+  solicitarRecuperacion(correo: string): Observable<any> {
+    const body = { correo: correo };
+    return this.http.post(`${this.apiUrl}/SolicitarRecuperacion`, body).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  restablecerContrasena(datos: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/restablecerContrasena`, datos);
-  }
-
-  enviarCorreo(para: string, contenido: string) {
+  // Método para cambiar la contraseña
+  cambiarContrasena(token: string, nuevaContrasena: string): Observable<any> {
     const body = {
-      para: para,
-      asunto: `Hola ${para} no compartas tu código con los demás`,
-      contenido: contenido
+      token: token,
+      nuevaContrasena: nuevaContrasena
     };
-    return this.http.post(`${this.apiUrl}/enviar`, body);
+    return this.http.post(`${this.apiUrl}/CambiarContrasena`, body).pipe(
+      catchError(this.handleError)
+    );
   }
 
   private handleError(error: HttpErrorResponse) {

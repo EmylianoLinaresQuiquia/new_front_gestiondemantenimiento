@@ -6,7 +6,7 @@ import { AuthServiceService } from 'src/app/features/sistemas/services/auth-serv
 import { DashboardService } from '../../services/dashboard.service';
 interface MenuItem {
   title: string;
-  link: string;
+  link?: string | null;
   icon: string;
   children?: MenuItem[];
 }
@@ -66,26 +66,37 @@ export class SidebarComponent {
             },
             {
               title: 'Celdas',
-              link: '/celdas', // Ruta actualizada
+              link: null,
               icon: '',
             },
             {
               title: 'Reles',
-              link: '/reles', // Ruta actualizada
+              link: null,
               icon: '',
             },
           ],
         },
         {
           title: 'Lineas Electricas',
-          link: '/lineas-electricas', // Ruta actualizada
           icon: '',
+          children: [
+            {
+              title: 'Sistemas pt',
+              link: null,
+              icon: '',
+            },
+            {
+              title: 'Lineas',
+              link: null,
+              icon: '',
+            },
+          ]
         },
       ],
     },
     {
       title: 'Operacion',
-      link: '/operacion', // Ruta actualizada
+      link: null,
       icon: 'book',
     },
   ];

@@ -49,7 +49,7 @@
                       </nz-form-item>
                     </div>
                     <div nz-col [nzSpan]="12" class="text-right" style="padding-top: 18px;">
-                      <a (click)="onForgotPassword()">¿Olvidaste tu contraseña?</a>
+                      <a (click)="onForgotPassword && onForgotPassword()">¿Olvidaste tu contraseña?</a>
                     </div>
                   </div>
                 </form>
@@ -68,10 +68,28 @@
                     <i nz-icon nzType="lock" nzTheme="outline" style="color: #1890ff;"></i>
                   </ng-template>
 
+
+                  <nz-form-item>
+                    <nz-form-control nzErrorTip="¡Por favor, ingrese su correo!">
+                      <nz-input-group [nzPrefix]="userTpl" [nzSize]="'large'">
+                        <input
+                          type="text"
+                          formControlName="correo"
+                          nz-input
+                          placeholder="correo" />
+                      </nz-input-group>
+                      <ng-template #userTpl>
+                        <i nz-icon nzType="mail" nzTheme="outline" style="color: #1890ff;"></i>
+                      </ng-template>
+                    </nz-form-control>
+                  </nz-form-item>
+
+
+
                   <nz-form-item>
                     <nz-form-control [nzErrorTip]="mobileError">
                       <nz-input-group [nzPrefix]="mobileTpl" [nzSize]="'large'">
-                        <input type="tel" nz-input placeholder="Ingrese el código que fue enviado a su correo" />
+                        <input type="tel"  [value]="this.codigoReset" nz-input placeholder="Ingrese el código que fue enviado a su correo" />
                       </nz-input-group>
                     </nz-form-control>
                     <ng-template #mobileError let-control>
@@ -85,16 +103,18 @@
 
                   </nz-form-item>
 
+
+
                   <nz-form-item>
                     <nz-form-control nzErrorTip="¡Por favor, ingrese el código de verificación!">
                       <div nz-row [nzGutter]="8">
                         <div nz-col nzSpan="14">
                           <nz-input-group [nzPrefix]="mailTpl" [nzSize]="'large'">
-                            <input nz-input placeholder="Nueva clave" />
+                            <input [value]="this.nuevaContrasena" nz-input placeholder="Nueva clave" />
                           </nz-input-group>
                         </div>
                         <div nz-col nzSpan="10">
-                          <button type="button" nz-button [nzSize]="'large'" class="w100">Generar código</button>
+                          <button (click)="enviarCorreo()" type="button" nz-button [nzSize]="'large'" class="w100">Generar código</button>
                         </div>
                       </div>
                     </nz-form-control>
@@ -104,7 +124,7 @@
                     <nz-form-control>
                       <div nz-row [nzGutter]="8">
                         <div nz-col nzSpan="14">
-                          <button nz-button class="login" [nzType]="'primary'" [nzSize]="'large'" [nzLoading]="isSpinning">Recuperar clave</button>
+                          <button (click)="restablecerContrasena()" nz-button class="login" [nzType]="'primary'" [nzSize]="'large'" [nzLoading]="isSpinning">Cambiar clave</button>
                         </div>
                         <div nz-col nzSpan="10" style="padding-top: 18px;">
                           <a (click)="goBack()"><i nz-icon nzType="left" nzTheme="outline" style="font-size: 16px; color: #1890ff;"></i> Regresar</a>

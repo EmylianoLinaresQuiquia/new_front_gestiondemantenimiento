@@ -6,50 +6,65 @@
   [(nzCollapsed)]="DashboardService.isCollapsed"
   [nzTrigger]="null"
   style="display: flow-root; overflow: hidden; transition: height .3s ease">
-    <!-- Ocultar la imagen cuando el sidebar está colapsado -->
-    <img *ngIf="!DashboardService.isCollapsed" src="assets/img-menu.webp" class="w-full" height="80px"
-         style="border-radius: 10px 10px 0px 0px;width:100%" />
 
-    <!-- Menú de navegación -->
-    <ul nz-menu class="left-menu" [nzTheme]="siteStyle == 'menu' ? 'light' : 'light'" nzMode="inline"
+  <!-- Ocultar la imagen cuando el sidebar está colapsado -->
+  <img *ngIf="!DashboardService.isCollapsed" src="assets/img-menu.webp" class="w-full" height="80px"
+       style="border-radius: 10px 10px 0px 0px;width:100%" />
+
+  <!-- Menú de navegación -->
+  <ul nz-menu class="left-menu" [nzTheme]="siteStyle == 'menu' ? 'light' : 'light'" nzMode="inline"
       [nzInlineCollapsed]="isCollapsed">
-      <ng-container *ngFor="let menu of menuList">
-        <!-- Elementos de menú sin hijos -->
-        <li *ngIf="!menu.children" nz-menu-item nzMatchRouter>
-          <a [routerLink]="menu.link">
+    <ng-container *ngFor="let menu of menuList">
+
+      <!-- Elementos de menú sin hijos -->
+      <li *ngIf="!menu.children" nz-menu-item nzMatchRouter>
+        <a *ngIf="menu.link; else noLink" [routerLink]="menu.link">
+          <i nz-icon [nzType]="menu.icon" nzTheme="outline"></i>
+          <span>{{ menu.title }}</span>
+        </a>
+        <ng-template #noLink>
+          <span>
             <i nz-icon [nzType]="menu.icon" nzTheme="outline"></i>
-            <span>{{menu.title}}</span>
-          </a>
-        </li>
+            <span>{{ menu.title }}</span>
+          </span>
+        </ng-template>
+      </li>
 
-        <!-- Elementos de menú con hijos -->
-        <li *ngIf="menu.children" nz-submenu [nzTitle]="menu.title" [nzIcon]="menu.icon" routerLinkActive
+      <!-- Elementos de menú con hijos -->
+      <li *ngIf="menu.children" nz-submenu [nzTitle]="menu.title" [nzIcon]="menu.icon" routerLinkActive
           #rla="routerLinkActive" [nzOpen]="rla.isActive">
-          <ul>
-            <ng-container *ngFor="let childMenu of menu.children">
-              <!-- Submenú sin hijos -->
-              <li *ngIf="!childMenu.children" nz-menu-item nzMatchRouter>
-                <a [routerLink]="childMenu.link">
-                  <span>{{childMenu.title}}</span>
-                </a>
-              </li>
+        <ul>
+          <ng-container *ngFor="let childMenu of menu.children">
 
-              <!-- Submenú con hijos -->
-              <li *ngIf="childMenu.children" nz-submenu [nzTitle]="childMenu.title" routerLinkActive
+            <!-- Submenú sin hijos -->
+            <li *ngIf="!childMenu.children" nz-menu-item nzMatchRouter>
+              <a *ngIf="childMenu.link; else noChildLink" [routerLink]="childMenu.link">
+                <span>{{ childMenu.title }}</span>
+              </a>
+              <ng-template #noChildLink>
+                <span>{{ childMenu.title }}</span>
+              </ng-template>
+            </li>
+
+            <!-- Submenú con hijos -->
+            <li *ngIf="childMenu.children" nz-submenu [nzTitle]="childMenu.title" routerLinkActive
                 #rlaG="routerLinkActive" [nzOpen]="rlaG.isActive">
-                <ul>
-                  <ng-container *ngFor="let grandson of childMenu.children">
-                    <li nz-menu-item nzMatchRouter>
-                      <a [routerLink]="grandson.link">
-                        <span>{{grandson.title}}</span>
-                      </a>
-                    </li>
-                  </ng-container>
-                </ul>
-              </li>
-            </ng-container>
-          </ul>
-        </li>
-      </ng-container>
-    </ul>
+              <ul>
+                <ng-container *ngFor="let grandson of childMenu.children">
+                  <li nz-menu-item nzMatchRouter>
+                    <a *ngIf="grandson.link; else noGrandsonLink" [routerLink]="grandson.link">
+                      <span>{{ grandson.title }}</span>
+                    </a>
+                    <ng-template #noGrandsonLink>
+                      <span>{{ grandson.title }}</span>
+                    </ng-template>
+                  </li>
+                </ng-container>
+              </ul>
+            </li>
+          </ng-container>
+        </ul>
+      </li>
+    </ng-container>
+  </ul>
 </nz-sider>

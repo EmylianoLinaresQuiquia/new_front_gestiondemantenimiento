@@ -217,7 +217,7 @@ nz-footer {
 }
 
 
-
+/*
 ::ng-deep .ant-card-head{
   border-radius: 4px 4px 0px 0px;
   background-color: #4d4d4d;
@@ -240,3 +240,4 @@ nz-footer {
 ::ng-deep .ant-tabs-tab button {
   padding: 0px !important;
 }
+*/

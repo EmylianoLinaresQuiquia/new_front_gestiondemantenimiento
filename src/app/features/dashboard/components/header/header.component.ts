@@ -278,7 +278,7 @@ export class HeaderComponent {
 
   getFileType(item: NotificationItem): string {
     if (item.id_pm1) {
-      return 'PM1';
+      return 'PM1 TX';
     } else if (item.id_spt1) {
       return 'SPT1';
     } else if (item.id_spt2) {
