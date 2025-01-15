@@ -40,6 +40,12 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzProgressModule } from 'ng-zorro-antd/progress';
 import { PdfViewerPm1Component } from './components/pdf-viewer-pm1/pdf-viewer-pm1.component';
+
+
+import { NzInputGroupComponent } from 'ng-zorro-antd/input';
+
+
+import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 @NgModule({
   imports: [
     CommonModule,
@@ -72,7 +78,11 @@ import { PdfViewerPm1Component } from './components/pdf-viewer-pm1/pdf-viewer-pm
     NzTimePickerModule,
     NzBreadCrumbModule,
     NzStatisticModule,
-    NzProgressModule
+    NzProgressModule,
+    NzTimelineModule,
+
+    NzInputGroupComponent
+
 
 
   ],
@@ -107,8 +117,10 @@ import { PdfViewerPm1Component } from './components/pdf-viewer-pm1/pdf-viewer-pm
     NzTimePickerModule,
     NzBreadCrumbModule,
     NzStatisticModule,
-    NzProgressModule
+    NzProgressModule,
+    NzTimelineModule,
 
+    NzInputGroupComponent
 
 
   ],

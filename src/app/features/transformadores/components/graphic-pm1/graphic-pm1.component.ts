@@ -75,7 +75,7 @@ temperaturaSegundos: Array<number | null> = [null, null];
     }
 
     if (this.datosTestigos.length > 0) {
-      //this.tendencia_testigo(this.datosTestigos);
+      this.tendencia_testigo(this.datosTestigos);
     }
   }
 
@@ -83,16 +83,13 @@ temperaturaSegundos: Array<number | null> = [null, null];
 
   tendencia_real(data: any[]): void {
     this.zone.runOutsideAngular(() => {
-      // Limpiar gráfico previo
       if (this.root) {
         this.root.dispose();
       }
 
-      // Crear raíz y aplicar tema
       this.root = am5.Root.new('chart_valor_real');
       this.root.setThemes([am5themes_Animated.default.new(this.root)]);
 
-      // Crear gráfico XY
       const chart = this.root.container.children.push(
         am5xy.XYChart.new(this.root, {
           panX: true,
@@ -100,46 +97,107 @@ temperaturaSegundos: Array<number | null> = [null, null];
           wheelX: 'panX',
           wheelY: 'zoomX',
           pinchZoomX: true,
-          layout: this.root.verticalLayout
+          layout: this.root.verticalLayout,
         })
       );
 
-      // Configuración de colores
       chart.get('colors')!.set('step', 2);
 
-      // Procesar datos
-      const processedData = data.map(item => ({
-        date: item.fecha, // Categoría en eje X
-        corriente_actual: parseFloat(item.corriente_actual) || null,
-        potencia_actual: parseFloat(item.potencia_actual) || null,
-        manovacuometro: item.manovacuometro_valores ? parseFloat(item.manovacuometro_valores) : null,
-        temperatura_devanado: item.temperatura_devanado_valores ? parseFloat(item.temperatura_devanado_valores) : null,
-        temperatura_aceite: item.temperatura_aceite_valores ? parseFloat(item.temperatura_aceite_valores) : null
-      }));
+      const mesesDelAño = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
 
-      // Configurar eje X (categorías)
+      const parseFecha = (fechaStr: string): { mes: string, dia: string } => {
+        const [dia, mes, _] = fechaStr.split('-');
+        const mesNombre = mesesDelAño[parseInt(mes, 10) - 1];
+        return { mes: mesNombre, dia };
+      };
+
+      const procesarDatosAgrupados = (data: any[]) => {
+        const mesesMap: { [key: string]: string[] } = {};
+
+        mesesDelAño.forEach((mes) => {
+          mesesMap[mes] = [];
+        });
+
+        data.forEach((item) => {
+          if (!item.fecha) return;
+
+          const { mes, dia } = parseFecha(item.fecha);
+
+          if (!mesesMap[mes].includes(dia)) {
+            mesesMap[mes].push(dia);
+          }
+        });
+
+        const datosOrganizados: any[] = [];
+        mesesDelAño.forEach((mes) => {
+          if (mesesMap[mes].length > 0) {
+            datosOrganizados.push({
+              date: `${mes} ${mesesMap[mes].join(' ')}`, // Formato: "Enero 07 08 14"
+              corriente_actual: 0,
+              potencia_actual: 0,
+              manovacuometro: 0,
+              temperatura_devanado: 0,
+              temperatura_aceite: 0,
+            });
+          } else {
+            datosOrganizados.push({
+              date: mes,
+              corriente_actual: 0,
+              potencia_actual: 0,
+              manovacuometro: 0,
+              temperatura_devanado: 0,
+              temperatura_aceite: 0,
+            });
+          }
+        });
+
+        return { datosOrganizados, mesesMap };
+      };
+
+      const { datosOrganizados, mesesMap } = procesarDatosAgrupados(data);
+
+      data.forEach((item) => {
+        const { mes, dia } = parseFecha(item.fecha);
+        const fechaTexto = `${mes} ${mesesMap[mes].join(' ')}`;
+
+        const target = datosOrganizados.find((d) => d.date === fechaTexto);
+        if (target) {
+          target.corriente_actual = parseFloat(item.corriente_actual) || 0;
+          target.potencia_actual = parseFloat(item.potencia_actual) || 0;
+          target.manovacuometro = parseFloat(item.manovacuometro_valores) || 0;
+          target.temperatura_devanado = parseFloat(item.temperatura_devanado_valores) || 0;
+          target.temperatura_aceite = parseFloat(item.temperatura_aceite_valores) || 0;
+        }
+      });
+
       const xAxis = chart.xAxes.push(
         am5xy.CategoryAxis.new(this.root, {
           categoryField: 'date',
-          renderer: am5xy.AxisRendererX.new(this.root, { minGridDistance: 30 })
+          renderer: am5xy.AxisRendererX.new(this.root, {
+            minGridDistance: 30,
+          }),
         })
       );
-      xAxis.data.setAll(processedData);
 
-      // Configurar ejes Y (valores)
+      xAxis.data.setAll(datosOrganizados);
+
       const yAxisLeft = chart.yAxes.push(
         am5xy.ValueAxis.new(this.root, {
-          renderer: am5xy.AxisRendererY.new(this.root, {})
+          renderer: am5xy.AxisRendererY.new(this.root, {}),
+          min: 0,
         })
       );
 
       const yAxisRight = chart.yAxes.push(
         am5xy.ValueAxis.new(this.root, {
-          renderer: am5xy.AxisRendererY.new(this.root, { opposite: true })
+          renderer: am5xy.AxisRendererY.new(this.root, { opposite: true }),
+          min: 0,
         })
       );
 
-      // Función para crear series
       const createSeries = (
         field: string,
         name: string,
@@ -155,70 +213,64 @@ temperaturaSegundos: Array<number | null> = [null, null];
             categoryXField: 'date',
             stroke: am5.color(color),
             tooltip: am5.Tooltip.new(this.root, {
-              labelText: '{name}: {valueY}'
-            })
+              labelText: '{name}: {valueY}',
+            }),
           })
         );
 
         series.strokes.template.setAll({ strokeWidth: 2 });
+
         series.bullets.push(() =>
           am5.Bullet.new(this.root, {
             sprite: am5.Circle.new(this.root, {
               radius: 5,
               fill: am5.color(color),
-              stroke: this.root.interfaceColors.get('background'),
-              strokeWidth: 2
-            })
+              stroke: am5.color(0xffffff),
+              strokeWidth: 2,
+            }),
           })
         );
-        series.data.setAll(processedData);
+
+        // Agregar etiquetas sobre los puntos
+        series.bullets.push(() =>
+          am5.Bullet.new(this.root, {
+            sprite: am5.Label.new(this.root, {
+              text: '{valueY}',
+              centerY: am5.p100,
+              centerX: am5.p50,
+              populateText: true,
+              dy: -15, // Ajustar altura de la etiqueta
+            }),
+          })
+        );
+
+        series.data.setAll(datosOrganizados);
       };
 
-      // Agregar subtítulos
-      const chartContainerlabel = document.getElementById('chart-container');
-      if (chartContainerlabel) {
-        const subtitleTopContainer = document.getElementById('chart-subtitles-top');
-        if (subtitleTopContainer) {
-          subtitleTopContainer.innerHTML = `
-            <span>(A)</span>
-            <span>(MW)</span>
-            <span>(kgf/CM²)</span>
-            <span>(°C)</span>
-            <span>(°C)</span>
-          `;
-        }
-
-        const subtitleBottomContainer = document.getElementById('chart-subtitles-bottom');
-        if (subtitleBottomContainer) {
-          subtitleBottomContainer.innerHTML = `
-            <span>(A)</span>
-            <span>(MW)</span>
-            <span>(kgf/CM²)</span>
-            <span>(°C)</span>
-            <span>(°C)</span>
-          `;
-        }
-      }
-
-      // Crear series
       createSeries('corriente_actual', 'Corriente Actual', yAxisLeft, '#C767DC');
       createSeries('potencia_actual', 'Potencia Actual', yAxisLeft, '#808080');
       createSeries('manovacuometro', 'Manovacuómetro', yAxisRight, '#B3DBEE');
       createSeries('temperatura_devanado', 'Temperatura Devanado', yAxisRight, '#67B7DC');
       createSeries('temperatura_aceite', 'Temperatura Aceite', yAxisRight, '#EDB2C3');
 
-      // Agregar leyenda
       const legend = chart.children.push(am5.Legend.new(this.root, {}));
       legend.data.setAll(chart.series.values);
 
-      // Configurar cursor
       chart.set('cursor', am5xy.XYCursor.new(this.root, {}));
 
-      // Agregar exportación
-      // Crear exportación personalizada
-const exporting = am5plugins_exporting.Exporting.new(this.root, {});
+      const exporting = am5plugins_exporting.Exporting.new(this.root, {});
+    });
+}
 
-// Crear un menú manualmente
+
+
+
+
+
+
+
+  /*
+  // Crear un menú manualmente
 const menuContainer = document.createElement("div");
 menuContainer.className = "export-menu";
 
@@ -249,14 +301,10 @@ const chartContainer = document.getElementById("chart-container");
 if (chartContainer) {
   chartContainer.appendChild(menuContainer);
 }
-
-
-
-    });
-  }
+   */
 
   //CREACION DEL GRAFICO TENDENDIA TESTIGO
-  /*tendencia_testigo(data: any[]): void {
+  tendencia_testigo(data: any[]): void {
     this.zone.runOutsideAngular(() => {
       if (this.chart_valor_testigo) {
         this.chart_valor_testigo.dispose(); // Limpiar gráfico previo si existe
@@ -387,7 +435,7 @@ if (chartContainer) {
 
       console.log("Export menu para gráfico testigo creado");
     });
-  }*/
+  }
 
 
   ngOnDestroy() {

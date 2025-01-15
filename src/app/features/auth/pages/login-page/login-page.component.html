@@ -57,84 +57,118 @@
               </nz-tab>
 
               <!-- Pestaña de Recuperar Clave -->
+
+
+
+
               <nz-tab *ngIf="selectedIndex === 1" nzTitle="Recuperar Clave">
                 <form nz-form [formGroup]="validateForm" class="login-form">
-                  <nz-alert *ngIf="mobileLoginError" nzType="error" nzMessage="Código de verificación incorrecto (123456)" nzShowIcon style="margin-bottom: 24px;"></nz-alert>
-
-                  <ng-template #mobileTpl>
-                    <i nz-icon nzType="mobile" nzTheme="outline" style="color: #1890ff;"></i>
-                  </ng-template>
-                  <ng-template #mailTpl>
-                    <i nz-icon nzType="lock" nzTheme="outline" style="color: #1890ff;"></i>
-                  </ng-template>
-
-
-                  <nz-form-item>
-                    <nz-form-control nzErrorTip="¡Por favor, ingrese su correo!">
-                      <nz-input-group [nzPrefix]="userTpl" [nzSize]="'large'">
-                        <input
-                          type="text"
-                          formControlName="correo"
-                          nz-input
-                          placeholder="correo" />
-                      </nz-input-group>
-                      <ng-template #userTpl>
-                        <i nz-icon nzType="mail" nzTheme="outline" style="color: #1890ff;"></i>
-                      </ng-template>
-                    </nz-form-control>
-                  </nz-form-item>
-
-
-
-                  <nz-form-item>
-                    <nz-form-control [nzErrorTip]="mobileError">
-                      <nz-input-group [nzPrefix]="mobileTpl" [nzSize]="'large'">
-                        <input type="tel"  [value]="this.codigoReset" nz-input placeholder="Ingrese el código que fue enviado a su correo" />
-                      </nz-input-group>
-                    </nz-form-control>
-                    <ng-template #mobileError let-control>
-                      <ng-container *ngIf="control.hasError('required')">
-                        ¡Por favor, ingrese el código enviado a su correo!
-                      </ng-container>
-                      <ng-container *ngIf="control.hasError('matchMobile')">
-                        ¡Formato de código incorrecto!
-                      </ng-container>
-                    </ng-template>
-
-                  </nz-form-item>
-
-
-
-                  <nz-form-item>
-                    <nz-form-control nzErrorTip="¡Por favor, ingrese el código de verificación!">
-                      <div nz-row [nzGutter]="8">
-                        <div nz-col nzSpan="14">
-                          <nz-input-group [nzPrefix]="mailTpl" [nzSize]="'large'">
-                            <input [value]="this.nuevaContrasena" nz-input placeholder="Nueva clave" />
+                  <nz-timeline>
+                    <!-- Paso 1 -->
+                    <nz-timeline-item [nzColor]="steps[0].color">
+                      <h5 nz-typography>Ingrese su correo asociado a su usuario</h5>
+                      <nz-form-item>
+                        <nz-form-control nzErrorTip="¡Por favor, ingrese su correo!">
+                          <nz-input-group [nzPrefix]="userTpl" [nzSize]="'large'">
+                            <input
+                              type="text"
+                              formControlName="correo"
+                              nz-input
+                              placeholder="Correo"
+                              [disabled]="!steps[0].enabled"
+                            />
                           </nz-input-group>
-                        </div>
-                        <div nz-col nzSpan="10">
-                          <button (click)="enviarCorreo()" type="button" nz-button [nzSize]="'large'" class="w100">Generar código</button>
-                        </div>
-                      </div>
-                    </nz-form-control>
-                  </nz-form-item>
+                          <ng-template #userTpl>
+                            <i nz-icon nzType="mail" nzTheme="outline" style="color: #1890ff;"></i>
+                          </ng-template>
+                        </nz-form-control>
+                      </nz-form-item>
 
-                  <nz-form-item>
-                    <nz-form-control>
-                      <div nz-row [nzGutter]="8">
-                        <div nz-col nzSpan="14">
-                          <button (click)="restablecerContrasena()" nz-button class="login" [nzType]="'primary'" [nzSize]="'large'" [nzLoading]="isSpinning">Cambiar clave</button>
-                        </div>
-                        <div nz-col nzSpan="10" style="padding-top: 18px;">
-                          <a (click)="goBack()"><i nz-icon nzType="left" nzTheme="outline" style="font-size: 16px; color: #1890ff;"></i> Regresar</a>
-                        </div>
-                      </div>
-                    </nz-form-control>
+                      <button
+                        (click)="enviarCorreo()"
+                        type="button"
+                        nz-button
+                        [nzSize]="'large'"
+                        class="w100"
+                        [nzLoading]="isSpinning"
+                        [disabled]="!steps[0].enabled"
+                      >
+                        Generar código
+                      </button>
+                    </nz-timeline-item>
 
-                  </nz-form-item>
+                    <!-- Paso 2 -->
+                    <nz-timeline-item [nzColor]="steps[1].color">
+                      <h5 nz-typography>Ingrese el código enviado a su correo</h5>
+                      <nz-form-item>
+                        <nz-form-control nzErrorTip="¡Por favor, ingrese el código enviado!">
+                          <nz-input-group [nzPrefix]="mobileTpl" [nzSize]="'large'">
+                            <input
+                              type="text"
+                              formControlName="codigoReset"
+                              nz-input
+                              placeholder="ejemplo:(1234)"
+                              [disabled]="!steps[1].enabled"
+                            />
+                          </nz-input-group>
+                          <ng-template #mobileTpl>
+                            <i nz-icon nzType="mobile" nzTheme="outline" style="color: #1890ff;"></i>
+                          </ng-template>
+                        </nz-form-control>
+                      </nz-form-item>
+
+
+                      <h5 nz-typography>Ingrese su nueva clave</h5>
+                      <nz-form-item>
+                        <nz-form-control nzErrorTip="¡Por favor, ingrese su nueva contraseña!">
+                          <nz-input-group [nzPrefix]="lockTpl" [nzSize]="'large'">
+                            <input
+                              type="password"
+                              formControlName="nuevaContrasena"
+                              nz-input
+                              placeholder="Nueva contraseña"
+                              [disabled]="!steps[1].enabled"
+                            />
+                          </nz-input-group>
+                          <ng-template #lockTpl>
+                            <i nz-icon nzType="lock" nzTheme="outline" style="color: #1890ff;"></i>
+                          </ng-template>
+                        </nz-form-control>
+                      </nz-form-item>
+
+                      <button
+                        (click)="restablecerContrasena()"
+                        type="button"
+                        nz-button
+                        [nzSize]="'large'"
+                        class="w100"
+                        [nzLoading]="isSpinning"
+                        [disabled]="!steps[1].enabled"
+                      >
+                        Cambiar clave
+                      </button>
+                    </nz-timeline-item>
+                  </nz-timeline>
+
+
+
+                  <!-- Botón para regresar -->
+                  <div class="text-right" style="padding-top: 18px;">
+                    <a (click)="goBack()">
+                      <i
+                        nz-icon
+                        nzType="left"
+                        nzTheme="outline"
+                        style="font-size: 16px; color: #1890ff;"
+                      ></i>
+                      Regresar
+                    </a>
+                  </div>
                 </form>
               </nz-tab>
+
+
+
             </nz-tabset>
           </div>
         </div>

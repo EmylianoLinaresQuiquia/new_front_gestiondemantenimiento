@@ -1,216 +1,253 @@
-import { Component,ChangeDetectorRef,OnInit,OnDestroy } from '@angular/core';
+import { Component,ChangeDetectorRef,OnInit,OnDestroy,Input } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-// Importación de los módulos de Ng-Zorro-Antd
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzTabsModule } from 'ng-zorro-antd/tabs';
-import { NzGridModule } from 'ng-zorro-antd/grid';
-import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-
 import { Subscription } from 'rxjs';
 import { AuthServiceService } from 'src/app/features/sistemas/services/auth-service.service';
 import { UsuarioService } from 'src/app/features/sistemas/services/usuario.service';
-import { EventEmitter, Output } from '@angular/core';
-import { ValidacionCodigoDTO } from 'src/app/features/sistemas/interface/validacion-codigo-dto';
 import { AlertService } from 'src/app/features/sistemas/services/alert.service';
+import { SharedModule } from 'src/app/shared/shared.module';
+
 @Component({
   selector: 'app-login-page',
   standalone: true,
   imports: [
-    CommonModule,FormsModule,ReactiveFormsModule,NzDropDownModule, NzFormModule, NzInputModule, NzButtonModule, NzAlertModule, NzTabsModule, NzGridModule,
-
-    NzIconModule
+    SharedModule
   ],
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css']  // Corregido 'styleUrl' a 'styleUrls'
 })
 export class LoginPageComponent implements OnInit, OnDestroy {
   validateForm!: FormGroup;
+  subscription = new Subscription();
+
   loading = false;
+  userId!: number;
   tiempoDeEspera = 0;
   intentosFallidos = 0;
-  tiempoInicialDeEspera = 60000; // 1 minuto en milisegundos
-  userId!: number;
-  subscription = new Subscription();
-  correo: string = '';
-  codigoReset: string = '';
-  nuevaContrasena: string = '';
-  reset = false;
-  passwordVisible = false;
-  selectedIndex = 0;
+  readonly tiempoInicialDeEspera = 60000; // 1 minuto en milisegundos
 
-  isSpinning = false;
+  selectedIndex = 0; // Control para pestañas de login y recuperación
+  isSpinning = false; // Spinner para carga de datos
+
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private usuarioService: UsuarioService,
     private authService: AuthServiceService,
-    private alertService: AlertService // Servicio para mostrar notificaciones
+    private alertService: AlertService
   ) {}
 
+  steps = [
+    { id: 1, completed: false, enabled: true, color: 'red' },  // Paso 1: habilitado por defecto
+    { id: 2, completed: false, enabled: false, color: 'red' }, // Paso 2: deshabilitado por defecto
+  ];
   ngOnInit(): void {
     this.validateForm = this.fb.group({
       usuario: ['', [Validators.required]],
       contrasena: ['', [Validators.required]],
-      correo: ['', [Validators.required, Validators.email]]
+      correo: ['', [Validators.required, Validators.email]],
+      codigoReset: ['', [Validators.required]],
+      nuevaContrasena: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
-  togglePasswordVisibility(): void {
-    this.passwordVisible = !this.passwordVisible;
-  }
 
-  selectedChange(index: number): void {
-    this.selectedIndex = index;
-  }
 
+
+
+
+  /**
+   * Controla el proceso de login, obtiene el correo y maneja el tiempo de espera
+   */
   login(): void {
     if (this.loading) return;
 
     if (this.tiempoDeEspera > Date.now()) {
-      this.mostrarTiempoDeEspera();
+      this.alertService.warning(
+        'Intentos bloqueados',
+        `Espera ${(this.tiempoDeEspera - Date.now()) / 1000} segundos.`
+      );
       return;
     }
 
     this.loading = true;
+    const { usuario, contrasena } = this.validateForm.value;
 
-    const usuario = this.validateForm.get('usuario')?.value;
-    this.obtenerCorreo(usuario); // Llama a la función para obtener el correo
-    this.intentarLogin();
-  }
-
-  intentarLogin(): void {
-    const loginData = {
-      usuario: this.validateForm.get('usuario')?.value,
-      contrasena: this.validateForm.get('contrasena')?.value
-    };
-
-    const loginSubscription = this.usuarioService.login(loginData.usuario, loginData.contrasena).subscribe({
-      next: (response) => this.procesarLoginExitoso(response),
-      error: (error) => this.procesarErrorLogin(error)
+    this.usuarioService.buscarCorreoPorUsuario(usuario).subscribe({
+      next: (correo) => this.validateForm.get('correo')?.setValue(correo || ''),
+      error: () => this.validateForm.get('correo')?.setValue(''),
+      complete: () => this.intentarLogin(usuario, contrasena),
     });
-
-    this.subscription.add(loginSubscription);
   }
 
-  obtenerCorreo(usuario: string): void {
-    const correoSubscription = this.usuarioService.buscarCorreoPorUsuario(usuario).subscribe({
-      next: (correo) => {
-        console.log(`Correo asociado al usuario "${usuario}": ${correo}`);
-        this.correo = correo;
+  /**
+   * Lógica de autenticación
+   */
+  private intentarLogin(usuario: string, contrasena: string): void {
+    this.usuarioService.login(usuario, contrasena).subscribe({
+      next: (response) => {
+        this.resetLoginState();
+        this.handleSuccessfulLogin(response);
       },
-      error: (error) => {
-        console.error(`Error al obtener el correo del usuario "${usuario}":`, error);
-      }
+      error: (error) => this.handleLoginError(error),
     });
-
-    this.subscription.add(correoSubscription);
   }
 
-  private procesarLoginExitoso(response: any): void {
-    this.intentosFallidos = 0;
-    this.tiempoDeEspera = 0;
+  /**
+   * Maneja un inicio de sesión exitoso
+   */
+  private handleSuccessfulLogin(response: any): void {
     this.userId = response.idUsuario;
-
     localStorage.setItem('userEmail', this.validateForm.get('usuario')?.value);
     localStorage.setItem('userId', response.idUsuario.toString());
     localStorage.setItem('cargo', response.cargo);
 
-    this.loading = false;
-    this.alertService.success('Inicio de sesión exitoso', `Bienvenido, ${response.usuario}`);
-    this.abrirHome();
-  }
-
-  private procesarErrorLogin(error: any): void {
-    this.intentosFallidos++;
-    this.loading = false;
-
-    if (error.status === 401) {
-      this.alertService.error('Error de autenticación', 'Usuario o contraseña incorrectos.');
-    } else if (error.status === 404) {
-      this.alertService.warning('Usuario no encontrado', 'Por favor, verifique su nombre de usuario.');
-    } else {
-      this.alertService.error('Error inesperado', 'Ocurrió un problema, inténtelo más tarde.');
-    }
-
-    if (this.intentosFallidos >= 3) {
-      this.actualizarTiempoDeEspera();
-    }
-  }
-
-  private mostrarTiempoDeEspera(): void {
-    const tiempoRestante = ((this.tiempoDeEspera - Date.now()) / 1000).toFixed(0);
-    this.alertService.warning('Intentos bloqueados', `Por favor, espera ${tiempoRestante} segundos para intentar de nuevo.`);
-  }
-
-  private actualizarTiempoDeEspera(): void {
-    this.tiempoDeEspera = Date.now() + this.tiempoInicialDeEspera * this.intentosFallidos;
-    const tiempoEnMinutos = ((this.tiempoInicialDeEspera * this.intentosFallidos) / 60000).toFixed(0);
-    this.alertService.warning('Bloqueo temporal', `Has excedido el número de intentos. Espera ${tiempoEnMinutos} minutos antes de intentar nuevamente.`);
-  }
-
-  enviarCorreo(): void {
-    const correo = this.validateForm.get('correo')?.value;
-    this.usuarioService.solicitarRecuperacion(correo).subscribe({
-      next: () => this.alertService.success('Correo enviado', 'Se ha enviado un código a su correo.'),
-      error: () => this.alertService.error('Error al enviar', 'No se pudo enviar el correo. Inténtelo más tarde.')
+    this.alertService.success(
+      'Inicio de sesión exitoso',
+      `Bienvenido, ${response.usuario}`
+    );
+    this.router.navigate(['/dashboard'], {
+      queryParams: { userEmail: response.usuario, userId: response.idUsuario },
     });
   }
 
+  /**
+   * Maneja los errores de inicio de sesión
+   */
+  private handleLoginError(error: any): void {
+    this.loading = false;
+    this.intentosFallidos++;
+
+    // Definimos las claves válidas para el objeto `mensajes`
+    const mensajes: { [key: number]: string } = {
+      401: 'Usuario o contraseña incorrectos.',
+      404: 'Usuario no encontrado.',
+    };
+
+    // Garantizamos que `error.status` es una clave válida
+    const mensaje = mensajes[error.status] || 'Ocurrió un problema. Inténtelo más tarde.';
+
+    this.alertService.error('Error de autenticación', mensaje);
+
+    if (this.intentosFallidos >= 3) {
+      this.tiempoDeEspera = Date.now() + this.tiempoInicialDeEspera;
+      this.alertService.warning(
+        'Demasiados intentos',
+        `Espera ${(this.tiempoInicialDeEspera / 60000).toFixed(0)} minutos.`
+      );
+    }
+  }
+  goBack(): void {
+    this.selectedIndex= 0;
+  }
+  onForgotPassword () :void{
+    this.selectedIndex= 1;
+  }
 
 
-  restablecerContrasena(): void {
-    if (!this.codigoReset || !this.nuevaContrasena) {
-      this.alertService.warning('Campos incompletos', 'Por favor, complete todos los campos.');
+  completeStep(stepId: number): void {
+    const currentStep = this.steps.find(step => step.id === stepId);
+    const nextStep = this.steps.find(step => step.id === stepId + 1);
+
+    if (currentStep) {
+      currentStep.completed = true;
+      currentStep.color = 'green'; // Cambia el color a verde
+    }
+
+    if (nextStep) {
+      nextStep.enabled = true; // Habilita el siguiente paso
+    }
+  }
+  /**
+   * Paso 1: Enviar correo con código de verificación.
+   */
+  enviarCorreo(): void {
+    const correo = this.validateForm.get('correo')?.value;
+
+    if (!correo) {
+      this.alertService.warning('Campo vacío', 'Por favor, ingrese su correo.');
+      return;
+    }
+
+    this.isSpinning = true;
+    this.usuarioService.solicitarRecuperacion(correo).subscribe({
+      next: () => {
+        this.alertService.success(
+          'Correo enviado',
+          'Se ha enviado un código a su correo.'
+        );
+
+        // Marca el primer paso como completado
+        this.completeStep(1);
+      },
+      error: () => {
+        this.alertService.error(
+          'Error',
+          'No se pudo enviar el correo. Inténtelo más tarde.'
+        );
+      },
+      complete: () => {
+        this.isSpinning = false;
+      },
+    });
+  }
+
+   /**
+   * Paso 2 y 3: Verificar el código de recuperación y cambiar la contraseña.
+   */
+   restablecerContrasena(): void {
+    const codigoReset = this.validateForm.get('codigoReset')?.value;
+    const nuevaContrasena = this.validateForm.get('nuevaContrasena')?.value;
+
+    if (!codigoReset || !nuevaContrasena) {
+      this.alertService.warning(
+        'Campos incompletos',
+        'Por favor, complete todos los campos.'
+      );
       return;
     }
 
     this.isSpinning = true;
 
-    this.usuarioService.cambiarContrasena(this.codigoReset, this.nuevaContrasena).subscribe({
+    this.usuarioService.cambiarContrasena(codigoReset, nuevaContrasena).subscribe({
       next: () => {
-        this.alertService.success('Contraseña actualizada', 'La contraseña ha sido restablecida con éxito.');
-        this.isSpinning = false;
+        this.alertService.success(
+          'Contraseña actualizada',
+          'La contraseña ha sido restablecida con éxito.'
+        );
+
+        // Marca el segundo paso como completado
+        this.completeStep(2);
+
+        this.validateForm.reset(); // Limpia el formulario
       },
       error: () => {
-        this.alertService.error('Error', 'No se pudo actualizar la contraseña.');
+        this.alertService.error(
+          'Error',
+          'El código ingresado no es válido o no se pudo actualizar la contraseña.'
+        );
+      },
+      complete: () => {
         this.isSpinning = false;
-      }
-    });
-  }
-  onForgotPassword(): void {
-    console.log('Método onForgotPassword ejecutado');
-    this.selectedIndex = 1;
-  }
-  goBack(): void {
-    this.selectedIndex = 0; // Regresa a la pestaña de inicio de sesión
-  }
-
-
-
-  abrirHome(): void {
-    this.router.navigate(['/dashboard'], {
-      queryParams: { userEmail: this.validateForm.get('usuario')?.value, userId: this.userId }
+      },
     });
   }
 
+
+  /**
+   * Resetea el estado de la sesión
+   */
+  private resetLoginState(): void {
+    this.loading = false;
+    this.intentosFallidos = 0;
+    this.tiempoDeEspera = 0;
+  }
+
+  /**
+   * Limpia las suscripciones al destruir el componente
+   */
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }
 }
-
-
-
-
-
-
-
-
-
