@@ -9,8 +9,6 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { Workbook } from 'exceljs';
 import * as fs from 'file-saver';
 import { isPlatformBrowser } from '@angular/common';*/
-
-
 /*interface Cell {
   v: string; // o el tipo adecuado según tus datos
 }
@@ -468,14 +466,6 @@ export class Spt1InspectionComponent  {
       }
     });
 }
-// Método para convertir la fecha al formato dd-MM-yyyy
-convertirFechaFormato(fecha: string): string {
-  if (!fecha) return ''; // Verificación si la fecha está vacía
-
-  const [year, month, day] = fecha.split('-');
-  return `${day}-${month}-${year}`;
-}
-
 
 handleErrorInterno(error: any, context: string, loadingMessageId: string) {
   console.error(`Error en ${context}:`, error);
@@ -486,9 +476,17 @@ handleErrorInterno(error: any, context: string, loadingMessageId: string) {
 }
 
 
-  isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
-    return error instanceof HttpErrorResponse;
-  }
+
+// Método para convertir la fecha al formato dd-MM-yyyy
+convertirFechaFormato(fecha: string): string {
+  if (!fecha) return ''; // Verificación si la fecha está vacía
+
+  const [year, month, day] = fecha.split('-');
+  return `${day}-${month}-${year}`;
+}
+
+
+
 
 
 }

@@ -1055,56 +1055,51 @@ for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
       //formData.append('JsonPats', JSON.stringify({ pats: spt2Data.JsonPats }));
 
       // Mostrar el contenido de formData
-      for (const pair of formData.entries()) {
-        console.log(`${pair[0]}:`, pair[1]);
-      }
-      this.spt2Service.insertarSpt2(formData).subscribe(
-        async  response => {
-          console.log('Éxito:', response);
-          if (response.idSpt2) {
+      try {
+        const response = await this.spt2Service.insertarSpt2(spt2Data).toPromise();
 
-            const notificacion: Notificacion = {
-              supervisor: this.idSupervisor ?? 0,
-              lider: this.idLider ?? 0,
-              firmado: false,
-              id_spt2: response.idSpt2
-            };
-            console.log("Datos de notificación:", notificacion);
 
-            await this.notificacionService.insertarNotificacionSpt2(notificacion).toPromise();
-            console.log("Notificación guardada correctamente");
-            console.log('Inserción exitosa. ID:', response.idSpt2);
-            this.messageService.remove(loadingMessageId);
-              this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
-          } else {
-            console.error('Inserción fallida. No se recibió ID.');
-          }
-        },
-        error => {
-          console.error('Error al enviar los datos:', error);
-          if (error.error) {
-            console.error('Mensaje de error:', error.error.message || 'Error desconocido');
-            console.error('Detalles del error completo:', error.error); // Detalles adicionales
-          }
+        if (response.idSpt2) {
+          console.log("Respuesta recibida:", response);
+
+          const notificacion: Notificacion = {
+            supervisor: this.idSupervisor ?? 0,
+            lider: this.idLider ?? 0,
+            firmado: false,
+            id_spt2: response.idSpt2,
+          };
+          console.log("Datos de notificación:", notificacion);
+
+          await this.notificacionService.insertarNotificacionSpt1(notificacion).toPromise();
+          console.log("Notificación guardada correctamente");
+
+          this.messageService.remove(loadingMessageId);
+          this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
+        } else {
+          throw new Error('No se pudo obtener el ID de la spt1');
         }
-      );
-
+      } catch (error) {
+        this.handleErrorInterno(error, 'insertarSpt2', loadingMessageId);
+      }
     } catch (error) {
-      console.error('Error al procesar las imágenes:', error);
+      console.error("Error al procesar datos del formulario:", error);
+      this.messageService.remove(loadingMessageId);
+      this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
     }
-
-    // Cerrar el mensaje de carga
-    this.messageService.remove(loadingMessageId);
   }
 });
 }
 
 
+handleErrorInterno(error: any, context: string, loadingMessageId: string) {
+  console.error(`Error en ${context}:`, error);
+  this.messageService.remove(loadingMessageId);
+
+  // Mostramos el error completo en la alerta
+  this.alertservice.error('Error al Guardar', error.message);
+}
 
 
-      isHttpErrorResponse(error: any): error is { error: { details?: string }, message?: string } {
-        return error && typeof error === 'object' && ('error' in error || 'message' in error);
-      }
 
   // Método para convertir la fecha al formato dd-MM-yyyy
     convertirFechaFormato(fecha: string): string {

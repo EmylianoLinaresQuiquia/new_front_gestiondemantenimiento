@@ -206,7 +206,7 @@
               <div style="margin-bottom: 8px;">
                 <label class="font-bold text-sm" style="font-weight: bold;">POTENCIA ACTUAL:</label>
                 <input type="text" style="border: 1px solid black; height: 24px; width: 100px; margin-right: 4px;" [(ngModel)]="potenciaActual">
-                <span style="font-weight: bold;">MVA</span>
+                <span style="font-weight: bold;">MW</span>
               </div>
 
               <div>
@@ -217,131 +217,138 @@
             </div>
           </div>
 
-          <!-- Transformer Section -->
-          <div nz-row [nzGutter]="[16, 16]" style="padding: 10px;">
-            <!-- Formulario 1 -->
-            <div nz-col [nzSpan]="6" >
-              <div *ngFor="let item of transformador1?.form1?.items || []" style="margin-bottom: 16px;">
-                <label style="font-weight: bold;">{{ item.label }}</label>
+         <!-- Transformer Section -->
+<div nz-row [nzGutter]="[16, 16]" style="padding: 10px;">
+  <!-- Formulario 1 -->
+  <div nz-col [nzSpan]="6">
+    <div *ngFor="let item of transformador1?.form1?.items || []" style="margin-bottom: 16px;">
+      <label style="font-weight: bold;">{{ item.label }}</label>
 
-                <!-- Options -->
-                <ng-container *ngIf="item.tipo === 'opciones'">
-                  <nz-select [(ngModel)]="item.valor" style="width: 100%;">
-                    <nz-option *ngFor="let opcion of item.opciones" [nzValue]="opcion" [nzLabel]="opcion"></nz-option>
-                  </nz-select>
-                </ng-container>
-                <!-- Values -->
-                <ng-container *ngIf="item.tipo === 'valores'">
-                  <div *ngIf="item.valores && item.valores.length === 2" style="display: flex; gap: 8px; margin-top: 8px;">
-                    <input [(ngModel)]="item.valores[0]" style="width: 80px;" placeholder="v. real">
-                    <input [(ngModel)]="item.valores[1]" style="width: 80px;" placeholder="v. testigo">
+      <!-- Options -->
+      <ng-container *ngIf="item.opciones && item.tipo === 'opciones'">
+        <nz-select [(ngModel)]="item.valor" style="width: 100%;">
+          <nz-option *ngFor="let opcion of item.opciones" [nzValue]="opcion" [nzLabel]="opcion"></nz-option>
+        </nz-select>
+      </ng-container>
 
-                    <!-- Conditional Units -->
-                    <span *ngIf="item.label.trim() === 'Manovacuómetro'" style="font-size: 12px;">kgf/cm²</span>
-                    <span *ngIf="item.label.toLowerCase().includes('temperatura')" style="font-size: 12px;">°C</span>
-                  </div>
-                </ng-container>
-              </div>
-            </div>
+      <!-- Values -->
+      <ng-container *ngIf="item.valores && item.tipo === 'valores'">
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <input [(ngModel)]="item.valores[0]" style="width: 80px;" placeholder="v. real">
+          <input [(ngModel)]="item.valores[1]" style="width: 80px;" placeholder="v. testigo">
 
-            <!-- Technical Image -->
-            <div nz-col [nzSpan]="12">
-              <div style="background: white; border: 1px solid #d9d9d9; border-radius: 4px; text-align: center; height: 400px; display: flex; align-items: center; justify-content: center;">
-                <img [src]="transformador1?.imagen || ''" alt="Diagrama técnico del Transformador 1" style="max-height: 100%; max-width: 100%;">
-              </div>
-            </div>
+          <span *ngIf="item.label.trim() === 'Manovacuómetro'" style="font-size: 12px;">kgf/cm²</span>
+          <span *ngIf="item.label.trim() === 'Termómetro de aceite' || item.label.trim() === 'Termómetro de devanado'" style="font-size: 12px;">°C</span>
 
-            <!-- Formulario 2 -->
-            <div nz-col [nzSpan]="6">
-              <div *ngFor="let item of transformador1?.form2?.items || []" style="margin-bottom: 16px;">
-                <label style="font-weight: bold;">{{ item.label }}</label>
-
-                <!-- Options -->
-                <ng-container *ngIf="item.tipo === 'opciones'">
-                  <nz-select [(ngModel)]="item.valor" style="width: 100%;">
-                    <nz-option *ngFor="let opcion of item.opciones" [nzValue]="opcion" [nzLabel]="opcion"></nz-option>
-                  </nz-select>
-                </ng-container>
-
-                <!-- Values -->
-                <ng-container *ngIf="item.tipo === 'valores'">
-                  <div *ngIf="item.valores && item.valores.length === 2" style="display: flex; gap: 8px; margin-top: 8px;">
-                    <nz-input [(ngModel)]="item.valores[0]" style="width: 80px;" placeholder="v. real"></nz-input>
-                    <nz-input [(ngModel)]="item.valores[1]" style="width: 80px;" placeholder="v. testigo"></nz-input>
-
-                    <!-- Conditional Units -->
-                    <span *ngIf="item.label.trim() === 'Manovacuómetro'" style="font-size: 12px;">kgf/cm²</span>
-                    <span *ngIf="item.label.toLowerCase().includes('temperatura')" style="font-size: 12px;">°C</span>
-                  </div>
-                </ng-container>
-              </div>
-            </div>
-          </div>
+        </div>
 
 
-          <div class="ant-divider" style="background-color: black; height: 1px;"></div>
 
-          <!-- Transformador 2 -->
-          <div nz-row [nzGutter]="[16, 16]" style=" margin: auto; margin-top: 32px;padding: 10px;">
-            <!-- Formulario 3 -->
-            <div nz-col [nzSpan]="6">
-              <div *ngFor="let item of transformador2?.form3?.items || []" style="margin-bottom: 16px;">
-                <label style="font-weight: bold;">{{ item.label }}</label>
+      </ng-container>
+    </div>
+  </div>
 
-                <!-- Options -->
-                <ng-container *ngIf="item.tipo === 'opciones'">
-                  <nz-select [(ngModel)]="item.valor" style="width: 100%;">
-                    <nz-option *ngFor="let opcion of item.opciones" [nzValue]="opcion" [nzLabel]="opcion"></nz-option>
-                  </nz-select>
-                </ng-container>
+  <!-- Technical Image -->
+  <div nz-col [nzSpan]="12">
+    <div style="background: white; border: 1px solid #d9d9d9; border-radius: 4px; text-align: center; height: 400px; display: flex; align-items: center; justify-content: center;">
+      <img [src]="transformador1?.imagen || ''" alt="Diagrama técnico del Transformador 1" style="max-height: 100%; max-width: 100%;">
+    </div>
+  </div>
 
-                <!-- Values -->
-                <ng-container *ngIf="item.tipo === 'valores'">
-                  <div *ngIf="item.valores && item.valores.length === 2" style="display: flex; gap: 8px; margin-top: 8px;">
-                    <input [(ngModel)]="item.valores[0]" style="width: 80px;" placeholder="v. real">
-                    <input [(ngModel)]="item.valores[1]" style="width: 80px;" placeholder="v. testigo">
+  <!-- Formulario 2 -->
+  <div nz-col [nzSpan]="6">
+    <div *ngFor="let item of transformador1?.form2?.items || []" style="margin-bottom: 16px;">
+      <label style="font-weight: bold;">{{ item.label }}</label>
 
-                    <!-- Conditional Units -->
-                    <span *ngIf="item.label.trim() === 'Manovacuómetro'" style="font-size: 12px;">kgf/cm²</span>
-                    <span *ngIf="item.label.toLowerCase().includes('temperatura')" style="font-size: 12px;">°C</span>
-                  </div>
-                </ng-container>
-              </div>
-            </div>
+      <!-- Options -->
+      <ng-container *ngIf="item.opciones && item.tipo === 'opciones'">
+        <nz-select [(ngModel)]="item.valor" style="width: 100%;">
+          <nz-option *ngFor="let opcion of item.opciones" [nzValue]="opcion" [nzLabel]="opcion"></nz-option>
+        </nz-select>
+      </ng-container>
 
-            <!-- Technical Image -->
-            <div nz-col [nzSpan]="12">
-              <div style="background: white; border: 1px solid #d9d9d9; border-radius: 4px; text-align: center; height: 400px; display: flex; align-items: center; justify-content: center;">
-                <img [src]="transformador2?.imagen || ''" alt="Diagrama técnico del Transformador 2" style="max-height: 100%; max-width: 100%;">
-              </div>
-            </div>
+      <!-- Values -->
+      <ng-container *ngIf="item.valores && item.tipo === 'valores'">
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <input [(ngModel)]="item.valores[0]" style="width: 80px;" placeholder="v. real">
+          <input [(ngModel)]="item.valores[1]" style="width: 80px;" placeholder="v. testigo">
 
-            <!-- Formulario 4 -->
-            <div nz-col [nzSpan]="6">
-              <div *ngFor="let item of transformador2?.form4?.items || []" style="margin-bottom: 16px;">
-                <label style="font-weight: bold;">{{ item.label }}</label>
+          <span *ngIf="item.label.trim() === 'Manovacuómetro'" style="font-size: 12px;">kgf/cm²</span>
+          <span *ngIf="item.label.trim() === 'Termómetro de aceite' || item.label.trim() === 'Termómetro de devanado'" style="font-size: 12px;">°C</span>
+        </div>
 
-                <!-- Options -->
-                <ng-container *ngIf="item.tipo === 'opciones'">
-                  <nz-select [(ngModel)]="item.valor" style="width: 100%;">
-                    <nz-option *ngFor="let opcion of item.opciones" [nzValue]="opcion" [nzLabel]="opcion"></nz-option>
-                  </nz-select>
-                </ng-container>
 
-                <!-- Values -->
-                <ng-container *ngIf="item.tipo === 'valores'">
-                  <div *ngIf="item.valores && item.valores.length === 2" style="display: flex; gap: 8px; margin-top: 8px;">
-                    <input [(ngModel)]="item.valores[0]" style="width: 80px;" placeholder="v. real">
-                    <input [(ngModel)]="item.valores[1]" style="width: 80px;" placeholder="v. testigo">
+      </ng-container>
+    </div>
+  </div>
+</div>
 
-                    <!-- Conditional Units -->
-                    <span *ngIf="item.label.trim() === 'Manovacuómetro'" style="font-size: 12px;">kgf/cm²</span>
-                    <span *ngIf="item.label.toLowerCase().includes('temperatura')" style="font-size: 12px;">°C</span>
-                  </div>
-                </ng-container>
-              </div>
-            </div>
-          </div>
+<div class="ant-divider" style="background-color: black; height: 1px;"></div>
+
+<!-- Transformer 2 Section -->
+<div nz-row [nzGutter]="[16, 16]" style="margin: auto; margin-top: 32px; padding: 10px;">
+  <!-- Formulario 3 -->
+  <div nz-col [nzSpan]="6">
+    <div *ngFor="let item of transformador2?.form3?.items || []" style="margin-bottom: 16px;">
+      <label style="font-weight: bold;">{{ item.label }}</label>
+
+      <!-- Options -->
+      <ng-container *ngIf="item.opciones && item.tipo === 'opciones'">
+        <nz-select [(ngModel)]="item.valor" style="width: 100%;">
+          <nz-option *ngFor="let opcion of item.opciones" [nzValue]="opcion" [nzLabel]="opcion"></nz-option>
+        </nz-select>
+      </ng-container>
+
+      <!-- Values -->
+      <ng-container *ngIf="item.valores && item.tipo === 'valores'">
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <input [(ngModel)]="item.valores[0]" style="width: 80px;" placeholder="v. real">
+          <input [(ngModel)]="item.valores[1]" style="width: 80px;" placeholder="v. testigo">
+
+          <span *ngIf="item.label.trim() === 'Manovacuómetro'" style="font-size: 12px;">kgf/cm²</span>
+          <span *ngIf="item.label.trim() === 'Termómetro de aceite' || item.label.trim() === 'Termómetro de devanado'" style="font-size: 12px;">°C</span>
+        </div>
+
+
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Technical Image -->
+  <div nz-col [nzSpan]="12">
+    <div style="background: white; border: 1px solid #d9d9d9; border-radius: 4px; text-align: center; height: 400px; display: flex; align-items: center; justify-content: center;">
+      <img [src]="transformador2?.imagen || ''" alt="Diagrama técnico del Transformador 2" style="max-height: 100%; max-width: 100%;">
+    </div>
+  </div>
+
+  <!-- Formulario 4 -->
+  <div nz-col [nzSpan]="6">
+    <div *ngFor="let item of transformador2?.form4?.items || []" style="margin-bottom: 16px;">
+      <label style="font-weight: bold;">{{ item.label }}</label>
+
+      <!-- Options -->
+      <ng-container *ngIf="item.opciones && item.tipo === 'opciones'">
+        <nz-select [(ngModel)]="item.valor" style="width: 100%;">
+          <nz-option *ngFor="let opcion of item.opciones" [nzValue]="opcion" [nzLabel]="opcion"></nz-option>
+        </nz-select>
+      </ng-container>
+
+      <!-- Values -->
+      <ng-container *ngIf="item.valores && item.tipo === 'valores'">
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <input [(ngModel)]="item.valores[0]" style="width: 80px;" placeholder="v. real">
+          <input [(ngModel)]="item.valores[1]" style="width: 80px;" placeholder="v. testigo">
+
+          <span *ngIf="item.label.trim() === 'Manovacuómetro'" style="font-size: 12px;">kgf/cm²</span>
+          <span *ngIf="item.label.trim() === 'Termómetro de aceite' || item.label.trim() === 'Termómetro de devanado'" style="font-size: 12px;">°C</span>
+        </div>
+
+
+      </ng-container>
+    </div>
+  </div>
+</div>
+
 
 
            <!-- Tabla Principal -->
@@ -421,7 +428,7 @@
                 </div>
                 <div style="margin-bottom: 16px;">
                   <div style="font-weight: bold;">FIRMA:</div>
-                  <img [src]="rutaFirmaSeleccionada" style="width: 80px; height: auto; border: 1px solid black;">
+                  <img [src]="rutaFirmaSeleccionada" style="width: 80px; height: auto; ">
                 </div>
               </div>
 

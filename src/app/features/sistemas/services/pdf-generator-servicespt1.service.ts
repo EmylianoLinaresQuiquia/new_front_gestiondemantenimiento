@@ -60,26 +60,52 @@ async generarPDF(id_spt1: number): Promise<Blob> {
 
     console.log("resultados",resultados)
 
-     // Cargar la imagen desde los activos
-     const imgPozo1Bytes = await fetch('assets/pdf/spt1/img_pozo_1.png').then(res => res.arrayBuffer());
-     const imgPozo1 = await pdfDoc.embedPng(imgPozo1Bytes); // Usa embedJpg para imágenes JPG
 
-     newPage.drawImage(imgPozo1, {
-       x: 110,
-       y: 740,
-       width: 100,
-       height: 65,
-     });
 
-     const imgPozo2Bytes = await fetch('assets/pdf/spt1/img_pozo_2.png').then(res => res.arrayBuffer());
-     const imgPozo2 = await pdfDoc.embedPng(imgPozo2Bytes); // Usa embedJpg para imágenes JPG
+    const pozosData = JSON.parse(resultados.pozos_a_tierra)
+  .map((item: string) => item.trim()); // Parse y limpiar datos
 
-     newPage.drawImage(imgPozo2, {
-       x: 190,
-       y: 690,
-       width: 60,
-       height: 50,
-     });
+// Agrupar en grupos de 6 elementos (cada grupo representa un pozo)
+const pozos = [];
+for (let i = 0; i < pozosData.length; i += 6) {
+  pozos.push(pozosData.slice(i, i + 6));
+}
+
+// Generar imágenes por cada pozo
+const generateImagesForPozos = async (pdfDoc: any, newPage: any) => {
+  const startX = 110; // Coordenada X inicial para el primer pozo
+  const startY = 740; // Coordenada Y fija para todos los pozos
+  const spacingX = 190; // Espacio horizontal entre los pozos
+
+  for (let i = 0; i < pozos.length; i++) {
+    console.log(`Generando imágenes para el pozo ${i + 1}`);
+
+    // Cargar y dibujar imagen 1
+    const imgPozo1Bytes = await fetch('assets/pdf/spt1/img_pozo_1.png').then(res => res.arrayBuffer());
+    const imgPozo1 = await pdfDoc.embedPng(imgPozo1Bytes);
+    newPage.drawImage(imgPozo1, {
+      x: startX + i * spacingX, // Ajustar posición horizontal
+      y: startY,
+      width: 100,
+      height: 65,
+    });
+
+    // Cargar y dibujar imagen 2
+    const imgPozo2Bytes = await fetch('assets/pdf/spt1/img_pozo_2.png').then(res => res.arrayBuffer());
+    const imgPozo2 = await pdfDoc.embedPng(imgPozo2Bytes);
+    newPage.drawImage(imgPozo2, {
+      x: startX + i * spacingX + 80, // Ajustar posición horizontal con un pequeño desplazamiento
+      y: startY - 50,
+      width: 60,
+      height: 50,
+    });
+  }
+};
+
+
+// Llamar la función con tu documento PDF y página
+await generateImagesForPozos(pdfDoc, newPage);
+
 
     // Dibujar texto en el PDF
     newPage.drawText(resultados.ot, { font, size: textSize, x: 385, y: height - 110 });
@@ -270,38 +296,46 @@ drawImagesForValues(buenoValues, buenoCoordinates);
 drawImagesForValues(naValues, naCoordinates);
 
 
-// Función para dibujar imágenes si el valor es True
-
-// Obtener los valores de tipo_spt1_seleccionado y procesarlos
+// Convertir 'tipo_spt1_seleccionado' en un array limpio de valores
 const tipoSpt1Values = resultados.tipo_spt1_seleccionado
-.split(',')
-.map(item => item.trim()) // Elimina espacios en blanco alrededor de cada valor
-.filter(item => item !== ''); // Elimina valores vacíos
+  .replace(/[\[\]"]/g, '') // Eliminar corchetes y comillas
+  .split(',')
+  .map(item => item.trim()) // Eliminar espacios adicionales
+  .filter(item => item); // Filtrar valores vacíos
 
-console.log("tipoSpt1Values:", tipoSpt1Values);
+console.log("tipoSpt1Values procesado:", tipoSpt1Values);
 
-// Definir coordenadas para los valores de 'tipo_spt1_seleccionado'
-const tipoSpt1Coordinates = [
-{ x: 180, y: height - 365 },
-{ x: 310, y: height - 365 },
-{ x: 445, y: height - 365 },
-{ x: 580, y: height - 365 },
-{ x: 710, y: height - 365 },
-{ x: 815, y: height - 365 },
-// Agrega más coordenadas según la cantidad de valores que esperas en 'tipo_spt1_seleccionado'
-];
+// Mapeo entre valores y coordenadas
+const tipoSpt1Map = {
+  aislado: { x: 180, y: height - 365 },
+  contrapeso: { x: 310, y: height - 365 },
+  horizontal: { x: 445, y: height - 365 },
+  vertical: { x: 580, y: height - 365 },
+  malla: { x: 710, y: height - 365 },
+  delta: { x: 815, y: height - 365 },
+};
 
-// Dibujar imágenes para los valores de 'tipo_spt1_seleccionado'
-tipoSpt1Values.forEach((value, index) => {
-if (tipoSpt1Coordinates[index]) {
+// Dibujar imágenes para los valores en `tipoSpt1Values`
+tipoSpt1Values.forEach(value => {
+  const key = value.toLowerCase(); // Convertir el valor a minúsculas
+  const coordinates = tipoSpt1Map[key as keyof typeof tipoSpt1Map];
+if (coordinates) {
+  const { x, y } = coordinates;
   newPage.drawImage(miImagen, {
-    x: tipoSpt1Coordinates[index].x,
-    y: tipoSpt1Coordinates[index].y,
-    width: 8,  // Ajusta el tamaño de la imagen si es necesario
-    height: 8, // Ajusta el tamaño de la imagen si es necesario
+    x,
+    y,
+    width: 8,
+    height: 8,
   });
+  console.log(`Imagen dibujada en: (${x}, ${y}) para valor: ${key}`);
+} else {
+  console.warn(`No se encontraron coordenadas para el valor: ${key}`);
 }
+
 });
+
+
+
 
 
 
@@ -418,17 +452,24 @@ newPage, font, textSize
   }
 }
  // Función para dibujar valores con coordenadas y aplicar colores basados en los valores
- private drawValuesWithCoordinates(values: string[], coordinates: { x: number, y: number }[], page: any, font: any, textSize: number) {
+ // Función para dibujar valores con coordenadas y aplicar colores basados en los valores
+private drawValuesWithCoordinates(
+  values: string[],
+  coordinates: { x: number, y: number }[],
+  page: any,
+  font: any,
+  textSize: number
+) {
   values.forEach((value, index) => {
     let color;
 
     // Asignar color según el valor
     if (value === 'Buen Estado') {
-      color = rgb(0, 1, 0); // Verde
+      color = rgb(19 / 255, 135 / 255, 19 / 255); // Verde
     } else if (value === 'No aplica') {
       color = rgb(0, 0, 0); // Negro
     } else {
-      color = rgb(1, 0, 0); // Rojo
+      color = rgb(255 / 255, 165 / 255, 0 / 255); // Naranja
     }
 
     // Dibuja el texto en la coordenada correspondiente con el color
@@ -441,6 +482,7 @@ newPage, font, textSize
     });
   });
 }
+
 }
 
 

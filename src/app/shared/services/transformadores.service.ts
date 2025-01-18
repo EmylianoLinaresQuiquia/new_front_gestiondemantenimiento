@@ -535,7 +535,7 @@ export class TransformadoresService {
             { label: 'Guarda resistencia puesta a tierra', opciones: ['Buen estado', 'Mal estado'], valor: '' },
             { label: 'Válv. Llenado de gas N.', opciones: ['Buen estado', 'Mal estado'], valor: '' },
             { label: 'Termómetro de aceite', valores: ['', ''] },
-            { label: 'Manovacuómetro ', valores: ['', ''] },,
+            { label: 'Manovacuómetro ', valores: ['', ''] },
             { label: 'Termómetro de devanado', valores: ['', ''] },
             { label: 'Grapas seguro de tapa', opciones: ['Buen estado', 'Mal estado'], valor: '' },
             { label: 'Tapa ingreso de cables lado primario', opciones: ['Buen estado', 'Mal estado'], valor: '' },

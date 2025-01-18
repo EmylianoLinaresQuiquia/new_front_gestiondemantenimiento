@@ -1,3 +1,4 @@
+
 import { Injectable } from '@angular/core';
 import { HttpClient,HttpHeaders , HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -76,45 +77,41 @@ dashboardSelectivoSpt2(tagSubestacion: string): Observable<any> {
   return this.http.get(`${this.apiUrl}/dashboardSelectivoSpt2/${tagSubestacion}`);
 }
 
-insertarSpt2(formData: FormData): Observable<InsertSpt2> {
-  return this.http.post<InsertSpt2>(`${this.apiUrl}/insert`, formData)
-    .pipe(
-      map(response => {
-        // Validación del ID en la respuesta en minúsculas
-        if (!response.idSpt2) {  // Cambiado de IdSpt2 a idSpt2
-          throw new Error('Error inesperado: no se recibió idSpt2');
-        }
-        return response;
-      }),
-      catchError(this.handleError<InsertSpt2>('insertarSpt2'))
-    );
+
+insertarSpt2(InsertSpt2: InsertSpt2): Observable<any> {
+  return this.http.post<any>(`${this.apiUrl}/insert`, InsertSpt2)
+  .pipe(
+    map(response => {
+      if (!response.success) {
+        throw new Error(response.message || 'Error inesperado');
+      }
+      return response;
+    }),
+    catchError(this.handleError<any>('insertarSpt2'))
+  );
 }
+
+
+
 
 private handleError<T>(operation = 'operation', result?: T) {
   return (error: HttpErrorResponse): Observable<T> => {
     console.error(`${operation} failed: ${error.message}`, error);
 
     let errorMessage = 'Ha ocurrido un error al guardar los datos.';
-
-    // Extraer detalles adicionales del error
-    if (error.error) {
-      if (typeof error.error === 'string') {
-        errorMessage = error.error; // Mostrar el mensaje si es un texto simple
-      } else if (error.error.message) {
-        errorMessage = error.error.message; // Mensaje en JSON
-      } else if (error.error.details) {
-        errorMessage = error.error.details; // Mensaje de error detallado
-      }
+    if (error.error && error.error.details) {
+      errorMessage = error.error.details;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
 
-    // Mostrar el mensaje de error en consola
-    console.error(`Detalles del error: ${errorMessage}`, error);
-
-    // Lanzar el error personalizado
     return throwError(() => new Error(errorMessage));
   };
 }
+
+
 }
+
 
 /*
   buscarPorSubestacion(tagSubestacion: string): Observable<Spt2[]> {
