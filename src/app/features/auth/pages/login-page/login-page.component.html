@@ -9,7 +9,7 @@
         <div class="login-container">
           <div> <img src="./assets/pdf/logo1.png" alt="Marcobre" class="marcobre-logo" /></div>
           <div class="main">
-            <nz-tabset [(nzSelectedIndex)]="selectedIndex" (nzSelectedIndexChange)="selectedChange($event)">
+            <nz-tabset [(nzSelectedIndex)]="selectedIndex" >
               <!-- Pestaña de Inicio de sesión -->
               <nz-tab *ngIf="selectedIndex === 0" nzTitle="Inicio de sesión">
                 <form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="login()">
