@@ -61,16 +61,37 @@ async generarPDF(id_spt1: number): Promise<Blob> {
     console.log("resultados",resultados)
 
 
+// Validar y procesar pozos_a_tierra
+let pozosData: string[];
 
-    const pozosData = JSON.parse(resultados.pozos_a_tierra)
-  .map((item: string) => item.trim()); // Parse y limpiar datos
+try {
+  if (
+    resultados.pozos_a_tierra.trim().startsWith('[') &&
+    resultados.pozos_a_tierra.trim().endsWith(']')
+  ) {
+    // Procesar como JSON
+    pozosData = JSON.parse(resultados.pozos_a_tierra).map((item: string) =>
+      item.trim()
+    );
+  } else {
+    // Procesar como una cadena separada por comas
+    pozosData = resultados.pozos_a_tierra
+      .split(',')
+      .map((item: string) => item.trim());
+  }
+} catch (error) {
+  console.error('Error procesando pozos_a_tierra:', error);
+  pozosData = []; // Fallback para evitar errores
+}
 
 // Agrupar en grupos de 6 elementos (cada grupo representa un pozo)
-const pozos = [];
+const pozos: string[][] = [];
 for (let i = 0; i < pozosData.length; i += 6) {
   pozos.push(pozosData.slice(i, i + 6));
 }
 
+// Resultado
+console.log('Pozos agrupados:', pozos);
 // Generar imágenes por cada pozo
 const generateImagesForPozos = async (pdfDoc: any, newPage: any) => {
   const startX = 110; // Coordenada X inicial para el primer pozo
@@ -341,28 +362,62 @@ if (coordinates) {
 
 
     // Dibujar pozos a tierra
+// Procesar pozos_a_tierra y aceptar ambas formas
+let pozosLimpios: string[];
 
-const pozosLimpios = JSON.parse(resultados.pozos_a_tierra)
-.map((item: string) => item.trim());
+try {
+  // Verificar si es un JSON válido analizando solo si comienza con "[" y termina con "]"
+  if (
+    resultados.pozos_a_tierra.trim().startsWith('[') &&
+    resultados.pozos_a_tierra.trim().endsWith(']')
+  ) {
+    // Intentar analizar como JSON
+    pozosLimpios = JSON.parse(resultados.pozos_a_tierra).map((item: string) =>
+      item.trim()
+    );
+  } else {
+    // Procesar como una cadena separada por comas
+    pozosLimpios = resultados.pozos_a_tierra
+      .split(',')
+      .map((item: string) => item.trim());
+  }
+} catch (error) {
+  console.error('Error procesando pozos_a_tierra:', error);
+  pozosLimpios = []; // Fallback para evitar que falle el flujo
+}
 
 // Dibujar pozos a tierra en las coordenadas específicas
 this.drawValuesWithCoordinates(
-pozosLimpios,
-[
-  { x: 150, y: height - 540 },
-  { x: 75, y: height - 475 },
-   { x: 150, y: height - 460 },
-
-
-  { x: 218, y: height - 495 }, { x: 215, y: height - 525 }, { x: 175, y: height - 595 },
-  { x: 330, y: height - 540 }, { x: 255, y: height - 475 }, { x: 330, y: height - 460 },
-  { x: 405, y: height - 495 }, { x: 415, y: height - 525 }, { x: 345, y: height - 595 },
-  { x: 520, y: height - 540 }, { x: 430, y: height - 475 }, { x: 520, y: height - 460 },
-  { x: 585, y: height - 495 }, { x: 595, y: height - 525 }, { x: 555, y: height - 595 },
-  { x: 690, y: height - 540 }, { x: 615, y: height - 475 }, { x: 690, y: height - 460 },
-  { x: 768, y: height - 495 }, { x: 778, y: height - 525 }, { x: 715, y: height - 595 }
-],
-newPage, font, textSize
+  pozosLimpios,
+  [
+    { x: 150, y: height - 540 },
+    { x: 75, y: height - 475 },
+    { x: 150, y: height - 460 },
+    { x: 218, y: height - 495 },
+    { x: 215, y: height - 525 },
+    { x: 175, y: height - 595 },
+    { x: 330, y: height - 540 },
+    { x: 255, y: height - 475 },
+    { x: 330, y: height - 460 },
+    { x: 405, y: height - 495 },
+    { x: 415, y: height - 525 },
+    { x: 345, y: height - 595 },
+    { x: 520, y: height - 540 },
+    { x: 430, y: height - 475 },
+    { x: 520, y: height - 460 },
+    { x: 585, y: height - 495 },
+    { x: 595, y: height - 525 },
+    { x: 555, y: height - 595 },
+    { x: 690, y: height - 540 },
+    { x: 615, y: height - 475 },
+    { x: 690, y: height - 460 },
+    { x: 768, y: height - 495 },
+    { x: 778, y: height - 525 },
+    { x: 715, y: height - 595 },
+  ],
+  newPage,
+  font,
+  textSize
 );
 
 
@@ -452,7 +507,7 @@ newPage, font, textSize
   }
 }
  // Función para dibujar valores con coordenadas y aplicar colores basados en los valores
- // Función para dibujar valores con coordenadas y aplicar colores basados en los valores
+// Función para dibujar valores con coordenadas y aplicar colores basados en los valores
 private drawValuesWithCoordinates(
   values: string[],
   coordinates: { x: number, y: number }[],
@@ -474,8 +529,8 @@ private drawValuesWithCoordinates(
 
     // Dibuja el texto en la coordenada correspondiente con el color
     page.drawText(value, {
-      x: coordinates[index].x,
-      y: coordinates[index].y,
+      x: coordinates[index]?.x || 0, // Evitar errores si faltan coordenadas
+      y: coordinates[index]?.y || 0,
       size: textSize,
       font: font,
       color: color,

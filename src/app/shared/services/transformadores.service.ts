@@ -625,7 +625,7 @@ export class TransformadoresService {
       //CONCENTRADO
       this.transformadores['2374-TX-213'] = {
         nombre: '2374-TX-213',
-        imagen: ['./assets/pdf/pm1/CHANCADO_PRIMARIO/2374-TX-213_1.png'],
+        imagen: ['./assets/pdf/pm1/CONCENTRADO/2374-TX-213_1.png'],
         form1: {
           titulo: 'Formulario 1',
           items: [
@@ -651,7 +651,7 @@ export class TransformadoresService {
             { label: 'Válvula Drenaje/Muestreo', opciones: ['Buen estado', 'Mal estado'], valor: '' },
           ],
         },
-        imagen2: ['./assets/pdf/pm1/CHANCADO_PRIMARIO/2374-TX-213_2.png'],
+        imagen2: ['./assets/pdf/pm1/CONCENTRADO/2374-TX-213_2.png'],
         form3: {
           titulo: 'Formulario 3',
           items: [
