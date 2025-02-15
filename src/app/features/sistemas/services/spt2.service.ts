@@ -78,29 +78,28 @@ dashboardSelectivoSpt2(tagSubestacion: string): Observable<any> {
 }
 
 
-insertarSpt2(InsertSpt2: InsertSpt2): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/insert`, InsertSpt2)
-  .pipe(
-    map(response => {
-      if (!response.success) {
-        throw new Error(response.message || 'Error inesperado');
+insertarSpt2(formData: FormData): Observable<any> {
+  return this.http.post<any>(`${this.apiUrl}/insert`, formData).pipe(
+    map((response) => {
+      // Verificar si la respuesta tiene la propiedad 'idSpt2'
+      if (response.idSpt2) {
+        return response;
+      } else {
+        throw new Error('La respuesta del servidor no contiene el ID esperado.');
       }
-      return response;
     }),
     catchError(this.handleError<any>('insertarSpt2'))
   );
 }
 
-
-
-
+// Manejo de errores
 private handleError<T>(operation = 'operation', result?: T) {
   return (error: HttpErrorResponse): Observable<T> => {
     console.error(`${operation} failed: ${error.message}`, error);
 
     let errorMessage = 'Ha ocurrido un error al guardar los datos.';
-    if (error.error && error.error.details) {
-      errorMessage = error.error.details;
+    if (error.error && error.error.message) {
+      errorMessage = error.error.message;
     } else if (error instanceof Error) {
       errorMessage = error.message;
     }

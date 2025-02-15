@@ -1015,76 +1015,84 @@ for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
 
 
 
-      const spt2Data: InsertSpt2 = {
-        Ot: this.ot,
-        Fecha: fechaFormateada,
-        Firmado: false,
-        IdUsuario: this.idLider ?? 0,
-        IdUsuario2: this.idSupervisor ?? 0,
-        IdSubestacion: this.id_subestacion ?? 0,
-        CaidaPotencia: this.checkcaida,
-        Selectivo: this.checkpotencial,
-        SinPicas: this.checksinpicas,
-        FechaCalibracion: this.fecha_calibracion,
-        Marca: this.marca,
-        NumeroSerie: this.n_serie,
-        Modelo: this.modelo,
-        Frecuencia: this.frecuencia,
-        Precision: this.precision,
-        ConclusionesSujecion: this.conclusionespat,
-        JsonPatsSelectivo: JSON.stringify(metodosSelectivos),
-        JsonPatsCaida: JSON.stringify(metodosCaida),
-        JsonPatsSujecion: JSON.stringify(patsSujecion),
-        ConclusionesCaida: this.conclucioncaida || '',
-        ConclusionesSelectivo: this.conclucionselectivo || '',
-        Imagen1: this.files[0] || null,
-        Imagen2: this.files[1] || null,
-        Imagen3: this.files[2] || null,
-        Imagen4: this.files[3] || null,
-        EsquemaCaida: esquemaCaida || null,
-        EsquemaSelectivo: esquemaSelectivo || null,
-      };
+const spt2Data: InsertSpt2 = {
+  Ot: this.ot,
+  Fecha: fechaFormateada,
+  Firmado: false,
+  IdUsuario: this.idLider ?? 0,
+  IdUsuario2: this.idSupervisor ?? 0,
+  IdSubestacion: this.id_subestacion ?? 0,
+  CaidaPotencia: this.checkcaida,
+  Selectivo: this.checkpotencial,
+  SinPicas: this.checksinpicas,
+  FechaCalibracion: this.fecha_calibracion,
+  Marca: this.marca,
+  NumeroSerie: this.n_serie,
+  Modelo: this.modelo,
+  Frecuencia: this.frecuencia,
+  Precision: this.precision,
+  ConclusionesSujecion: this.conclusionespat,
+  JsonPatsSelectivo: JSON.stringify(metodosSelectivos),
+  JsonPatsCaida: JSON.stringify(metodosCaida),
+  JsonPatsSujecion: JSON.stringify(patsSujecion),
+  ConclusionesCaida: this.conclucioncaida || '',
+  ConclusionesSelectivo: this.conclucionselectivo || '',
+  Imagen1: this.files[0] || null,
+  Imagen2: this.files[1] || null,
+  Imagen3: this.files[2] || null,
+  Imagen4: this.files[3] || null,
+  EsquemaCaida: esquemaCaida || null,
+  EsquemaSelectivo: esquemaSelectivo || null,
+};
 
-      const formData = new FormData();
+const formData = new FormData();
 
-      Object.keys(spt2Data).forEach(key => {
-        if (spt2Data[key] !== undefined && spt2Data[key] !== null) {
-          formData.append(key, spt2Data[key]);
-        }
-      });
-      //formData.append('JsonPats', JSON.stringify({ pats: spt2Data.JsonPats }));
-
-      // Mostrar el contenido de formData
-      try {
-        const response = await this.spt2Service.insertarSpt2(spt2Data).toPromise();
-
-
-        if (response.idSpt2) {
-          console.log("Respuesta recibida:", response);
-
-          const notificacion: Notificacion = {
-            supervisor: this.idSupervisor ?? 0,
-            lider: this.idLider ?? 0,
-            firmado: false,
-            id_spt2: response.idSpt2,
-          };
-          console.log("Datos de notificación:", notificacion);
-
-          await this.notificacionService.insertarNotificacionSpt1(notificacion).toPromise();
-          console.log("Notificación guardada correctamente");
-
-          this.messageService.remove(loadingMessageId);
-          this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
-        } else {
-          throw new Error('No se pudo obtener el ID de la spt1');
-        }
-      } catch (error) {
-        this.handleErrorInterno(error, 'insertarSpt2', loadingMessageId);
+// Agregar campos al FormData
+Object.keys(spt2Data).forEach((key) => {
+  if (spt2Data[key] !== undefined && spt2Data[key] !== null) {
+    // Si es un archivo, lo agregamos directamente
+    if (spt2Data[key] instanceof File) {
+      formData.append(key, spt2Data[key]);
+    } else {
+      // Si es un objeto o array, lo convertimos a JSON
+      if (typeof spt2Data[key] === 'object') {
+        formData.append(key, JSON.stringify(spt2Data[key]));
+      } else {
+        formData.append(key, spt2Data[key].toString());
       }
+    }
+  }
+});
+
+try {
+  console.log("Datos enviados a la API:", spt2Data);
+  const response = await this.spt2Service.insertarSpt2(formData).toPromise(); // Enviar formData
+  if (response.idSpt2) {
+    console.log("Respuesta recibida:", response);
+
+    const notificacion: Notificacion = {
+      supervisor: this.idSupervisor ?? 0,
+      lider: this.idLider ?? 0,
+      firmado: false,
+      id_spt2: response.idSpt2,
+    };
+    console.log("Datos de notificación:", notificacion);
+
+    await this.notificacionService.insertarNotificacionSpt1(notificacion).toPromise();
+    console.log("Notificación guardada correctamente");
+
+    this.messageService.remove(loadingMessageId);
+    this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
+  } else {
+    throw new Error('No se pudo obtener el ID de la spt1');
+  }
+} catch (error) {
+  this.handleErrorInterno(error, 'insertarSpt2', loadingMessageId);
+}
     } catch (error) {
       console.error("Error al procesar datos del formulario:", error);
       this.messageService.remove(loadingMessageId);
-      this.alertservice.error('Error al Guardar', 'Ha ocurrido un error inesperado al procesar los datos del formulario.');
+
     }
   }
 });
@@ -1098,7 +1106,6 @@ handleErrorInterno(error: any, context: string, loadingMessageId: string) {
   // Mostramos el error completo en la alerta
   this.alertservice.error('Error al Guardar', error.message);
 }
-
 
 
   // Método para convertir la fecha al formato dd-MM-yyyy
