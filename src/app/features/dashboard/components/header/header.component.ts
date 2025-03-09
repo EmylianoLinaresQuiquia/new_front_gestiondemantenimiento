@@ -201,9 +201,11 @@ export class HeaderComponent {
     this.cdr.detectChanges(); // Forzar actualización de la vista
   }
   obtenerNotificacionesFirmadas() {
+    console.log('userId en obtenerNotificacionesFirmadas:', this.userId);
     this.notificacionService.obtenerNotificacionesFirmadas(this.userId)
       .subscribe(
         (data: NotificacionPendiente[]) => {
+          console.log('Datos recibidos del servidor:', data); 
           // Mapear las notificaciones firmadas para ajustar el formato y asignarlas a messageList
           this.FirmadoList = data.map(notificacion => {
             const fecha = notificacion.fecha ? new Date(notificacion.fecha).toLocaleString() : 'Fecha no disponible';
@@ -225,6 +227,7 @@ export class HeaderComponent {
             } as NotificationItem;
           });
           this.finalizarCarga();
+          
 
           // Actualiza la cantidad de mensajes firmados pendientes
           this.bellInfo.notice = this.FirmadoList.length;
