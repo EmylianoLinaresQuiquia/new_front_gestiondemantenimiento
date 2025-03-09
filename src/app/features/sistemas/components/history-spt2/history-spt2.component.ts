@@ -85,16 +85,37 @@ export class HistorySpt2Component implements OnInit{
     if (storedCargo) {
       this.mostrarHerramientas = storedCargo === 'SUPERVISOR';
     }
-
-     // Obtener datos de SPT2 y procesarlos
-     this.spt2Service.obtenerSpt2().subscribe(
+  
+    // Obtener datos de SPT2 y procesarlos
+    this.spt2Service.obtenerSpt2().subscribe(
       (data: MostrarSpt2[]) => {
         this.spt2List = data.map(item => {
-          console.log("data spt2",data)
-          const ohmSujecionArray = item.ohm_sujecion ? item.ohm_sujecion.split(',').map(val => val.trim()) : [];
-          const ohmSelectivoArray = item.ohm_selectivo ? item.ohm_selectivo.split(',').map(val => val.trim()) : [];
-          const ohmCaidaArray = item.ohm_caida ? item.ohm_caida.split(',').map(val => val.trim()) : [];
-
+          console.log("data spt2", data);
+  
+          // Convertir "null" a null en ohm_sujecion
+          const ohmSujecionArray = item.ohm_sujecion
+            ? item.ohm_sujecion.split(',').map(val => {
+                const trimmedVal = val.trim();
+                return trimmedVal === "null" ? null : parseFloat(trimmedVal);
+              })
+            : [];
+  
+          // Convertir "null" a null en ohm_selectivo
+          const ohmSelectivoArray = item.ohm_selectivo
+            ? item.ohm_selectivo.split(',').map(val => {
+                const trimmedVal = val.trim();
+                return trimmedVal === "null" ? null : parseFloat(trimmedVal);
+              })
+            : [];
+  
+          // Convertir "null" a null en ohm_caida
+          const ohmCaidaArray = item.ohm_caida
+            ? item.ohm_caida.split(',').map(val => {
+                const trimmedVal = val.trim();
+                return trimmedVal === "null" ? null : parseFloat(trimmedVal);
+              })
+            : [];
+  
           return {
             ...item,
             pat1_sujecion: ohmSujecionArray[0] || null,
@@ -110,15 +131,15 @@ export class HistorySpt2Component implements OnInit{
             pat3_caida: ohmCaidaArray[2] || null,
             pat4_caida: ohmCaidaArray[3] || null,
             tipo_metodo: 'SIN PICAS', // Valor inicial predeterminado
-
+  
             // Inicializa los valores visibles de Pat1 a Pat4 para SIN PICAS
-          pat1: ohmSujecionArray[0] || null,
-          pat2: ohmSujecionArray[1] || null,
-          pat3: ohmSujecionArray[2] || null,
-          pat4: ohmSujecionArray[3] || null
+            pat1: ohmSujecionArray[0] || null,
+            pat2: ohmSujecionArray[1] || null,
+            pat3: ohmSujecionArray[2] || null,
+            pat4: ohmSujecionArray[3] || null,
           };
         });
-
+  
         this.filteredSpt2List = this.spt2List;
         this.loading = false;
       },

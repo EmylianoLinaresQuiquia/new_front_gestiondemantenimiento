@@ -214,45 +214,54 @@ resultado.metodoSelectivo.forEach((registro, index) => {
 
 
 
-let contadorPatsujecion = 1;
+let contadorPatsujecion = 1; // Inicializamos el contador en 1
 
-resultado.metodoSujecion.forEach((item, index) => {
-  // Verificamos que el item y item.resultado existan y tengan longitud mayor a 0
-  const registroCount = item.resultado?.length || 0;
-  const mensaje = registroCount > 0 ? `PAT${contadorPatsujecion}` : '';
-  // Solo dibuja el texto si hay mensaje
-  if (mensaje) {
-    // Ajusta las coordenadas en función del índice para evitar superposición
-    const posY = height - 995 - (contadorPatsujecion * 20); // Ejemplo: ajusta 20px de separación entre textos
+// Definimos un tipo para las claves de posicionesY
+type ClavePAT = "PAT1" | "PAT2" | "PAT3" | "PAT4";
+
+// Definimos las posiciones Y para cada PAT
+const posicionesY: Record<ClavePAT, number> = {
+  PAT1: height - 1015, // Posición Y para PAT1
+  PAT2: height - 1035, // Posición Y para PAT2
+  PAT3: height - 1055, // Posición Y para PAT3
+  PAT4: height - 1075, // Posición Y para PAT4
+};
+
+// Recorremos todos los elementos del array
+resultado.metodoSujecion.forEach((item) => {
+  // Verificamos si el elemento es válido para mostrarse en el PDF
+  const esValido =
+    item.ohm !== "null" &&
+    item.ohm !== null &&
+    item.ohm !== "0" &&
+    item.ohm !== "" &&
+    item.resultado !== "";
+
+  // Si el elemento es válido, lo dibujamos en el PDF
+  if (esValido) {
+    const mensaje = `PAT${contadorPatsujecion}` as ClavePAT; // Aseguramos que mensaje es una clave válida
+    const posY = posicionesY[mensaje]; // Usamos la posición Y correspondiente al PAT actual
+
+    // Dibujamos el texto del PAT
     drawText(mensaje, 190, posY);
 
-    // Incrementa el contador para el siguiente mensaje
-    contadorPatsujecion++;
+    // Dibujamos los valores de `ohm` y `resultado`
+    const xOhm = 260;
+    const xResultado = 340;
+    const yOhmResultado = posY; // Misma posición vertical que el PAT
+
+    drawText(item.ohm?.toString() || '', xOhm, yOhmResultado, [0, 0, 0]);
+
+    const resultadoColor: [number, number, number] = item.resultado === 'CUMPLE'
+      ? [0, 1, 0] // Verde (0, 1, 0)
+      : [1, 0, 0]; // Rojo (1, 0, 0)
+
+    drawText(item.resultado?.toString() || '', xResultado, yOhmResultado, resultadoColor);
   }
+
+  // Incrementamos el contador para todos los elementos, incluso los no válidos
+  contadorPatsujecion++;
 });
-
-// Método Sujeción
-drawText(resultado.metodoSujecion[0]?.sujecion_conclusiones || '', 130, height - 1105);
-
-resultado.metodoSujecion.forEach((registro: any, index: number) => {
-  const currentY = startY - index * lineHeight * 2.2; // Ajusta el espacio entre registros completos
-  const currentYohm = startY - index * lineHeight * 4;
-  const xOhm = 260;
-  const xResultado = 340;
-
-  const resultadoColor: [number, number, number] = registro.resultado === 'CUMPLE'
-    ? [0, 1, 0] // Verde (0, 1, 0)
-    : [1, 0, 0]; // Rojo (1, 0, 0)
-
-  const yOhmResultado = currentYohm - 405; // Para Ohm y Resultado, ligeramente por debajo de Conclusiones
-
-  // Convierte los valores a cadenas antes de pasarlos
-  drawText(registro.ohm?.toString() || '', xOhm, yOhmResultado, [0, 0, 0]);
-  drawText(registro.resultado?.toString() || '', xResultado, yOhmResultado, resultadoColor);
-});
-
-
-
 // Función para convertir Base64 a ArrayBuffer
 const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
   const binaryString = atob(base64);

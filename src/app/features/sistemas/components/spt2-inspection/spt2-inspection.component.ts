@@ -976,42 +976,41 @@ for (let i = 0; i < metodosSelectivosOriginal.ohm.length; i++) {
 }
 
 
-        // Tipificar las propiedades para Sujecion
-        // Estructura original con solo `ohm`
+// Llenar `ohm` en patsSujecionOriginal
 const patsSujecionOriginal: {
-  ohm: number[]
+  ohm: (number | null)[]
 } = {
   ohm: []
 };
 
-// Llenar `ohm` en patsSujecionOriginal
 for (let i = 0; i < this.inputValues.length; i++) {
-  const value = parseFloat(this.inputValues[i]?.toString()) || 0;
-  patsSujecionOriginal.ohm.push(value);
+  const value = this.inputValues[i];
+  // Si el valor es null o undefined, se asigna null. De lo contrario, se convierte a número.
+  if (value === null || value === undefined) {
+    patsSujecionOriginal.ohm.push(null);
+  } else {
+    const parsedValue = parseFloat(value.toString());
+    patsSujecionOriginal.ohm.push(isNaN(parsedValue) ? null : parsedValue);
+  }
 }
 
 // Transformar a formato de la API
-
-
 const patsSujecion: {
-  ohm_data: { ohm: number; resultado: string }[]
+  ohm_data: { ohm: number | null; resultado: string }[]
 } = {
   ohm_data: []
 };
 
-
-
 // Llenar `ohm_data`
 for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
   const ohmValue = patsSujecionOriginal.ohm[i];
-  const resultado = ohmValue < 25 ? "CUMPLE" : "  No CUMPLE"; // Evalúa si cumple o no
+  const resultado = ohmValue === null ? "" : (ohmValue < 25 ? "CUMPLE" : "No CUMPLE"); // Evalúa si cumple o no
 
   patsSujecion.ohm_data.push({
     ohm: ohmValue,
     resultado: resultado // Asigna el resultado evaluado
   });
 }
-
 
 
 
@@ -1078,7 +1077,7 @@ try {
     };
     console.log("Datos de notificación:", notificacion);
 
-    await this.notificacionService.insertarNotificacionSpt1(notificacion).toPromise();
+    await this.notificacionService.insertarNotificacionSpt2(notificacion).toPromise();
     console.log("Notificación guardada correctamente");
 
     this.messageService.remove(loadingMessageId);

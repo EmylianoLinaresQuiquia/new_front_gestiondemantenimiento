@@ -126,53 +126,52 @@
     </td>
 
     <!-- Pat1 -->
-    <td>
-      <span *ngIf="item.pat1">
-        {{ item.pat1 }}
-        <i nz-icon
-           [nzType]="item.pat1 > 25 ? 'close-circle' : 'check-circle'"
-           nzTheme="twotone"
-           [nzTwotoneColor]="item.pat1 > 25 ? 'red' : 'green'">
-        </i>
-      </span>
-    </td>
+<td>
+  <span *ngIf="item.pat1 !== null && item.pat1 !== 0">
+    {{ item.pat1 }}
+    <i nz-icon
+       [nzType]="item.pat1 > 25 ? 'close-circle' : 'check-circle'"
+       nzTheme="twotone"
+       [nzTwotoneColor]="item.pat1 > 25 ? 'red' : 'green'">
+    </i>
+  </span>
+</td>
 
-    <!-- Pat2 -->
-    <td>
-      <span *ngIf="item.pat2">
-        {{ item.pat2 }}
-        <i nz-icon
-           [nzType]="item.pat2 > 25 ? 'close-circle' : 'check-circle'"
-           nzTheme="twotone"
-           [nzTwotoneColor]="item.pat2 > 25 ? 'red' : 'green'">
-        </i>
-      </span>
-    </td>
+<!-- Pat2 -->
+<td>
+  <span *ngIf="item.pat2 !== null && item.pat2 !== 0">
+    {{ item.pat2 }}
+    <i nz-icon
+       [nzType]="item.pat2 > 25 ? 'close-circle' : 'check-circle'"
+       nzTheme="twotone"
+       [nzTwotoneColor]="item.pat2 > 25 ? 'red' : 'green'">
+    </i>
+  </span>
+</td>
 
-    <!-- Pat3 -->
-    <td>
-      <span *ngIf="item.pat3">
-        {{ item.pat3 }}
-        <i nz-icon
-           [nzType]="item.pat3 > 25 ? 'close-circle' : 'check-circle'"
-           nzTheme="twotone"
-           [nzTwotoneColor]="item.pat3 > 25 ? 'red' : 'green'">
-        </i>
-      </span>
-    </td>
+<!-- Pat3 -->
+<td>
+  <span *ngIf="item.pat3 !== null && item.pat3 !== 0">
+    {{ item.pat3 }}
+    <i nz-icon
+       [nzType]="item.pat3 > 25 ? 'close-circle' : 'check-circle'"
+       nzTheme="twotone"
+       [nzTwotoneColor]="item.pat3 > 25 ? 'red' : 'green'">
+    </i>
+  </span>
+</td>
 
-    <!-- Pat4 -->
-    <td>
-      <span *ngIf="item.pat4">
-        {{ item.pat4 }}
-        <i nz-icon
-           [nzType]="item.pat4 > 25 ? 'close-circle' : 'check-circle'"
-           nzTheme="twotone"
-           [nzTwotoneColor]="item.pat4 > 25 ? 'red' : 'green'">
-        </i>
-      </span>
-    </td>
-
+<!-- Pat4 -->
+<td>
+  <span *ngIf="item.pat4 !== null && item.pat4 !== 0">
+    {{ item.pat4 }}
+    <i nz-icon
+       [nzType]="item.pat4 > 25 ? 'close-circle' : 'check-circle'"
+       nzTheme="twotone"
+       [nzTwotoneColor]="item.pat4 > 25 ? 'red' : 'green'">
+    </i>
+  </span>
+</td>
 
       <td>{{ item.usuario_lider }}</td>
       <td>{{ item.usuario_supervisor || 'Sin supervisor' }}</td>
