@@ -228,10 +228,8 @@ export class Spt1InspectionComponent  {
     getSelectClass(selectedOption: string): string {
       if (selectedOption === 'Buen Estado') {
         return 'select-green';
-      } else if (selectedOption === 'No aplica') {
-        return 'select-black';
       } else {
-        return 'select-red';
+        return 'select-orange';
       }
     }
 

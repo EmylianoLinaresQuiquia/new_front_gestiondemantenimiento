@@ -571,6 +571,9 @@ select {
   .text-red {
 	color: red;
   }
+  .text-orange {
+	color: orange;
+  }
 
 
 
@@ -612,8 +615,8 @@ select {
 	  color: green;
 	}
 
-	.select-red {
-	  color: red;
+	.select-orange {
+	  color: orange;
 	}
 
 
