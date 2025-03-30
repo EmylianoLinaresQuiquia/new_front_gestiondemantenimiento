@@ -14,7 +14,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzModalRef } from 'ng-zorro-antd/modal/modal-ref';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-
+import  html2canvas from 'html2canvas';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { string } from '@amcharts/amcharts4/core';
@@ -151,6 +151,21 @@ export class Pm1InspectionComponent implements OnInit{
     );
   }
 
+  capturarFormulario() {
+      const form = document.getElementById('formulario');
+      if (!form) return;
+    
+      setTimeout(() => { // Espera para que las imágenes carguen bien
+        html2canvas(form, { scale: 2, useCORS: true, allowTaint: true }).then((canvas) => {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL("image/png");
+          link.download = "formulario.png";
+          link.click();
+        }).catch(error => {
+          console.error("Error al capturar el formulario:", error);
+        });
+      }, 2000); // Ajusta el tiempo si es necesario
+    }
   // Normalizar formularios para inicializar valores predeterminados
   normalizeForm(form: any): any {
     if (!form || !form.items) return null;

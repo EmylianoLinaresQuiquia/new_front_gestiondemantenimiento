@@ -40,7 +40,7 @@ export class TransformerInspectionComponent {
   filterLider: string = '';
   filterSupervisor: string = '';
 
-
+  mostrarHerramientas: boolean = false;
 
 
   constructor(
@@ -57,6 +57,10 @@ export class TransformerInspectionComponent {
   ) { }
 
   ngOnInit() {
+    const storedCargo = localStorage.getItem('cargo');
+    if (storedCargo) {
+      this.mostrarHerramientas = storedCargo === 'SUPERVISOR';
+    }
     this.route.queryParams.subscribe(params => {
       this.transformador = params['transformador'] || '';
       this.subestacion = params['subestacion'] || '';
@@ -64,6 +68,8 @@ export class TransformerInspectionComponent {
       this.potencia = params['potencia'] || '';
       this.cargarDatos(this.transformador ?? '', this.subestacion ?? '');
     });
+
+    
   }
 
 
@@ -211,9 +217,4 @@ abrirpdf(id: number): void {
       this.router.navigate(['/transformadores/grafico-pm1'], { queryParams: { subestacion: this.subestacion, transformador: this.transformador } });
     }
   }
-
-
-  /*onCloseClick(): void {
-    this.dialog.closeAll();
-  }*/
 }

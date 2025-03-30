@@ -41,63 +41,6 @@ export class GraphicSpt2Component {
       }
     });
   }
-
-  private getCaidaData(tagSubestacion: string) {
-    this.Spt2Service.dashboardCaidaSpt2(tagSubestacion).subscribe(data => {
-      console.log('Datos de Método Caída:', data);
-
-      const fechas = data.map((res: any) => res.fecha);
-
-      // Declaramos seriesData con el tipo adecuado
-      const seriesData: Array<Array<number | null>> = [];
-
-      data.forEach((res: any) => {
-        if (res.ohm_caida) {
-          const valores = res.ohm_caida.split(',').map((valor: string) => parseFloat(valor.trim()));
-          valores.forEach((valor: number, index: number) => {
-            if (!seriesData[index]) seriesData[index] = []; // Inicializa cada subarray
-            seriesData[index].push(valor); // Agrega el valor parseado a la serie correspondiente
-          });
-        } else {
-          // Si ohm_caida es null, llenamos con null en cada serie para mantener el índice
-          seriesData.forEach(serie => serie.push(null));
-        }
-      });
-
-      if (!this.areSeriesDataEmpty(seriesData)) {
-        this.renderChart('metodo-caida', 'Método de Caída', seriesData, fechas);
-      } else {
-        console.log('Método de Caída: No hay datos para mostrar.');
-      }
-    });
-  }
-  private getSelectivoData(tagSubestacion: string) {
-    this.Spt2Service.dashboardSelectivoSpt2(tagSubestacion).subscribe(data => {
-      console.log('Datos de Método Selectivo:', data);
-
-      const fechas = data.map((res: any) => res.fecha);
-      const seriesData: Array<Array<number | null>> = [];
-
-      data.forEach((res: any) => {
-        if (res.ohm_selectivo) {
-          const valores = res.ohm_selectivo.split(',').map((valor: string) => parseFloat(valor.trim()));
-          valores.forEach((valor: number, index: number) => {
-            if (!seriesData[index]) seriesData[index] = [];
-            seriesData[index].push(valor);
-          });
-        } else {
-          seriesData.forEach(serie => serie.push(null));
-        }
-      });
-
-      if (!this.areSeriesDataEmpty(seriesData)) {
-        this.renderChart('metodo-selectivo', 'Método Selectivo', seriesData, fechas);
-      } else {
-        console.log('Método Selectivo: No hay datos para mostrar.');
-      }
-    });
-  }
-
   private getSujecionData(tagSubestacion: string) {
     this.Spt2Service.dashboardSujecionSpt2(tagSubestacion).subscribe(data => {
         console.log('Datos de Método Sujeción:', data);
@@ -127,6 +70,62 @@ export class GraphicSpt2Component {
         }
     });
 }
+
+  private getCaidaData(tagSubestacion: string) {
+    this.Spt2Service.dashboardCaidaSpt2(tagSubestacion).subscribe(data => {
+      console.log('Datos de Método Caída:', data);
+
+      const fechas = data.map((res: any) => res.fecha);
+      const seriesData: number[][] = [];
+
+      data.forEach((res: any, index: number) => {
+          if (res.ohm_caida) {
+              const valores = res.ohm_caida.split(',').map((valor: string) => parseFloat(valor.trim()));
+              valores.forEach((valor: number, serieIndex: number) => {
+                  if (!seriesData[serieIndex]) {
+                      seriesData[serieIndex] = Array(data.length).fill(null);
+                  }
+                  seriesData[serieIndex][index] = valor;
+              });
+          }
+      });
+
+      if (!this.areSeriesDataEmpty(seriesData)) {
+          this.renderChart('metodo-caida', 'Método de Caída', seriesData, fechas);
+      } else {
+          console.log('Método de Caída: No hay datos para mostrar.');
+      }
+  });
+}
+  private getSelectivoData(tagSubestacion: string) {
+    this.Spt2Service.dashboardSelectivoSpt2(tagSubestacion).subscribe(data => {
+      console.log('Datos de Método Selectivo:', data);
+
+      const fechas = data.map((res: any) => res.fecha);
+      const seriesData: number[][] = [];
+
+      data.forEach((res: any, index: number) => {
+          if (res.ohm_selectivo) {
+              const valores = res.ohm_selectivo.split(',').map((valor: string) => parseFloat(valor.trim()));
+              valores.forEach((valor: number, serieIndex: number) => {
+                  if (!seriesData[serieIndex]) {
+                      seriesData[serieIndex] = Array(data.length).fill(null);
+                  }
+                  seriesData[serieIndex][index] = valor;
+              });
+          }
+      });
+
+      if (!this.areSeriesDataEmpty(seriesData)) {
+          this.renderChart('metodo-selectivo', 'Método Selectivo', seriesData, fechas);
+      } else {
+          console.log('Método Selectivo: No hay datos para mostrar.');
+      }
+  });
+}
+
+
+  
 
 
 

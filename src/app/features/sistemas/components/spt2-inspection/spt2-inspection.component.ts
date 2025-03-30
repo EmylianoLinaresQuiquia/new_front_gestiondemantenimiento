@@ -1004,7 +1004,7 @@ const patsSujecion: {
 // Llenar `ohm_data`
 for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
   const ohmValue = patsSujecionOriginal.ohm[i];
-  const resultado = ohmValue === null ? "" : (ohmValue < 25 ? "CUMPLE" : "No CUMPLE"); // Evalúa si cumple o no
+  const resultado = ohmValue === null ? "" : (ohmValue < 25 ? "CUMPLE" : "NO CUMPLE"); // Evalúa si cumple o no
 
   patsSujecion.ohm_data.push({
     ohm: ohmValue,

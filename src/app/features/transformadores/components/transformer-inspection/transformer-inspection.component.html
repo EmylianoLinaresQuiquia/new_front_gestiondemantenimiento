@@ -458,7 +458,7 @@
               <button nz-button   (click)="abrirpdf(dato.id_pm1)">
                 <i nz-icon  nzType="file-pdf" nzTheme="outline" [style.color]="dato.firma ? 'green' : 'orange'"></i>
               </button>
-              <button nz-button  (click)="eliminarRegistro(dato.id_pm1)">
+              <button *ngIf="mostrarHerramientas" nz-button  (click)="eliminarRegistro(dato.id_pm1)">
                 <i nz-icon nzType="delete"></i>
               </button>
 
@@ -531,14 +531,14 @@
             <td>{{ dato.orden_trabajo }}</td>
             <td>{{ dato.usuario }}</td>
             <td>{{ dato.usuario_2 }}</td>
-            <td>
+            <td  >
               <button nz-button  (click)="abrirDashboard()">
                 <i nz-icon nzType="line-chart"></i>
               </button>
               <button nz-button   (click)="abrirpdf(dato.id_pm1)">
                 <i nz-icon  nzType="file-pdf" nzTheme="outline" [style.color]="dato.firma ? 'green' : 'orange'"></i>
               </button>
-              <button nz-button  (click)="eliminarRegistro(dato.id_pm1)">
+              <button *ngIf="mostrarHerramientas" nz-button  (click)="eliminarRegistro(dato.id_pm1)">
                 <i nz-icon nzType="delete"></i>
               </button>
 

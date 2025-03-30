@@ -28,7 +28,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
 
   selectedIndex = 0; // Control para pestañas de login y recuperación
   isSpinning = false; // Spinner para carga de datos
+  
 
+  passwordVisible = false;
 
   constructor(
     private fb: FormBuilder,
@@ -52,10 +54,9 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
-
-
+  togglePasswordVisibility(): void {
+    this.passwordVisible = !this.passwordVisible;
+  }
 
   /**
    * Controla el proceso de login, obtiene el correo y maneja el tiempo de espera
