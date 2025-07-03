@@ -42,90 +42,159 @@ export class GraphicSpt2Component {
     });
   }
   private getSujecionData(tagSubestacion: string) {
-    this.Spt2Service.dashboardSujecionSpt2(tagSubestacion).subscribe(data => {
-        console.log('Datos de Método Sujeción:', data);
+  this.Spt2Service.dashboardSujecionSpt2(tagSubestacion).subscribe(data => {
+    console.log('Datos de Método Sujeción:', data);
 
-        const fechas = data.map((res: any) => res.fecha);
-        const seriesData: number[][] = [];
+    const fechas: string[] = data.map((res: any) => res.fecha);
+    const seriesData: (number | null)[][] = [];
 
-        data.forEach((res: any, index: number) => {
-          if (res.ohm_sujecion) {
-              const valores = res.ohm_sujecion
-                  .split(',')
-                  .map((valor: string) => parseFloat(valor.trim()));
-              valores.forEach((valor: number, serieIndex: number) => {
-                  if (!seriesData[serieIndex]) {
-                      seriesData[serieIndex] = Array(data.length).fill(null);
-                  }
-                  seriesData[serieIndex][index] = valor;
-              });
+    data.forEach((res: any, index: number) => {
+      if (res.ohm_sujecion) {
+        const valores = res.ohm_sujecion
+          .split(',')
+          .map((valor: string) => parseFloat(valor.trim()));
+
+        valores.forEach((valor: number, serieIndex: number) => {
+          if (!seriesData[serieIndex]) {
+            seriesData[serieIndex] = Array(data.length).fill(null);
           }
-      });
-
-
-        if (!this.areSeriesDataEmpty(seriesData)) {
-            this.renderChart('metodo-sujecion', 'Método Sin Picas', seriesData, fechas);
-        } else {
-            console.log('Método Sin Picas: No hay datos para mostrar.');
-        }
+          seriesData[serieIndex][index] = isNaN(valor) ? null : valor;
+        });
+      }
     });
-}
 
-  private getCaidaData(tagSubestacion: string) {
-    this.Spt2Service.dashboardCaidaSpt2(tagSubestacion).subscribe(data => {
-      console.log('Datos de Método Caída:', data);
+    if (!this.areSeriesDataEmpty(seriesData)) {
+      // Definir el tipo para que TypeScript no arroje errores
+      type CombinedItem = {
+        fecha: Date;
+        originalFecha: string;
+        valores: (number | null)[];
+      };
 
-      const fechas = data.map((res: any) => res.fecha);
-      const seriesData: number[][] = [];
+      // Combinar las fechas y los valores para ordenarlos
+     const combined: CombinedItem[] = fechas.map((fecha: string, index: number): CombinedItem => ({
+  fecha: this.parseFechaDMY(fecha),
+  originalFecha: fecha,
+  valores: seriesData.map((serie: (number | null)[]) => serie[index])
+}));
+    
 
-      data.forEach((res: any, index: number) => {
-          if (res.ohm_caida) {
-              const valores = res.ohm_caida.split(',').map((valor: string) => parseFloat(valor.trim()));
-              valores.forEach((valor: number, serieIndex: number) => {
-                  if (!seriesData[serieIndex]) {
-                      seriesData[serieIndex] = Array(data.length).fill(null);
-                  }
-                  seriesData[serieIndex][index] = valor;
-              });
-          }
-      });
+      // Ordenar por fecha ascendente
+      combined.sort((a: CombinedItem, b: CombinedItem) => a.fecha.getTime() - b.fecha.getTime());
 
-      if (!this.areSeriesDataEmpty(seriesData)) {
-          this.renderChart('metodo-caida', 'Método de Caída', seriesData, fechas);
-      } else {
-          console.log('Método de Caída: No hay datos para mostrar.');
-      }
+      // Extraer las fechas y series ordenadas
+      const fechasOrdenadas: string[] = combined.map((c: CombinedItem) => c.originalFecha);
+      const seriesDataOrdenadas: (number | null)[][] = seriesData.map((_, serieIndex: number) =>
+        combined.map((c: CombinedItem) => c.valores[serieIndex])
+      );
+      console.log('Fechas ordenadas:', fechasOrdenadas);
+
+      // Renderizar el gráfico
+      this.renderChart('metodo-sujecion', 'Método Sin Picas', seriesDataOrdenadas, fechasOrdenadas);
+    } else {
+      console.log('Método Sin Picas: No hay datos para mostrar.');
+    }
   });
 }
-  private getSelectivoData(tagSubestacion: string) {
-    this.Spt2Service.dashboardSelectivoSpt2(tagSubestacion).subscribe(data => {
-      console.log('Datos de Método Selectivo:', data);
+private getCaidaData(tagSubestacion: string) {
+  this.Spt2Service.dashboardCaidaSpt2(tagSubestacion).subscribe(data => {
+    console.log('Datos de Método Caída:', data);
 
-      const fechas = data.map((res: any) => res.fecha);
-      const seriesData: number[][] = [];
+    const fechas = data.map((res: any) => res.fecha);
+    const seriesData: (number | null)[][] = [];
 
-      data.forEach((res: any, index: number) => {
-          if (res.ohm_selectivo) {
-              const valores = res.ohm_selectivo.split(',').map((valor: string) => parseFloat(valor.trim()));
-              valores.forEach((valor: number, serieIndex: number) => {
-                  if (!seriesData[serieIndex]) {
-                      seriesData[serieIndex] = Array(data.length).fill(null);
-                  }
-                  seriesData[serieIndex][index] = valor;
-              });
+    data.forEach((res: any, index: number) => {
+      if (res.ohm_caida) {
+        const valores = res.ohm_caida.split(',').map((valor: string) => parseFloat(valor.trim()));
+        valores.forEach((valor: number, serieIndex: number) => {
+          if (!seriesData[serieIndex]) {
+            seriesData[serieIndex] = Array(data.length).fill(null);
           }
-      });
-
-      if (!this.areSeriesDataEmpty(seriesData)) {
-          this.renderChart('metodo-selectivo', 'Método Selectivo', seriesData, fechas);
-      } else {
-          console.log('Método Selectivo: No hay datos para mostrar.');
+          seriesData[serieIndex][index] = isNaN(valor) ? null : valor;
+        });
       }
+    });
+
+    if (!this.areSeriesDataEmpty(seriesData)) {
+      type CombinedItem = {
+        fecha: Date;
+        originalFecha: string;
+        valores: (number | null)[];
+      };
+
+      const combined: CombinedItem[] = fechas.map((fecha: string, index: number): CombinedItem => ({
+        fecha: this.parseFechaDMY(fecha),
+        originalFecha: fecha,
+        valores: seriesData.map((serie: (number | null)[]) => serie[index])
+      }));
+
+      combined.sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
+
+      const fechasOrdenadas: string[] = combined.map(c => c.originalFecha);
+      const seriesDataOrdenadas: (number | null)[][] = seriesData.map((_, serieIndex: number) =>
+        combined.map(c => c.valores[serieIndex])
+      );
+
+      this.renderChart('metodo-caida', 'Método de Caída', seriesDataOrdenadas, fechasOrdenadas);
+    } else {
+      console.log('Método de Caída: No hay datos para mostrar.');
+    }
   });
 }
 
 
-  
+private getSelectivoData(tagSubestacion: string) {
+  this.Spt2Service.dashboardSelectivoSpt2(tagSubestacion).subscribe(data => {
+    console.log('Datos de Método Selectivo:', data);
+
+    const fechas = data.map((res: any) => res.fecha);
+    const seriesData: (number | null)[][] = [];
+
+    data.forEach((res: any, index: number) => {
+      if (res.ohm_selectivo) {
+        const valores = res.ohm_selectivo.split(',').map((valor: string) => parseFloat(valor.trim()));
+        valores.forEach((valor: number, serieIndex: number) => {
+          if (!seriesData[serieIndex]) {
+            seriesData[serieIndex] = Array(data.length).fill(null);
+          }
+          seriesData[serieIndex][index] = isNaN(valor) ? null : valor;
+        });
+      }
+    });
+
+    if (!this.areSeriesDataEmpty(seriesData)) {
+      type CombinedItem = {
+        fecha: Date;
+        originalFecha: string;
+        valores: (number | null)[];
+      };
+
+      const combined: CombinedItem[] = fechas.map((fecha: string, index: number): CombinedItem => ({
+        fecha: this.parseFechaDMY(fecha),
+        originalFecha: fecha,
+        valores: seriesData.map((serie: (number | null)[]) => serie[index])
+      }));
+
+      combined.sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
+
+      const fechasOrdenadas: string[] = combined.map(c => c.originalFecha);
+      const seriesDataOrdenadas: (number | null)[][] = seriesData.map((_, serieIndex: number) =>
+        combined.map(c => c.valores[serieIndex])
+      );
+
+      this.renderChart('metodo-selectivo', 'Método Selectivo', seriesDataOrdenadas, fechasOrdenadas);
+    } else {
+      console.log('Método Selectivo: No hay datos para mostrar.');
+    }
+  });
+}
+
+
+private parseFechaDMY(str: string): Date {
+  // Detectar automáticamente si usa "/" o "-"
+  const [d, m, y] = str.includes('/') ? str.split('/') : str.split('-');
+  return new Date(Number(y), Number(m) - 1, Number(d)); // YYYY, MM, DD
+}
 
 
 
@@ -135,28 +204,27 @@ export class GraphicSpt2Component {
   }
   // Método para renderizar gráficos
   private renderChart(chartId: string, title: string, seriesData: (number | null)[][], fechas: string[]) {
-    const chartElement = am4core.create(chartId, am4charts.XYChart);
-    chartElement.paddingRight = 20;
+  const chartElement = am4core.create(chartId, am4charts.XYChart);
+  chartElement.paddingRight = 20;
 
-    // Título del gráfico
-    const chartTitle = chartElement.titles.create();
-    chartTitle.text = title;
-    chartTitle.fontSize = 25;
-    chartTitle.marginBottom = 20;
-    chartTitle.align = "center";
+  const chartTitle = chartElement.titles.create();
+  chartTitle.text = title;
+  chartTitle.fontSize = 25;
+  chartTitle.marginBottom = 20;
+  chartTitle.align = "center";
 
-    // Preparar los datos
-    chartElement.data = fechas.map((fecha, index) => {
-        let data: { [key: string]: any } = { fecha: fecha };
+  // ✅ Usamos los datos ordenados directamente
+  chartElement.data = fechas.map((fecha, index) => {
+    let data: { [key: string]: any } = { fecha: fecha };
 
-        seriesData.forEach((serie, i) => {
-            const value = serie[index];
-            if (value !== null && !isNaN(value)) {
-                data[`pat${i + 1}`] = value;
-            }
-        });
-        return data;
+    seriesData.forEach((serie, i) => {
+      const value = serie[index];
+      if (value !== null && !isNaN(value)) {
+        data[`pat${i + 1}`] = value;
+      }
     });
+    return data;
+  });
 
     // Configurar eje X
     const categoryAxis = chartElement.xAxes.push(new am4charts.CategoryAxis());
@@ -302,14 +370,6 @@ valueAxis.strictMinMax = true; // Forzar que el eje use estos valores
     // Exportación
     chartElement.exporting.menu = new am4core.ExportMenu();
 }
-
-
-
-
-
-
-
-
 
 
 }
