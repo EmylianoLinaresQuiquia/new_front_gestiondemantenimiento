@@ -5,8 +5,7 @@
 export const environment = {
   production: false,
   apiUrl: 'https://net8-web-api-production-a6e5.up.railway.app/api'
-  //https://localhost:7242/api
-  //https://apigestiondemantenimiento2024-ba317c3bc05b.herokuapp.com/api
+ 
 };
 
 /*
