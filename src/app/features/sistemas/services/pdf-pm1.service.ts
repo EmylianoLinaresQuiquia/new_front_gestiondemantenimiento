@@ -726,8 +726,8 @@ fieldMappings['fotocheck_supervisor'] = { value: pm1.fotocheck_supervisor || '',
 fieldMappings['correo_supervisor'] = { value: pm1.correo_supervisor || '', x: 350, y: 37 };
 
 
-fieldMappings['corriente_actual'] = { value: pm1.corriente_actual || '', x: 460, y: 620 };
-fieldMappings['potencia_actual'] = { value: pm1.potencia_actual || '', x: 450, y: 635 };
+fieldMappings['corriente_actual'] = { value: pm1.corriente_actual || '', x: 450, y: 620 };
+fieldMappings['potencia_actual'] = { value: pm1.potencia_actual || '', x: 440, y: 635 };
 fieldMappings['transformador'] = { value: pm1.transformador || '', x: 170, y: 635 };
 
 
@@ -766,11 +766,11 @@ if (pm1.patio_observaciones) {
 
 // Seguridad Observaciones
 if (pm1.seguridad_observaciones) {
-  const seguridadObservaciones = pm1.seguridad_observaciones.split(',').map((s: string) => s.split('|'));
+  const seguridadObservaciones = pm1.seguridad_observaciones.split(',').map((s: string) => s.split('|'));``
   seguridadObservaciones.forEach((obs: string[], index: number) => {
     const baseY = 695 - index * 9; // Coordenada Y dinámica
-    fieldMappings[`SeguridadObservacion_bueno${index + 1}`] = { value: obs[0] === '1', x: 353, y: baseY };
-    fieldMappings[`SeguridadObservacion_n${index + 1}`] = { value: obs[1] === '1', x: 450, y: baseY };
+    fieldMappings[`SeguridadObservacion_bueno${index + 1}`] = { value: obs[0] === '1', x: 353, y: baseY };``
+    fieldMappings[`SeguridadObservacion_n${index + 1}`] = { value: obs[1] === '1', x: 370, y: baseY };
     fieldMappings[`SeguridadObservacion_observacion${index + 1}`] = { value: obs[2] || '', x:390, y: baseY };
 
   });

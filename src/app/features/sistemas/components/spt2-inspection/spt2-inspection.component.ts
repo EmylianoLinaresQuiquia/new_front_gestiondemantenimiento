@@ -97,7 +97,7 @@ export class Spt2InspectionComponent implements OnDestroy {
   id_subestacion : number | null = null;
 
   frecuencia: string = "111,128 Hz";
-  fecha_calibracion: string = "09-07-2024";
+  fecha_calibracion: string = "XX-XX-XXXX";
   precision: string = "+/- 5%";
   n_serie: string = "ST181415734 B4";
   marca: string = "Fluke";

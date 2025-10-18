@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   apiUrl: 'https://net8-web-api-production-a6e5.up.railway.app/api'
+  //apiUrl: 'https://net8-web-api-production-a6e5.up.railway.app/api'
  
 };
 
