@@ -1,3 +1,31 @@
+/* styles.css (global) */
+ngx-extended-pdf-viewer ::ng-deep [id^="pdfjs_internal_id_558R"],
+ngx-extended-pdf-viewer ::ng-deep [id^="pdfjs_internal_id_558R"] input,
+ngx-extended-pdf-viewer ::ng-deep [id^="pdfjs_internal_id_558R"] textarea,
+ngx-extended-pdf-viewer ::ng-deep .annotationLayer input,
+ngx-extended-pdf-viewer ::ng-deep .annotationLayer textarea {
+  background: transparent !important;   /* elimina el fondo azul */
+  box-shadow: none !important;         /* elimina sombras que parecen resaltado */
+  outline: none !important;            /* quita el outline al hacer focus */
+  border: none !important;             /* si hay borde */
+  -webkit-appearance: none !important; /* cross-browser */
+  caret-color: #000 !important;        /* color del cursor si quieres */
+}
+
+/* Si quieres que el texto sea visible sobre el PDF */
+ngx-extended-pdf-viewer ::ng-deep [id^="pdfjs_internal_id_558R"] input,
+ngx-extended-pdf-viewer ::ng-deep [id^="pdfjs_internal_id_558R"] textarea {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+
+
+
+
+
+
+
 
 
 /* You can add global styles to this file, and also import other style files */

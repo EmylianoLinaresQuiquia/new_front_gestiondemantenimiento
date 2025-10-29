@@ -391,7 +391,7 @@ spt2pdf(id_spt2: number): void {
     // Abrir el PDF en una nueva pestaña del navegador
     //window.open(URL.createObjectURL(pdfBlob), '_blank');
     console.log('PDF abierto con éxito');  // Debugging
-  }).catch(error => {
+  }).catch((error: any) => {
     console.error('Error al abrir el PDF:', error);
   });
 }
@@ -402,8 +402,8 @@ pm1pdf(id_pm1: number): void {
   console.log('Enviando id_pm1', id_pm1);
 
   // Obtén el pdfData primero
-  this.PdfPm1Service.fetchAndSetPdf(id_pm1)
-    .then((pdfData: ArrayBuffer | null) => {
+    this.PdfPm1Service.fetchAndSetPdf(id_pm1)
+    .then((pdfData: Blob | null) => {
       if (!pdfData) {
         console.error('No se pudo obtener el PDF data.');
         return;
@@ -423,7 +423,7 @@ pm1pdf(id_pm1: number): void {
         console.error('No se pudo generar el PDF.');
       }
     })
-    .catch(error => {
+    .catch((error: any) => {
       console.error('Error al abrir el PDF:', error);
     });
 }
@@ -440,7 +440,7 @@ spt1pdf(id_spt1: number): void {
     // Abre el PDF en una nueva pestaña
     const url = URL.createObjectURL(pdfBlob);
     window.open(url, '_blank');  // Abre en una nueva pestaña
-  }).catch(error => {
+  }).catch((error: any) => {
     console.error('Error al abrir el PDF:', error);
   });
 }

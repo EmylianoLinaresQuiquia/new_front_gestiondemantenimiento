@@ -1,8 +1,8 @@
 export interface Notificacion {
     idnotificacion?:number;
    fecha?:string;
-  lider: number;
-  supervisor: number;
+  lider: number | null;
+  supervisor: number | null;
   id_pm1?:number;
   id_spt2?: number; // Hacer opcional
   id_spt1?: number; // Hacer opcional

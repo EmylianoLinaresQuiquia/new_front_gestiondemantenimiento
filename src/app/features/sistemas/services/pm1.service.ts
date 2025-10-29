@@ -49,16 +49,10 @@ export class PM1Service {
       );
   }
 
-  postPM1(pm1: PM1): Observable<any> {
-    const url = `${this.apiUrl}/InsertarPm1`; // Usa la URL base y añade la ruta específica
-    return this.http.post<any>(url, pm1, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json'
-      })
-    }).pipe(
-      map(response => response.lastId), // Asumiendo que el 'id' es devuelto en la respuesta como { id: <valor> }
-      catchError(this.handleError('postPM1'))
-    );
+  // Aceptar cualquier cuerpo (wrapper { request: ... } o PM1) y reenviarlo tal cual al backend
+  postPM1(body: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/InsertarPm1`, body)
+      .pipe(catchError(this.handleError('postPM1', null)));
   }
 
 

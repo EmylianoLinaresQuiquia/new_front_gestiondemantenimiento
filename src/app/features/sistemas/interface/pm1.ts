@@ -56,25 +56,20 @@
 
 
 export interface SeguridadObservacionSPT {
-  bueno: boolean;
-  na: boolean;
-  observaciones: string;
+  descripcion: string;          // 🔹 NUEVO → viene de la BD
+  estado: 'BUENO' | 'MALO' | 'NA'| string; 
+  observacion: string;
 }
-
 export interface PatioObservacion {
-  bueno: boolean;
-  malo: boolean;
-  na: boolean;
-  observaciones: string;
+  descripcion: string;          // 🔹 NUEVO → viene de la BD
+  estado: 'BUENO' | 'MALO' | 'NA'; // 🔹 NUEVO → reemplaza a bueno/malo/na
+  observacion: string;
 }
-
 export interface AvisoObservacion {
   observaciones: string;
-  si: boolean;
-  no: boolean;
-  solicitud: string;
+  solicita_aviso_sap: 'BUENO' | 'MALO'; // 🔹 NUEVO → campo real en BD
+  solicitud: string;                    // 🔹 sigue igual, pero debe respetar varchar(20)
 }
-
 export interface Equipo {
   seleccionados: string[]; // Ahora es una lista de seleccionados
   valor_real?: number[];
@@ -127,6 +122,7 @@ export interface BuscarPM1PorId {
   equipo_item2?: string;
   equipo_item3?: string;
   equipo_item4?: string;
+  equipos?: string | any
 }
 
 export interface MOSTRARPM1{
