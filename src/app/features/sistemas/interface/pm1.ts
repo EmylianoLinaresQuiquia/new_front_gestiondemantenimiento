@@ -66,8 +66,8 @@ export interface PatioObservacion {
   observacion: string;
 }
 export interface AvisoObservacion {
-  observaciones: string;
-  solicita_aviso_sap: 'BUENO' | 'MALO'; // 🔹 NUEVO → campo real en BD
+  recomendacion: string;
+  estado: 'BUENO' | 'MALO'; // 🔹 NUEVO → campo real en BD
   solicitud: string;                    // 🔹 sigue igual, pero debe respetar varchar(20)
 }
 export interface Equipo {

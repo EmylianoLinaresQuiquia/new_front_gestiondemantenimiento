@@ -120,113 +120,170 @@ export class PdfPm1Service implements OnInit {
           }
         }
     
+    
+        // --- Procesar seguridad_observaciones ---
+try {
+  if (pm1Data.seguridad_observaciones) {
+    let rows: any[] = [];
 
+    // Asegurarse de que sea un array JSON válido
+    if (typeof pm1Data.seguridad_observaciones === 'string') {
+      try {
+        rows = JSON.parse(pm1Data.seguridad_observaciones);
+      } catch {
+        rows = [];
+      }
+    } else if (Array.isArray(pm1Data.seguridad_observaciones)) {
+      rows = pm1Data.seguridad_observaciones;
+    }
 
-          //patio 
-          try {
-  if (pm1Data.patio_observaciones && typeof pm1Data.patio_observaciones === 'string') {
-    const rows = pm1Data.patio_observaciones.split(',').map(r => r.split('|'));
+    // Campos: BUENO_1..4, NA_1..4, OBSERVACION_1..4
+    for (let i = 0; i < Math.min(rows.length, 4); i++) {
+      const { estado = '', observacion = '' } = rows[i];
+      const estadoUp = estado.toUpperCase();
 
-    for (let i = 0; i < rows.length && i < 4; i++) {
-      const [texto, estado, indice] = rows[i].map(c => (c || '').trim());
+      const buenoName = `bueno_${i + 1}`;
+      const naName = `na_${i + 1}`;
+      const obsName = `observacion_${i + 1}`;
 
-      const buenoName = `bueno_${5 + i}`;          // bueno_5 .. bueno_8
-      const maloName = `malo_${1 + i}`;            // malo_1 .. malo_4
-      const naName = `na_${5 + i}`;                // na_5 .. na_8
-      const obsName = `observacion_${4 + i}`;      // observacion_4 .. observacion_8
-
-      // --- Limpiar checkboxes previos ---
-      const clearCheck = (name: string) => {
-        try {
-          const cb = form.getCheckBox(name);
-          if (cb) (cb as any).uncheck();
-        } catch {}
+      const clear = (n: string) => {
+        try { const cb = form.getCheckBox(n); if (cb) (cb as any).uncheck(); } catch {}
       };
-      [buenoName, maloName, naName].forEach(clearCheck);
+      [buenoName, naName].forEach(clear);
 
-      // --- Marcar checkbox según estado ---
-      try {
-        if (estado.toUpperCase() === 'BUENO') {
-          const cbBueno = form.getCheckBox(buenoName);
-          if (cbBueno) (cbBueno as any).check();
-        } else if (estado.toUpperCase() === 'MALO') {
-          const cbMalo = form.getCheckBox(maloName);
-          if (cbMalo) (cbMalo as any).check();
-        } else if (estado.toUpperCase() === 'NA') {
-          const cbNa = form.getCheckBox(naName);
-          if (cbNa) (cbNa as any).check();
-        }
-      } catch (e) {
-        console.warn('Error marcando checkbox patio:', e);
-      }
+      if (estadoUp === 'BUENO') (form.getCheckBox(buenoName) as any)?.check();
+      else if (estadoUp === 'NA') (form.getCheckBox(naName) as any)?.check();
 
-      // --- Escribir observación ---
       try {
-        const obsField = form.getTextField(obsName) as any;
-        if (obsField) {
-          if (typeof obsField.setFont === 'function') obsField.setFont(helveticaFont);
-          if (typeof obsField.setFontSize === 'function') obsField.setFontSize(9);
-          obsField.setText(texto || '');
-        }
-      } catch (e) {
-        console.warn('Error escribiendo observación patio:', e);
-      }
+        const field = form.getTextField(obsName) as any;
+        field?.setFont?.(helveticaFont);
+        field?.setFontSize?.(9);
+        field?.setText(observacion || '');
+      } catch {}
     }
   }
-} catch (procErr) {
-  console.warn('Error procesando patio_observaciones:', procErr);
+} catch (e) {
+  console.warn('Error procesando seguridad_observaciones:', e);
 }
 
-        // --- Nuevo: procesar aviso_observaciones (ej. "1|1|0|1,2|1|0|2,3|0|1|3,4|0|1|4,5|1|0|5") ---
-        try {
-  if (pm1Data.aviso_observaciones && typeof pm1Data.aviso_observaciones === 'string') {
-    const rows = pm1Data.aviso_observaciones.split(',').map(r => r.split('|'));
+// --- Procesar patio_observaciones ---
+try {
+  if (pm1Data.patio_observaciones) {
+    let rows: any[] = [];
 
-    for (let i = 0; i < rows.length && i < 5; i++) {
-      const [texto, estado, indice] = rows[i].map(c => (c || '').trim());
+    if (typeof pm1Data.patio_observaciones === 'string') {
+      try { rows = JSON.parse(pm1Data.patio_observaciones); } catch { rows = []; }
+    } else if (Array.isArray(pm1Data.patio_observaciones)) {
+      rows = pm1Data.patio_observaciones;
+    }
 
-      const maloName = `malo_${5 + i}`;            // malo_5 .. malo_9
-      const naName = `na_${9 + i}`;                // na_9 .. na_13
-      const obsName = `observacion_${9 + i}`;      // observacion_9 .. observacion_13
+    // Campos: BUENO_5..8, MALO_1..4, NA_5..8, OBSERVACION_5..8
+    for (let i = 0; i < Math.min(rows.length, 4); i++) {
+      const { estado = '', observacion = '', descripcion = '' } = rows[i];
+      const estadoUp = estado.toUpperCase();
+      const texto = observacion || descripcion || '';
 
-      // --- Limpiar checkboxes previos ---
-      const clearCheck = (name: string) => {
-        try {
-          const cb = form.getCheckBox(name);
-          if (cb) (cb as any).uncheck();
-        } catch {}
+      const buenoName = `bueno_${5 + i}`;
+      const maloName = `malo_${1 + i}`;
+      const naName = `na_${5 + i}`;
+      const obsName = `observacion_${5 + i}`;
+
+      const clear = (n: string) => {
+        try { const cb = form.getCheckBox(n); if (cb) (cb as any).uncheck(); } catch {}
       };
-      [maloName, naName].forEach(clearCheck);
+      [buenoName, maloName, naName].forEach(clear);
 
-      // --- Marcar checkbox según estado ---
-      try {
-        if (estado.toUpperCase() === 'MALO') {
-          const cbMalo = form.getCheckBox(maloName);
-          if (cbMalo) (cbMalo as any).check();
-        } else if (estado.toUpperCase() === 'NA') {
-          const cbNa = form.getCheckBox(naName);
-          if (cbNa) (cbNa as any).check();
-        }
-      } catch (e) {
-        console.warn('Error marcando checkbox aviso:', e);
-      }
+      if (estadoUp === 'BUENO') (form.getCheckBox(buenoName) as any)?.check();
+      else if (estadoUp === 'MALO') (form.getCheckBox(maloName) as any)?.check();
+      else if (estadoUp === 'NA') (form.getCheckBox(naName) as any)?.check();
 
-      // --- Escribir observación ---
       try {
-        const obsField = form.getTextField(obsName) as any;
-        if (obsField) {
-          if (typeof obsField.setFont === 'function') obsField.setFont(helveticaFont);
-          if (typeof obsField.setFontSize === 'function') obsField.setFontSize(9);
-          obsField.setText(texto || '');
-        }
-      } catch (e) {
-        console.warn('Error escribiendo observación aviso:', e);
-      }
+        const field = form.getTextField(obsName) as any;
+        field?.setFont?.(helveticaFont);
+        field?.setFontSize?.(9);
+        field?.setText(texto || '');
+      } catch {}
     }
   }
-} catch (procErr) {
-  console.warn('Error procesando aviso_observaciones:', procErr);
+} catch (e) {
+  console.warn('Error procesando patio_observaciones:', e);
 }
+
+// --- Procesar aviso_observaciones ---
+try {
+  if (pm1Data.aviso_observaciones) {
+    let rows: any[] = [];
+
+    // ✅ Convertir string JSON a array de objetos
+    if (typeof pm1Data.aviso_observaciones === 'string') {
+      try {
+        rows = JSON.parse(pm1Data.aviso_observaciones);
+      } catch (err) {
+        console.error('❌ Error al parsear aviso_observaciones:', err);
+        rows = [];
+      }
+    } else if (Array.isArray(pm1Data.aviso_observaciones)) {
+      rows = pm1Data.aviso_observaciones;
+    }
+
+    // ✅ Procesar hasta 5 registros
+    for (let i = 0; i < Math.min(rows.length, 5); i++) {
+      const { estado = '', solicitud = '', recomendacion = '' } = rows[i];
+      const estadoUp = estado.toUpperCase();
+
+      // Nombres de los campos PDF
+      const maloName = `malo_${5 + i}`;
+      const buenoName = `bueno_${9 + i}`;
+      const solicitudName = `solicitud_${1 + i}`;
+      const recomendacionName = `recomendacion_${1 + i}`;
+
+      // ✅ Desmarcar primero los checkboxes anteriores
+      const clearCheckbox = (name: string) => {
+        try {
+          const cb = form.getCheckBox(name);
+          if (cb && (cb as any).isChecked()) (cb as any).uncheck();
+        } catch (err) {
+          console.warn(`⚠️ No se pudo limpiar checkbox ${name}:`, err);
+        }
+      };
+      [maloName, buenoName].forEach(clearCheckbox);
+
+      // ✅ Marcar según el estado
+      try {
+        if (estadoUp === 'MALO') (form.getCheckBox(maloName) as any)?.check();
+        else if (estadoUp === 'BUENO') (form.getCheckBox(buenoName) as any)?.check();
+      } catch (err) {
+        console.warn(`⚠️ No se pudo marcar estado en fila ${i + 1}:`, err);
+      }
+
+      // ✅ Escribir texto en campos de solicitud y recomendación
+      const writeText = (fieldName: string, value: string) => {
+        try {
+          const field = form.getTextField(fieldName) as any;
+          if (field) {
+            field?.setFont?.(helveticaFont);
+            field?.setFontSize?.(9);
+            field?.setText(value || '');
+          }
+        } catch (err) {
+          console.warn(`⚠️ No se pudo escribir en ${fieldName}:`, err);
+        }
+      };
+
+      writeText(solicitudName, solicitud);
+      writeText(recomendacionName, recomendacion);
+    }
+
+    console.log('✅ aviso_observaciones procesado correctamente:', rows);
+  } else {
+    console.log('ℹ️ No se encontró aviso_observaciones en pm1Data.');
+  }
+} catch (e) {
+  console.warn('❌ Error general procesando aviso_observaciones:', e);
+}
+
+
+
 
 
 
@@ -236,60 +293,6 @@ export class PdfPm1Service implements OnInit {
           (form as any).updateFieldAppearances(helveticaFont);
         } catch (updateErr) {
           console.warn('No se pudo actualizar apariencias de campos (opcional):', updateErr);
-        }
-
-        // ...existing code...
-        // --- Nuevo: procesar seguridad_observaciones (ej. "1|0|1,1|0|2,0|1|3,0|1|4") ---
-        try {
-          if (pm1Data.seguridad_observaciones && typeof pm1Data.seguridad_observaciones === 'string') {
-            const rows = pm1Data.seguridad_observaciones.split(',').map(r => r.split('|'));
-            for (let i = 0; i < rows.length; i++) {
-              const cols = rows[i];
-              if (!cols || cols.length < 3) continue;
-
-              const [buenoRaw, naRaw, obsRaw] = cols.map(c => (c === undefined ? '' : String(c)));
-
-              const buenoName = `bueno_${1 + i}`;        // bueno_1 .. bueno_4
-              const naName = `na_${1 + i}`;              // na_1 .. na_4
-              const obsName = `observacion_${1 + i}`;    // observacion_1 .. observacion_4
-
-              // marcar checkbox "bueno"
-              try {
-                const cbBueno = form.getCheckBox(buenoName);
-                if (cbBueno) {
-                  if (buenoRaw === '1') (cbBueno as any).check();
-                  else (cbBueno as any).uncheck();
-                }
-              } catch (e) {}
-
-              // marcar checkbox "na"
-              try {
-                const cbNa = form.getCheckBox(naName);
-                if (cbNa) {
-                  if (naRaw === '1') (cbNa as any).check();
-                  else (cbNa as any).uncheck();
-                }
-              } catch (e) {}
-
-              // setear observación (texto)
-              try {
-                const obsField = form.getTextField(obsName) as any;
-                if (obsField) {
-                  if (typeof obsField.setFont === 'function') obsField.setFont(helveticaFont);
-                  if (typeof obsField.setFontSize === 'function') obsField.setFontSize(10);
-                  obsField.setText(obsRaw || '');
-                }
-              } catch (e) {
-                // fallback genérico
-                try {
-                  const f = (form as any).getFieldMaybe ? (form as any).getFieldMaybe(obsName) : null;
-                  if (f && typeof (f as any).setText === 'function') (f as any).setText(obsRaw || '');
-                } catch (e2) {}
-              }
-            }
-          }
-        } catch (procErr) {
-          console.warn('Error procesando seguridad_observaciones:', procErr);
         }
         // --- Nuevo: procesar equipo_item1..4 ---
       try {
@@ -504,7 +507,7 @@ export class PdfPm1Service implements OnInit {
         // Get the first page to draw images/signatures
         const pages = pdfDoc.getPages();
         const page = pages[0];
-
+        
         // Example coordinates (ajusta según tu plantilla)
         const firma1Coords = { x: 130, y: 2, width: 30, height: 20 };
         //const firma2Coords = { x: (page.getWidth ? page.getWidth() - 160 : 420), y: 40, width: 120, height: 40 };

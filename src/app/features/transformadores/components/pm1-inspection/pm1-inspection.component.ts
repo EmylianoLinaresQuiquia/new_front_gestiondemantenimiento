@@ -56,8 +56,8 @@ export interface PatioObservacion {
   observacion: string;
 }
 export interface AvisoObservacion {
-  observaciones: string;
-  solicita_aviso_sap: 'BUENO' | 'MALO';
+  recomendacion: string;
+  estado: 'BUENO' | 'MALO';
   solicitud: string;
 }
 
@@ -548,11 +548,11 @@ corrienteActual: string = '';
  ];
 
  recomendacionesObservaciones: AvisoObservacion[] = [
-   { observaciones: '', solicita_aviso_sap: 'MALO', solicitud: '' },
-   { observaciones: '', solicita_aviso_sap: 'MALO', solicitud: '' },
-   { observaciones: '', solicita_aviso_sap: 'MALO', solicitud: '' },
-   { observaciones: '', solicita_aviso_sap: 'MALO', solicitud: '' },
-  { observaciones: '', solicita_aviso_sap: 'MALO', solicitud: '' }
+   { recomendacion: '', estado: 'MALO', solicitud: '' },
+   { recomendacion: '', estado: 'MALO', solicitud: '' },
+   { recomendacion: '', estado: 'MALO', solicitud: '' },
+   { recomendacion: '', estado: 'MALO', solicitud: '' },
+  { recomendacion: '', estado: 'MALO', solicitud: '' }
  ];
 
 
@@ -641,13 +641,13 @@ corrienteActual: string = '';
       const solicitud = getVal(`solicitud_${i + 1}`);
       const idx = i;
 
-      const solicita_aviso_sap: AvisoObservacion['solicita_aviso_sap'] = bueno ? 'BUENO' : 'MALO';
+      const estado: AvisoObservacion['estado'] = bueno ? 'BUENO' : 'MALO';
 
       if (!this.recomendacionesObservaciones[idx]) {
-        this.recomendacionesObservaciones[idx] = { observaciones: recom || '', solicita_aviso_sap, solicitud: solicitud || '' };
+        this.recomendacionesObservaciones[idx] = { recomendacion: recom || '', estado, solicitud: solicitud || '' };
       } else {
-        this.recomendacionesObservaciones[idx].observaciones = recom || '';
-        this.recomendacionesObservaciones[idx].solicita_aviso_sap = solicita_aviso_sap;
+        this.recomendacionesObservaciones[idx].recomendacion = recom || '';
+        this.recomendacionesObservaciones[idx].estado = estado;
         this.recomendacionesObservaciones[idx].solicitud = solicitud || '';
       }
     }
@@ -762,8 +762,8 @@ corrienteActual: string = '';
             })),
 
             aviso_observaciones: (this.recomendacionesObservaciones as AvisoObservacion[] || []).map(a => ({
-              observaciones: a.observaciones || '',
-              solicita_aviso_sap: (a.solicita_aviso_sap === 'BUENO' ? 'BUENO' : 'MALO'),
+              recomendacion: a.recomendacion || '',
+              estado: (a.estado === 'BUENO' ? 'BUENO' : 'MALO'),
               solicitud: (a.solicitud || '').toString().substring(0, 20)
             })),
 
