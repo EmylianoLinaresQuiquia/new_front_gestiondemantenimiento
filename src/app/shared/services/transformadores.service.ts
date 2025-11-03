@@ -9,7 +9,6 @@ export class TransformadoresService {
 
 
   constructor() {
-
     //MINAS
     this.transformadores['1371-TX-102'] = {
       nombre: '1371-TX-102',

@@ -32,7 +32,7 @@ export class PdfPm1Service implements OnInit {
   }
 
   // 🔹 Paso 1: Obtener datos PM1 y PDF plantilla local
-  async fillpdf(id: number): Promise<Blob | null> {
+  async fillpdf(id: number, data?: any, imagenBase64?: string[]): Promise<Blob | null> {
     try {
       // 1️⃣ Obtener datos PM1
       const pm1Data = await this.PM1Service.getPM1ById(id).toPromise();
@@ -103,7 +103,7 @@ export class PdfPm1Service implements OnInit {
                 const textField = form.getTextField(name) as any;
                 if (textField) {
                   if (typeof textField.setFont === 'function') textField.setFont(helveticaFont);
-                  if (typeof textField.setFontSize === 'function') textField.setFontSize(10);
+                  if (typeof textField.setFontSize === 'function') textField.setFontSize(7);
                   textField.setText(value);
                 }
               } catch (inner) {
@@ -157,7 +157,7 @@ try {
       try {
         const field = form.getTextField(obsName) as any;
         field?.setFont?.(helveticaFont);
-        field?.setFontSize?.(9);
+        field?.setFontSize?.(7);
         field?.setText(observacion || '');
       } catch {}
     }
@@ -200,7 +200,7 @@ try {
       try {
         const field = form.getTextField(obsName) as any;
         field?.setFont?.(helveticaFont);
-        field?.setFontSize?.(9);
+        field?.setFontSize?.(7);
         field?.setText(texto || '');
       } catch {}
     }
@@ -262,7 +262,7 @@ try {
           const field = form.getTextField(fieldName) as any;
           if (field) {
             field?.setFont?.(helveticaFont);
-            field?.setFontSize?.(9);
+            field?.setFontSize?.(7);
             field?.setText(value || '');
           }
         } catch (err) {
@@ -283,10 +283,6 @@ try {
 }
 
 
-
-
-
-
         // ...existing code...
         // Update appearances so saved PDF shows the text
         try {
@@ -295,36 +291,30 @@ try {
           console.warn('No se pudo actualizar apariencias de campos (opcional):', updateErr);
         }
         // --- Nuevo: procesar equipo_item1..4 ---
-      try {
+        try {
   if (pm1Data.equipos && typeof pm1Data.equipos === 'string') {
     const equiposObj = JSON.parse(pm1Data.equipos);
-
     const page = pdfDoc.getPages()[0];
     const { width, height } = page.getSize();
 
-    // 🧩 Fuentes
     const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    // 🎨 Colores base
     const colorTexto = rgb(0.1, 0.1, 0.1);
     const colorCaja = rgb(0.97, 0.97, 0.97);
     const colorBorde = rgb(0.7, 0.7, 0.7);
 
-    // 📍 Cuatro posiciones fijas para los grupos (una por esquina)
     const posiciones = [
-      { x: 80, y: height - 165 },          // esquina superior izquierda
-      { x: width / 2 + 40, y: height - 165 }, // esquina superior derecha
-      { x: 80, y: height / 2 - 10 },       // esquina inferior izquierda
-      { x: width / 2 + 40, y: height / 2 - 10 }, // esquina inferior derecha
+      { x: 80, y: height - 180 },
+      { x: width / 2 + 150, y: height - 180 },
+      { x: 80, y: height / 2 - 1 },
+      { x: width / 2 + 150, y: height / 2 - 1 },
     ];
 
     let grupoIndex = 0;
 
-    // 🔁 Recorremos cada grupo EQUIPO_ITEM
     for (const key of Object.keys(equiposObj)) {
-      if (grupoIndex >= posiciones.length) break; // solo 4 grupos
-
+      if (grupoIndex >= posiciones.length) break;
       const pos = posiciones[grupoIndex];
       const rawArray = equiposObj[key];
       let itemsArray: any[] = [];
@@ -332,60 +322,68 @@ try {
       try {
         itemsArray = typeof rawArray === 'string' ? JSON.parse(rawArray) : rawArray;
       } catch {
-        try {
-          itemsArray = JSON.parse(JSON.parse(rawArray));
-        } catch {
-          console.warn(`No se pudo parsear ${key}`);
-          continue;
-        }
+        console.warn(`No se pudo parsear ${key}`);
+        continue;
       }
 
-      // 💫 Eliminamos texto del encabezado EQUIPO_ITEMX
       const tituloGrupo = key.replace(/EQUIPO_ITEM\d+/gi, '').trim();
 
       if (tituloGrupo) {
         page.drawText(tituloGrupo, {
           x: pos.x,
           y: pos.y,
-          size: 8,
+          size: 9, // 🔹 texto del título más pequeño
           font: helveticaBold,
           color: rgb(0, 0, 0),
         });
       }
 
-      // Coordenada vertical interna del bloque
-      let yItem = pos.y - 12;
+      let yItem = pos.y - 10; // 🔹 menos espacio inicial
 
-      // 🔁 Dibujar ítems dentro de cada bloque/esquina
       for (const item of itemsArray) {
-        const label = (item.label || '').replace(/EQUIPO_ITEM\d+/gi, '').trim();
-        const valor = item.valor || (
+        let label = (item.label || '').replace(/EQUIPO_ITEM\d+/gi, '').trim();
+        let valor = item.valor || (
           item.tipo === 'valores'
             ? (Array.isArray(item.valores) ? item.valores.join(', ') : String(item.valores))
             : ''
         );
 
-        // Nombre del ítem
-        page.drawText(`• ${label}`, {
-          x: pos.x,
-          y: yItem,
-          size: 6.5,
-          font: helveticaBold,
-          color: colorTexto,
-        });
-        yItem -= 9;
+        // 🧩 Divide texto largo (2 líneas máximo)
+        if (label.length > 30) {
+          const palabras = label.split(' ');
+          const mitad = Math.ceil(palabras.length / 2);
+          label = palabras.slice(0, mitad).join(' ') + '\n' + palabras.slice(mitad).join(' ');
+        }
 
-        const boxWidth = 60;
-        const boxHeight = 9;
+        // 🧩 Dibuja texto (sin puntos, más compacto)
+        const lineas = label.split('\n');
+        for (const linea of lineas) {
+          page.drawText(linea, {
+            x: pos.x, // 🔹 sin indentación de punto
+            y: yItem,
+            size: 5.5, // 🔹 texto más pequeño
+            font: helveticaBold,
+            color: colorTexto,
+          });
+          yItem -= 7; // 🔹 menos padding entre líneas
+        }
+
+        const boxWidth = 58;
+        const boxHeight = 8;
+        valor = valor.replace(/[\[\]"]/g, '').trim();
+
+        let unidad = '';
+        if (label.toLowerCase().includes('manovacu')) unidad = 'kgf/cm²';
+        if (label.toLowerCase().includes('temperatura')) unidad = '°C';
 
         if (valor.includes(',')) {
           const [real, testigo] = valor.split(',').map((v: string) => v.trim());
 
-          // Caja valor real
+          // Caja 1
           page.drawRectangle({
             x: pos.x,
             y: yItem - 2,
-            width: 28,
+            width: 26,
             height: boxHeight,
             color: colorCaja,
             borderColor: colorBorde,
@@ -394,30 +392,41 @@ try {
           page.drawText(real, {
             x: pos.x + 3,
             y: yItem + 1,
-            size: 5.5,
+            size: 5,
             font: helvetica,
             color: colorTexto,
           });
 
-          // Caja valor testigo
+          // Caja 2
           page.drawRectangle({
-            x: pos.x + 33,
+            x: pos.x + 32,
             y: yItem - 2,
-            width: 28,
+            width: 26,
             height: boxHeight,
             color: colorCaja,
             borderColor: colorBorde,
             borderWidth: 0.4,
           });
           page.drawText(testigo, {
-            x: pos.x + 36,
+            x: pos.x + 35,
             y: yItem + 1,
-            size: 5.5,
+            size: 5,
             font: helvetica,
             color: colorTexto,
           });
 
-          yItem -= 16;
+          // Unidad
+          if (unidad) {
+            page.drawText(unidad, {
+              x: pos.x + 63,
+              y: yItem + 1,
+              size: 5,
+              font: helvetica,
+              color: colorTexto,
+            });
+          }
+
+          yItem -= 13; // 🔹 menos espacio entre ítems
         } else {
           // Caja simple
           page.drawRectangle({
@@ -429,27 +438,26 @@ try {
             borderColor: colorBorde,
             borderWidth: 0.4,
           });
-          page.drawText(String(valor || ''), {
+          page.drawText(valor, {
             x: pos.x + 3,
             y: yItem + 1,
-            size: 5.5,
+            size: 5,
             font: helvetica,
             color: colorTexto,
           });
 
-          // Texto adicional si contiene “buen estado”
-          if (valor && valor.toLowerCase().includes('buen')) {
-            page.drawText('Buen estado', {
-              x: pos.x + 2,
-              y: yItem - 8,
+          // Unidad si aplica
+          if (unidad) {
+            page.drawText(unidad, {
+              x: pos.x + boxWidth + 5,
+              y: yItem + 1,
               size: 5,
               font: helvetica,
-              color: rgb(0.3, 0.3, 0.3),
+              color: colorTexto,
             });
-            yItem -= 14;
-          } else {
-            yItem -= 12;
           }
+
+          yItem -= 11; // 🔹 más compacto
         }
       }
 
@@ -459,7 +467,6 @@ try {
 } catch (err) {
   console.warn('Error procesando equipos para PDF:', err);
 }
-
 
 
 
@@ -507,29 +514,66 @@ try {
         // Get the first page to draw images/signatures
         const pages = pdfDoc.getPages();
         const page = pages[0];
+
+
         
-        // Example coordinates (ajusta según tu plantilla)
-        const firma1Coords = { x: 130, y: 2, width: 30, height: 20 };
-        //const firma2Coords = { x: (page.getWidth ? page.getWidth() - 160 : 420), y: 40, width: 120, height: 40 };
+      // ✅ USAR imagenesBase64 RECIBIDAS DESDE EL COMPONENTE
+console.log('Intentando insertar imágenes (desde parámetro):', imagenBase64?.length ? `${imagenBase64.length} imágenes` : 'No existen');
 
-        // Insert firma_1 and firma_2 if present (data URLs expected)
-        try {
-          if (pm1Data.firma_1) {
-            const img1 = await embedImageToPdf(pdfDoc, pm1Data.firma_1);
-            if (img1) addImageToPage(page, img1, firma1Coords);
-          }
-        } catch (e) {
-          console.warn('Error insertando firma_1:', e);
-        }
+if (imagenBase64 && imagenBase64.length > 0) {
+  // posición inicial Y (puedes ajustar según tu plantilla)
+  let yPos = 470;
 
-        /*try {
-          if (pm1Data.firma_2) {
-            const img2 = await embedImageToPdf(pdfDoc, pm1Data.firma_2);
-            if (img2) addImageToPage(page, img2, firma2Coords);
-          }
-        } catch (e) {
-          console.warn('Error insertando firma_2:', e);
-        }*/
+  for (const base64 of imagenBase64) {
+    const imgTransformador = await embedImageToPdf(pdfDoc, base64);
+
+    if (imgTransformador) {
+      console.log('✅ Imagen embebida correctamente en el PDF');
+      addImageToPage(page, imgTransformador, {
+        x: 205,
+        y: yPos,
+        width: 220,
+        height: 130,
+      });
+
+      // mover la siguiente imagen más abajo o donde necesites
+      yPos -= 230;
+    } else {
+      console.warn('⚠️ No se pudo embeber una de las imágenes (posiblemente base64 inválido)');
+    }
+  }
+} else {
+  console.warn('⚠️ No se recibieron imágenes desde el componente');
+}
+
+
+        
+        // Coordenadas (ajusta según tu plantilla)
+const firma1Coords = { x: 190, y: 2, width: 45, height: 25 };
+const firma2Coords = { x: (page.getWidth ? page.getWidth() - 200 : 400), y: 2, width: 45, height: 25 };
+
+// 🖋️ Firma 1
+try {
+  if (pm1Data.firma_1) {
+    const img1 = await embedImageToPdf(pdfDoc, pm1Data.firma_1);
+    if (img1) addImageToPage(page, img1, firma1Coords);
+  }
+} catch (e) {
+  console.warn('Error insertando firma_1:', e);
+}
+
+// 🖋️ Firma 2 (solo si pm1Data.firma es true)
+try {
+  if (pm1Data.firma === true && pm1Data.firma_2) {
+    const img2 = await embedImageToPdf(pdfDoc, pm1Data.firma_2);
+    if (img2) addImageToPage(page, img2, firma2Coords);
+  } else {
+    console.log('🟡 Firma 2 omitida (firma = false o sin imagen)');
+  }
+} catch (e) {
+  console.warn('Error insertando firma_2:', e);
+}
+
         // ---------- FIN IMÁGENES ----------
       } catch (err) {
         console.warn('Error rellenando campos:', err);
@@ -582,18 +626,12 @@ try {
     return this.fillpdf(id);
   }
 
-  // Compatibility wrapper named fillPdf (camelCase) to match callers
-  async fillPdf(id: number, pdfData?: ArrayBuffer | Blob): Promise<Blob | undefined> {
-    // Ignore pdfData for now (current implementation reads template from assets)
-    const blob = await this.fillpdf(id);
-    return blob ?? undefined;
-  }
+  async viewPdf(id: number, data?: any, imagenesBase64?: string[]): Promise<Blob | undefined> {
+  const blob = await this.fillpdf(id, data, imagenesBase64);
+  return blob ?? undefined;
+}
 
 
-
-
-
- 
 
 
 }

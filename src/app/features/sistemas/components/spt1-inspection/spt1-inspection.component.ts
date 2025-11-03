@@ -42,7 +42,7 @@ import { Pat4spt1Service } from '../../services/pat4spt1.service';
 import { Spt1DTO } from '../../interface/spt1';
 //import { PdfGeneratorPlanoService } from '../../services/pdf-generator-plano.service';
 
-import { PdfViewerComponent } from 'src/app/shared/components/pdf-viewer/pdf-viewer.component';
+
 //import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AlertService } from '../../services/alert.service';
 import { ActivatedRoute } from '@angular/router';

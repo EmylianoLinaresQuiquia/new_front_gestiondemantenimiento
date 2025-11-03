@@ -23,7 +23,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-browser';
 import { PM1,BuscarPM1PorId } from 'src/app/features/sistemas/interface/pm1';
-import { PdfViewerPm1Component } from 'src/app/shared/components/pdf-viewer-pm1/pdf-viewer-pm1.component';
+
 import { PM1Service } from 'src/app/features/sistemas/services/pm1.service';
 import { PdfGeneratorServicespt1Service } from 'src/app/features/sistemas/services/pdf-generator-servicespt1.service'
 interface NotificationItem {
@@ -80,7 +80,7 @@ export class HeaderComponent {
 
     @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
     pdfUrl: SafeResourceUrl | null = null;
-    @ViewChild('pdfViewerPm1') pdfViewerPm1Component!: PdfViewerPm1Component;
+    //@ViewChild('pdfViewerPm1') pdfViewerPm1Component!: PdfViewerPm1Component;
 
 
     //pdfUrl: SafeResourceUrl | null = null;
@@ -410,7 +410,7 @@ pm1pdf(id_pm1: number): void {
       }
 
       // Llama a fillPdf con los argumentos necesarios
-      return this.PdfPm1Service.fillPdf(id_pm1, pdfData);
+      return this.PdfPm1Service.viewPdf(id_pm1, pdfData);
     })
     .then((pdfBlob: Blob | undefined) => {
       if (pdfBlob) {

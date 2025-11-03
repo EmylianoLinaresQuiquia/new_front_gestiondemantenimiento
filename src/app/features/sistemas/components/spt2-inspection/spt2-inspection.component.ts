@@ -42,7 +42,7 @@ import { NgxDropzoneChangeEvent } from 'ngx-dropzone';
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { ActivatedRoute } from '@angular/router';
 import { AlertService } from '../../services/alert.service';
-import { PdfViewerComponent } from 'src/app/shared/components/pdf-viewer/pdf-viewer.component';
+
 import { MedicionTelurometro } from '../../interface/medicion-telurometro';
 import { MedicionTelurometroService } from '../../services/medicion-telurometro.service';
 declare var $: any;

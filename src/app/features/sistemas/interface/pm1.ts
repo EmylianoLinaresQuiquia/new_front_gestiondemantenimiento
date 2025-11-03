@@ -123,6 +123,8 @@ export interface BuscarPM1PorId {
   equipo_item3?: string;
   equipo_item4?: string;
   equipos?: string | any
+  imagen?: string;           // base64 del transformador
+  imagen2?: string;  
 }
 
 export interface MOSTRARPM1{

@@ -8,4 +8,7 @@ export interface TransformadorPM1 {
   marca: string;
   voltage: string;
   potencia: string;
+
+  imagen?: string;
+  imagen2?: string;
 }

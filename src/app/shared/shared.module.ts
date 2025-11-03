@@ -39,7 +39,6 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 // import { registerAllModules } from 'handsontable/registry'; // Uncomment if needed
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzProgressModule } from 'ng-zorro-antd/progress';
-import { PdfViewerPm1Component } from './components/pdf-viewer-pm1/pdf-viewer-pm1.component';
 
 
 import { NzInputGroupComponent } from 'ng-zorro-antd/input';
@@ -52,7 +51,7 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    PdfViewerPm1Component,
+    
     // Ng-Zorro Ant Design modules
     NzFormModule,
     NzInputModule,
@@ -91,7 +90,7 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
-    PdfViewerPm1Component,
+    
     // Ng-Zorro Ant Design modules
     NzFormModule,
     NzInputModule,

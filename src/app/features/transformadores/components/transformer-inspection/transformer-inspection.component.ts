@@ -5,7 +5,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { PM1Service } from 'src/app/features/sistemas/services/pm1.service';
 import { TransformadorPM1Service } from 'src/app/features/sistemas/services/transformador-pm1.service';
 import { PM1,BuscarPM1PorId } from 'src/app/features/sistemas/interface/pm1';
-import { PdfViewerPm1Component } from 'src/app/shared/components/pdf-viewer-pm1/pdf-viewer-pm1.component';
+
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzModalRef } from 'ng-zorro-antd/modal/modal-ref';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -13,10 +13,12 @@ import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-brows
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AlertService } from 'src/app/features/sistemas/services/alert.service';
 import { PdfPm1Service } from './../../../sistemas/services/pdf-pm1.service';
+import { TransformadoresService } from 'src/app/shared/services/transformadores.service';
+import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-transformer-inspection',
   standalone: true,
-  imports: [SharedModule,NzModalModule],
+  imports: [NzModalModule,SharedModule],
   templateUrl: './transformer-inspection.component.html',
   styleUrl: './transformer-inspection.component.css'
 })
@@ -52,7 +54,8 @@ export class TransformerInspectionComponent {
     private sanitizer: DomSanitizer,
     private messageService:NzMessageService,
     private alertservice: AlertService,
-    private PdfPm1Service:PdfPm1Service
+    private PdfPm1Service:PdfPm1Service,
+    private TransformadoresService: TransformadoresService
 
   ) { }
 
@@ -67,6 +70,13 @@ export class TransformerInspectionComponent {
       this.voltage = params['voltage'] || '';
       this.potencia = params['potencia'] || '';
       this.cargarDatos(this.transformador ?? '', this.subestacion ?? '');
+
+      console.log("📩 Parámetros recibidos:", {
+      transformador: this.transformador,
+      subestacion: this.subestacion,
+      voltage: this.voltage,
+      potencia: this.potencia
+  });
     });
 
     
@@ -171,43 +181,93 @@ actualizarTabla(id_pm1: number): void {
 }
 
 
-abrirpdf(id: number): void {
-  this.pm1Service.getPM1ById(id).subscribe(
-    async (data: BuscarPM1PorId) => {
-      this.pm1 = data;
+async abrirpdf(id: number): Promise<void> {
+  try {
+    console.log("🧩 Parámetros actuales antes de abrir PDF:", {
+      subestacion: this.subestacion,
+      transformador: this.transformador
+    });
 
-      if (this.pm1) {
-        try {
-          // Obtener el pdfData antes de llamar a fillPdf
-          const pdfData = await this.PdfPm1Service.fetchAndSetPdf(id);
+    // 1️⃣ Obtener los datos del PM1
+    const data = await this.pm1Service.getPM1ById(id).toPromise();
+    if (!data) return console.error('❌ No se encontró PM1');
 
-          if (!pdfData) {
-            console.error('No se pudo obtener el PDF data.');
-            return;
-          }
-
-          // Llamar al método que genera el PDF
-          const pdfBlob = await this.PdfPm1Service.fillPdf(id, pdfData);
-
-          if (pdfBlob) {
-            const pdfUrl = URL.createObjectURL(pdfBlob);
-            window.open(pdfUrl, '_blank'); // Abrir el PDF en una nueva pestaña
-            console.log('Se generó y se abrió el PDF para PM1:', this.pm1);
-          } else {
-            console.error('Error generando el PDF.');
-          }
-        } catch (error) {
-          console.error('Error al generar el PDF:', error);
-        }
-      } else {
-        console.error('No se puede abrir el PDF porque faltan datos.');
-      }
-    },
-    (error: any) => {
-      console.error('Error al cargar los datos de PM1 por ID', error);
+    // 2️⃣ Validar parámetros
+    if (!this.transformador || !this.subestacion) {
+      console.warn("⚠️ No hay parámetros cargados, no se puede obtener imagen.");
+      return;
     }
-  );
+
+    // 3️⃣ Obtener información del transformador
+    const transformadorInfo = this.TransformadoresService.getTransformador(this.transformador || '');
+    if (!transformadorInfo) {
+      console.warn("⚠️ No se encontró información del transformador.");
+      return;
+    }
+
+    // 4️⃣ Obtener rutas de imágenes (imagen y imagen2)
+    const imagenPaths = [
+      transformadorInfo.imagen?.[0],
+      transformadorInfo.imagen2?.[0]
+    ].filter(Boolean);
+
+    console.log("🖼️ Imágenes detectadas:", imagenPaths);
+
+    // 5️⃣ Convertir cada imagen a base64
+    const imagenesBase64: string[] = [];
+
+    for (const path of imagenPaths) {
+      try {
+        const res = await fetch(path!);
+        if (!res.ok) {
+          console.warn("⚠️ No se pudo acceder a la imagen:", path);
+          continue;
+        }
+
+        const base64 = await this.convertToBase64(path!);
+        if (base64) {
+          imagenesBase64.push(base64);
+          console.log("✅ Imagen convertida a base64:", path);
+        } else {
+          console.warn("⚠️ No se pudo convertir a base64:", path);
+        }
+      } catch (err) {
+        console.error("⚠️ Error convirtiendo imagen:", path, err);
+      }
+    }
+
+    // 6️⃣ Generar el PDF pasando todas las imágenes
+    const pdfBlob = await this.PdfPm1Service.viewPdf(id, data, imagenesBase64);
+
+    if (pdfBlob) {
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      window.open(pdfUrl, '_blank');
+      console.log('✅ Se generó y abrió el PDF para PM1:', data);
+    }
+
+  } catch (error) {
+    console.error('💥 Error al generar el PDF:', error);
+  }
 }
+
+
+// Helper convertir imagen local a base64
+private async convertToBase64(path: string): Promise<string | null> {
+  try {
+    const res = await fetch(path);
+    const blob = await res.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    console.error('Error al convertir imagen:', e);
+    return null;
+  }
+}
+
 
 
 

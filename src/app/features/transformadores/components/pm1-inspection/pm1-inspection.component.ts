@@ -64,7 +64,7 @@ export interface AvisoObservacion {
 @Component({
   selector: 'app-pm1-inspection',
   standalone: true,
-  imports: [SharedModule,NzModalModule,NgxExtendedPdfViewerModule],
+  imports: [NzModalModule,NgxExtendedPdfViewerModule],
   providers: [
     NzModalService, // Ensure the service is provided here
   ],
@@ -102,7 +102,10 @@ export class Pm1InspectionComponent implements OnInit,AfterViewInit{
     imagen: null,
   };
 
-
+  horaInicio: string = '--:--';
+horaFin: string = '--:--';
+ordenTrabajo: string = '';
+fechaOrden: string = '';
   private annotations: any[] = [
 
   ];
@@ -128,334 +131,242 @@ export class Pm1InspectionComponent implements OnInit,AfterViewInit{
 
 
 ngAfterViewInit(): void {
+  const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
   const setStyle = (el: HTMLElement, styles: Record<string, string>) =>
-    Object.entries(styles).forEach(([prop, val]) =>
-      el.style.setProperty(prop, val, 'important')
-    );
+    Object.entries(styles).forEach(([prop, val]) => el.style.setProperty(prop, val, 'important'));
 
   const styleSection = (el: HTMLElement) => {
     setStyle(el, {
-      'background-color': '#00000000',
-     'border': 'none',
+      'background-color': 'transparent',
+      'border': 'none',
       'opacity': '1',
-      'mix-blend-mode': 'normal'
+      'mix-blend-mode': 'normal',
+      'font-size': '12px'
     });
+    el.querySelectorAll('rect, .highlight, .widgetOverlay')
+      .forEach(n => setStyle(n as HTMLElement, { display: 'none', opacity: '0' }));
 
-    // 🔹 Elimina overlays visuales del visor PDF
-    el.querySelectorAll('rect, .highlight, .widgetOverlay').forEach((n) =>
-      setStyle(n as HTMLElement, { display: 'none', opacity: '0' })
-    );
-
-     
-    // 🎯 Detecta el campo del formulario
     const input = el.querySelector('input, textarea') as HTMLInputElement | null;
-    if (input) {
-      if (input.type === 'checkbox' || input.type === 'radio') {
-        // 💡 Caso checkbox / radio
-        setStyle(input, {
-          'background-color': 'transparent',
-          'color': 'black',
-          'border': 'none',
-          'outline': 'none',
-        });
-      } else {
-        // ✏️ Caso input o textarea de texto
-        setStyle(input, {
-          'background-color': '#00000000',
-          'color': 'black',
-         'border': 'none',
-        });
-      }
-    }
-   
+    if (!input) return;
+    const base = { 'background-color': 'transparent', 'color': 'black', 'border': 'none' };
+    setStyle(input, input.type.match(/checkbox|radio/) ? { ...base, 'outline': 'none' } : base);
+  };
+
+  const createImg = (src: string, top: string, left: string, parent: HTMLElement) => {
+    const img = Object.assign(document.createElement('img'), {
+      src, className: 'img-transformador'
+    });
+    Object.assign(img.style, {
+      position: 'absolute', top, left, transform: 'translate(-50%, -50%)',
+      width: '550px', objectFit: 'contain', borderRadius: '8px',
+      boxShadow: '0 0 10px rgba(0,0,0,0.3)', zIndex: '50'
+    });
+    parent.appendChild(img);
   };
 
   const insertImages = () => {
-    const container = document.querySelector('.page') as HTMLElement | null;
-    if (!container) return;
-    if (container.querySelector('.img-transformador')) return;
-
-    const createImg = (src: string, top: string, left: string) => {
-      const img = document.createElement('img');
-      img.src = src;
-      img.classList.add('img-transformador');
-      Object.assign(img.style, {
-        position: 'absolute',
-        top,
-        left,
-        transform: 'translate(-50%, -50%)',
-        width: '550px',
-        height: 'auto',
-        objectFit: 'contain',
-        borderRadius: '8px',
-        boxShadow: '0 0 10px rgba(0,0,0,0.3)',
-        zIndex: '50',
-      });
-      container.appendChild(img);
-    };
-
-    // Centrar imágenes
-    if (this.transformador1?.imagen) createImg(this.transformador1.imagen, '35%', '50%');
-    if (this.transformador2?.imagen) createImg(this.transformador2.imagen, '63%', '50%');
+    const container = document.querySelector('.page') as HTMLElement;
+    if (!container || container.querySelector('.img-transformador')) return;
+    if (this.transformador1?.imagen) createImg(this.transformador1.imagen, '35%', '50%', container);
+    if (this.transformador2?.imagen) createImg(this.transformador2.imagen, '63%', '50%', container);
   };
 
-  /** 🔥 Crea formularios flotantes dentro del PDF */
+  const createFormSection = (items: any[], top: string, left: string, align: 'flex-start' | 'flex-end') => {
+    const form = Object.assign(document.createElement('div'), { className: 'pdf-form-section' });
+    Object.assign(form.style, {
+      position: 'absolute', top, left, transform: 'translate(-50%, -50%)',
+      width: '270px', zIndex: '80', display: 'flex',
+      flexDirection: 'column', alignItems: align
+    });
+
+    items.forEach((item: any) => {
+      const field = document.createElement('div');
+      Object.assign(field.style, { width: '100%', display: 'flex', flexDirection: 'column', alignItems: align });
+
+      const label = Object.assign(document.createElement('label'), { textContent: item.label });
+      Object.assign(label.style, { fontWeight: 'bold', marginBottom: '4px' });
+      field.appendChild(label);
+
+      if (item.tipo === 'opciones' && item.opciones) {
+        const select = document.createElement('select');
+        Object.assign(select.style, { padding: '4px', width: '50%' });
+        item.opciones.forEach((op: string) => {
+          const opt = Object.assign(document.createElement('option'), { value: op, textContent: op });
+          select.appendChild(opt);
+        });
+        select.value = item.valor || '';
+        field.appendChild(select);
+      }
+
+      if (item.tipo === 'valores' && item.valores) {
+        const box = Object.assign(document.createElement('div'), { style: 'display:flex;gap:6px;' });
+        const createInput = (ph: string, val: string) => Object.assign(document.createElement('input'), {
+          placeholder: ph, value: val, style: 'width:70px;border:1px solid #aaa;border-radius:4px;'
+        });
+        box.append(createInput('v. real', item.valores[0] || ''), createInput('v. testigo', item.valores[1] || ''));
+        const units: Record<string, string> = { 'Manovacuómetro': 'kgf/cm²', 'Termómetro de aceite': '°C', 'Termómetro de devanado': '°C' };
+        const unit = units[item.label.trim()] || null;
+
+        if (unit) {
+          const span = Object.assign(document.createElement('span'), { textContent: unit });
+          span.style.fontSize = '12px';
+          box.appendChild(span);
+        }
+        field.appendChild(box);
+      }
+
+      form.appendChild(field);
+    });
+
+    document.querySelector('.page')?.appendChild(form);
+  };
+
   const insertForms = () => {
-    const container = document.querySelector('.page') as HTMLElement | null;
-    if (!container) return;
+    const c = document.querySelector('.page') as HTMLElement;
+    if (!c || c.querySelector('.pdf-form-section')) return;
 
-    // Evitar duplicados
-    if (container.querySelector('.pdf-form-section')) return;
-
-    /**
-     * 🔹 Crea una sección de formulario
-     * @param items Lista de campos
-     * @param top Posición vertical
-     * @param left Posición horizontal
-     * @param align Alineación vertical interna ('flex-start' | 'flex-end')
-     */
-    const createFormSection = (items: any[], top: string, left: string, align: 'flex-start' | 'flex-end') => {
-      const form = document.createElement('div');
-      form.classList.add('pdf-form-section');
-      Object.assign(form.style, {
-        position: 'absolute',
-        top,
-        left,
-        transform: 'translate(-50%, -50%)',
-        width: '270px',
-        zIndex: '80',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: align, // 💥 aquí aplicamos la diferencia
-      });
-
-      items.forEach((item) => {
-        const field = document.createElement('div');
-        field.style.width = '100%';
-        field.style.display = 'flex';
-        field.style.flexDirection = 'column';
-        field.style.alignItems = align; // 💥 y también dentro de cada campo
-
-        const label = document.createElement('label');
-        label.textContent = item.label;
-        label.style.fontWeight = 'bold';
-        label.style.marginBottom = '4px';
-        field.appendChild(label);
-
-        if (item.tipo === 'opciones' && item.opciones) {
-          const select = document.createElement('select');
-          select.style.padding = '4px';
-          select.style.width = '50%';
-          item.opciones.forEach((op: string) => {
-            const opt = document.createElement('option');
-            opt.value = op;
-            opt.textContent = op;
-            select.appendChild(opt);
-          });
-          select.value = item.valor || '';
-          field.appendChild(select);
-        }
-
-        if (item.tipo === 'valores' && item.valores) {
-          const box = document.createElement('div');
-          box.style.display = 'flex';
-          box.style.gap = '6px';
-          const input1 = document.createElement('input');
-          input1.placeholder = 'v. real';
-          input1.value = item.valores[0] || '';
-          input1.style.width = '70px';
-          input1.style.border = '1px solid #aaa';
-          input1.style.borderRadius = '4px';
-          const input2 = document.createElement('input');
-          input2.placeholder = 'v. testigo';
-          input2.value = item.valores[1] || '';
-          input2.style.width = '70px';
-          input2.style.border = '1px solid #aaa';
-          input2.style.borderRadius = '4px';
-          box.appendChild(input1);
-          box.appendChild(input2);
-
-          // Etiquetas adicionales
-          if (item.label.trim() === 'Manovacuómetro') {
-            const span = document.createElement('span');
-            span.textContent = 'kgf/cm²';
-            span.style.fontSize = '12px';
-            box.appendChild(span);
-          } else if (['Termómetro de aceite', 'Termómetro de devanado'].includes(item.label.trim())) {
-            const span = document.createElement('span');
-            span.textContent = '°C';
-            span.style.fontSize = '12px';
-            box.appendChild(span);
-          }
-
-          field.appendChild(box);
-        }
-
-        form.appendChild(field);
-      });
-
-      container.appendChild(form);
-    };
-
-    // Posicionar formularios junto a tus imágenes con diferente alineación
-    if (this.transformador1?.form1?.items)
-      createFormSection(this.transformador1.form1.items, '34%', '13%', 'flex-start'); // 🟩 arriba
-    if (this.transformador1?.form2?.items)
-      createFormSection(this.transformador1.form2.items, '34%', '87%', 'flex-end'); // 🟦 abajo
-    if (this.transformador2?.form3?.items)
-      createFormSection(this.transformador2.form3.items, '60%', '13%', 'flex-start');
-    if (this.transformador2?.form4?.items)
-      createFormSection(this.transformador2.form4.items, '60%', '87%', 'flex-end');
+    const t1 = this.transformador1, t2 = this.transformador2;
+    if (t1?.form1?.items) createFormSection(t1.form1.items, '34%', '13%', 'flex-start');
+    if (t1?.form2?.items) createFormSection(t1.form2.items, '34%', '87%', 'flex-end');
+    if (t2?.form3?.items) createFormSection(t2.form3.items, '60%', '13%', 'flex-start');
+    if (t2?.form4?.items) createFormSection(t2.form4.items, '60%', '87%', 'flex-end');
   };
-  const fotocheck_tecnico = () => {
-  const campo = document.querySelector('.textWidgetAnnotation input[name="fotocheck_tecnico"]') as HTMLInputElement | null;
-  if (!campo) return;
 
-  const contenedor = campo.closest('.page');
-  if (!contenedor) return;
+  // 🌟 NUEVO: Campos flotantes de fecha y hora
+  const insertFloatingInputs = () => {
+  const page = document.querySelector('.page') as HTMLElement;
+  if (!page || page.querySelector('.floating-input')) return;
 
-  // Evita duplicados
-  if (contenedor.querySelector('.correo-tecnico') || contenedor.querySelector('.firma-tecnico')) return;
+  // Configuración de campos flotantes
+  const campos = [
+    { name: 'hora_inicio', type: 'time', top: '7.9%', left: '53.8%', width: '90px'},
+    { name: 'hora_fin', type: 'time', top: '7.9%', left: '72%', width: '90px'},
+    { name: 'fecha', type: 'date', top: '7.9%', left: '92.7%', width: '125px'}
+  ];
 
-  /** 🟩 Crear y posicionar CORREO */
-  const correoSpan = document.createElement('span');
-  correoSpan.classList.add('correo-tecnico');
-  Object.assign(correoSpan.style, {
-    position: 'absolute',
-    top: '94.5%',   // ← ajusta según el lugar exacto en el PDF
-    left: '12%',
-    
-    zIndex: '90'
-  });
-  contenedor.appendChild(correoSpan);
+  campos.forEach(c => {
+    // Contenedor del input + label flotante
+    const wrapper = document.createElement('div');
+    wrapper.className = 'floating-input';
+    Object.assign(wrapper.style, {
+      position: 'absolute',
+      top: c.top,
+      left: c.left,
+      transform: 'translate(-50%, -50%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      zIndex: '120',
+      fontFamily: 'sans-serif'
+    });
+    const input = document.createElement('input');
+    Object.assign(input, { name: c.name, type: c.type });
+    Object.assign(input.style, {
+      width: c.width,
+      
+      
+    });
 
-  /** 🟦 Crear y posicionar FIRMA */
-  const firmaImg = document.createElement('img');
-  firmaImg.classList.add('firma-tecnico');
-  Object.assign(firmaImg.style, {
-    position: 'absolute',
-    top: '96.5%',   // ← ajusta según el lugar exacto en el PDF
-    left: '18%',
-    width: '80px',
-    height: 'auto',
-    display: 'none',
-    zIndex: '90'
-  });
-  contenedor.appendChild(firmaImg);
+    // 🔹 Inicializar valor desde el componente (si ya existe)
+    if (c.name === 'hora_inicio' && this.horaInicio !== '--:--') input.value = this.horaInicio;
+    if (c.name === 'hora_fin' && this.horaFin !== '--:--') input.value = this.horaFin;
+    if (c.name === 'fecha' && this.fechaOrden) input.value = this.fechaOrden;
 
-  /** 🧠 Escuchar cambios del campo */
-  campo.addEventListener('input', (ev) => {
-    const raw = (ev.target as HTMLInputElement).value.trim();
-    const valorNum = raw === '' ? null : Number(raw);
-    const t = valorNum !== null && !isNaN(valorNum)
-      ? this.tecnico.find((x) => x.fotocheck === valorNum)
-      : undefined;
-
-    if (t) {
-      correoSpan.textContent = t.correo;
-      firmaImg.src = t.firma;
-      firmaImg.style.display = 'block';
-      this.correoSeleccionado = t.correo;
-      this.rutaFirmaSeleccionada = t.firma;
-
-       /** 🔥 ASIGNAR ID USUARIO TÉCNICO */
-      this.idusuario = t.idUsuario || null;
-    } else {
-      correoSpan.textContent = '';
-      firmaImg.style.display = 'none';
-      this.correoSeleccionado = '';
-      this.rutaFirmaSeleccionada = '';
-    }
-  });
-};
-
-const fotocheck_supervisor = () => { 
-  const campo = document.querySelector('.textWidgetAnnotation input[name="fotocheck_supervisor"]') as HTMLInputElement | null;
-  if (!campo) return;
-
-  const contenedor = campo.closest('.page');
-  if (!contenedor) return;
-
-  // Evita duplicados
-  if (contenedor.querySelector('.correo-supervisor')) return;
-
-  /** 🟩 Crear y posicionar CORREO */
-  const correoSpan = document.createElement('span');
-  correoSpan.classList.add('correo-supervisor');
-  Object.assign(correoSpan.style, {
-    position: 'absolute',
-    top: '94.5%',   // ← ajusta según el lugar exacto del correo en el PDF
-    left: '58%',
-    fontWeight: 'bold',
-   
-    zIndex: '90'
-  });
-  contenedor.appendChild(correoSpan);
-
-  /** 🧠 Escuchar cambios del campo */
-  campo.addEventListener('input', (ev) => {
-    const raw = (ev.target as HTMLInputElement).value.trim();
-    const valorNum = raw === '' ? null : Number(raw);
-    const s = valorNum !== null && !isNaN(valorNum)
-      ? this.supervisor.find((x) => x.fotocheck === valorNum)
-      : undefined;
-
-    if (s) {
-      correoSpan.textContent = s.correo;
-      this.correoSeleccionado1 = s.correo;
-      this.idusuario2 = s.idUsuario || null;
-    } else {
-      correoSpan.textContent = '';
-      this.correoSeleccionado1 = '';
-    }
+    // 🔹 Evento: sincronizar input → variable del componente
+    input.addEventListener('input', (e) => {
+      const val = (e.target as HTMLInputElement).value.trim();
+      if (c.name === 'hora_inicio') this.horaInicio = val;
+      if (c.name === 'hora_fin') this.horaFin = val;
+      if (c.name === 'fecha') this.fechaOrden = val;
+      });
+    wrapper.append(input);
+    page.appendChild(wrapper);
   });
 };
 
 
+  const handleFotocheck = (type: 'tecnico' | 'supervisor') => {
+    const name = `fotocheck_${type}`;
+    const campo = document.querySelector(`.textWidgetAnnotation input[name="${name}"]`) as HTMLInputElement;
+    if (!campo) return;
+    const cont = campo.closest('.page'); if (!cont || cont.querySelector(`.correo-${type}`)) return;
 
+    const correo = Object.assign(document.createElement('span'), { className: `correo-${type}` });
+    Object.assign(correo.style, {
+      position: 'absolute', top: '94.5%', left: type === 'tecnico' ? '12%' : '58%',
+      fontWeight: 'bold', zIndex: '90'
+    });
+    cont.appendChild(correo);
+
+    let firma: HTMLImageElement | undefined;
+    if (type === 'tecnico') {
+      firma = Object.assign(document.createElement('img'), { className: 'firma-tecnico' });
+      Object.assign(firma.style, { position: 'absolute', top: '96.5%', left: '18%', width: '80px', display: 'none', zIndex: '90' });
+      cont.appendChild(firma);
+    }
+
+    campo.addEventListener('input', (ev) => {
+      const val = (ev.target as HTMLInputElement).value.trim();
+      const num = val ? Number(val) : NaN;
+      const data = (type === 'tecnico' ? this.tecnico : this.supervisor)
+        .find((x: any) => x.fotocheck === num);
+
+      if (data) {
+        correo.textContent = data.correo;
+        if (type === 'tecnico' && firma) {
+          firma.src = data.firma; firma.style.display = 'block';
+          this.idusuario = data.idUsuario ?? null;
+          this.rutaFirmaSeleccionada = data.firma;
+        }
+        if (type === 'supervisor') this.idusuario2 = data.idUsuario ?? null;
+      } else {
+        correo.textContent = '';
+        if (firma) firma.style.display = 'none';
+      }
+    });
+  };
+
+  const fillField = (name: string, value: string) => {
+    const f = document.querySelector(`.textWidgetAnnotation [name="${name}"]`) as HTMLInputElement | HTMLTextAreaElement;
+    if (f) { f.value = value; f.dispatchEvent(new Event('input', { bubbles: true })); }
+  };
 
   const applyAll = () => {
-    const viewerContainer = document.getElementById('viewerContainer') || document.body;
-    viewerContainer.querySelectorAll('.page, .pdfViewer').forEach((s) => styleSection(s as HTMLElement));
-    document.querySelectorAll('.textWidgetAnnotation').forEach((s) => styleSection(s as HTMLElement));
-    document
-      .querySelectorAll('.annotationLayer svg, .annotationLayer rect, .annotationLayer .widgetOverlay ')
-      .forEach((n) => setStyle(n as HTMLElement, { display: 'none', opacity: '0' }));
-    document.querySelectorAll('.annotationLayer section').forEach((section) => {
-    styleSection(section as HTMLElement);
-   });
-
-   const fillField = (name: string, value: string) => {
-    const field = document.querySelector(
-        `.textWidgetAnnotation input[name="${name}"], .textWidgetAnnotation textarea[name="${name}"]`
-        ) as HTMLInputElement | HTMLTextAreaElement | null;
-      if (field) {
-      field.value = value;
-      field.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-    };
-
+    const all = document.querySelectorAll('.page, .pdfViewer, .annotationLayer section, .textWidgetAnnotation');
+    all.forEach(s => styleSection(s as HTMLElement));
+    document.querySelectorAll('.annotationLayer svg, .annotationLayer rect, .annotationLayer .widgetOverlay')
+      .forEach(n => setStyle(n as HTMLElement, { display: 'none', opacity: '0' }));
     fillField('transformador', this.transformador || '');
     fillField('subestacion', this.subestacion || '');
     fillField('ubicacion', this.ubicacion || '');
-
-    insertImages();
-    insertForms(); // 🧩 Inserta los formularios
-    fotocheck_tecnico();
-    fotocheck_supervisor();
+    insertImages(); insertForms(); insertFloatingInputs();
+    handleFotocheck('tecnico'); handleFotocheck('supervisor');
   };
-  
+
+  const initButtons = async () => {
+    await delay(1000);
+    const viewer = document.getElementById('viewer');
+    if (!viewer || viewer.querySelector('.custom-button-bar')) return;
+
+    const btnBar = document.createElement('div');
+    btnBar.className = 'custom-button-bar';
+    btnBar.innerHTML = `
+      <button id="btn-guardar" class="pdf-action-btn"><img src="assets/guardar.png" alt="Guardar"></button>
+      <button id="btn-plano" class="pdf-action-btn"><img src="assets/plano.png" alt="Plano"></button>`;
+    viewer.appendChild(btnBar);
+
+    btnBar.querySelector('#btn-guardar')?.addEventListener('click', () => this.saveData());
+    btnBar.querySelector('#btn-plano')?.addEventListener('click', () => this.VerPlano());
+  };
 
   applyAll();
-
-  const observer = new MutationObserver(() => applyAll());
-  observer.observe(document.querySelector('ngx-extended-pdf-viewer') ?? document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['style', 'class']
+  initButtons();
+  new MutationObserver(() => applyAll()).observe(document.querySelector('ngx-extended-pdf-viewer') ?? document.body, {
+    childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class']
   });
 }
+
 
 
 
@@ -527,10 +438,7 @@ const fotocheck_supervisor = () => {
 
 
 
-  horaInicio: string = '--:--';
-horaFin: string = '--:--';
-ordenTrabajo: string = '';
-fechaOrden: string = '';
+
 seguridadObservaciones = [
   { descripcion: 'Completar los permisos de trabajo según la actividad adjuntados a la OT (IPERC - ATS - PETAR PETS)', estado: 'NA', observacion: '' },
   { descripcion: 'Inspección de herramientas y evitar exceso de carga (>25 kg)', estado: 'NA', observacion: '' },
@@ -707,7 +615,6 @@ corrienteActual: string = '';
   }
 // ...existing code...
 
-  // ...existing code...
  // ...existing code...
   async saveData(): Promise<void> {
     this.extractPdfFields();
