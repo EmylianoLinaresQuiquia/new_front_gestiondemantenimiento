@@ -64,7 +64,7 @@ export interface AvisoObservacion {
 @Component({
   selector: 'app-pm1-inspection',
   standalone: true,
-  imports: [NzModalModule,NgxExtendedPdfViewerModule],
+  imports: [SharedModule,NzModalModule,NgxExtendedPdfViewerModule],
   providers: [
     NzModalService, // Ensure the service is provided here
   ],
@@ -102,10 +102,7 @@ export class Pm1InspectionComponent implements OnInit,AfterViewInit{
     imagen: null,
   };
 
-  horaInicio: string = '--:--';
-horaFin: string = '--:--';
-ordenTrabajo: string = '';
-fechaOrden: string = '';
+
   private annotations: any[] = [
 
   ];
@@ -131,244 +128,430 @@ fechaOrden: string = '';
 
 
 ngAfterViewInit(): void {
-  const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
-
   const setStyle = (el: HTMLElement, styles: Record<string, string>) =>
-    Object.entries(styles).forEach(([prop, val]) => el.style.setProperty(prop, val, 'important'));
+    Object.entries(styles).forEach(([prop, val]) =>
+      el.style.setProperty(prop, val, 'important')
+    );
 
   const styleSection = (el: HTMLElement) => {
     setStyle(el, {
-      'background-color': 'transparent',
-      'border': 'none',
+      'background-color': '#00000000',
+     'border': 'none',
       'opacity': '1',
-      'mix-blend-mode': 'normal',
-      'font-size': '12px'
+      'mix-blend-mode': 'normal'
     });
-    el.querySelectorAll('rect, .highlight, .widgetOverlay')
-      .forEach(n => setStyle(n as HTMLElement, { display: 'none', opacity: '0' }));
 
+    // 🔹 Elimina overlays visuales del visor PDF
+    el.querySelectorAll('rect, .highlight, .widgetOverlay').forEach((n) =>
+      setStyle(n as HTMLElement, { display: 'none', opacity: '0' })
+    );
+
+     
+    // 🎯 Detecta el campo del formulario
     const input = el.querySelector('input, textarea') as HTMLInputElement | null;
-    if (!input) return;
-    const base = { 'background-color': 'transparent', 'color': 'black', 'border': 'none' };
-    setStyle(input, input.type.match(/checkbox|radio/) ? { ...base, 'outline': 'none' } : base);
+    if (input) {
+      if (input.type === 'checkbox' || input.type === 'radio') {
+        // 💡 Caso checkbox / radio
+        setStyle(input, {
+          'background-color': 'transparent',
+          'color': 'black',
+          
+          'cursor': 'pointer'
+        });
+      } else {
+        // ✏️ Caso input o textarea de texto
+        setStyle(input, {
+          'background-color': '#00000000',
+          'color': 'black',
+         
+         'font-size': '13px',
+        });
+      }
+    }
+   
   };
+  const ensureGlobalStyle = () => {
+  if (document.getElementById('pdf-global-style')) return;
+  const style = document.createElement('style');
+  style.id = 'pdf-global-style';
+  style.textContent = `
+    ngx-extended-pdf-viewer input,
+    ngx-extended-pdf-viewer textarea,
+    .textWidgetAnnotation input,
+    .textWidgetAnnotation textarea,
+    
+    ngx-extended-pdf-viewer input:focus,
+    ngx-extended-pdf-viewer textarea:focus,
+    .textWidgetAnnotation input:focus,
+    .textWidgetAnnotation textarea:focus,
+    
 
-  const createImg = (src: string, top: string, left: string, parent: HTMLElement) => {
-    const img = Object.assign(document.createElement('img'), {
-      src, className: 'img-transformador'
-    });
-    Object.assign(img.style, {
-      position: 'absolute', top, left, transform: 'translate(-50%, -50%)',
-      width: '550px', objectFit: 'contain', borderRadius: '8px',
-      boxShadow: '0 0 10px rgba(0,0,0,0.3)', zIndex: '50'
-    });
-    parent.appendChild(img);
-  };
+    input:-webkit-autofill,
+    textarea:-webkit-autofill {
+      -webkit-box-shadow:0 0 0px 1000px transparent inset!important;
+      box-shadow:0 0 0px 1000px transparent inset!important;
+    }
+    .pdf-placeholder-overlay {
+      position:absolute;
+      pointer-events:none;
+      color:#777;
+      font-size:12px;
+      transition:opacity .12s ease;
+      opacity:1;
+    }
+    .pdf-placeholder-overlay.hidden {
+      opacity:0;
+    }
+  `;
+  document.head.appendChild(style);
+};
 
   const insertImages = () => {
-    const container = document.querySelector('.page') as HTMLElement;
-    if (!container || container.querySelector('.img-transformador')) return;
-    if (this.transformador1?.imagen) createImg(this.transformador1.imagen, '35%', '50%', container);
-    if (this.transformador2?.imagen) createImg(this.transformador2.imagen, '63%', '50%', container);
-  };
+    const container = document.querySelector('.page') as HTMLElement | null;
+    if (!container) return;
+    if (container.querySelector('.img-transformador')) return;
 
-  const createFormSection = (items: any[], top: string, left: string, align: 'flex-start' | 'flex-end') => {
-    const form = Object.assign(document.createElement('div'), { className: 'pdf-form-section' });
-    Object.assign(form.style, {
-      position: 'absolute', top, left, transform: 'translate(-50%, -50%)',
-      width: '270px', zIndex: '80', display: 'flex',
-      flexDirection: 'column', alignItems: align
-    });
-
-    items.forEach((item: any) => {
-      const field = document.createElement('div');
-      Object.assign(field.style, { width: '100%', display: 'flex', flexDirection: 'column', alignItems: align });
-
-      const label = Object.assign(document.createElement('label'), { textContent: item.label });
-      Object.assign(label.style, { fontWeight: 'bold', marginBottom: '4px' });
-      field.appendChild(label);
-
-      if (item.tipo === 'opciones' && item.opciones) {
-        const select = document.createElement('select');
-        Object.assign(select.style, { padding: '4px', width: '50%' });
-        item.opciones.forEach((op: string) => {
-          const opt = Object.assign(document.createElement('option'), { value: op, textContent: op });
-          select.appendChild(opt);
-        });
-        select.value = item.valor || '';
-        field.appendChild(select);
-      }
-
-      if (item.tipo === 'valores' && item.valores) {
-        const box = Object.assign(document.createElement('div'), { style: 'display:flex;gap:6px;' });
-        const createInput = (ph: string, val: string) => Object.assign(document.createElement('input'), {
-          placeholder: ph, value: val, style: 'width:70px;border:1px solid #aaa;border-radius:4px;'
-        });
-        box.append(createInput('v. real', item.valores[0] || ''), createInput('v. testigo', item.valores[1] || ''));
-        const units: Record<string, string> = { 'Manovacuómetro': 'kgf/cm²', 'Termómetro de aceite': '°C', 'Termómetro de devanado': '°C' };
-        const unit = units[item.label.trim()] || null;
-
-        if (unit) {
-          const span = Object.assign(document.createElement('span'), { textContent: unit });
-          span.style.fontSize = '12px';
-          box.appendChild(span);
-        }
-        field.appendChild(box);
-      }
-
-      form.appendChild(field);
-    });
-
-    document.querySelector('.page')?.appendChild(form);
-  };
-
-  const insertForms = () => {
-    const c = document.querySelector('.page') as HTMLElement;
-    if (!c || c.querySelector('.pdf-form-section')) return;
-
-    const t1 = this.transformador1, t2 = this.transformador2;
-    if (t1?.form1?.items) createFormSection(t1.form1.items, '34%', '13%', 'flex-start');
-    if (t1?.form2?.items) createFormSection(t1.form2.items, '34%', '87%', 'flex-end');
-    if (t2?.form3?.items) createFormSection(t2.form3.items, '60%', '13%', 'flex-start');
-    if (t2?.form4?.items) createFormSection(t2.form4.items, '60%', '87%', 'flex-end');
-  };
-
-  // 🌟 NUEVO: Campos flotantes de fecha y hora
-  const insertFloatingInputs = () => {
-  const page = document.querySelector('.page') as HTMLElement;
-  if (!page || page.querySelector('.floating-input')) return;
-
-  // Configuración de campos flotantes
-  const campos = [
-    { name: 'hora_inicio', type: 'time', top: '7.9%', left: '53.8%', width: '90px'},
-    { name: 'hora_fin', type: 'time', top: '7.9%', left: '72%', width: '90px'},
-    { name: 'fecha', type: 'date', top: '7.9%', left: '92.7%', width: '125px'}
-  ];
-
-  campos.forEach(c => {
-    // Contenedor del input + label flotante
-    const wrapper = document.createElement('div');
-    wrapper.className = 'floating-input';
-    Object.assign(wrapper.style, {
-      position: 'absolute',
-      top: c.top,
-      left: c.left,
-      transform: 'translate(-50%, -50%)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      zIndex: '120',
-      fontFamily: 'sans-serif'
-    });
-    const input = document.createElement('input');
-    Object.assign(input, { name: c.name, type: c.type });
-    Object.assign(input.style, {
-      width: c.width,
-      
-      
-    });
-
-    // 🔹 Inicializar valor desde el componente (si ya existe)
-    if (c.name === 'hora_inicio' && this.horaInicio !== '--:--') input.value = this.horaInicio;
-    if (c.name === 'hora_fin' && this.horaFin !== '--:--') input.value = this.horaFin;
-    if (c.name === 'fecha' && this.fechaOrden) input.value = this.fechaOrden;
-
-    // 🔹 Evento: sincronizar input → variable del componente
-    input.addEventListener('input', (e) => {
-      const val = (e.target as HTMLInputElement).value.trim();
-      if (c.name === 'hora_inicio') this.horaInicio = val;
-      if (c.name === 'hora_fin') this.horaFin = val;
-      if (c.name === 'fecha') this.fechaOrden = val;
+    const createImg = (src: string, top: string, left: string) => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.classList.add('img-transformador');
+      Object.assign(img.style, {
+        position: 'absolute',
+        top,
+        left,
+        transform: 'translate(-50%, -50%)',
+        width: '550px',
+        height: 'auto',
+        objectFit: 'contain',
+        borderRadius: '8px',
+        boxShadow: '0 0 10px rgba(0,0,0,0.3)',
+        zIndex: '50',
       });
-    wrapper.append(input);
-    page.appendChild(wrapper);
+      container.appendChild(img);
+    };
+
+    // Centrar imágenes
+    if (this.transformador1?.imagen) createImg(this.transformador1.imagen, '35%', '50%');
+    if (this.transformador2?.imagen) createImg(this.transformador2.imagen, '63%', '50%');
+  };
+
+  /** 🔥 Crea formularios flotantes dentro del PDF */
+  const insertForms = () => {
+    const container = document.querySelector('.page') as HTMLElement | null;
+    if (!container) return;
+
+    // Evitar duplicados
+    if (container.querySelector('.pdf-form-section')) return;
+
+    /**
+     * 🔹 Crea una sección de formulario
+     * @param items Lista de campos
+     * @param top Posición vertical
+     * @param left Posición horizontal
+     * @param align Alineación vertical interna ('flex-start' | 'flex-end')
+     */
+    const createFormSection = (items: any[], top: string, left: string, align: 'flex-start' | 'flex-end') => {
+      const form = document.createElement('div');
+      form.classList.add('pdf-form-section');
+      Object.assign(form.style, {
+        position: 'absolute',
+        top,
+        left,
+        transform: 'translate(-50%, -50%)',
+        width: '270px',
+        zIndex: '80',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: align, // 💥 aquí aplicamos la diferencia
+      });
+
+      items.forEach((item) => {
+        const field = document.createElement('div');
+        field.style.width = '100%';
+        field.style.display = 'flex';
+        field.style.flexDirection = 'column';
+        field.style.alignItems = align; // 💥 y también dentro de cada campo
+
+        const label = document.createElement('label');
+        label.textContent = item.label;
+        label.style.fontWeight = 'bold';
+        label.style.marginBottom = '4px';
+        field.appendChild(label);
+
+        if (item.tipo === 'opciones' && item.opciones) {
+          const select = document.createElement('select');
+          select.style.padding = '4px';
+          select.style.width = '50%';
+          item.opciones.forEach((op: string) => {
+            const opt = document.createElement('option');
+            opt.value = op;
+            opt.textContent = op;
+            select.appendChild(opt);
+          });
+          select.value = item.valor || '';
+          field.appendChild(select);
+        }
+
+        if (item.tipo === 'valores' && item.valores) {
+          const box = document.createElement('div');
+          box.style.display = 'flex';
+          box.style.gap = '6px';
+          const input1 = document.createElement('input');
+          input1.placeholder = 'v. real';
+          input1.value = item.valores[0] || '';
+          input1.style.width = '70px';
+          input1.style.border = '1px solid #aaa';
+         
+          const input2 = document.createElement('input');
+          input2.placeholder = 'v. testigo';
+          input2.value = item.valores[1] || '';
+          input2.style.width = '70px';
+          input2.style.border = '1px solid #aaa';
+        
+          box.appendChild(input1);
+          box.appendChild(input2);
+
+          // Etiquetas adicionales
+          if (item.label.trim() === 'Manovacuómetro') {
+            const span = document.createElement('span');
+            span.textContent = 'kgf/cm²';
+            span.style.fontSize = '12px';
+            box.appendChild(span);
+          } else if (['Termómetro de aceite', 'Termómetro de devanado'].includes(item.label.trim())) {
+            const span = document.createElement('span');
+            span.textContent = '°C';
+            span.style.fontSize = '12px';
+            box.appendChild(span);
+          }
+
+          field.appendChild(box);
+        }
+
+        form.appendChild(field);
+      });
+
+      container.appendChild(form);
+    };
+
+    // Posicionar formularios junto a tus imágenes con diferente alineación
+    if (this.transformador1?.form1?.items)
+      createFormSection(this.transformador1.form1.items, '34%', '13%', 'flex-start'); // 🟩 arriba
+    if (this.transformador1?.form2?.items)
+      createFormSection(this.transformador1.form2.items, '34%', '87%', 'flex-end'); // 🟦 abajo
+    if (this.transformador2?.form3?.items)
+      createFormSection(this.transformador2.form3.items, '60%', '13%', 'flex-start');
+    if (this.transformador2?.form4?.items)
+      createFormSection(this.transformador2.form4.items, '60%', '87%', 'flex-end');
+  };
+  const fotocheck_tecnico = () => {
+  const campo = document.querySelector('.textWidgetAnnotation input[name="fotocheck_tecnico"]') as HTMLInputElement | null;
+  if (!campo) return;
+
+  const contenedor = campo.closest('.page');
+  if (!contenedor) return;
+
+  // Evita duplicados
+  if (contenedor.querySelector('.correo-tecnico') || contenedor.querySelector('.firma-tecnico')) return;
+
+  /** 🟩 Crear y posicionar CORREO */
+  const correoSpan = document.createElement('span');
+  correoSpan.classList.add('correo-tecnico');
+  Object.assign(correoSpan.style, {
+    position: 'absolute',
+    top: '94.5%',   // ← ajusta según el lugar exacto en el PDF
+    left: '12%',
+    
+    zIndex: '90'
+  });
+  contenedor.appendChild(correoSpan);
+
+  /** 🟦 Crear y posicionar FIRMA */
+  const firmaImg = document.createElement('img');
+  firmaImg.classList.add('firma-tecnico');
+  Object.assign(firmaImg.style, {
+    position: 'absolute',
+    top: '96.2%',   // ← ajusta según el lugar exacto en el PDF
+    left: '23%',
+    width: '80px',
+    height: 'auto',
+    display: 'none',
+    zIndex: '90'
+  });
+  contenedor.appendChild(firmaImg);
+
+  /** 🧠 Escuchar cambios del campo */
+  campo.addEventListener('input', (ev) => {
+    const raw = (ev.target as HTMLInputElement).value.trim();
+    const valorNum = raw === '' ? null : Number(raw);
+    const t = valorNum !== null && !isNaN(valorNum)
+      ? this.tecnico.find((x) => x.fotocheck === valorNum)
+      : undefined;
+
+    if (t) {
+      correoSpan.textContent = t.correo;
+      firmaImg.src = t.firma;
+      firmaImg.style.display = 'block';
+      this.correoSeleccionado = t.correo;
+      this.rutaFirmaSeleccionada = t.firma;
+
+       /** 🔥 ASIGNAR ID USUARIO TÉCNICO */
+      this.idusuario = t.idUsuario || null;
+    } else {
+      correoSpan.textContent = '';
+      firmaImg.style.display = 'none';
+      this.correoSeleccionado = '';
+      this.rutaFirmaSeleccionada = '';
+    }
+  });
+};
+/** 🔹 Aplica estilos base a los campos del PDF */
+const applyInlineStylesToField = (f: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) => {
+  ['outline', 'box-shadow', '-webkit-box-shadow', 'background', 'appearance', '-webkit-appearance']
+    .forEach(p => f.style.setProperty(p, '', ''));
+  f.style.setProperty('background', 'transparent', 'important');
+  f.style.setProperty('color', '#000', 'important');
+  f.style.setProperty('font-size', '12px', 'important');
+  f.style.setProperty('text-align', 'left', 'important');
+};
+
+/** 🔹 Crea overlay visual del placeholder */
+
+
+/** 🔹 Crea placeholders y tipos de input según el nombre */
+const reapplyPlaceholders = () => {
+  ensureGlobalStyle();
+  document.querySelectorAll<HTMLInputElement>('.textWidgetAnnotation input, ngx-extended-pdf-viewer input')
+    .forEach(f => {
+      applyInlineStylesToField(f);
+
+      if (f.name === 'fecha') {
+        f.type = 'date'; // 🗓️ convierte en selector de fecha
+        
+      } 
+      else if (f.name === 'hora_inicio') {
+        f.type = 'time'; // ⏰ convierte en selector de hora
+        
+      } 
+      else if (f.name === 'hora_fin') {
+        f.type = 'time';
+        
+      }
+    });
+};
+
+/** 🔹 Inserta eventos personalizados sobre secciones del PDF */
+const applyButtonEvents = () => {
+  // --- BOTÓN 1 ---
+  const boton1 = document.querySelector('section[data-annotation-id="678R"]');
+  if (boton1 && !(boton1 as any)._clickAsignado) {
+    boton1.addEventListener('click', () => this.VerPlano());
+    (boton1 as any)._clickAsignado = true;
+    console.log('✔️ Evento de click añadido correctamente (678R)');
+  }
+
+  // --- BOTÓN 2 ---
+  const boton2 = document.querySelector('section[data-annotation-id="677R"]');
+  if (boton2 && !(boton2 as any)._clickAsignado) {
+    boton2.addEventListener('click', () => this.saveData());
+    (boton2 as any)._clickAsignado = true;
+    console.log('✔️ Evento de click añadido correctamente (677R)');
+  }
+};
+
+
+const fotocheck_supervisor = () => { 
+  const campo = document.querySelector('.textWidgetAnnotation input[name="fotocheck_supervisor"]') as HTMLInputElement | null;
+  if (!campo) return;
+
+  const contenedor = campo.closest('.page');
+  if (!contenedor) return;
+
+  // Evita duplicados
+  if (contenedor.querySelector('.correo-supervisor')) return;
+
+  /** 🟩 Crear y posicionar CORREO */
+  const correoSpan = document.createElement('span');
+  correoSpan.classList.add('correo-supervisor');
+  Object.assign(correoSpan.style, {
+    position: 'absolute',
+    top: '94.5%',   // ← ajusta según el lugar exacto del correo en el PDF
+    left: '58%',
+    fontWeight: 'bold',
+   
+    zIndex: '90'
+  });
+  contenedor.appendChild(correoSpan);
+
+  /** 🧠 Escuchar cambios del campo */
+  campo.addEventListener('input', (ev) => {
+    const raw = (ev.target as HTMLInputElement).value.trim();
+    const valorNum = raw === '' ? null : Number(raw);
+    const s = valorNum !== null && !isNaN(valorNum)
+      ? this.supervisor.find((x) => x.fotocheck === valorNum)
+      : undefined;
+
+    if (s) {
+      correoSpan.textContent = s.correo;
+      this.correoSeleccionado1 = s.correo;
+      this.idusuario2 = s.idUsuario || null;
+    } else {
+      correoSpan.textContent = '';
+      this.correoSeleccionado1 = '';
+    }
   });
 };
 
 
-  const handleFotocheck = (type: 'tecnico' | 'supervisor') => {
-    const name = `fotocheck_${type}`;
-    const campo = document.querySelector(`.textWidgetAnnotation input[name="${name}"]`) as HTMLInputElement;
-    if (!campo) return;
-    const cont = campo.closest('.page'); if (!cont || cont.querySelector(`.correo-${type}`)) return;
 
-    const correo = Object.assign(document.createElement('span'), { className: `correo-${type}` });
-    Object.assign(correo.style, {
-      position: 'absolute', top: '94.5%', left: type === 'tecnico' ? '12%' : '58%',
-      fontWeight: 'bold', zIndex: '90'
-    });
-    cont.appendChild(correo);
-
-    let firma: HTMLImageElement | undefined;
-    if (type === 'tecnico') {
-      firma = Object.assign(document.createElement('img'), { className: 'firma-tecnico' });
-      Object.assign(firma.style, { position: 'absolute', top: '96.5%', left: '18%', width: '80px', display: 'none', zIndex: '90' });
-      cont.appendChild(firma);
-    }
-
-    campo.addEventListener('input', (ev) => {
-      const val = (ev.target as HTMLInputElement).value.trim();
-      const num = val ? Number(val) : NaN;
-      const data = (type === 'tecnico' ? this.tecnico : this.supervisor)
-        .find((x: any) => x.fotocheck === num);
-
-      if (data) {
-        correo.textContent = data.correo;
-        if (type === 'tecnico' && firma) {
-          firma.src = data.firma; firma.style.display = 'block';
-          this.idusuario = data.idUsuario ?? null;
-          this.rutaFirmaSeleccionada = data.firma;
-        }
-        if (type === 'supervisor') this.idusuario2 = data.idUsuario ?? null;
-      } else {
-        correo.textContent = '';
-        if (firma) firma.style.display = 'none';
-      }
-    });
-  };
-
-  const fillField = (name: string, value: string) => {
-    const f = document.querySelector(`.textWidgetAnnotation [name="${name}"]`) as HTMLInputElement | HTMLTextAreaElement;
-    if (f) { f.value = value; f.dispatchEvent(new Event('input', { bubbles: true })); }
-  };
 
   const applyAll = () => {
-    const all = document.querySelectorAll('.page, .pdfViewer, .annotationLayer section, .textWidgetAnnotation');
-    all.forEach(s => styleSection(s as HTMLElement));
-    document.querySelectorAll('.annotationLayer svg, .annotationLayer rect, .annotationLayer .widgetOverlay')
-      .forEach(n => setStyle(n as HTMLElement, { display: 'none', opacity: '0' }));
+    const viewerContainer = document.getElementById('viewerContainer') || document.body;
+    viewerContainer.querySelectorAll('.page, .pdfViewer').forEach((s) => styleSection(s as HTMLElement));
+    document.querySelectorAll('.textWidgetAnnotation').forEach((s) => styleSection(s as HTMLElement));
+    document
+      .querySelectorAll('.annotationLayer svg, .annotationLayer rect, .annotationLayer .widgetOverlay ')
+      .forEach((n) => setStyle(n as HTMLElement, { display: 'none', opacity: '0' }));
+    document.querySelectorAll('.annotationLayer section').forEach((section) => {
+    styleSection(section as HTMLElement);
+   });
+
+   const fillField = (name: string, value: string) => {
+    const field = document.querySelector(
+        `.textWidgetAnnotation input[name="${name}"], .textWidgetAnnotation textarea[name="${name}"]`
+        ) as HTMLInputElement | HTMLTextAreaElement | null;
+      if (field) {
+      field.value = value;
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    };
+
     fillField('transformador', this.transformador || '');
     fillField('subestacion', this.subestacion || '');
     fillField('ubicacion', this.ubicacion || '');
-    insertImages(); insertForms(); insertFloatingInputs();
-    handleFotocheck('tecnico'); handleFotocheck('supervisor');
+
+    insertImages();
+    insertForms(); // 🧩 Inserta los formularios
+    reapplyPlaceholders();
+    
+    fotocheck_tecnico();
+    fotocheck_supervisor(); 
+    applyButtonEvents(); 
   };
-
-  const initButtons = async () => {
-    await delay(1000);
-    const viewer = document.getElementById('viewer');
-    if (!viewer || viewer.querySelector('.custom-button-bar')) return;
-
-    const btnBar = document.createElement('div');
-    btnBar.className = 'custom-button-bar';
-    btnBar.innerHTML = `
-      <button id="btn-guardar" class="pdf-action-btn"><img src="assets/guardar.png" alt="Guardar"></button>
-      <button id="btn-plano" class="pdf-action-btn"><img src="assets/plano.png" alt="Plano"></button>`;
-    viewer.appendChild(btnBar);
-
-    btnBar.querySelector('#btn-guardar')?.addEventListener('click', () => this.saveData());
-    btnBar.querySelector('#btn-plano')?.addEventListener('click', () => this.VerPlano());
-  };
+  
 
   applyAll();
-  initButtons();
-  new MutationObserver(() => applyAll()).observe(document.querySelector('ngx-extended-pdf-viewer') ?? document.body, {
-    childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class']
-  });
+
+ const observer = new MutationObserver(() => {
+  observer.disconnect(); // 🔒 evita loops infinitos
+  applyAll();
+  setTimeout(() => observer.observe(target, config), 50); // 🔓 reanuda tras aplicar cambios
+});
+
+const target = document.querySelector('ngx-extended-pdf-viewer') ?? document.body;
+const config = { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] };
+observer.observe(target, config);
+
 }
-
-
-
 
 
 
@@ -419,25 +602,24 @@ ngAfterViewInit(): void {
   }
 
 
+// Normalizar formularios para inicializar valores predeterminados
+normalizeForm(form: any): any {
+  if (!form || !form.items) return null;
+  return {
+    ...form,
+    items: form.items.map((item: any) => ({
+      ...item,
+      tipo: item.valores ? 'valores' : 'opciones' // Identificar tipo automáticamente
+    }))
+  };
+}
 
-
-
-
-  // Normalizar formularios para inicializar valores predeterminados
-  normalizeForm(form: any): any {
-    if (!form || !form.items) return null;
-    return {
-      ...form,
-      items: form.items.map((item: any) => ({
-        ...item,
-        tipo: item.valores ? 'valores' : 'opciones' // Identificar tipo automáticamente
-      }))
-    };
-  }
-
-
-
-
+horaInicio: string = '--:--';
+horaFin: string = '--:--';
+ordenTrabajo: string = '';
+fechaOrden: string = '';
+potenciaActual: string = '';
+corrienteActual: string = '';
 
 seguridadObservaciones = [
   { descripcion: 'Completar los permisos de trabajo según la actividad adjuntados a la OT (IPERC - ATS - PETAR PETS)', estado: 'NA', observacion: '' },
@@ -446,278 +628,246 @@ seguridadObservaciones = [
   { descripcion: 'Realizar el aislamiento, bloqueo y confirmación energía cero de la sub estación eléctrica, evaluar', estado: 'NA', observacion: '' }
 ];
 
-potenciaActual: string = '';
-corrienteActual: string = '';
- patioObservaciones: PatioObservacion[] = [
-   { descripcion: 'Candados y manijas de puertas de acceso', estado: 'NA', observacion: '' },
-  { descripcion: 'Señalizacion de seguridad en cerco, transformador, bandejas', estado: 'NA', observacion: '' },
-   { descripcion: 'Bandejas porta cables', estado: 'NA', observacion: '' },
-   { descripcion: 'Sistema de iluminación y luces de emergencia en patio', estado: 'NA', observacion: '' }
- ];
+patioObservaciones: PatioObservacion[] = [
+  { descripcion: 'Candados y manijas de puertas de acceso', estado: 'NA', observacion: '' },
+  { descripcion: 'Señalización de seguridad en cerco, transformador, bandejas', estado: 'NA', observacion: '' },
+  { descripcion: 'Bandejas porta cables', estado: 'NA', observacion: '' },
+  { descripcion: 'Sistema de iluminación y luces de emergencia en patio', estado: 'NA', observacion: '' }
+];
 
- recomendacionesObservaciones: AvisoObservacion[] = [
-   { recomendacion: '', estado: 'MALO', solicitud: '' },
-   { recomendacion: '', estado: 'MALO', solicitud: '' },
-   { recomendacion: '', estado: 'MALO', solicitud: '' },
-   { recomendacion: '', estado: 'MALO', solicitud: '' },
-  { recomendacion: '', estado: 'MALO', solicitud: '' }
- ];
+recomendacionesObservaciones: AvisoObservacion[] = Array(5).fill({ recomendacion: '', estado: 'MALO', solicitud: '' });
 
+// --- Extraer datos del PDF ---
+private extractPdfFields(): void {
+  const q = (selector: string) =>
+    document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(selector);
 
-// ...existing code...
-  private extractPdfFields(): void {
-    // Helpers
-    const q = (selector: string) =>
-      document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(selector);
+  const getVal = (name: string) =>
+    document.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+      `.textWidgetAnnotation input[name="${name}"],
+       .textWidgetAnnotation textarea[name="${name}"],
+       .textWidgetAnnotation select[name="${name}"],
+       .buttonWidgetAnnotation input[name="${name}"]`
+    )?.value?.trim() ?? '';
 
-    const getVal = (name: string) =>
-      q(`.textWidgetAnnotation input[name="${name}"], .textWidgetAnnotation textarea[name="${name}"], .textWidgetAnnotation select[name="${name}"]`)?.value?.trim() ?? '';
+  const getChecked = (name: string) =>
+    !!document.querySelector<HTMLInputElement>(
+      `.textWidgetAnnotation input[name="${name}"],
+       .buttonWidgetAnnotation input[name="${name}"]`
+    )?.checked;
 
-    const getChecked = (name: string) => {
-      const el = document.querySelector<HTMLInputElement>(`.textWidgetAnnotation input[name="${name}"]`);
-      if (!el) return false;
-      if (el.type === 'checkbox' || el.type === 'radio') return !!el.checked;
-      return el.value === '1' || el.value === 'true';
-    };
+  // --- 1️⃣ Campos generales ---
+  this.transformador = getVal('transformador') || this.transformador;
+  this.subestacion = getVal('subestacion') || this.subestacion;
+  this.ubicacion = getVal('ubicacion') || this.ubicacion;
+  this.horaInicio = getVal('hora_inicio') || this.horaInicio;
+  this.horaFin = getVal('hora_fin') || this.horaFin;
+  this.ordenTrabajo = getVal('orden_trabajo') || this.ordenTrabajo;
+  this.fechaOrden = getVal('fecha') || this.fechaOrden;
+  this.potenciaActual = getVal('potencia_actual') || this.potenciaActual;
+  this.corrienteActual = getVal('corriente_actual') || this.corrienteActual;
 
-    // 1) Campos simples del PDF (annotation layer)
-    this.transformador = getVal('transformador') || this.transformador;
-    this.subestacion = getVal('subestacion') || this.subestacion;
-    this.ubicacion = getVal('ubicacion') || this.ubicacion;
-    this.horaInicio = getVal('hora_inicio') || this.horaInicio;
-    this.horaFin = getVal('hora_fin') || this.horaFin;
-    this.ordenTrabajo = getVal('orden_trabajo') || this.ordenTrabajo;
-    this.fechaOrden = getVal('fecha') || this.fechaOrden;
-    this.potenciaActual = getVal('potencia_actual') || this.potenciaActual;
-    this.corrienteActual = getVal('corriente_actual') || this.corrienteActual;
+  // --- 2️⃣ Seguridad Observaciones (solo BUENO / NA) ---
+  const descSeguridad = [
+    'Completar los permisos de trabajo según la actividad adjuntados a la OT (IPERC - ATS - PETAR PETS)',
+    'Inspección de herramientas y evitar exceso de carga (>25 kg)',
+    'Usar implementos de seguridad personal de acuerdo al tipo de trabajo (EPP\'s)',
+    'Realizar el aislamiento, bloqueo y confirmación energía cero de la sub estación eléctrica, evaluar'
+  ];
 
-    // fotocheck / correo / firma (annotation)
-    const fototecVal = getVal('fotocheck_tecnico');
-    if (fototecVal) this.fotocheckSeleccionado = Number(fototecVal);
-    const fotospVal = getVal('fotocheck_supervisor');
-    if (fotospVal) this.fotocheckSeleccionado1 = Number(fotospVal);
-    const f1 = getVal('firma_1');
-    const f2 = getVal('firma_2');
-    if (f1) this.rutaFirmaSeleccionada = f1;
+  this.seguridadObservaciones = [];
+  for (let i = 1; i <= 4; i++) {
+    const bueno = getChecked(`bueno_${i}`);
+    const na = getChecked(`na_${i}`);
+    const obs = getVal(`observacion_${i}`);
+    let estado: 'BUENO' | 'NA' = bueno ? 'BUENO' : 'NA';
 
-    // 2) Seguridad -> usar nueva estructura SeguridadObservacionSPT (estado: 'BUENO'|'MALO'|'NA', observacion)
-    for (let i = 1; i <= 4; i++) {
-      const bueno = getChecked(`bueno_${i}`);
-      const na = getChecked(`na_${i}`);
-      const obs = getVal(`observacion_${i}`);
-      const idx = i - 1;
-
-      let estado: SeguridadObservacionSPT['estado'] = 'NA';
-      if (bueno) estado = 'BUENO';
-      else if (na) estado = 'NA';
-      else estado = 'MALO';
-
-      if (!this.seguridadObservaciones[idx]) {
-        this.seguridadObservaciones[idx] = { descripcion: '', estado, observacion: obs || '' };
-      } else {
-        this.seguridadObservaciones[idx].estado = estado;
-        this.seguridadObservaciones[idx].observacion = obs || '';
-      }
-    }
-
-    // 3) Patio -> usar nueva estructura PatioObservacion (estado + observacion)
-    for (let i = 0; i < 4; i++) {
-      const bueno = getChecked(`bueno_${5 + i}`);
-      const malo = getChecked(`malo_${1 + i}`);
-      const na = getChecked(`na_${5 + i}`);
-      const obs = getVal(`observacion_${5 + i}`);
-      const idx = i;
-
-      let estado: PatioObservacion['estado'] = 'NA';
-      if (bueno) estado = 'BUENO';
-      else if (malo) estado = 'MALO';
-      else if (na) estado = 'NA';
-      else estado = 'NA';
-
-      if (!this.patioObservaciones[idx]) {
-        this.patioObservaciones[idx] = { descripcion: '', estado, observacion: obs || '' };
-      } else {
-        this.patioObservaciones[idx].estado = estado;
-        this.patioObservaciones[idx].observacion = obs || '';
-      }
-    }
-
-    // 4) Aviso / recomendaciones -> mapear a AvisoObservacion (observaciones, solicita_aviso_sap, solicitud)
-    for (let i = 0; i < 5; i++) {
-      const recom = getVal(`recomendacion_${i + 1}`);
-      const bueno = getChecked(`bueno_${9 + i}`); // representa "si"/solicita
-      const solicitud = getVal(`solicitud_${i + 1}`);
-      const idx = i;
-
-      const estado: AvisoObservacion['estado'] = bueno ? 'BUENO' : 'MALO';
-
-      if (!this.recomendacionesObservaciones[idx]) {
-        this.recomendacionesObservaciones[idx] = { recomendacion: recom || '', estado, solicitud: solicitud || '' };
-      } else {
-        this.recomendacionesObservaciones[idx].recomendacion = recom || '';
-        this.recomendacionesObservaciones[idx].estado = estado;
-        this.recomendacionesObservaciones[idx].solicitud = solicitud || '';
-      }
-    }
-
-    // 5) Formularios flotantes (.pdf-form-section) — asignar por label a los items existentes
-    const pdfSections = Array.from(document.querySelectorAll<HTMLElement>('.pdf-form-section'));
-    if (pdfSections.length) {
-      const assignToTransformForms = (labelText: string, values: string[] | string) => {
-        const setOn = (formObj: any) => {
-          if (!formObj || !formObj.items) return false;
-          for (const it of formObj.items) {
-            const lbl = (it.label || '').toString().trim();
-            if (!lbl) continue;
-            if (lbl === labelText || lbl.toLowerCase() === labelText.toLowerCase()) {
-              if (Array.isArray(values)) {
-                it.valores = [values[0] ?? '', values[1] ?? ''];
-              } else {
-                it.valor = values as string;
-              }
-              return true;
-            }
-          }
-          return false;
-        };
-        if (this.transformador1) {
-          setOn(this.transformador1.form1);
-          setOn(this.transformador1.form2);
-        }
-        if (this.transformador2) {
-          setOn(this.transformador2.form3);
-          setOn(this.transformador2.form4);
-        }
-      };
-
-      pdfSections.forEach(section => {
-        const fieldDivs = Array.from(section.querySelectorAll<HTMLElement>(':scope > div'));
-        fieldDivs.forEach(div => {
-          const labelEl = div.querySelector('label');
-          const label = labelEl?.textContent?.trim() ?? '';
-          if (!label) return;
-          const inputs = Array.from(div.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('input, textarea, select'));
-          if (inputs.length === 0) return;
-          if (inputs.length === 1) {
-            const v = (inputs[0].value || '').toString().trim();
-            assignToTransformForms(label, v);
-          } else if (inputs.length === 2) {
-            const v0 = (inputs[0].value || '').toString().trim();
-            const v1 = (inputs[1].value || '').toString().trim();
-            assignToTransformForms(label, [v0, v1]);
-          } else {
-            const vals = inputs.map(i => (i.value || '').toString().trim());
-            assignToTransformForms(label, vals.join(','));
-          }
-        });
-      });
-    }
-  }
-// ...existing code...
-
- // ...existing code...
-  async saveData(): Promise<void> {
-    this.extractPdfFields();
-
-    this.modal.confirm({
-      nzTitle: 'Confirmación',
-      nzContent: '¿Estás seguro de que quieres guardar los datos?',
-      nzOkText: 'Aceptar',
-      nzCancelText: 'Cancelar',
-      nzOnOk: async () => {
-        const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
-        try {
-          // obtener items como ARRAYS (no strings)
-          const item1 = this.transformador1?.form1?.items ?? [];
-          const item2 = this.transformador1?.form2?.items ?? [];
-          const item3 = this.transformador2?.form3?.items ?? [];
-          const item4 = this.transformador2?.form4?.items ?? [];
-
-          const idTransformadorNum = this.id_transformadores ? Number(this.id_transformadores) : 0;
-          
-
-          // convertir todos los valores no string a string
-          const normalizeItem = (items: any[]) => 
-            (items || []).map(it => {
-              const normalized: any = {};
-              Object.keys(it).forEach(k => {
-                const val = it[k];
-                normalized[k] = Array.isArray(val) || typeof val === 'object'
-                  ? JSON.stringify(val)  // ✅ convertir arrays/objetos a string
-                  : val?.toString() ?? '';
-              });
-              return normalized;
-            });
-
-          // construir payload EXACTO (sin wrapper { request: ... })
-          const payload: any = {
-            hora_inicio: this.horaInicio || '',
-            hora_fin: this.horaFin || '',
-            orden_trabajo: this.ordenTrabajo || '',
-            fecha: this.fechaOrden || '',
-
-            seguridad_observaciones: (this.seguridadObservaciones as SeguridadObservacionSPT[] || []).map(s => ({
-              descripcion: s.descripcion || '',
-              estado: (s.estado as 'BUENO'|'MALO'|'NA') || 'NA',
-              observacion: s.observacion || ''
-            })),
-
-            patio_observaciones: (this.patioObservaciones as PatioObservacion[] || []).map(p => ({
-              descripcion: p.descripcion || '',
-              estado: (p.estado as 'BUENO'|'MALO'|'NA') || 'NA',
-              observacion: p.observacion || ''
-            })),
-
-            aviso_observaciones: (this.recomendacionesObservaciones as AvisoObservacion[] || []).map(a => ({
-              recomendacion: a.recomendacion || '',
-              estado: (a.estado === 'BUENO' ? 'BUENO' : 'MALO'),
-              solicitud: (a.solicitud || '').toString().substring(0, 20)
-            })),
-
-            // items => enviar como arrays (según ejemplo que enviaste)
-             item1: normalizeItem(item1),
-            item2: normalizeItem(item2),
-            item3: normalizeItem(item3),
-            item4: normalizeItem(item4),
-            id_transformadores: idTransformadorNum,
-            id_usuario: this.idusuario,
-            id_usuario_2: this.idusuario2,
-
-            potencia_actual: this.potenciaActual || '',
-            corriente_actual: this.corrienteActual || '',
-            firma_1: this.rutaFirmaSeleccionada || null
-          };
-
-          // enviar DIRECTAMENTE el payload (sin envolver)
-          console.log('PM1 payload a enviar:', payload);
-          const response: any = await this.pm1Service.postPM1(payload).toPromise();
-          console.log('Respuesta al guardar PM1:', response);
-          const idPm1 = response.lastId ?? response.idPm1 ?? 0;
-
-          if (idPm1) {
-            const notificacion: Notificacion = {
-              supervisor: this.idusuario2,
-              lider: this.idusuario,
-              firmado: false,
-              id_pm1: idPm1
-            };
-            console.log('Enviando notificación PM1:', notificacion);
-            await this.NotificacionService.insertarNotificacionPm1(notificacion).toPromise();
-
-            this.messageService.remove(loadingMessageId);
-            this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
-          } else {
-            this.messageService.remove(loadingMessageId);
-            this.alertservice.error('Error', 'No se obtuvo ID de PM1 después de guardar.');
-          }
-        } catch (err) {
-          this.messageService.remove(loadingMessageId);
-          console.error('Error guardando PM1:', err);
-          this.alertservice.error('Error al Guardar', 'Ha ocurrido un error al guardar los datos.');
-        }
-      }
+    this.seguridadObservaciones.push({
+      descripcion: descSeguridad[i - 1],
+      estado,
+      observacion: obs || ''
     });
   }
+
+  // --- 3️⃣ Patio Observaciones (BUENO / MALO / NA) ---
+  const descPatio = [
+    'Candados y manijas de puertas de acceso',
+    'Señalización de seguridad en cerco, transformador, bandejas',
+    'Bandejas porta cables',
+    'Sistema de iluminación y luces de emergencia en patio'
+  ];
+
+  this.patioObservaciones = [];
+  for (let i = 1; i <= 4; i++) {
+    const bueno = getChecked(`bueno_${4 + i}`); // bueno_5–8
+    const malo = getChecked(`malo_${i}`);       // malo_1–4
+    const na = getChecked(`na_${4 + i}`);       // na_5–8
+    const obs = getVal(`observacion_${4 + i}`); // observacion_5–8
+
+    let estado: 'BUENO' | 'MALO' | 'NA' = 'NA';
+    if (bueno) estado = 'BUENO';
+    else if (malo) estado = 'MALO';
+    else if (na) estado = 'NA';
+
+    this.patioObservaciones.push({
+      descripcion: descPatio[i - 1],
+      estado,
+      observacion: obs || ''
+    });
+  }
+
+  // --- 4️⃣ Avisos / Recomendaciones (BUENO / MALO) ---
+  this.recomendacionesObservaciones = [];
+  for (let i = 1; i <= 5; i++) {
+    const bueno = getChecked(`bueno_${8 + i}`); // bueno_9–13
+    const malo = getChecked(`malo_${4 + i}`);   // malo_5–9
+    const solicitud = getVal(`solicitud_${i}`); // solicitud_1–5
+    const recomendacion = getVal(`recomendacion_${i}`); // recomendacion_1–5
+
+    const estado: 'BUENO' | 'MALO' = malo ? 'MALO' : 'BUENO';
+
+    this.recomendacionesObservaciones.push({
+      recomendacion: recomendacion || '',
+      estado,
+      solicitud: solicitud || ''
+    });
+  }
+
+  // --- 🧩 Extracción de ítems dinámicos de equipos ---
+const pdfSections = Array.from(document.querySelectorAll<HTMLElement>('.pdf-form-section'));
+if (pdfSections.length) {
+  const assignToTransformForms = (labelText: string, values: string[] | string) => {
+    const setOn = (formObj: any) => {
+      if (!formObj || !formObj.items) return false;
+      for (const it of formObj.items) {
+        const lbl = (it.label || it.descripcion || '').toString().trim();
+        if (!lbl) continue;
+        if (lbl === labelText || lbl.toLowerCase() === labelText.toLowerCase()) {
+          if (Array.isArray(values)) {
+            it.valores = [values[0] ?? '', values[1] ?? ''];
+          } else {
+            it.valor = values as string;
+          }
+          return true;
+        }
+      }
+      return false;
+    };
+    if (this.transformador1) {
+      setOn(this.transformador1.form1);
+      setOn(this.transformador1.form2);
+    }
+    if (this.transformador2) {
+      setOn(this.transformador2.form3);
+      setOn(this.transformador2.form4);
+    }
+  };
+
+  pdfSections.forEach(section => {
+    const fieldDivs = Array.from(section.querySelectorAll<HTMLElement>(':scope > div'));
+    fieldDivs.forEach(div => {
+      const labelEl = div.querySelector('label');
+      const label = labelEl?.textContent?.trim() ?? '';
+      if (!label) return;
+      const inputs = Array.from(div.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('input, textarea, select'));
+      if (inputs.length === 0) return;
+      if (inputs.length === 1) {
+        const v = (inputs[0].value || '').toString().trim();
+        assignToTransformForms(label, v);
+      } else if (inputs.length === 2) {
+        const v0 = (inputs[0].value || '').toString().trim();
+        const v1 = (inputs[1].value || '').toString().trim();
+        assignToTransformForms(label, [v0, v1]);
+      } else {
+        const vals = inputs.map(i => (i.value || '').toString().trim());
+        assignToTransformForms(label, vals.join(','));
+      }
+    });
+  });
+}
+
+}
+
+// --- Utilidad para formatear fecha (YYYY-MM-DD → DD-MM-YYYY)
+private formatDate(isoDate: string): string {
+  if (!isoDate || !isoDate.includes('-')) return isoDate;
+  const [year, month, day] = isoDate.split('-');
+  return `${day}-${month}-${year}`;
+}
+
+// --- Guardar datos ---
+async saveData(): Promise<void> {
+  this.extractPdfFields();
+  this.modal.confirm({
+    nzTitle: 'Confirmación',
+    nzContent: '¿Estás seguro de que quieres guardar los datos?',
+    nzOkText: 'Aceptar',
+    nzCancelText: 'Cancelar',
+    nzOnOk: async () => {
+      const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
+      try {
+        const item1 = this.transformador1?.form1?.items ?? [];
+        const item2 = this.transformador1?.form2?.items ?? [];
+        const item3 = this.transformador2?.form3?.items ?? [];
+        const item4 = this.transformador2?.form4?.items ?? [];
+
+        const normalizeItem = (items: any[]) =>
+          (items || []).map(it => {
+            const normalized: any = {};
+            Object.keys(it).forEach(k => {
+              const val = it[k];
+              normalized[k] = Array.isArray(val) || typeof val === 'object'
+                ? JSON.stringify(val)
+                : val?.toString() ?? '';
+            });
+            return normalized;
+          });
+
+        const payload: any = {
+          hora_inicio: this.horaInicio,
+          hora_fin: this.horaFin,
+          orden_trabajo: this.ordenTrabajo,
+          fecha: this.formatDate(this.fechaOrden),
+          seguridad_observaciones: this.seguridadObservaciones,
+          patio_observaciones: this.patioObservaciones,
+          aviso_observaciones: this.recomendacionesObservaciones,
+          item1: normalizeItem(item1),
+          item2: normalizeItem(item2),
+          item3: normalizeItem(item3),
+          item4: normalizeItem(item4),
+          id_transformadores: Number(this.id_transformadores) || 0,
+          id_usuario: this.idusuario,
+          id_usuario_2: this.idusuario2,
+          potencia_actual: this.potenciaActual,
+          corriente_actual: this.corrienteActual,
+          firma_1: this.rutaFirmaSeleccionada || null
+        };
+
+        console.log('PM1 payload a enviar:', payload);
+        const response: any = await this.pm1Service.postPM1(payload).toPromise();
+        const idPm1 = response.lastId ?? response.idPm1 ?? 0;
+
+        if (idPm1) {
+          await this.NotificacionService.insertarNotificacionPm1({
+            supervisor: this.idusuario2,
+            lider: this.idusuario,
+            firmado: false,
+            id_pm1: idPm1
+          }).toPromise();
+          this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
+        } else {
+          this.alertservice.error('Error', 'No se obtuvo ID de PM1 después de guardar.');
+        }
+      } catch (err) {
+        console.error('Error guardando PM1:', err);
+        this.alertservice.error('Error al Guardar', 'Ha ocurrido un error al guardar los datos.');
+      } finally {
+        this.messageService.remove(loadingMessageId);
+      }
+    }
+  });
+}
+
 
 // ...existing code...
     seleccionarParticipante(event: any, tipoCargo: string): void {

@@ -1,50 +1,16 @@
-:host ::ng-deep .page {
-  width: 100% !important;
-  max-width: 100% !important;
-  display: block !important;
-  margin: 0 auto !important;
-}
-
-:host ::ng-deep .annotationLayer {
-  width: 100% !important;
-  max-width: 100% !important;
-  left: 0 !important;
-  right: 0 !important;
-}
-
-:host ::ng-deep .pdfViewer {
-  width: 100% !important;
-  display: grid !important;
-  grid-template-columns: 95% 5% !important;
-  
-}
-
-:host ::ng-deep #viewerContainer {
-  width: 100% !important;
-  /*overflow: hidden !important;*/
-  background: transparent !important;
+:host ::ng-deep .pdf-fixed-buttons {
+  position: fixed;
+  bottom: 20px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(255,255,255,0.9);
+  padding: 8px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  z-index: 9999 !important;
+  transition: all 0.3s ease;
 }
 
 
-
-
-
-
-:host ::ng-deep .custom-button-bar .pdf-action-btn {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  padding: 10px;
-}
-
-:host ::ng-deep .custom-button-bar .pdf-action-btn:hover {
-  transform: scale(1.1);
-}
-
-:host ::ng-deep .custom-button-bar img {
-  
-  height: 30px;
-  object-fit: contain;
-  
-}

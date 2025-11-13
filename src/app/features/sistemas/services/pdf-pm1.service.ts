@@ -13,115 +13,73 @@ import { TransformadorPM1Service } from './transformador-pm1.service';
 })
 export class PdfPm1Service implements OnInit {
   pm1!: BuscarPM1PorId;
-  filledPdf: string | ArrayBuffer | null = null;
-  isRendering: boolean = false;
-  // Cache para los datos PM1 (usado durante el llenado de PDF)
+  isRendering = false;
   pm1DataCache: BuscarPM1PorId | null = null;
-
-  @ViewChild('pdfViewerpm', { static: false })
-  pdfViewerpm!: ElementRef<HTMLCanvasElement>;
-  
 
   constructor(private http: HttpClient, private PM1Service: PM1Service) {
     this.pm1 = {} as BuscarPM1PorId;
   }
 
-  ngOnInit(): void {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  ngOnInit(): void {}
+
+  // 🔹 Compresor de imágenes Base64 para evitar cuellos de botella
+  private async compressBase64Image(base64: string, maxWidth = 800): Promise<string> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(1, maxWidth / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7)); // 70% calidad
+      };
+    });
   }
 
-  // 🔹 Paso 1: Obtener datos PM1 y PDF plantilla local
-  async fillpdf(id: number, data?: any, imagenBase64?: string[]): Promise<Blob | null> {
-    try {
-      // 1️⃣ Obtener datos PM1
-      const pm1Data = await this.PM1Service.getPM1ById(id).toPromise();
-      if (!pm1Data) {
-        console.error('No se pudieron obtener los datos de PM1.');
-        return null;
-      }
+// ✅ PdfPm1Service final y estable
+async fillpdf(id: number, data?: any, imagenBase64?: string[]): Promise<Blob | null> {
+  try {
+    const pm1Data = await this.PM1Service.getPM1ById(id).toPromise();
+    if (!pm1Data) {
+      console.error('No se pudieron obtener los datos de PM1.');
+      return null;
+    }
+    this.pm1 = pm1Data;
 
-      this.pm1 = pm1Data;
-      console.log('Datos PM1 obtenidos:', pm1Data);
+    const pdfBytes = await this.http
+      .get('assets/plantilla_service.pdf', { responseType: 'arraybuffer' })
+      .toPromise();
 
-      // 2️⃣ Obtener el PDF desde assets
-      const pdfBytes = await this.http
-        .get('assets/plantilla.pdf', { responseType: 'arraybuffer' })
-        .toPromise();
+    if (!pdfBytes) {
+      console.error('No se encontró el PDF plantilla.');
+      return null;
+    }
 
-      if (!pdfBytes) {
-        console.error('No se encontró el PDF en assets.');
-        return null;
-      }
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+    const form = pdfDoc.getForm();
+    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-      // 3️⃣ Cargar PDF y rellenar formulario
-      const pdfDoc = await PDFDocument.load(pdfBytes);
-      const form = pdfDoc.getForm();
+    const safe = (v: any) => (v == null ? '' : String(v));
+    const fieldMap: Record<string, string> = {
+      subestacion: safe(pm1Data.tag_subestacion),
+      transformador: safe(pm1Data.transformador),
+      ubicacion: safe(pm1Data.ubicacion),
+      orden_trabajo: safe(pm1Data.orden_trabajo),
+      hora_inicio: safe(pm1Data.hora_inicio),
+      hora_fin: safe(pm1Data.hora_fin),
+      fecha: safe(pm1Data.fecha),
+      potencia_actual: safe(pm1Data.potencia_actual),
+      corriente_actual: safe(pm1Data.corriente_actual),
+      tecnico: safe(pm1Data.correo_tecnico),
+      supervisor: safe(pm1Data.correo_supervisor),
+      fotocheck_tecnico: safe(pm1Data.fotocheck_tecnico),
+      fotocheck_supervisor: safe(pm1Data.fotocheck_supervisor),
+    };
 
-      // Muestra los nombres de los campos en consola (para debug)
-      form.getFields().forEach(f => console.log('Campo PDF:', f.getName()));
-
-      // 4️⃣ Rellenar campos
-      try {
-        // Embed a font and update appearances so the text is visible in the saved PDF
-        const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-        // Use the actual field names discovered in the PDF (logged earlier)
-        // and map them to the PM1 data properties.
-        const safe = (v: any) => (v === null || v === undefined) ? '' : String(v);
-
-        // Map of PDF field name => value to set
-        const fieldMap: Record<string, string> = {
-          subestacion: safe(pm1Data.tag_subestacion),
-          transformador: safe(pm1Data.transformador),
-          ubicacion: safe(pm1Data.ubicacion),
-          orden_trabajo: safe(pm1Data.orden_trabajo),
-          hora_inicio: safe(pm1Data.hora_inicio),
-          hora_fin: safe(pm1Data.hora_fin),
-          fecha : safe(pm1Data.fecha),
-          potencia_actual: safe(pm1Data.potencia_actual),
-          corriente_actual: safe(pm1Data.corriente_actual),
-
-
-
-          
-          tecnico: safe(pm1Data.correo_tecnico),
-          supervisor: safe(pm1Data.correo_supervisor),
-          fotocheck_tecnico: safe(pm1Data.fotocheck_tecnico),
-          fotocheck_supervisor: safe(pm1Data.fotocheck_supervisor),
-        };
-
-        // Iterate fields and set text where mapping exists. Also set font and font size so text appears.
-        const fields = form.getFields();
-        for (const field of fields) {
-          const name = field.getName();
-          if (Object.prototype.hasOwnProperty.call(fieldMap, name)) {
-            try {
-              const value = fieldMap[name] || '';
-              // Try to treat it as a TextField and set font/size
-              try {
-                const textField = form.getTextField(name) as any;
-                if (textField) {
-                  if (typeof textField.setFont === 'function') textField.setFont(helveticaFont);
-                  if (typeof textField.setFontSize === 'function') textField.setFontSize(7);
-                  textField.setText(value);
-                }
-              } catch (inner) {
-                // fallback: try generic setText if available on field
-                try {
-                  (field as any).setText(value);
-                } catch (inner2) {
-                  // ignore if field type doesn't support setText
-                }
-              }
-            } catch (e) {
-              // ignore single-field failures
-            }
-          }
-        }
-    
-    
-        // --- Procesar seguridad_observaciones ---
+  // --- Procesar seguridad_observaciones ---
 try {
   if (pm1Data.seguridad_observaciones) {
     let rows: any[] = [];
@@ -179,9 +137,9 @@ try {
 
     // Campos: BUENO_5..8, MALO_1..4, NA_5..8, OBSERVACION_5..8
     for (let i = 0; i < Math.min(rows.length, 4); i++) {
-      const { estado = '', observacion = '', descripcion = '' } = rows[i];
+      const { estado = '', observacion = '' } = rows[i];
       const estadoUp = estado.toUpperCase();
-      const texto = observacion || descripcion || '';
+      const texto = observacion ||  '';
 
       const buenoName = `bueno_${5 + i}`;
       const maloName = `malo_${1 + i}`;
@@ -282,15 +240,7 @@ try {
   console.warn('❌ Error general procesando aviso_observaciones:', e);
 }
 
-
-        // ...existing code...
-        // Update appearances so saved PDF shows the text
-        try {
-          (form as any).updateFieldAppearances(helveticaFont);
-        } catch (updateErr) {
-          console.warn('No se pudo actualizar apariencias de campos (opcional):', updateErr);
-        }
-        // --- Nuevo: procesar equipo_item1..4 ---
+  // --- Nuevo: procesar equipo_item1..4 ---
         try {
   if (pm1Data.equipos && typeof pm1Data.equipos === 'string') {
     const equiposObj = JSON.parse(pm1Data.equipos);
@@ -373,8 +323,16 @@ try {
         valor = valor.replace(/[\[\]"]/g, '').trim();
 
         let unidad = '';
-        if (label.toLowerCase().includes('manovacu')) unidad = 'kgf/cm²';
-        if (label.toLowerCase().includes('temperatura')) unidad = '°C';
+        const normalize = (str: string) =>
+          str
+            .toLowerCase()
+            .normalize('NFD') // 🔹 separa los acentos
+            .replace(/[\u0300-\u036f]/g, ''); // 🔹 elimina los acentos
+
+        const labelNorm = normalize(label);
+
+        if (labelNorm.includes('manovacuometro')) unidad = 'kgf/cm²';
+        if (labelNorm.includes('termometro')) unidad = '°C';
 
         if (valor.includes(',')) {
           const [real, testigo] = valor.split(',').map((v: string) => v.trim());
@@ -467,6 +425,308 @@ try {
 } catch (err) {
   console.warn('Error procesando equipos para PDF:', err);
 }
+
+
+    // 🔹 Rellenar campos
+    for (const field of form.getFields()) {
+      const name = field.getName();
+      if (fieldMap[name]) {
+        try {
+          const textField = form.getTextField(name);
+          textField.setText(fieldMap[name]);
+          textField.setFontSize(7);
+        } catch {}
+      }
+    }
+
+    (form as any).updateFieldAppearances(helveticaFont);
+
+    // 🔹 Insertar imágenes comprimidas
+    const getImageBytes = (dataUrl: string): Uint8Array | null => {
+      const match = dataUrl.match(/^data:(image\/(png|jpeg|jpg));base64,(.*)$/);
+      if (!match) return null;
+      const binary = atob(match[3]);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    };
+
+    const embedImage = async (pdfDoc: any, dataUrl: string) => {
+      const bytes = getImageBytes(dataUrl);
+      if (!bytes) return null;
+      return dataUrl.startsWith('data:image/png')
+        ? await pdfDoc.embedPng(bytes)
+        : await pdfDoc.embedJpg(bytes);
+    };
+
+    const page = pdfDoc.getPages()[0];
+
+    if (imagenBase64?.length) {
+      let yPos = 470;
+      for (const base64 of imagenBase64) {
+        const compressed = await this.compressBase64Image(base64);
+        const img = await embedImage(pdfDoc, compressed);
+        if (img) {
+          page.drawImage(img, { x: 205, y: yPos, width: 220, height: 130 });
+          yPos -= 230;
+        }
+      }
+    }
+
+    // 🔹 Firmas
+    const firma1 = { x: 190, y: 2, width: 45, height: 25 };
+    const firma2 = { x: 400, y: 2, width: 45, height: 25 };
+
+    if (pm1Data.firma_1) {
+      const img1 = await embedImage(pdfDoc, pm1Data.firma_1);
+      if (img1) page.drawImage(img1, firma1);
+    }
+
+    if (pm1Data.firma === true && pm1Data.firma_2) {
+      const img2 = await embedImage(pdfDoc, pm1Data.firma_2);
+      if (img2) page.drawImage(img2, firma2);
+    }
+
+
+
+    form.flatten();
+    const modifiedPdfBytes = await pdfDoc.save();
+
+// ✅ Solución final sin error de tipos
+ return new Blob([new Uint8Array(modifiedPdfBytes)], { type: 'application/pdf' });
+  } catch (error) {
+    console.error('Error procesando el PDF:', error);
+    return null;
+  }
+}
+
+// 🔹 Renderizar PDF en navegador
+async renderPdf(id: number) {
+  this.isRendering = true;
+  const filledPdfBlob = await this.fillpdf(id);
+  if (!filledPdfBlob) {
+    this.isRendering = false;
+    console.error('No se pudo generar el PDF.');
+    return;
+  }
+  const pdfUrl = URL.createObjectURL(filledPdfBlob);
+  window.open(pdfUrl, '_blank');
+  this.isRendering = false;
+}
+
+// 🔹 Compatibilidad para header.component
+async fetchAndSetPdf(id: number): Promise<Blob | undefined> {
+  const blob = await this.fillpdf(id);
+  return blob ?? undefined;
+}
+
+// 🔹 Versión rápida para abrir PDF
+async viewPdf(id: number, data?: any, imagenesBase64?: string[]): Promise<Blob | undefined> {
+  const blob = await this.fillpdf(id, data, imagenesBase64);
+  if (blob) {
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  }
+  return blob ?? undefined; // ✅ devuelve blob para que el .then(...) siga funcionando
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+export class PdfPm1Service implements OnInit {
+  pm1!: BuscarPM1PorId;
+  filledPdf: string | ArrayBuffer | null = null;
+  isRendering: boolean = false;
+  // Cache para los datos PM1 (usado durante el llenado de PDF)
+  pm1DataCache: BuscarPM1PorId | null = null;
+
+  @ViewChild('pdfViewerpm', { static: false })
+  pdfViewerpm!: ElementRef<HTMLCanvasElement>;
+  
+
+  constructor(private http: HttpClient, private PM1Service: PM1Service) {
+    this.pm1 = {} as BuscarPM1PorId;
+  }
+
+  ngOnInit(): void {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  // 🔹 Paso 1: Obtener datos PM1 y PDF plantilla local
+  async fillpdf(id: number, data?: any, imagenBase64?: string[]): Promise<Blob | null> {
+    try {
+      // 1️⃣ Obtener datos PM1
+      const pm1Data = await this.PM1Service.getPM1ById(id).toPromise();
+      if (!pm1Data) {
+        console.error('No se pudieron obtener los datos de PM1.');
+        return null;
+      }
+
+      this.pm1 = pm1Data;
+      console.log('Datos PM1 obtenidos:', pm1Data);
+
+      // 2️⃣ Obtener el PDF desde assets
+      const pdfBytes = await this.http
+        .get('assets/plantilla_service.pdf', { responseType: 'arraybuffer' })
+        .toPromise();
+
+      if (!pdfBytes) {
+        console.error('No se encontró el PDF en assets.');
+        return null;
+      }
+
+      // 3️⃣ Cargar PDF y rellenar formulario
+      const pdfDoc = await PDFDocument.load(pdfBytes);
+      const form = pdfDoc.getForm();
+
+      // Muestra los nombres de los campos en consola (para debug)
+      form.getFields().forEach(f => console.log('Campo PDF:', f.getName()));
+
+      // 4️⃣ Rellenar campos
+      try {
+        // Embed a font and update appearances so the text is visible in the saved PDF
+        const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+        // Use the actual field names discovered in the PDF (logged earlier)
+        // and map them to the PM1 data properties.
+        const safe = (v: any) => (v === null || v === undefined) ? '' : String(v);
+
+        // Map of PDF field name => value to set
+        const fieldMap: Record<string, string> = {
+          subestacion: safe(pm1Data.tag_subestacion),
+          transformador: safe(pm1Data.transformador),
+          ubicacion: safe(pm1Data.ubicacion),
+          orden_trabajo: safe(pm1Data.orden_trabajo),
+          hora_inicio: safe(pm1Data.hora_inicio),
+          hora_fin: safe(pm1Data.hora_fin),
+          fecha : safe(pm1Data.fecha),
+          potencia_actual: safe(pm1Data.potencia_actual),
+          corriente_actual: safe(pm1Data.corriente_actual),
+
+
+
+          
+          tecnico: safe(pm1Data.correo_tecnico),
+          supervisor: safe(pm1Data.correo_supervisor),
+          fotocheck_tecnico: safe(pm1Data.fotocheck_tecnico),
+          fotocheck_supervisor: safe(pm1Data.fotocheck_supervisor),
+        };
+
+        // Iterate fields and set text where mapping exists. Also set font and font size so text appears.
+        const fields = form.getFields();
+        for (const field of fields) {
+          const name = field.getName();
+          if (Object.prototype.hasOwnProperty.call(fieldMap, name)) {
+            try {
+              const value = fieldMap[name] || '';
+              // Try to treat it as a TextField and set font/size
+              try {
+                const textField = form.getTextField(name) as any;
+                if (textField) {
+                  if (typeof textField.setFont === 'function') textField.setFont(helveticaFont);
+                  if (typeof textField.setFontSize === 'function') textField.setFontSize(7);
+                  textField.setText(value);
+                }
+              } catch (inner) {
+                // fallback: try generic setText if available on field
+                try {
+                  (field as any).setText(value);
+                } catch (inner2) {
+                  // ignore if field type doesn't support setText
+                }
+              }
+            } catch (e) {
+              // ignore single-field failures
+            }
+          }
+        }
+    
+    
+        // --- Procesar seguridad_observaciones ---
+
+
+// --- Procesar patio_observaciones ---
+
+
+// --- Procesar aviso_observaciones ---
+
+
+        // ...existing code...
+        // Update appearances so saved PDF shows the text
+        try {
+          (form as any).updateFieldAppearances(helveticaFont);
+        } catch (updateErr) {
+          console.warn('No se pudo actualizar apariencias de campos (opcional):', updateErr);
+        }
+        // --- Nuevo: procesar equipo_item1..4 ---
 
 
 
@@ -630,9 +890,8 @@ try {
   const blob = await this.fillpdf(id, data, imagenesBase64);
   return blob ?? undefined;
 }
-
+*/
 
 
 
 }
-

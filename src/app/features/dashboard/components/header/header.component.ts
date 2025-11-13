@@ -23,7 +23,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { DomSanitizer, SafeHtml,SafeResourceUrl  } from '@angular/platform-browser';
 import { PM1,BuscarPM1PorId } from 'src/app/features/sistemas/interface/pm1';
-
+import { TransformadoresService } from 'src/app/shared/services/transformadores.service';
 import { PM1Service } from 'src/app/features/sistemas/services/pm1.service';
 import { PdfGeneratorServicespt1Service } from 'src/app/features/sistemas/services/pdf-generator-servicespt1.service'
 interface NotificationItem {
@@ -75,7 +75,8 @@ export class HeaderComponent {
     spt2Resumen: { tagSubestacion: string; ot: string }[] = [];
     spt1List: Spt1[] = [];
     spt1Resumen: { tagSubestacion: string; ot: string }[] = [];
-
+    subestacion: string | null = null;
+    transformador: string | null = null;
     private destroy$ = new Subject<void>(); // Añade esta línea
 
     @ViewChild('pdfModal', { static: true }) pdfModal!: TemplateRef<any>;
@@ -104,6 +105,7 @@ export class HeaderComponent {
       private PdfPm1Service:PdfPm1Service,
       private cdr: ChangeDetectorRef,
       private alertservice:AlertService,
+      private TransformadoresService: TransformadoresService,
   ){
 
   }
@@ -399,34 +401,105 @@ spt2pdf(id_spt2: number): void {
 
 
 pm1pdf(id_pm1: number): void {
-  console.log('Enviando id_pm1', id_pm1);
+  console.log('🚀 Enviando id_pm1:', id_pm1);
 
-  // Obtén el pdfData primero
-    this.PdfPm1Service.fetchAndSetPdf(id_pm1)
-    .then((pdfData: Blob | null) => {
-      if (!pdfData) {
-        console.error('No se pudo obtener el PDF data.');
+  // 1️⃣ Obtener los datos completos del PM1 desde el backend
+  this.pm1Service.getPM1ById(id_pm1).subscribe({
+    next: (pm1Data) => {
+      if (!pm1Data) {
+        console.error('❌ No se recibieron datos del PM1.');
         return;
       }
 
-      // Llama a fillPdf con los argumentos necesarios
-      return this.PdfPm1Service.viewPdf(id_pm1, pdfData);
-    })
-    .then((pdfBlob: Blob | undefined) => {
-      if (pdfBlob) {
-        const pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-          URL.createObjectURL(pdfBlob) + '#toolbar=0'
-        );
-        const url = URL.createObjectURL(pdfBlob);
-        window.open(url, '_blank');
-      } else {
-        console.error('No se pudo generar el PDF.');
+      console.log('📦 Datos completos de PM1:', pm1Data);
+
+      // usar any para acceder a campos adicionales
+      const pm1Any = pm1Data as any;
+
+      // 2️⃣ Extraer transformador y subestación
+      const transformador = pm1Any.transformador || null;
+      const subestacion = pm1Any.tag_subestacion || null;
+
+      console.log('⚡ Transformador:', transformador);
+      console.log('🏗️ Subestación:', subestacion);
+
+      // 3️⃣ Obtener información del transformador
+      if (!transformador) {
+        console.warn('⚠️ No hay transformador asociado al PM1.');
+        return;
       }
-    })
-    .catch((error: any) => {
-      console.error('Error al abrir el PDF:', error);
-    });
+
+      const transformadorInfo = this.TransformadoresService.getTransformador(transformador);
+      console.log('📘 Info completa del transformador:', transformadorInfo);
+
+      // 4️⃣ Detectar rutas de imágenes
+      const imagenPaths = [
+        transformadorInfo?.imagen?.[0] || transformadorInfo?.imagen,
+        transformadorInfo?.imagen2?.[0] || transformadorInfo?.imagen2
+      ].filter(Boolean);
+
+      console.log('🖼️ Rutas detectadas:', imagenPaths);
+
+      if (imagenPaths.length === 0) {
+        console.warn('⚠️ No se encontraron imágenes para el transformador.');
+      }
+
+      // 5️⃣ Convertir imágenes a Base64 antes de abrir el PDF
+      Promise.all(
+        imagenPaths.map((path) => this.convertToBase64(path!))
+      )
+        .then((imagenesBase64) => {
+          const imagenesValidas = imagenesBase64.filter((img): img is string => !!img);
+          console.log('✅ Imágenes convertidas a Base64:', imagenesValidas);
+
+          // 6️⃣ Obtener y mostrar PDF con las imágenes
+          return this.PdfPm1Service.fetchAndSetPdf(id_pm1)
+            .then((pdfData?: Blob | null) => {
+              if (!pdfData) {
+                console.error('❌ No se pudo obtener el PDF base.');
+                return null;
+              }
+
+              console.log('📘 PDF base obtenido, generando visualización...');
+              return this.PdfPm1Service.viewPdf(id_pm1, pdfData, imagenesValidas);
+            });
+        })
+        .then((pdfBlob: Blob | null | undefined) => {
+          if (pdfBlob) {
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            console.log('✅ PDF generado correctamente:', pdfUrl);
+            window.open(pdfUrl, '_blank');
+          } else {
+            console.error('❌ No se pudo generar el PDF final.');
+          }
+        })
+        .catch((error: any) => {
+          console.error('💥 Error al procesar el PDF:', error);
+        });
+    },
+    error: (err) => {
+      console.error('💥 Error al obtener los datos del PM1:', err);
+    }
+  });
 }
+
+
+private async convertToBase64(path: string): Promise<string | null> {
+  try {
+    const res = await fetch(path);
+    const blob = await res.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    console.error('Error al convertir imagen:', e);
+    return null;
+  }
+}
+
 
 
 

@@ -7,7 +7,7 @@ ngx-extended-pdf-viewer ::ng-deep .annotationLayer textarea {
   background: transparent !important;   /* elimina el fondo azul */
   box-shadow: none !important;         /* elimina sombras que parecen resaltado */
   outline: none !important;            /* quita el outline al hacer focus */
-  border: none !important;             /* si hay borde */
+            /* si hay borde */
   -webkit-appearance: none !important; /* cross-browser */
   caret-color: #000 !important;        /* color del cursor si quieres */
 }

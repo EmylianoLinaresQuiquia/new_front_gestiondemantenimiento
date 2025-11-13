@@ -84,173 +84,196 @@ temperaturaSegundos: Array<number | null> = [null, null];
   //CREACION DEL GRAFICO TENDENDIA POTENCIA
 
   //CREACION DEL GRAFICO TENDENDIA POTENCIA
-  tendencia_real(data: any[]): void {
-    this.zone.runOutsideAngular(() => {
-        if (this.chart_valor_real) {
-            this.chart_valor_real.dispose();
-        }
+tendencia_real(data: any[]): void {
+  this.zone.runOutsideAngular(() => {
+    if (this.chart_valor_real) {
+      this.chart_valor_real.dispose();
+    }
 
-        // Crear el gráfico
-        this.chart_valor_real = am4core.create("chart_valor_real", am4charts.XYChart);
-        console.log("Chart created");
+    this.chart_valor_real = am4core.create("chart_valor_real", am4charts.XYChart);
+    this.chart_valor_real.logo.disabled = true;
 
-        let dateFormatter = new am4core.DateFormatter();
-        this.chart_valor_real.logo.disabled = true;  // Desactivar el logo en el gráfico
+    let dateFormatter = new am4core.DateFormatter();
 
-        // Crear subtítulos en la parte superior
-        const chartContainer = document.getElementById("chart-container");
-        if (chartContainer) {
-            const subtitleTopContainer = document.getElementById("chart-subtitles-top");
-            if (subtitleTopContainer) {
-                subtitleTopContainer.innerHTML = `
-                    <span>(A)</span>
-                    <span>(MW)</span>
-                    <span>(kgf/CM²)</span>
-                    <span>(°C)</span>
-                    <span>(°C)</span>
-                `;
-                console.log("Subtítulos superiores agregados");
-            }
+    // -----------------------------
+    // 1) AGREGAR LOS SUBTÍTULOS
+    // -----------------------------
+    const st = (id: string, html: string) => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+    };
 
-            // Crear subtítulos en la parte inferior
-            const subtitleBottomContainer = document.getElementById("chart-subtitles-bottom");
-            if (subtitleBottomContainer) {
-                subtitleBottomContainer.innerHTML = `
-                    <span>(A)</span>
-                    <span>(MW)</span>
-                    <span>(kgf/CM²)</span>
-                    <span>(°C)</span>
-                    <span>(°C)</span>
-                `;
-                console.log("Subtítulos inferiores agregados");
-            } else {
-                console.error("No se encontró el contenedor de subtítulos inferiores");
-            }
-        } else {
-            console.error("No se encontró el contenedor principal del gráfico");
-        }
+    st("chart-subtitles-top", `
+      <span>(A)</span>
+      <span>(MW)</span>
+      <span>(kgf/CM²)</span>
+      <span>(°C)</span>
+      <span>(°C)</span>
+    `);
 
-        // Procesar los datos y agregar mensajes de depuración
-        this.chart_valor_real.data = data.map(item => {
-            const valores: number[] = item.valores_ingresados ? item.valores_ingresados.split(',').map((v: string) => parseInt(v.trim(), 10)) : [];
-            const date = item.fecha.includes('/')
-                ? dateFormatter.parse(item.fecha, "dd/MM/yyyy")
-                : new Date(item.fecha);
+    st("chart-subtitles-bottom", `
+      <span>(A)</span>
+      <span>(MW)</span>
+      <span>(kgf/CM²)</span>
+      <span>(°C)</span>
+      <span>(°C)</span>
+    `);
 
-            const processedItem = {
-                date: item.fecha,  // Fecha como categoría
-                corriente_actual: parseFloat(item.corriente_actual) || null,
-                potencia_actual: parseFloat(item.potencia_actual) || null,
-                manovacuometro: item.manovacuometro_valores ? parseFloat(item.manovacuometro_valores) : null,
-                temperatura_devanado: item.temperatura_devanado_valores ? parseFloat(item.temperatura_devanado_valores) : null,
-                temperatura_aceite: item.temperatura_aceite_valores ? parseFloat(item.temperatura_aceite_valores) : null,
-            };
+    // ------------------------------------------------------------------
+    // 2) AGRUPAR VALORES POR FECHA PARA TOOLTIP COMPLETO
+    // ------------------------------------------------------------------
+    const tooltipGroup: Record<
+      string,
+      {
+        manovacuometro: string[];
+        temperatura_devanado: string[];
+        temperatura_aceite: string[];
+      }
+    > = {};
 
-            console.log("Processed Item: ", processedItem);
+    for (const item of data || []) {
+      const dateKey = item.fecha;
 
-            return processedItem;
-        });
-
-        let categoryAxis = this.chart_valor_real.xAxes.push(new am4charts.CategoryAxis());
-        categoryAxis.dataFields.category = "date";
-        categoryAxis.renderer.minGridDistance = 200;  // Aumentar la distancia mínima de la cuadrícula
-        categoryAxis.renderer.grid.template.location = 0.5;
-
-        let createAxisAndSeries = (
-          field: string,
-          name: string,
-          opposite: boolean,
-          color: string,
-          unit: string
-      ) => {
-          if (!this.chart_valor_real) {
-              console.error("chart_valor_real no está inicializado");
-              return;
-          }
-
-          let valueAxis = this.chart_valor_real.yAxes.push(
-              new am4charts.ValueAxis<am4charts.AxisRendererY>()
-          );
-
-          if (this.chart_valor_real.yAxes.indexOf(valueAxis) !== 0) {
-              const mainAxis = this.chart_valor_real.yAxes.getIndex(0) as
-                  | am4charts.ValueAxis<am4charts.AxisRendererY>
-                  | undefined;
-
-              if (mainAxis) {
-                  valueAxis.syncWithAxis = mainAxis;
-              } else {
-                  console.warn("No se encontró el eje principal para sincronizar.");
-              }
-          }
-
-          valueAxis.renderer.opposite = opposite;
-          valueAxis.renderer.grid.template.stroke = am4core.color(color);
-          valueAxis.renderer.grid.template.disabled = true; // Deshabilitar la cuadrícula del eje Y
-
-          // Verifica que 'series' exista antes de usarla
-          if (this.chart_valor_real.series) {
-              let series = this.chart_valor_real.series.push(new am4charts.LineSeries());
-            series.dataFields.valueY = field;
-            series.dataFields.categoryX = "date";
-            series.stroke = am4core.color(color);
-            series.name = name;
-            series.tooltipText = `${name}: [bold]{valueY}${unit}[/]`;
-            series.tensionX = 0.8;
-            series.yAxis = valueAxis;  // Asociar la serie con el eje Y correspondiente
-
-            let bullet = series.bullets.push(new am4charts.CircleBullet());
-            bullet.circle.stroke = am4core.color(color);
-            bullet.circle.fill = am4core.color(color);
-
-            valueAxis.renderer.line.strokeOpacity = 1;
-            valueAxis.renderer.line.strokeWidth = 2;
-            valueAxis.renderer.line.stroke = am4core.color(color);
-
-            // Agregar etiqueta de unidad al eje
-            valueAxis.renderer.labels.template.adapter.add("text", function (value: string | undefined) {
-                if (value) {
-                    return value + unit;
-                } else {
-                    return ""; // O manejar el caso de 'undefined' de otra forma, según lo necesites
-                }
-            });
-
-            console.log(`Created series for ${name} with field ${field} and color ${color}`);
+      if (!tooltipGroup[dateKey]) {
+        tooltipGroup[dateKey] = {
+          manovacuometro: [],
+          temperatura_devanado: [],
+          temperatura_aceite: []
         };
       }
 
-        // Crear todas las series y agregar mensajes de depuración
-        // Series en el lado izquierdo
-        createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "");
-        createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", true, "#EDB2C3", "");
-        createAxisAndSeries("manovacuometro", "Manovacuómetro", true, "#B3DBEE", "");
-        // Series en el lado derecho
-        createAxisAndSeries("corriente_actual", "Corriente Actual", false, "#C767DC", "");
-        createAxisAndSeries("potencia_actual", "Potencia Actual", false, "#808080", "");
-        // Configurar leyenda y cursor
-        this.chart_valor_real.legend = new am4charts.Legend();
-        this.chart_valor_real.legend.position = "bottom";
+      const mv =
+        item.manovacuometro_valor ??
+        item.manovacuometro ??
+        null;
 
-        this.chart_valor_real.cursor = new am4charts.XYCursor();
-        this.chart_valor_real.cursor.xAxis = categoryAxis;
-        console.log("Cursor created");
+      const td =
+        item.temperatura_devanado_valor ??
+        item.temperatura_devanado ??
+        null;
 
-        this.chart_valor_real.exporting.menu = new am4core.ExportMenu();
-        this.chart_valor_real.exporting.menu.items = [
-            {
-                "label": "...",
-                "menu": [
-                    { "type": "png", "label": "PNG Image" },
-                    { "type": "jpg", "label": "JPG Image" },
-                    { "type": "pdf", "label": "PDF Image" },
-                    { "type": "print", "label": "Print" }
-                ]
-            }
-        ];
-        console.log("Export menu created");
+      const ta =
+        item.temperatura_aceite_valor ??
+        item.temperatura_aceite ??
+        null;
+
+      // push si existen
+      if (mv && !isNaN(parseFloat(mv))) {
+        tooltipGroup[dateKey].manovacuometro.push(parseFloat(mv).toString());
+      }
+
+      if (td && !isNaN(parseFloat(td))) {
+        tooltipGroup[dateKey].temperatura_devanado.push(parseFloat(td).toString());
+      }
+
+      if (ta && !isNaN(parseFloat(ta))) {
+        tooltipGroup[dateKey].temperatura_aceite.push(parseFloat(ta).toString());
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // 3) PROCESAR ITEMS Y USAR LISTAS DEL TOOLTIP AGRUPADO
+    // ------------------------------------------------------------------
+    this.chart_valor_real.data = data.map(item => {
+      const key = item.fecha;
+
+      return {
+        date: item.fecha,
+        corriente_actual: parseFloat(item.corriente_actual) || null,
+        potencia_actual: parseFloat(item.potencia_actual) || null,
+
+        manovacuometro: item.manovacuometro_valor ? parseFloat(item.manovacuometro_valor) : null,
+        manovacuometro_list: tooltipGroup[key]?.manovacuometro?.join(", ") || "",
+
+        temperatura_devanado: item.temperatura_devanado_valor ? parseFloat(item.temperatura_devanado_valor) : null,
+        temperatura_devanado_list: tooltipGroup[key]?.temperatura_devanado?.join(", ") || "",
+
+        temperatura_aceite: item.temperatura_aceite_valor ? parseFloat(item.temperatura_aceite_valor) : null,
+        temperatura_aceite_list: tooltipGroup[key]?.temperatura_aceite?.join(", ") || ""
+      };
     });
+
+    // ------------------------------------------------------------------
+    // 4) CONFIGURAR EJES
+    // ------------------------------------------------------------------
+    let categoryAxis = this.chart_valor_real.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "date";
+    categoryAxis.renderer.minGridDistance = 200;
+    categoryAxis.renderer.grid.template.location = 0.5;
+
+    // ------------------------------------------------------------------
+    // 5) CREAR SERIES Y TOOLTIP PERSONALIZADO
+    // ------------------------------------------------------------------
+    const createAxisAndSeries = (
+  field: string,
+  name: string,
+  opposite: boolean,
+  color: string,
+  unit: string,
+  listField?: string
+) => {
+  // Protección TypeScript
+  if (!this.chart_valor_real) {
+    console.error("chart_valor_real no inicializado");
+    return;
+  }
+
+  // --- eje Y ---
+  const yAxes = this.chart_valor_real.yAxes!;
+  const valueAxis = yAxes.push(new am4charts.ValueAxis());
+
+  const main = yAxes.getIndex(0) as am4charts.ValueAxis | undefined;
+
+  if (yAxes.indexOf(valueAxis) !== 0 && main) {
+    valueAxis.syncWithAxis = main;
+  }
+
+  valueAxis.renderer.opposite = opposite;
+  valueAxis.renderer.grid.template.disabled = true;
+
+  // --- serie ---
+  const seriesList = this.chart_valor_real.series!;
+  const series = seriesList.push(new am4charts.LineSeries());
+
+  series.dataFields.valueY = field;
+  series.dataFields.categoryX = "date";
+  series.stroke = am4core.color(color);
+  series.name = name;
+  series.tensionX = 0.8;
+  series.yAxis = valueAxis;
+
+  // Tooltip con lista agrupada
+  series.tooltipHTML = `
+    <div style="font-size: 12px;">
+      <b>${name}</b><br>
+      Valores: {${listField || field}}${unit}
+    </div>
+  `;
+
+  const bullet = series.bullets.push(new am4charts.CircleBullet());
+  bullet.circle.fill = am4core.color(color);
+  bullet.circle.stroke = am4core.color(color);
+};
+
+
+    // Series
+    createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "", "temperatura_devanado_list");
+    createAxisAndSeries("temperatura_aceite", "Temperatura Aceite", true, "#EDB2C3", "", "temperatura_aceite_list");
+    createAxisAndSeries("manovacuometro", "Manovacuómetro", true, "#B3DBEE", "", "manovacuometro_list");
+
+    createAxisAndSeries("corriente_actual", "Corriente Actual", false, "#C767DC", "");
+    createAxisAndSeries("potencia_actual", "Potencia Actual", false, "#808080", "");
+
+    this.chart_valor_real.legend = new am4charts.Legend();
+    this.chart_valor_real.legend.position = "bottom";
+
+    this.chart_valor_real.cursor = new am4charts.XYCursor();
+    this.chart_valor_real.cursor.xAxis = categoryAxis;
+
+    this.chart_valor_real.exporting.menu = new am4core.ExportMenu();
+  });
 }
+
 
 
 
@@ -293,140 +316,221 @@ if (chartContainer) {
   chartContainer.appendChild(menuContainer);
 }
    */
+tendencia_testigo(data: any[]): void {
+  this.zone.runOutsideAngular(() => {
+    if (this.chart_valor_testigo) {
+      this.chart_valor_testigo.dispose();
+    }
+
+    this.chart_valor_testigo = am4core.create("chart_valor_testigo", am4charts.XYChart);
+    this.chart_valor_testigo.logo.disabled = true;
+
+    let dateFormatter = new am4core.DateFormatter();
+
+    // subtítulos (omito por brevedad, conserva tu código existente)
+    const chartContainer = document.getElementById("chart-container-testigo");
+
+    if (chartContainer) {
+      const subtitleTopContainer = document.getElementById("chart-subtitles-top-testigo");
+      if (subtitleTopContainer)
+        subtitleTopContainer.innerHTML = `<span>(kgf/CM²)</span><span>(°C)</span><span>(°C)</span>`;
+
+      const subtitleBottomContainer = document.getElementById("chart-subtitles-bottom-testigo");
+      if (subtitleBottomContainer)
+        subtitleBottomContainer.innerHTML = `<span>(kgf/CM²)</span><span>(°C)</span><span>(°C)</span>`;
+    }
+
+    // helper: normalizar fecha a key dd-MM-yyyy
+    const formatKey = (fecha: string): string => {
+      if (!fecha) return '';
+      try {
+        if (fecha.includes('/')) {
+          const dt = dateFormatter.parse(fecha, "dd/MM/yyyy");
+          return dateFormatter.format(dt, "dd-MM-yyyy");
+        }
+        if (fecha.includes('-')) {
+          const parts = fecha.split('-');
+          if (parts[0].length === 4)
+            return `${parts[2].padStart(2, '0')}-${parts[1].padStart(2, '0')}-${parts[0]}`; // yyyy-mm-dd -> dd-mm-yyyy
+          return fecha;
+        }
+        return fecha;
+      } catch {
+        return fecha;
+      }
+    };
+ const processed: any[] = [];
+
+// --- MAP GENERAL POR FECHA PARA AGRUPAR VALORES DEL TOOLTIP ---
+const tooltipGroup: Record<
+  string,
+  {
+    manovacuometro: string[];
+    temperatura_devanado: string[];
+    temperatura_aceite: string[];
+  }
+> = {};
+
+// --- 1) RECORRER DATA Y AGRUPAR ---
+for (const item of data || []) {
+  const dateKey = formatKey(item.fecha || item.date || '');
+
+  // Crear estructura si no existe
+  if (!tooltipGroup[dateKey]) {
+    tooltipGroup[dateKey] = {
+      manovacuometro: [],
+      temperatura_devanado: [],
+      temperatura_aceite: []
+    };
+  }
+
+  // Normalizar valores (string → float → string)
+  const mv =
+    item.manovacuometro_valor ??
+    item.manovacuometro ??
+    null;
+
+  const td =
+    item.temperatura_devanado_valor ??
+    item.temperatura_devanado ??
+    null;
+
+  const ta =
+    item.temperatura_aceite_valor ??
+    item.temperatura_aceite ??
+    null;
+
+  // --- Guardar en grupos (si existe y es número) ---
+  if (mv !== null && !isNaN(parseFloat(mv))) {
+    tooltipGroup[dateKey].manovacuometro.push(parseFloat(mv).toString());
+  }
+
+  if (td !== null && !isNaN(parseFloat(td))) {
+    tooltipGroup[dateKey].temperatura_devanado.push(parseFloat(td).toString());
+  }
+
+  if (ta !== null && !isNaN(parseFloat(ta))) {
+    tooltipGroup[dateKey].temperatura_aceite.push(parseFloat(ta).toString());
+  }
+
+  // --- Insertar una FILA en processed por cada item (si deseas un punto por valor) ---
+  processed.push({
+    date: dateKey,
+    manovacuometro: mv !== null ? parseFloat(mv) : null,
+    temperatura_devanado: td !== null ? parseFloat(td) : null,
+    temperatura_aceite: ta !== null ? parseFloat(ta) : null
+  });
+}
+
+// --- 2) AGREGAR LISTAS DE TOOLTIP A CADA FILA YA CREADA ---
+processed.forEach(row => {
+  const group = tooltipGroup[row.date] || {};
+
+  row.manovacuometro_list =
+    group.manovacuometro?.join(", ") || "";
+
+  row.temperatura_devanado_list =
+    group.temperatura_devanado?.join(", ") || "";
+
+  row.temperatura_aceite_list =
+    group.temperatura_aceite?.join(", ") || "";
+});
+
+    // Convertir a array con campos *_list y primer valor (para dibujar)
+   
+
+    this.chart_valor_testigo.data = processed;
+
+    // Eje X como categoría (fecha)
+    let categoryAxis = this.chart_valor_testigo.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "date";
+    categoryAxis.renderer.minGridDistance = 70;
+    categoryAxis.renderer.grid.template.location = 0.5;
+
+    // Crear series reutilizable: usa *_list en tooltip
+    const createAxisAndSeries = (
+      field: string,
+      name: string,
+      opposite: boolean,
+      color: string,
+      unit: string,
+      listField?: string
+    ) => {
+      const valueAxis = this.chart_valor_testigo.yAxes.push(
+        new am4charts.ValueAxis<am4charts.AxisRendererY>()
+      );
+
+      if (this.chart_valor_testigo.yAxes.indexOf(valueAxis) !== 0) {
+        const mainAxis = this.chart_valor_testigo.yAxes.getIndex(0) as
+          | am4charts.ValueAxis<am4charts.AxisRendererY>
+          | undefined;
+
+        if (mainAxis) valueAxis.syncWithAxis = mainAxis;
+      }
+
+      valueAxis.renderer.opposite = opposite;
+      valueAxis.renderer.grid.template.stroke = am4core.color(color);
+      valueAxis.renderer.grid.template.disabled = true;
+
+      const series = this.chart_valor_testigo.series.push(new am4charts.LineSeries());
+      series.dataFields.valueY = field;
+      series.dataFields.categoryX = "date";
+      series.stroke = am4core.color(color);
+      series.name = name;
+
+      // usar campo listField para tooltip si se proporciona, sino valueY
+      if (listField)
+        series.tooltipText = `{name}: [bold]{${listField}}${unit}[/]`;
+      else
+        series.tooltipText = `{name}: [bold]{valueY}${unit}[/]`;
+
+      series.tensionX = 0.8;
+      series.yAxis = valueAxis;
+
+      const bullet = series.bullets.push(new am4charts.CircleBullet());
+      bullet.circle.stroke = am4core.color(color);
+      bullet.circle.fill = am4core.color(color);
+
+      valueAxis.renderer.line.strokeOpacity = 1;
+      valueAxis.renderer.line.strokeWidth = 2;
+      valueAxis.renderer.line.stroke = am4core.color(color);
+
+      valueAxis.renderer.labels.template.adapter.add("text", (value: string | undefined) =>
+        value ? value + unit : ""
+      );
+    };
+
+    // Crear series usando los campos *_list para tooltip
+    createAxisAndSeries("manovacuometro", "Manovacuómetro", false, "#B3DBEE", "", "manovacuometro_list");
+    createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "", "temperatura_devanado_list");
+    createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", true, "#EDB2C3", "", "temperatura_aceite_list");
+
+    this.chart_valor_testigo.legend = new am4charts.Legend();
+    this.chart_valor_testigo.legend.position = "bottom";
+
+    this.chart_valor_testigo.cursor = new am4charts.XYCursor();
+    this.chart_valor_testigo.cursor.xAxis = categoryAxis;
+
+    this.chart_valor_testigo.exporting.menu = new am4core.ExportMenu();
+    this.chart_valor_testigo.exporting.menu.items = [
+      {
+        label: "...",
+        menu: [
+          { type: "png", label: "PNG Image" },
+          { type: "jpg", label: "JPG Image" },
+          { type: "pdf", label: "PDF Image" },
+          { type: "print", label: "Print" }
+        ]
+      }
+    ];
+  });
+}
 
   //CREACION DEL GRAFICO TENDENDIA TESTIGO
-  tendencia_testigo(data: any[]): void {
-    this.zone.runOutsideAngular(() => {
-      if (this.chart_valor_testigo) {
-        this.chart_valor_testigo.dispose(); // Limpiar gráfico previo si existe
-      }
-
-      // Crear el gráfico testigo
-      this.chart_valor_testigo = am4core.create("chart_valor_testigo", am4charts.XYChart);
-      console.log("Gráfico testigo creado");
-
-      let dateFormatter = new am4core.DateFormatter();
-      this.chart_valor_testigo.logo.disabled = true;  // Desactivar el logo en el gráfico testigo
+  // ...existing code...
 
 
-      // Crear subtítulos en la parte superior
-      const chartContainer = document.getElementById("chart-container-testigo");
-      if (chartContainer) {
-          const subtitleTopContainer = document.getElementById("chart-subtitles-top-testigo");
-          if (subtitleTopContainer) {
-              subtitleTopContainer.innerHTML = `
-
-                  <span>(kgf/CM²)</span>
-                  <span>(°C)</span>
-                  <span>(°C)</span>
-              `;
-              console.log("Subtítulos superiores agregados");
-          }
-
-          // Crear subtítulos en la parte inferior
-          const subtitleBottomContainer = document.getElementById("chart-subtitles-bottom-testigo");
-          if (subtitleBottomContainer) {
-              subtitleBottomContainer.innerHTML = `
-
-                  <span>(kgf/CM²)</span>
-                  <span>(°C)</span>
-                  <span>(°C)</span>
-              `;
-              console.log("Subtítulos inferiores agregados");
-          } else {
-              console.error("No se encontró el contenedor de subtítulos inferiores");
-          }
-      } else {
-          console.error("No se encontró el contenedor principal del gráfico");
-      }
-
-      // Procesar los datos
-      this.chart_valor_testigo.data = data.map(item => {
-        const valores: number[] = item.valores_ingresados ? item.valores_ingresados.split(',').map((v: string) => parseInt(v.trim(), 10)) : [];
-        const date = item.fecha.includes('/')
-        ? dateFormatter.parse(item.fecha, "dd/MM/yyyy")
-        : new Date(item.fecha);
-
-        const processedItem = {
-          date: item.fecha,  // Fecha como categoría
-          manovacuometro: item.manovacuometro ? parseFloat(item.manovacuometro) : null,
-          temperatura_devanado: item.temperatura_devanado ? parseFloat(item.temperatura_devanado) : null,
-          temperatura_aceite: item.temperatura_aceite ? parseFloat(item.temperatura_aceite) : null,
-        };
-
-    console.log("Processed Item: ", processedItem);
-
-    return processedItem;
-    });
-
-      // Crear eje X (fecha)
-      let categoryAxis = this.chart_valor_testigo.xAxes.push(new am4charts.CategoryAxis());
-      categoryAxis.dataFields.category = "date";
-      categoryAxis.renderer.minGridDistance = 70;
-      categoryAxis.renderer.grid.template.location = 0.5;
-
-      // Función para crear las series
-      let createAxisAndSeries = (field: string, name: string, opposite: boolean, color: string, unit: string) => {
-        let valueAxis = this.chart_valor_testigo.yAxes.push(new am4charts.ValueAxis<am4charts.AxisRendererY>());
-        if (this.chart_valor_testigo.yAxes.indexOf(valueAxis) !== 0) {
-          valueAxis.syncWithAxis = this.chart_valor_testigo.yAxes.getIndex(0) as am4charts.ValueAxis<am4charts.AxisRendererY>;
-        }
-        valueAxis.renderer.opposite = opposite;
-        valueAxis.renderer.grid.template.stroke = am4core.color(color);
-        valueAxis.renderer.grid.template.disabled = true;
-
-        let series = this.chart_valor_testigo.series.push(new am4charts.LineSeries());
-        series.dataFields.valueY = field;
-        series.dataFields.categoryX = "date";
-        series.stroke = am4core.color(color);
-        series.name = name;
-        series.tooltipText = `{name}: [bold]{valueY}${unit}[/]`;
-        series.tensionX = 0.8;
-        series.yAxis = valueAxis;
-
-        let bullet = series.bullets.push(new am4charts.CircleBullet());
-        bullet.circle.stroke = am4core.color(color);
-        bullet.circle.fill = am4core.color(color);
-
-        valueAxis.renderer.line.strokeOpacity = 1;
-        valueAxis.renderer.line.strokeWidth = 2;
-        valueAxis.renderer.line.stroke = am4core.color(color);
-
-        // Agregar etiqueta de unidad al eje
-        valueAxis.renderer.labels.template.adapter.add("text", (value: string | undefined) => {
-          return value ? value + unit : "";
-        });
-
-        console.log(`Serie creada para ${name} con campo ${field} y color ${color}`);
-      };
-
-      // Crear las series para el gráfico testigo
-      createAxisAndSeries("manovacuometro", "Manovacuómetro", false, "#B3DBEE", "");
-      createAxisAndSeries("temperatura_devanado", "Temperatura Devanado", true, "#67B7DC", "");
-      createAxisAndSeries("temperatura_aceite", "Temperatura de Aceite", true, "#EDB2C3", "");
-
-      // Añadir leyenda, cursor y menú de exportación
-      this.chart_valor_testigo.legend = new am4charts.Legend();
-      this.chart_valor_testigo.legend.position = "bottom";
-      this.chart_valor_testigo.cursor = new am4charts.XYCursor();
-      this.chart_valor_testigo.cursor.xAxis = categoryAxis;
-
-      this.chart_valor_testigo.exporting.menu = new am4core.ExportMenu();
-      this.chart_valor_testigo.exporting.menu.items = [
-        {
-          "label": "...",
-          "menu": [
-            { "type": "png", "label": "PNG Image" },
-            { "type": "jpg", "label": "JPG Image" },
-            { "type": "pdf", "label": "PDF Image" },
-            { "type": "print", "label": "Print" }
-          ]
-        }
-      ];
-
-      console.log("Export menu para gráfico testigo creado");
-    });
-  }
+// ...existing code...
 
 
   ngOnDestroy() {
