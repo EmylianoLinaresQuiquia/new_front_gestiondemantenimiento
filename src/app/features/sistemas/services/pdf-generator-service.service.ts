@@ -262,6 +262,7 @@ resultado.metodoSujecion.forEach((item) => {
   // Incrementamos el contador para todos los elementos, incluso los no válidos
   contadorPatsujecion++;
 });
+drawText(resultado.metodoSujecion[0]?.sujecion_conclusiones || '', 128, height - 1106);
 // Función para convertir Base64 a ArrayBuffer
 const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
   const binaryString = atob(base64);
