@@ -825,276 +825,158 @@ captureChartAsImage(chartId: string, fileName: string, callback: (blob: Blob) =>
 
 
 
-  async insertarSpt2(): Promise<void> {
+async insertarSpt2(): Promise<void> {
 
   this.modal.confirm({
     nzTitle: 'Confirmación',
     nzContent: '¿Estás seguro de que quieres guardar los datos?',
     nzOkText: 'Aceptar',
     nzCancelText: 'Cancelar',
+
     nzOnOk: async () => {
-      const loadingMessageId = this.messageService.loading('Evaluando los datos, por favor espera...', { nzDuration: 0 }).messageId;
 
-    try {
+      const loadingMessageId = this.messageService.loading(
+        'Evaluando los datos, por favor espera...',
+        { nzDuration: 0 }
+      ).messageId;
 
-      // Capturar las imágenes de esquema_caida y esquema_selectivo
-      const esquemaCaida = await this.enviarImagencaida(); // Devuelve un File
-      const esquemaSelectivo = await this.enviarImagenselectivo(); // Devuelve un File
-      // Convertir la fecha al formato dd-MM-yyyy antes de guardarla
-      const fechaFormateada = this.convertirFechaFormato(this.fecha);
+      try {
 
-        // Tipificar las propiedades para MetodoCaida
-          // Estructura original con pat1, pat2, etc.
-        // Estructura original con pat1, pat2, etc.
-const metodosCaidaOriginal: {
-  pat1: number[],
-  pat2: number[],
-  pat3: number[],
-  pat4: number[],
-  ohm: number[],
-  resultado: string[]
-} = {
-  pat1: [],
-  pat2: [],
-  pat3: [],
-  pat4: [],
-  ohm: [],
-  resultado: []
-};
+        const esquemaCaida = await this.enviarImagencaida();
+        const esquemaSelectivo = await this.enviarImagenselectivo();
 
-// Llenar valores en metodosCaidaOriginal
-for (let i = 0; i < this.caidaValues.length; i++) {
-  const value = parseFloat(this.caidaValues[i]?.toString()) || 0;
-  if (i < 3) {
-    metodosCaidaOriginal.pat1.push(value);
-  } else if (i < 6) {
-    metodosCaidaOriginal.pat2.push(value);
-  } else if (i < 9) {
-    metodosCaidaOriginal.pat3.push(value);
-  } else {
-    metodosCaidaOriginal.pat4.push(value);
-  }
-}
+        const fechaFormateada = this.convertirFechaFormato(this.fecha);
 
-for (let j = 0; j < Math.ceil(this.caidaValues.length / 3); j++) {
-  metodosCaidaOriginal.ohm.push(this.calcularPromedioCaida(j) || 0);
-  metodosCaidaOriginal.resultado.push(this.getResultadoCaida(j)?.mensaje || 'desconocido');
-}
+        // =====================================================
+        // 🟢 CAIDA → FORMATO CORRECTO (data)
+        // =====================================================
+        const metodosCaida = { data: [] as any[] };
 
-// Definir tipo explícito para `metodosCaida`
-const metodosCaida: {
-  pat_data: { pat1: number; pat2: number; pat3: number; pat4: number }[],
-  ohm_data: { ohm: number; resultado: string }[]
-} = {
-  pat_data: [],
-  ohm_data: []
-};
+        for (let j = 0; j < Math.ceil(this.caidaValues.length / 3); j++) {
+          metodosCaida.data.push({
+            item1: this.caidaValues[j * 3] || 0,
+            item2: this.caidaValues[j * 3 + 1] || 0,
+            item3: this.caidaValues[j * 3 + 2] || 0,
+            ohm: this.calcularPromedioCaida(j) || 0,
+            resultado: this.getResultadoCaida(j)?.mensaje || 'desconocido'
+          });
+        }
 
-// Transformar los datos de `metodosCaidaOriginal` a `metodosCaida.pat_data`
-for (let i = 0; i < metodosCaidaOriginal.pat1.length; i++) {
-  metodosCaida.pat_data.push({
-    pat1: metodosCaidaOriginal.pat1[i],
-    pat2: metodosCaidaOriginal.pat2[i],
-    pat3: metodosCaidaOriginal.pat3[i],
-    pat4: metodosCaidaOriginal.pat4[i]
-  });
-}
+        // =====================================================
+        // 🟢 SELECTIVO → FORMATO CORRECTO (data)
+        // =====================================================
+        const metodosSelectivos = { data: [] as any[] };
 
-// Transformar los datos de `metodosCaidaOriginal` a `metodosCaida.ohm_data`
-for (let i = 0; i < metodosCaidaOriginal.ohm.length; i++) {
-  metodosCaida.ohm_data.push({
-    ohm: metodosCaidaOriginal.ohm[i],
-    resultado: metodosCaidaOriginal.resultado[i]
-  });
-}
+        for (let j = 0; j < Math.ceil(this.selectivoValues.length / 3); j++) {
+          metodosSelectivos.data.push({
+            item1: this.selectivoValues[j * 3] || '',
+            item2: this.selectivoValues[j * 3 + 1] || '',
+            item3: this.selectivoValues[j * 3 + 2] || '',
+            ohm: this.calcularPromedioSelectivo(j).toString(),
+            resultado: this.getResultadoSelectivo(j)?.mensaje || 'desconocido'
+          });
+        }
 
+        // =====================================================
+        // 🟢 SUJECION → FORMATO CORRECTO (data)
+        // =====================================================
+        const patsSujecion = { data: [] as any[] };
 
+        for (let i = 0; i < this.inputValues.length; i++) {
+          const val = this.inputValues[i];
+          const ohm = val ? parseFloat(val.toString()) : null;
 
+          patsSujecion.data.push({
+            ohm: ohm,
+            resultado: ohm === null ? '' : (ohm < 25 ? 'CUMPLE' : 'NO CUMPLE')
+          });
+        }
 
-        // Tipificar las propiedades para MetodoSelectivo
-        // Estructura original con pat1, pat2, etc.
-const metodosSelectivosOriginal: {
-  pat1: string[],
-  pat2: string[],
-  pat3: string[],
-  pat4: string[],
-  ohm: string[],
-  resultado: string[]
-} = {
-  pat1: [],
-  pat2: [],
-  pat3: [],
-  pat4: [],
-  ohm: [],
-  resultado: []
-};
+        // =====================================================
+        // 🟢 FORM DATA
+        // =====================================================
+        const formData = new FormData();
 
-// Llenar valores en metodosSelectivosOriginal
-for (let i = 0; i < this.selectivoValues.length; i++) {
-  const value = (this.selectivoValues[i] || '').toString();
-  if (i < 3) {
-    metodosSelectivosOriginal.pat1.push(value);
-  } else if (i < 6) {
-    metodosSelectivosOriginal.pat2.push(value);
-  } else if (i < 9) {
-    metodosSelectivosOriginal.pat3.push(value);
-  } else {
-    metodosSelectivosOriginal.pat4.push(value);
-  }
-}
+        formData.append("Ot", this.ot);
+        formData.append("Fecha", fechaFormateada);
+        formData.append("Firmado", "false");
 
-for (let j = 0; j < Math.ceil(this.selectivoValues.length / 3); j++) {
-  metodosSelectivosOriginal.ohm.push(this.calcularPromedioSelectivo(j).toString());
-  metodosSelectivosOriginal.resultado.push(this.getResultadoSelectivo(j)?.mensaje || "desconocido");
-}
+        formData.append("IdUsuario", (this.idLider ?? 0).toString());
+        formData.append("IdUsuario2", (this.idSupervisor ?? 0).toString());
+        formData.append("IdSubestacion", (this.id_subestacion ?? 0).toString());
 
-// Definir tipo explícito para `metodosSelectivos`
-const metodosSelectivos: {
-  pat_data: { pat1: string; pat2: string; pat3: string; pat4: string }[],
-  ohm_data: { ohm: string; resultado: string }[]
-} = {
-  pat_data: [],
-  ohm_data: []
-};
+        formData.append("CaidaPotencia", this.checkcaida.toString());
+        formData.append("Selectivo", this.checkpotencial.toString());
+        formData.append("SinPicas", this.checksinpicas.toString());
 
-// Transformar los datos de `metodosSelectivosOriginal` a `metodosSelectivos.pat_data`
-for (let i = 0; i < metodosSelectivosOriginal.pat1.length; i++) {
-  metodosSelectivos.pat_data.push({
-    pat1: metodosSelectivosOriginal.pat1[i],
-    pat2: metodosSelectivosOriginal.pat2[i],
-    pat3: metodosSelectivosOriginal.pat3[i],
-    pat4: metodosSelectivosOriginal.pat4[i]
-  });
-}
+        formData.append("FechaCalibracion", this.fecha_calibracion || '');
+        formData.append("Marca", this.marca || '');
+        formData.append("NumeroSerie", this.n_serie || '');
+        formData.append("Modelo", this.modelo || '');
+        formData.append("Frecuencia", this.frecuencia || '');
+        formData.append("Precision", this.precision || '');
 
-// Transformar los datos de `metodosSelectivosOriginal` a `metodosSelectivos.ohm_data`
-for (let i = 0; i < metodosSelectivosOriginal.ohm.length; i++) {
-  metodosSelectivos.ohm_data.push({
-    ohm: metodosSelectivosOriginal.ohm[i],
-    resultado: metodosSelectivosOriginal.resultado[i]
-  });
-}
+        formData.append("ConclusionesSujecion", this.conclusionespat || '');
 
+        // 🔥 JSON CORRECTO
+        formData.append("JsonPatsSelectivo", JSON.stringify(metodosSelectivos));
+        formData.append("JsonPatsCaida", JSON.stringify(metodosCaida));
+        formData.append("JsonPatsSujecion", JSON.stringify(patsSujecion));
 
-// Llenar `ohm` en patsSujecionOriginal
-const patsSujecionOriginal: {
-  ohm: (number | null)[]
-} = {
-  ohm: []
-};
+        formData.append("ConclusionesCaida", this.conclucioncaida || '');
+        formData.append("ConclusionesSelectivo", this.conclucionselectivo || '');
 
-for (let i = 0; i < this.inputValues.length; i++) {
-  const value = this.inputValues[i];
-  // Si el valor es null o undefined, se asigna null. De lo contrario, se convierte a número.
-  if (value === null || value === undefined) {
-    patsSujecionOriginal.ohm.push(null);
-  } else {
-    const parsedValue = parseFloat(value.toString());
-    patsSujecionOriginal.ohm.push(isNaN(parsedValue) ? null : parsedValue);
-  }
-}
+        // =====================================================
+        // 🟢 IMÁGENES (FIX REAL)
+        // =====================================================
+        this.files.forEach(file => {
+          if (file) {
+            formData.append("Imagenes", file);
+          }
+        });
 
-// Transformar a formato de la API
-const patsSujecion: {
-  ohm_data: { ohm: number | null; resultado: string }[]
-} = {
-  ohm_data: []
-};
+        // ESQUEMAS
+        if (esquemaCaida) {
+          formData.append("EsquemaCaida", esquemaCaida);
+        }
 
-// Llenar `ohm_data`
-for (let i = 0; i < patsSujecionOriginal.ohm.length; i++) {
-  const ohmValue = patsSujecionOriginal.ohm[i];
-  const resultado = ohmValue === null ? "" : (ohmValue < 25 ? "CUMPLE" : "NO CUMPLE"); // Evalúa si cumple o no
+        if (esquemaSelectivo) {
+          formData.append("EsquemaSelectivo", esquemaSelectivo);
+        }
 
-  patsSujecion.ohm_data.push({
-    ohm: ohmValue,
-    resultado: resultado // Asigna el resultado evaluado
-  });
-}
+        // =====================================================
+        // 🚀 ENVÍO
+        // =====================================================
+        console.log("FORMDATA ENVIADO:");
+        formData.forEach((v, k) => console.log(k, v));
 
+        const response = await this.spt2Service.insertarSpt2(formData).toPromise();
 
+        if (response?.idSpt2) {
 
-const spt2Data: InsertSpt2 = {
-  Ot: this.ot,
-  Fecha: fechaFormateada,
-  Firmado: false,
-  IdUsuario: this.idLider ?? 0,
-  IdUsuario2: this.idSupervisor ?? 0,
-  IdSubestacion: this.id_subestacion ?? 0,
-  CaidaPotencia: this.checkcaida,
-  Selectivo: this.checkpotencial,
-  SinPicas: this.checksinpicas,
-  FechaCalibracion: this.fecha_calibracion,
-  Marca: this.marca,
-  NumeroSerie: this.n_serie,
-  Modelo: this.modelo,
-  Frecuencia: this.frecuencia,
-  Precision: this.precision,
-  ConclusionesSujecion: this.conclusionespat,
-  JsonPatsSelectivo: JSON.stringify(metodosSelectivos),
-  JsonPatsCaida: JSON.stringify(metodosCaida),
-  JsonPatsSujecion: JSON.stringify(patsSujecion),
-  ConclusionesCaida: this.conclucioncaida || '',
-  ConclusionesSelectivo: this.conclucionselectivo || '',
-  Imagen1: this.files[0] || null,
-  Imagen2: this.files[1] || null,
-  Imagen3: this.files[2] || null,
-  Imagen4: this.files[3] || null,
-  EsquemaCaida: esquemaCaida || null,
-  EsquemaSelectivo: esquemaSelectivo || null,
-};
+          const notificacion = {
+            supervisor: this.idSupervisor ?? 0,
+            lider: this.idLider ?? 0,
+            firmado: false,
+            id_spt2: response.idSpt2,
+          };
 
-const formData = new FormData();
+          await this.notificacionService.insertarNotificacionSpt2(notificacion).toPromise();
 
-// Agregar campos al FormData
-Object.keys(spt2Data).forEach((key) => {
-  if (spt2Data[key] !== undefined && spt2Data[key] !== null) {
-    // Si es un archivo, lo agregamos directamente
-    if (spt2Data[key] instanceof File) {
-      formData.append(key, spt2Data[key]);
-    } else {
-      // Si es un objeto o array, lo convertimos a JSON
-      if (typeof spt2Data[key] === 'object') {
-        formData.append(key, JSON.stringify(spt2Data[key]));
-      } else {
-        formData.append(key, spt2Data[key].toString());
+          this.messageService.remove(loadingMessageId);
+          this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
+
+        } else {
+          throw new Error('No se obtuvo el ID');
+        }
+
+      } catch (error) {
+        console.error(error);
+        this.messageService.remove(loadingMessageId);
       }
-    }
-  }
-});
-
-try {
-  console.log("Datos enviados a la API:", spt2Data);
-  const response = await this.spt2Service.insertarSpt2(formData).toPromise(); // Enviar formData
-  if (response.idSpt2) {
-    console.log("Respuesta recibida:", response);
-
-    const notificacion: Notificacion = {
-      supervisor: this.idSupervisor ?? 0,
-      lider: this.idLider ?? 0,
-      firmado: false,
-      id_spt2: response.idSpt2,
-    };
-    console.log("Datos de notificación:", notificacion);
-
-    await this.notificacionService.insertarNotificacionSpt2(notificacion).toPromise();
-    console.log("Notificación guardada correctamente");
-
-    this.messageService.remove(loadingMessageId);
-    this.alertservice.success('Datos Guardados', 'Los datos se han guardado con éxito.');
-  } else {
-    throw new Error('No se pudo obtener el ID de la spt1');
-  }
-} catch (error) {
-  this.handleErrorInterno(error, 'insertarSpt2', loadingMessageId);
-}
-    } catch (error) {
-      console.error("Error al procesar datos del formulario:", error);
-      this.messageService.remove(loadingMessageId);
 
     }
-  }
-});
+  });
 }
 
 

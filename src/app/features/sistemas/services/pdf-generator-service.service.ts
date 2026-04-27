@@ -117,22 +117,6 @@ async generarPDF(id: number): Promise<Blob> {
 
                 let contadorPatcaida = 1;
 
-                resultado.metodoCaida.forEach((item, index) => {
-                  // Verificamos que el item y item.resultado existan y tengan longitud mayor a 0
-                  const registroCount = item.resultado?.length || 0;
-                  const mensaje = registroCount > 0 ? `PAT${contadorPatcaida}` : '';
-
-                  // Solo dibuja el texto si hay mensaje
-                  if (mensaje) {
-                    // Ajusta las coordenadas en función del índice para evitar superposición
-                    const posY = height - 500 - (contadorPatcaida * 20); // Ejemplo: ajusta 20px de separación entre textos
-                    drawText(mensaje, 135, posY);
-
-                    // Incrementa el contador para el siguiente mensaje
-                    contadorPatcaida++;
-                  }
-                });
-
 
     //VARIBALE METODOS
     const startY = height - 610; // Posición inicial en la página para metodoCaida
@@ -141,75 +125,105 @@ async generarPDF(id: number): Promise<Blob> {
     //METODO CAIDA
     drawText(resultado.metodoCaida[0]?.caida_conclusiones || '', 130, height - 610);
 
-    resultado.metodoCaida.forEach((registro: any, index: number) => {
-      const currentY = startY - index * lineHeight * 2; // Ajusta el espacio entre registros completos
-      const currentYohm = startY - index * lineHeight * 4;
-      const xRegistro = 100;
-      const xOhm = 190;
-      const xResultado = 270;
-      const xPat1 = 375;
-      const xPat2 = 425;
-      const xPat3 = 475;
-      const xPat4 = 525;
-      const yOhmResultado = currentYohm + 90; // Para Ohm y Resultado, ligeramente por debajo de Conclusiones
-      const yPat = currentY + 185; // Exclusiva para los valores Pat, más abajo para evitar superposición
-      const resultadoColor: [number, number, number] = registro.resultado === 'CUMPLE'
-    ? [0, 1, 0] // Verde (0, 1, 0)
-    : [1, 0, 0]; // Rojo (1, 0, 0)
+    // Dibujar encabezados PAT una sola vez (horizontal, arriba de los items)
+    const yPatItemsCaida = height - 419; // Mismo Y para todos los valores de items en metodoCaida
+    const yHeaderCaida = yPatItemsCaida + 14; // Encabezado PAT debe estar encima de los items
+    drawText('PAT1', 375, yHeaderCaida);
+    drawText('PAT2', 425, yHeaderCaida);
+    drawText('PAT3', 475, yHeaderCaida);
+    drawText('PAT4', 525, yHeaderCaida);
 
-      // Ohm y Resultado en yOhmResultado
+    // Columnas PAT fijas
+    const xPat1 = 375;
+    const xPat2 = 425;
+    const xPat3 = 475;
+    const xPat4 = 525;
+    const patColumns = [xPat1, xPat2, xPat3, xPat4];
+    const xOhm = 190;
+    const xResultado = 270;
+
+    resultado.metodoCaida.forEach((registro: any, registroIndex: number) => {
+      // Cada registro ocupa una columna PAT
+      if (registroIndex >= 4) return; // Máximo 4 registros (PAT1-PAT4)
+
+      const xPat = patColumns[registroIndex]; // Columna asignada a este registro
+      
+      // Mantener la sección vertical sin cambios
+      const currentYohm = startY - registroIndex * lineHeight * 4;
+      const yOhmResultado = currentYohm + 90;
+      const yPat = yPatItemsCaida; // Mismos valores Y para todas las columnas
+
+      // Dibujar PAT label, OHM y RESULTADO en la fila vertical (a la izquierda)
+      drawText(`PAT${registroIndex + 1}`, 130, yOhmResultado);
       drawText(registro.ohm?.toString() || '', xOhm, yOhmResultado);
-      drawText(registro.resultado?.toString() || '', xResultado, yOhmResultado,resultadoColor);
+      
+      const resultadoColor: [number, number, number] = registro.resultado === 'CUMPLE'
+        ? [0, 1, 0]
+        : [1, 0, 0];
+      drawText(registro.resultado?.toString() || '', xResultado, yOhmResultado, resultadoColor);
 
-      // Valores de Pat en la posición yPat
-      drawText(registro.pat1?.toString() || '', xPat1, yPat);
-      drawText(registro.pat2?.toString() || '', xPat2, yPat);
-      drawText(registro.pat3?.toString() || '', xPat3, yPat);
-      drawText(registro.pat4?.toString() || '', xPat4, yPat);
+      // Los items de este registro se dibujan en su columna PAT asignada
+      const val1 = (registro as any).item1 ?? (registro as any).pat1;
+      const val2 = (registro as any).item2 ?? (registro as any).pat2;
+      const val3 = (registro as any).item3 ?? (registro as any).pat3;
+
+      drawText(val1?.toString() || '', xPat, yPat- 4);
+      drawText(val2?.toString() || '', xPat, yPat - 14.5);
+      drawText(val3?.toString() || '', xPat, yPat - 29);
   });
 
 
-
-
   let contadorPatselectivo = 1;
-resultado.metodoSelectivo.forEach((item, index) => {
-  const registroCount = item.resultado?.length || 0;
-  if (registroCount > 0) {
-    const mensaje = `PAT${contadorPatselectivo}`;
-    const posY = height - 795 - (contadorPatselectivo * 20);
-    drawText(mensaje, 135, posY);
-    contadorPatselectivo++;
-  }
-});
 
 // Método Selectivo
 drawText(resultado.metodoSelectivo[0]?.selectivo_conclusiones || '', 130, height - 905);
 
-resultado.metodoSelectivo.forEach((registro, index) => {
-  const currentY = startY - index * lineHeight * 2.2;
-  const currentYohm = startY - index * lineHeight * 4;
+// Dibujar encabezados PAT una sola vez (horizontal, arriba de los items)
+const yPatItemsSelectivo = height - 706; // Mismo Y para todos los valores de items en metodoSelectivo
+const yHeaderSelectivo = yPatItemsSelectivo + 20; // Encabezado PAT debe estar encima de los items
+drawText('PAT1', 375, yHeaderSelectivo);
+drawText('PAT2', 425, yHeaderSelectivo);
+drawText('PAT3', 475, yHeaderSelectivo);
+drawText('PAT4', 525, yHeaderSelectivo);
 
-  const xOhm = 190;
-  const xPat1 = 375;
-  const xPat2 = 425;
-  const xPat3 = 475;
-  const xPat4 = 525;
-  const xResultado = 270;
+// Columnas PAT fijas
+const xPatS1 = 375;
+const xPatS2 = 425;
+const xPatS3 = 475;
+const xPatS4 = 525;
+const patColumnsS = [xPatS1, xPatS2, xPatS3, xPatS4];
+const xOhmS = 190;
+const xResultadoS = 270;
 
+resultado.metodoSelectivo.forEach((registro, registroIndex) => {
+  // Cada registro ocupa una columna PAT
+  if (registroIndex >= 4) return; // Máximo 4 registros (PAT1-PAT4)
+
+  const xPat = patColumnsS[registroIndex]; // Columna asignada a este registro
+  
+  // Posición Y para esta fila de registro (vertical)
+  const currentY = startY - registroIndex * lineHeight * 2.2;
+  const currentYohm = startY - registroIndex * lineHeight * 4;
   const yOhmResultado = currentYohm - 205;
-  const yPat = currentY - 100;
+  const yPat = yPatItemsSelectivo; // Mismos valores Y para todas las columnas
 
+  // Dibujar PAT label, OHM y RESULTADO en la fila vertical (a la izquierda)
+  drawText(`PAT${registroIndex + 1}`, 130, yOhmResultado);
+  drawText(registro.ohm?.toString() || '', xOhmS, yOhmResultado, [0, 0, 0]);
+  
   const resultadoColor: [number, number, number] = registro.resultado === 'CUMPLE'
     ? [0, 1, 0]
     : [1, 0, 0];
+  drawText(registro.resultado?.toString() || '', xResultadoS, yOhmResultado, resultadoColor);
 
-  // Asegúrate de convertir los valores a cadenas de texto antes de pasarlos a drawText
-  drawText(registro.ohm?.toString() || '', xOhm, yOhmResultado, [0, 0, 0]);
-  drawText(registro.resultado?.toString() || '', xResultado, yOhmResultado, resultadoColor);
-  drawText(registro.pat1?.toString() || '', xPat1, yPat, [0, 0, 0]);
-  drawText(registro.pat2?.toString() || '', xPat2, yPat, [0, 0, 0]);
-  drawText(registro.pat3?.toString() || '', xPat3, yPat, [0, 0, 0]);
-  drawText(registro.pat4?.toString() || '', xPat4, yPat, [0, 0, 0]);
+  // Los items de este registro se dibujan en su columna PAT asignada
+  const sval1 = (registro as any).item1 ?? (registro as any).pat1;
+  const sval2 = (registro as any).item2 ?? (registro as any).pat2;
+  const sval3 = (registro as any).item3 ?? (registro as any).pat3;
+
+  drawText(sval1?.toString() || '', xPat, yPat, [0, 0, 0]);
+  drawText(sval2?.toString() || '', xPat, yPat - 15, [0, 0, 0]);
+  drawText(sval3?.toString() || '', xPat, yPat - 30, [0, 0, 0]);
 });
 
 
@@ -293,7 +307,11 @@ const addImageToPdf = async (
 
   try {
     // Convertir Base64 a ArrayBuffer
-    const imageBytes = base64ToArrayBuffer(base64.split(',')[1]);
+    const cleanBase64 = base64.includes(',')
+  ? base64.split(',')[1]
+  : base64;
+
+const imageBytes = base64ToArrayBuffer(cleanBase64);
 
     // Detectar el tipo de imagen y embederla en el PDF
     let image;
@@ -347,38 +365,47 @@ if (resultado.datosSpt2.firmado === true) {
     await addImageToPdf(pdfDoc, newPage, resultado.metodoSelectivo[0]?.selectivo_esquema || '', 582, height - 870, 250, 185);
 
 */
-  // Procesar las imágenes Base64 y dibujarlas en posiciones específicas
-const images = [
-  { base64: resultado.datosSpt2.imagen1, x: 150, y: height - 1260,  width: 150, height: 85 },
-  { base64: resultado.datosSpt2.imagen2, x: 350, y: height - 1260,  width: 150, height: 85},
-  { base64: resultado.datosSpt2.imagen3, x: 550, y: height - 1260, width: 150, height: 85 },
-  { base64: resultado.datosSpt2.imagen4, x: 750, y: height - 1260,  width: 150, height: 85},
-  { base64: resultado.metodoSelectivo[0]?.selectivo_esquema || '', x: 582, y: height - 870, width: 250, height: 185 },
-  { base64: resultado.metodoCaida[0]?.caida_esquema || '', x: 582, y: height - 575, width: 250, height: 185 },
-].filter(image => image.base64); // Filtrar solo imágenes con base64 válido
+  // Preparar imágenes de reporte fotográfico (preferir `reporteFotografico`, fallback a `datosSpt2.imagenX`)
+  const rf = (resultado as any).reporteFotografico || [];
+  const foto1 = rf[0]?.imagen || resultado.datosSpt2.imagen1 || '';
+  const foto2 = rf[1]?.imagen || resultado.datosSpt2.imagen2 || '';
+  const foto3 = rf[2]?.imagen || resultado.datosSpt2.imagen3 || '';
+  const foto4 = rf[3]?.imagen || resultado.datosSpt2.imagen4 || '';
 
-// Procesar y dibujar cada imagen
-for (const image of images) {
-  try {
-    const mimeType = detectImageMimeType(image.base64);
-    const imageBytes = base64ToUint8Array(image.base64);
-    const embeddedImage = await embedImage(pdfDoc, imageBytes, mimeType);
+  // Procesar las imágenes Base64 y dibujarlas en posiciones específicas (sin cambiar posiciones)
+  const images = [
+    { base64: foto1, x: 150, y: height - 1260,  width: 150, height: 85 },
+    { base64: foto2, x: 350, y: height - 1260,  width: 150, height: 85},
+    { base64: foto3, x: 550, y: height - 1260, width: 150, height: 85 },
+    { base64: foto4, x: 750, y: height - 1260,  width: 150, height: 85},
+    { base64: resultado.metodoSelectivo[0]?.selectivo_esquema || '', x: 582, y: height - 870, width: 250, height: 185 },
+    { base64: resultado.metodoCaida[0]?.caida_esquema || '', x: 582, y: height - 575, width: 250, height: 185 },
+  ].filter(image => image.base64); // Filtrar solo imágenes con base64 válido
 
-    // Usar dimensiones específicas
-    const imageDims = { width: image.width, height: image.height };
+  // Procesar y dibujar cada imagen
+  for (const image of images) {
+    try {
+      // Normalizar base64 (quitar prefijo data: si existe)
+      const cleanBase64 = image.base64.includes(',') ? image.base64.split(',')[1] : image.base64;
+      const mimeType = detectImageMimeType(cleanBase64);
+      const imageBytes = base64ToUint8Array(cleanBase64);
+      const embeddedImage = await embedImage(pdfDoc, imageBytes, mimeType);
 
-    // Dibujar la imagen
-    newPage.drawImage(embeddedImage, {
-      x: image.x,
-      y: image.y,
-      width: imageDims.width,
-      height: imageDims.height,
-    });
-  } catch (error) {
-    console.error('Error al procesar la imagen:', error);
-    continue;
+      // Usar dimensiones específicas
+      const imageDims = { width: image.width, height: image.height };
+
+      // Dibujar la imagen
+      newPage.drawImage(embeddedImage, {
+        x: image.x,
+        y: image.y,
+        width: imageDims.width,
+        height: imageDims.height,
+      });
+    } catch (error) {
+      console.error('Error al procesar la imagen:', error);
+      continue;
+    }
   }
-}
 
 
 
@@ -401,18 +428,20 @@ for (const image of images) {
   }
 
   function detectImageMimeType(base64: string): string {
-    if (base64.startsWith('/9j')) {
-    return 'image/jpeg';
-    } else if (base64.startsWith('iVBORw')) {
-    return 'image/png';
+    const cleanBase64 = base64.includes(',') ? base64.split(',')[1] : base64;
+    if (cleanBase64.startsWith('/9j')) {
+      return 'image/jpeg';
+    } else if (cleanBase64.startsWith('iVBORw')) {
+      return 'image/png';
     } else {
-    throw new Error('Formato de imagen no soportado.');
+      throw new Error('Formato de imagen no soportado.');
     }
     }
 
     // Función auxiliar: Convertir Base64 a Uint8Array
     function base64ToUint8Array(base64: string): Uint8Array {
-    const binaryString = atob(base64);
+      const cleanBase64 = base64.includes(',') ? base64.split(',')[1] : base64;
+      const binaryString = atob(cleanBase64);
     const len = binaryString.length;
     const bytes = new Uint8Array(len);
     for (let i = 0; i < len; i++) {
